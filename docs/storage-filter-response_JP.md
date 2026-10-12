@@ -1,0 +1,5 @@
+# 収納フィルター更新直後の応答
+
+set_filterはUpdateFiltersを実行するが、応答に使うStorageInfo.AcceptedTagsは検索時点のコピーだった。更新は成功しても応答だけ更新前になるため、更新後のGetTagsを再取得して返す。
+
+対応は応答の観測時点のみ。対象解決、フィルター適用、既存のadd/remove/replaceの挙動を維持する。ビルドと実機往復確認を後述する。

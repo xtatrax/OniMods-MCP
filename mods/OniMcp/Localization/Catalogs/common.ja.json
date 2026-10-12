@@ -1,0 +1,21 @@
+{
+  "errors.task_required": "task は必須です。各ツール呼び出しで、何をするかを短く説明してください。",
+  "errors.tool_name_required": "ツール名は必須です。",
+  "errors.operation_name_required": "操作名は必須です。",
+  "errors.tool_not_found": "ツールが見つかりません: {0}",
+  "errors.operation_not_found": "操作が見つかりません: {0}",
+  "errors.tool_execution": "ツール実行エラー: {0}",
+  "errors.operation_execution": "内部操作エラー: {0}",
+  "errors.coordinates": "座標引数は coordinate_control のみで使用できます。このツールでは query/target/areaId による対象指定を使用してください。",
+  "errors.validated_coordinates": "座標引数の直接指定には、検証済みの world-editor コマンドが必要です。",
+  "warnings.legacy_aliases": "非推奨: '{0}' の旧別名は {1} で削除予定です。'{0}' を直接使用してください。",
+  "warnings.legacy_alias": "非推奨: 旧ツール名・別名 '{0}' は {1} で削除予定です。代わりに '{2}' を使用してください。",
+  "modern.task.description": "この benchmark 呼び出しでは必須です。何をするかを短く説明してください。ステートレスな 2026 経路では、この文章は ONI 内に表示されません。",
+  "coordinates.orientation": "Y+（Yが増える方向）は上（地表方向）、Y-（Yが減る方向）は下（地下方向）。",
+  "coordinates.map_rows": "地図の行は上から下へ、Yが減る順に表示。",
+  "chores.urination.unknown": "排尿関連・未判別",
+  "chores.urination.incontinence": "失禁",
+  "chores.urination.toilet": "トイレへ移動／使用",
+  "chores.urination.using": "トイレを使用",
+  "chores.urination.moving": "トイレへ移動"
+}

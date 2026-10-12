@@ -1,0 +1,46 @@
+<Project>
+  <UsingTask TaskName="NextOniMcpBuildNumber" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <CounterFile ParameterType="System.String" Required="true" />
+      <Number ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Globalization" />
+      <Using Namespace="System.Threading" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        FileStream gate = null;
+        for (int attempt = 0; gate == null; attempt++) {
+            try { gate = new FileStream(CounterFile + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+            catch (IOException) { if (attempt >= 300) throw; Thread.Sleep(100); }
+        }
+        using (gate) {
+            long previous = File.Exists(CounterFile)
+                ? long.Parse(File.ReadAllText(CounterFile).Trim(), CultureInfo.InvariantCulture) : 0;
+            if (previous < 0) throw new InvalidDataException("Build counter must be nonnegative.");
+            Number = checked(previous + 1).ToString(CultureInfo.InvariantCulture);
+            string temporary = CounterFile + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try {
+                File.WriteAllText(temporary, Number + Environment.NewLine);
+                if (File.Exists(CounterFile)) File.Replace(temporary, CounterFile, null);
+                else File.Move(temporary, CounterFile);
+            } finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="AssignOniMcpBuildNumber" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
+    <NextOniMcpBuildNumber CounterFile="$(MSBuildProjectDirectory)/.build-number" Condition="'$(OniMcpBuildNumber)' == ''">
+      <Output TaskParameter="Number" PropertyName="OniMcpBuildNumber" />
+    </NextOniMcpBuildNumber>
+    <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(OniMcpBuildNumber)', '^[0-9]+$')) != 'true'" Text="OniMcpBuildNumber must contain decimal digits only." />
+    <PropertyGroup>
+      <OniMcpDisplayVersion>$(ModVersion)+build.$(OniMcpBuildNumber)</OniMcpDisplayVersion>
+      <InformationalVersion>$(OniMcpDisplayVersion)</InformationalVersion>
+      <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    </PropertyGroup>
+    <Message Importance="High" Text="OniMcp version: $(OniMcpDisplayVersion)" />
+  </Target>
+</Project>

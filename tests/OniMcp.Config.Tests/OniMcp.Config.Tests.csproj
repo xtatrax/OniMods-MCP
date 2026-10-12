@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="../../mods/OniMcp/Config/OniMcpOptions.cs" Link="OniMcpOptions.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="McpLocalization.cs" />
+    <Compile Include="../../mods/OniMcp/Server/McpHttpServerSettingsPage.cs" Link="McpHttpServerSettingsPage.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/settings.*.json">
+      <LogicalName>OniMcp.Localization.Catalogs.%(Filename)%(Extension)</LogicalName>
+      <WithCulture>false</WithCulture>
+    </EmbeddedResource>
+    <EmbeddedResource Include="localization-fixture.en.json" LogicalName="OniMcp.Localization.Catalogs.fixture.en.json" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/human-map.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <Compile Include="../../mods/OniMcp/Config/PrintingPodSelectionPolicy.cs" Link="PrintingPodSelectionPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Core/ToolCallMiddleware.cs" Link="ToolCallMiddleware.cs" />
+    <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="McpContentTypes.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="McpJsonUtil.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Stubs.cs" />
+  </ItemGroup>
+</Project>

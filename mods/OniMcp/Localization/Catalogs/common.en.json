@@ -1,0 +1,21 @@
+{
+  "errors.task_required": "task is required: describe what you are doing before every tool call.",
+  "errors.tool_name_required": "Tool name is required.",
+  "errors.operation_name_required": "Operation name is required.",
+  "errors.tool_not_found": "Tool not found: {0}",
+  "errors.operation_not_found": "Operation not found: {0}",
+  "errors.tool_execution": "Tool execution error: {0}",
+  "errors.operation_execution": "Internal operation error: {0}",
+  "errors.coordinates": "Coordinate arguments are only supported by coordinate_control; use semantic query/target/areaId inputs for this tool.",
+  "errors.validated_coordinates": "Raw coordinate arguments require a validated world-editor semantic command.",
+  "warnings.legacy_aliases": "DEPRECATED: legacy aliases for '{0}' will be removed in {1}; use '{0}' directly.",
+  "warnings.legacy_alias": "DEPRECATED: legacy tool name/alias '{0}' will be removed in {1}; use '{2}' instead.",
+  "modern.task.description": "Required for this benchmark call: briefly describe what you are doing. The stateless 2026 path does not display this text in ONI.",
+  "coordinates.orientation": "Y+ (increasing Y) is up (toward the surface); Y- (decreasing Y) is down (toward the underground).",
+  "coordinates.map_rows": "Map rows are shown from top to bottom in decreasing Y order.",
+  "chores.urination.unknown": "Urination-related: undetermined",
+  "chores.urination.incontinence": "Incontinence",
+  "chores.urination.toilet": "Moving to / using toilet",
+  "chores.urination.using": "Using toilet",
+  "chores.urination.moving": "Moving to toilet"
+}

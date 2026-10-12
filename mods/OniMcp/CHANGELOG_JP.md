@@ -1,0 +1,167 @@
+# 変更履歴
+
+`git log -- mods/OniMcp` から生成。
+
+## 2026-09-23 — 0.2.5
+
+- Workshop のパッケージを旧方式の単一 ZIP に変更しました。以前のディレクトリ形式のパッケージは Steam ではダウンロードできましたが、ONI の MOD ローダーが拒否していました。リリースには Steam の LegacyItem とゲーム内でのロードの検証が必要です。
+- セーブデータのロードによるコンテキスト変更前に受け付けてキューに入った MCP 処理を拒否し、新しくロードされたワールドへ実行されるのを防ぎます。
+- `购买 AI Token / 支持项目`（AI トークンを購入・プロジェクトを支援）のリンクが `https://api.lmm.best` を開く任意の購入用リンクであり、OniMcp のローカル認証トークンとは無関係であることを明示しました。
+
+## 2026-09-23 — 0.2.4
+
+- 従来のクライアントとの互換性を保ちながら、新しい MCP プロトコルの経路と機能検出を追加しました。
+- 処理を受け付ける前に、プロトコルのバージョン、HTTP のメディアタイプ、JSON-RPC の内容、新方式のリクエストと結果のメタデータを検証します。
+- 従来方式のセッションとキュー内タスクに上限を設け、期限切れの処理を取り除き、リクエスト間でツール呼び出しの状態を分離します。
+- サンドボックスとワールドエディターの処理の振り分け、エラー報告、リソース URI の取り扱いを強化しました。
+- 従来方式と新方式の `serverInfo` 応答で、パッケージのバージョンを一貫して報告します。
+- 設定ダイアログをコンパクトにし、編集可能なトークン欄をマスクし、任意の `https://api.lmm.best` プロジェクト支援ボタンを追加しました。自動チェックと PLib UI の呼び出し経路は検証済みですが、ゲーム内で全項目をクリックして確認する検証は未完了です。
+
+## 2026-09-12 — 0.2.3
+
+- リソースの振り分けと JSON-RPC の null 応答を修正しました。ツールの公開範囲を維持し、キャッシュしたメタデータを呼び出し側からの変更から保護します。
+- タイムアウト後にキューに残ったメインスレッドの呼び出しをキャンセルします。セッションをクリーンアップし、タスクへのアクセスを所有するセッションに限定します。
+- 設定をアトミックな置換で保存し、再読み込みに失敗した場合は既存の設定を維持します。初回読み込みの設定が無効な場合は、既定値でファイルを上書きせず、初期化を中止するようにしました。
+- 失敗したバッチ操作をエラーとして報告し、Agent Program の構造を実行前に検証し、ユーザー指定の正規表現の照合に制限を設けます。
+- 実行可能な回帰テスト一式と、共通の CI エントリーポイント `scripts/check_mods.py` を追加しました。ゲーム本体を参照する完全なビルドと Unity/Harmony の統合検証は、引き続き別のリリースチェックです。
+
+## 2026-08-23 — 0.2.2
+
+- OniMcp のソースから未使用の `using` 宣言を680件削除し、ソリューションと .NET Framework の参照アセンブリの設定を追加しました。警告をエラーとして扱う Release ビルドに成功しました。
+- MCP ツール、プロトコル、セーブデータの動作は変更していません。
+
+- [21dc419](https://github.com/LIghtJUNction/OniMods/commit/21dc419c4263437a3b2158221b6d93811ab074cd): 2026-07-17 - feat(oni-mcp): 複製人間の発言の吹き出しを追加
+- [7dd8664](https://github.com/LIghtJUNction/OniMods/commit/7dd866439b378f397c1e9db4577a72aadba200ff): 2026-07-17 - fix(oni-mcp): 完了した再起動ジョブを保持
+- [67e9f1b](https://github.com/LIghtJUNction/OniMods/commit/67e9f1b66f08d95de16abdbc33f4f90d4f776cf4): 2026-07-17 - fix(oni-mcp): 明示的な配線・配管の接続構造を保持
+- [f4bb2f8](https://github.com/LIghtJUNction/OniMods/commit/f4bb2f88eb54b3698dbcd1879448ca1583a6d3bd): 2026-07-17 - fix(oni-mcp): メインメニューでの実行時スモークテストを強化
+- [d6a0dff](https://github.com/LIghtJUNction/OniMods/commit/d6a0dffbc579520a88c3659b15f08060c88a84f4): 2026-07-17 - feat(oni-mcp): 自律的な再起動と安全なインフラ編集を追加
+- [5c633bd](https://github.com/LIghtJUNction/OniMods/commit/5c633bdce6735872ed8dc0f3aa88d6ab6b83dd2e): 2026-07-17 - chore: ワールドエディターの安全性と建築計画の検査を追加
+- [866cb5f](https://github.com/LIghtJUNction/OniMods/commit/866cb5f4b747cf4b4cb19a04a4a41f529f931c12): 2026-07-17 - chore(docs): ONI MCP スキルの参照文書と貢献者クレジットを同期
+- [ba35b7e](https://github.com/LIghtJUNction/OniMods/commit/ba35b7ebdfa9f3f781d0ab91e5bc7143f8eae241): 2026-07-12 - LIghtJUNction/codex/propose-fix-for-virtual-map-dos-vulnerability からのプルリクエスト #16 をマージ
+- [d7ea71c](https://github.com/LIghtJUNction/OniMods/commit/d7ea71c4c813aae9359f3d9f7901376b256ea95b): 2026-07-11 - fix(oni-mcp): 仮想マップの編集手順を強制
+- [8b9ccb2](https://github.com/LIghtJUNction/OniMods/commit/8b9ccb283f17abc6f76c312b4fa0a7ac8190f6c8): 2026-07-11 - fix(oni-mcp): 仮想マップのレイヤー要求を制限
+- [ce43cf4](https://github.com/LIghtJUNction/OniMods/commit/ce43cf4593d234c9061ff7e6a4efa84277f67609): 2026-07-11 - fix(oni-mcp): 仮想ワールドの編集を強化
+- [8d50350](https://github.com/LIghtJUNction/OniMods/commit/8d50350cfa01914e280301328758262e6cacde51): 2026-07-10 - refactor(oni-mcp): ツールインターフェースとソース構成を整理
+- [8ebeeac](https://github.com/LIghtJUNction/OniMods/commit/8ebeeac246effe00920d6e093b8bcf5341e11c13): 2026-07-10 - refactor(oni-mcp): 大きすぎるツールモジュールを分割
+- [67cc8c7](https://github.com/LIghtJUNction/OniMods/commit/67cc8c71289341dc94afce05b6189edbac31930d): 2026-07-10 - refactor(oni-mcp): 農業ツールの責任範囲を分割
+- [f5665a0](https://github.com/LIghtJUNction/OniMods/commit/f5665a0fd4a33676ad40a2ea1506bb5875159105): 2026-07-10 - fix(oni-mcp): 植え付け要求がない場合に CreateOrder が何もしなかったことを報告
+- [7a0dc8a](https://github.com/LIghtJUNction/OniMods/commit/7a0dc8a51948341d76b7bdbd33b54671ed3687b0): 2026-07-10 - fix(oni-mcp): query のみで指定した優先度対象名に対応し、プランターの CropSeed 搬入を照合
+- [baeca16](https://github.com/LIghtJUNction/OniMods/commit/baeca16de7f745a0e84041a07a47f13e66e53c0e): 2026-07-10 - fix(oni-mcp): set_planting の種子が無効な場合に構造化された診断を返す
+- [184438c](https://github.com/LIghtJUNction/OniMods/commit/184438c63187ea85b555227adcd1b998c01a6d84): 2026-07-10 - fix(oni-mcp): 農業の seed_catalog で CropSeed との適合性を公開
+- [ecf6fac](https://github.com/LIghtJUNction/OniMods/commit/ecf6facd49f0c4fc741a58064e60ae76158bc0fc): 2026-07-10 - fix(oni-mcp): クエリ対象の曖昧さを解消
+- [3b61080](https://github.com/LIghtJUNction/OniMods/commit/3b610805b387ac2252b73bb72a45f3247a8f2d44): 2026-07-10 - fix(oni-mcp): 中国語の優先度クエリで誤った検索セルを除外
+- [9e77113](https://github.com/LIghtJUNction/OniMods/commit/9e77113763db3afc933caaaefcb0838d18ae02cd): 2026-07-10 - fix(oni-mcp): 優先度設定と収納の詳細で中国語クエリを解決
+- [92d8958](https://github.com/LIghtJUNction/OniMods/commit/92d89581ddfd656304b6a5b304f867fdbb16c84f): 2026-07-10 - fix(windows): MOD の配置処理を強化
+- [9542edf](https://github.com/LIghtJUNction/OniMods/commit/9542edf7fea90e324bf4b2ce819522ba99c04406): 2026-07-10 - fix(windows): Dev MOD を Documents のパスへ配置し、Expand-Archive の引数を引用符で囲む
+- [9c3289c](https://github.com/LIghtJUNction/OniMods/commit/9c3289cbb10b876060404c21cfcd5613d5527ca0): 2026-07-04 - chore(oni-mcp): バージョンを 0.2.1 に更新
+- [11a5142](https://github.com/LIghtJUNction/OniMods/commit/11a5142e4e56a6fcc143218b09ef1d2d2057ac61): 2026-07-04 - docs: 0.2.0 のワールドエディターの方針を文書化
+- [cc97ac4](https://github.com/LIghtJUNction/OniMods/commit/cc97ac47c2d17fbb10839920bd6fba4537685723): 2026-07-04 - fix: 未発見の資源を食料の集計から除外
+- [ad5f8cd](https://github.com/LIghtJUNction/OniMods/commit/ad5f8cd3f4c95a1b5b98d4440d10eb74160b7e5f): 2026-07-04 - MCP の計画機能と明示的なマップ編集を改善
+- [e03162c](https://github.com/LIghtJUNction/OniMods/commit/e03162c2b80441cdd14f1a468ea4c9cbd62b5e4a): 2026-07-04 - feat(oni-mcp): インフラの配線・配管修復を案内
+- [71af043](https://github.com/LIghtJUNction/OniMods/commit/71af043142197e82a54cb23b6a4768350e7692b8): 2026-07-04 - feat(oni-mcp): 捕獲指示のプレビューに対応
+- [a3c6882](https://github.com/LIghtJUNction/OniMods/commit/a3c68825db83444e6bbed0549bf92d82609af867): 2026-07-04 - feat(oni-mcp): 周辺確認の zoom 呼び出しを構造化
+- [d41a73b](https://github.com/LIghtJUNction/OniMods/commit/d41a73be9938bccd7d5c5e24ab55b5f727d9fae4): 2026-07-04 - feat(oni-mcp): 開始時セットアップの検証を案内
+- [883a26b](https://github.com/LIghtJUNction/OniMods/commit/883a26b7e11074e4d41dd4902c98ea703d4970dd): 2026-07-04 - feat(oni-mcp): 公開バッチで開始時セットアップを検証
+- [6094ab4](https://github.com/LIghtJUNction/OniMods/commit/6094ab411bb8a8bd7eecbb536134cc6ae86524aa): 2026-07-04 - feat(oni-mcp): 自然な表現の作業指示エイリアスを公開
+- [58bddb5](https://github.com/LIghtJUNction/OniMods/commit/58bddb51d02dd9200d6a635a8338f805043ec0d5): 2026-07-04 - feat(oni-mcp): ローカライズされた部屋テンプレートの失敗を分類
+- [79e8e95](https://github.com/LIghtJUNction/OniMods/commit/79e8e954d9730c6a8747acb06b0f7ac6ca159753): 2026-07-04 - refactor(oni-mcp): 部屋テンプレートの診断を分割
+- [ffc9613](https://github.com/LIghtJUNction/OniMods/commit/ffc9613f815924c7886da9d736505b599ddbd20f): 2026-07-04 - feat(oni-mcp): 部屋テンプレートの結果を分類
+- [de7d152](https://github.com/LIghtJUNction/OniMods/commit/de7d1528f8bb57e674324abc03618e3825d08114): 2026-07-04 - refactor(oni-mcp): 現在の状態に基づくエージェントの手順を分割
+- [95bd9ac](https://github.com/LIghtJUNction/OniMods/commit/95bd9ace4f618ae2e9b0b5ec1bab7572d750e59a): 2026-07-04 - feat(oni-mcp): 開始時セットアップの手順の呼び出しを構造化
+- [140a240](https://github.com/LIghtJUNction/OniMods/commit/140a24095a1c99538e4bde86fc2c3324df4566f1): 2026-07-04 - feat(oni-mcp): 開始時セットアップの2回目の呼び出しを公開
+- [f054142](https://github.com/LIghtJUNction/OniMods/commit/f054142c8e33c537f9e7d0b4b9e5c23022453eab): 2026-07-04 - docs(oni-mcp): 作業指示の action のエイリアスを公開
+- [9127614](https://github.com/LIghtJUNction/OniMods/commit/91276148ed1681d1cb4992ed3d269933294ad1d8): 2026-07-04 - feat(oni-mcp): セルの配線・配管接続を要約
+- [97ea6c6](https://github.com/LIghtJUNction/OniMods/commit/97ea6c682ba220ae4c0584481f1a6c18108728a7): 2026-07-04 - docs(oni-mcp): セルのインフラ詳細を明確化
+- [9f389dc](https://github.com/LIghtJUNction/OniMods/commit/9f389dc52517b7745d0684092cd7f394bdf8517e): 2026-07-04 - docs(oni-mcp): インフラマップの読み方を説明
+- [e6a87ce](https://github.com/LIghtJUNction/OniMods/commit/e6a87cee821d4bc7af9dbb33ace5a2b46e7c3f00): 2026-07-04 - feat(oni-mcp): 開始時テンプレートのセルを一括検証
+- [8b0b741](https://github.com/LIghtJUNction/OniMods/commit/8b0b741df769ca90669c47309f7c44eeabee2db3): 2026-07-04 - refactor(oni-mcp): 部屋テンプレートの次の操作を分割
+- [85df22b](https://github.com/LIghtJUNction/OniMods/commit/85df22bcb74feb118b657aea7b43179fd56e9a67): 2026-07-04 - docs(oni-mcp): 開始時の中核部分の検証を明確化
+- [0bd8350](https://github.com/LIghtJUNction/OniMods/commit/0bd83503f1118dd0870497ac3cbe8787f2495cc5): 2026-07-04 - feat(oni-mcp): 作業指示の action のエイリアスを拡充
+- [8148ca6](https://github.com/LIghtJUNction/OniMods/commit/8148ca682eb73d4ebd8a631c44f60a5fcad78fde): 2026-07-04 - fix(oni-mcp): 実際の位置に基づいてセルの拾得可能アイテムを数える
+- [55046a9](https://github.com/LIghtJUNction/OniMods/commit/55046a9ef8af6e45ecb942fc1094ae775c19ee11): 2026-07-04 - docs(oni-mcp): インフラマップのポートを説明
+- [416e046](https://github.com/LIghtJUNction/OniMods/commit/416e046d7c60aca14fc0c1d55f4661fb8da0c54e): 2026-07-04 - docs(oni-mcp): 管理用の編集コマンドを明確化
+- [26e9434](https://github.com/LIghtJUNction/OniMods/commit/26e9434faf50b10d2915665bdcb67c663b1576c7): 2026-07-04 - docs(oni-mcp): 作業指示のエイリアスを文書化
+- [ab863ec](https://github.com/LIghtJUNction/OniMods/commit/ab863ec7fb0ef81f441c93d9ea697245e10bad54): 2026-07-04 - feat(oni-mcp): マップの作業指示エイリアスを拡充
+- [b1078ce](https://github.com/LIghtJUNction/OniMods/commit/b1078ce4e8a67e7c21dc7749ca4596f12a3076ed): 2026-07-04 - docs(oni-mcp): 現在の状態からの到達可能性を案内
+- [49c9a28](https://github.com/LIghtJUNction/OniMods/commit/49c9a2857e0e0bcadaff9e91927366e1a3107749): 2026-07-04 - feat(oni-mcp): 現在の状態に任意の到達可能性情報を追加
+- [d9df60d](https://github.com/LIghtJUNction/OniMods/commit/d9df60d1e58ddb7b1682244c2332a060f96d74f4): 2026-07-04 - feat(oni-mcp): セルの到達可能性の読み取りを提案
+- [67baf15](https://github.com/LIghtJUNction/OniMods/commit/67baf15530de9c6c202cab95ae6e5e1b7733fd3a): 2026-07-04 - feat(oni-mcp): セルの環境に関するヒントを追加
+- [ec43a4b](https://github.com/LIghtJUNction/OniMods/commit/ec43a4b78ce6bc33505fe782a93084e693447606): 2026-07-04 - feat(oni-mcp): ログの安定性に関する概要を公開
+- [789367f](https://github.com/LIghtJUNction/OniMods/commit/789367f3ab1e2497c4cf9b2983a2938dcbf9537e): 2026-07-04 - feat(oni-mcp): ログの診断結果を要約
+- [08364aa](https://github.com/LIghtJUNction/OniMods/commit/08364aa4ec93cdc76dc1a0400331643781d603be): 2026-07-04 - fix(oni-mcp): 開始時の洗面台の検証セルを整合
+- [4d8a81c](https://github.com/LIghtJUNction/OniMods/commit/4d8a81ce4315cc14182b0039c3fe0ce75914894e): 2026-07-04 - feat(oni-mcp): 現在の状態から同期した局所 zoom を推奨
+- [150324f](https://github.com/LIghtJUNction/OniMods/commit/150324fb4b6dbf75fed36e2e0e61f7a6de81678a): 2026-07-04 - feat(oni-mcp): セルのスナップショットに接続端の基点を表示
+- [b8d86ea](https://github.com/LIghtJUNction/OniMods/commit/b8d86eaf0bf876ddd45a80dd654ed0c07bf0389d): 2026-07-04 - feat(oni-mcp): マップ編集で捕獲トークンに対応
+- [52dc9e7](https://github.com/LIghtJUNction/OniMods/commit/52dc9e7c70db1ccd3e88c04c874ccb81d52d8f41): 2026-07-04 - docs(oni-mcp): 研究の簡易編集例を整合
+- [9158a30](https://github.com/LIghtJUNction/OniMods/commit/9158a309a2489814439331663867ac938a5d3a5d): 2026-07-04 - docs(oni-mcp): 現在の状態の簡易編集例を修正
+- [c27676f](https://github.com/LIghtJUNction/OniMods/commit/c27676f717749d0db8dba68acc5c5e2485646e65): 2026-07-04 - docs(oni-mcp): 表示範囲のスクリーンショットに関するヒントを明確化
+- [6a84a48](https://github.com/LIghtJUNction/OniMods/commit/6a84a483b531f5e9ec4e07359618750d80e53019): 2026-07-04 - feat(oni-mcp): 現在の状態で複製人間の管理を公開
+- [4abeeec](https://github.com/LIghtJUNction/OniMods/commit/4abeeec2fa0cf5370d1da7dbcc7230b5ce0fc508): 2026-07-04 - fix(oni-mcp): セルの詳細にキャッシュ済みの拾得可能アイテムを含める
+- [ac59ab2](https://github.com/LIghtJUNction/OniMods/commit/ac59ab2e6d53a1ddf7dc54294fc1669d9c649f85): 2026-07-04 - feat(oni-mcp): 複製人間の管理ファイルを追加
+- [e8bb962](https://github.com/LIghtJUNction/OniMods/commit/e8bb962273cf38eac08bad007af08916398ab821): 2026-07-04 - feat(oni-mcp): 片付け指示に拾得のエイリアスを受け付ける
+- [f41c9f0](https://github.com/LIghtJUNction/OniMods/commit/f41c9f09bc4c92b81b2c32a82ff83b406fe40c01): 2026-07-04 - refactor(oni-mcp): 配線・配管の未接続の隣接情報を扱う補助処理を分割
+- [3029c97](https://github.com/LIghtJUNction/OniMods/commit/3029c97d4e019f57e45b2981e869e1eb7cfb6033): 2026-07-04 - feat(oni-mcp): セルのスナップショットに未接続の隣接インフラを表示
+- [ecc2783](https://github.com/LIghtJUNction/OniMods/commit/ecc278351c91ab630b8970b0803bab5d5e23700f): 2026-07-04 - feat(oni-mcp): 隣接している未接続の配線・配管を検出
+- [1d97c8c](https://github.com/LIghtJUNction/OniMods/commit/1d97c8cd0bdd491ac140cdcea5058197ee6d94e6): 2026-07-04 - refactor(oni-mcp): 現在の状態のビュー案内を分割
+- [0f2cdf2](https://github.com/LIghtJUNction/OniMods/commit/0f2cdf246e122357be05c5cc3f92376232052cf5): 2026-07-04 - feat(oni-mcp): 表示範囲のスクリーンショット手順を公開
+- [56e32cc](https://github.com/LIghtJUNction/OniMods/commit/56e32ccf962c99ae9a0567d0b3f5ec77f8c0c36a): 2026-07-04 - feat(oni-mcp): 中国語の作業指示から action を推定
+- [c77d5d0](https://github.com/LIghtJUNction/OniMods/commit/c77d5d0a27af689e3abadb0ba9b1548cff0a2a9f): 2026-07-04 - feat(oni-mcp): 周辺確認の計画を拡充
+- [086274d](https://github.com/LIghtJUNction/OniMods/commit/086274dbc2077d2f502ebf3565537e9db495cf2f): 2026-07-04 - feat(oni-mcp): 部屋テンプレートの中核セルを報告
+- [94330ac](https://github.com/LIghtJUNction/OniMods/commit/94330acfbc5c1b385fea286d9725b638dc09f8ac): 2026-07-04 - feat(oni-mcp): セルの拾得情報を拡充
+- [4b31c74](https://github.com/LIghtJUNction/OniMods/commit/4b31c74494a74d76c21858253c605b2427d3843b): 2026-07-04 - feat(oni-mcp): インフラのブリッジを一覧化
+- [4634dd9](https://github.com/LIghtJUNction/OniMods/commit/4634dd9b5aab337c58473575ae2e1972f187c4d1): 2026-07-04 - feat(oni-mcp): 管理ファイルの索引を追加
+- [fb388d2](https://github.com/LIghtJUNction/OniMods/commit/fb388d20446d8e230fe956d00defb0e0671268ff): 2026-07-04 - feat(oni-mcp): セルの温度の快適範囲を追加
+- [fba0fe1](https://github.com/LIghtJUNction/OniMods/commit/fba0fe17a2340fcc6aed3211aaa3511b8452a78b): 2026-07-04 - feat(oni-mcp): 中国語の作業指示を受け付ける
+- [d06fe1b](https://github.com/LIghtJUNction/OniMods/commit/d06fe1bc2ede63f29eab8573c491ed9e05d510e2): 2026-07-04 - feat(oni-mcp): 自動化の接続端の方向を表示
+- [9530329](https://github.com/LIghtJUNction/OniMods/commit/95303293ec8ce1477b2dd76ea2c8994716caab67): 2026-07-04 - feat(oni-mcp): インフラの接続端の方向を表示
+- [e3c8fbf](https://github.com/LIghtJUNction/OniMods/commit/e3c8fbfa790d95c5a281d6b655543583af9d871c): 2026-07-04 - feat(oni-mcp): 開始時テンプレートの検証セルを公開
+- [66f23c1](https://github.com/LIghtJUNction/OniMods/commit/66f23c1791b44fc612011e44f84551ed5e7d6d37): 2026-07-04 - docs(oni-mcp): 操作の省略記法のガイドを追加
+- [59960ec](https://github.com/LIghtJUNction/OniMods/commit/59960ecc5bc4fae05899e422921232ab2a085c43): 2026-07-04 - feat(oni-mcp): セルの拾得情報を拡充
+- [bc5b076](https://github.com/LIghtJUNction/OniMods/commit/bc5b0763d2b140dd8c105cc24ac19d6ce15c1c40): 2026-07-04 - feat(oni-mcp): インフラ表示の読み取りを同期
+- [538e654](https://github.com/LIghtJUNction/OniMods/commit/538e6549702e2794d21962aa0576f0f281c6e72f): 2026-07-04 - feat(oni-mcp): インフラのブリッジ詳細を明確化
+- [9bd2f78](https://github.com/LIghtJUNction/OniMods/commit/9bd2f78f86e848d79f5984a74559a2119d7ed18f): 2026-07-04 - feat(oni-mcp): 現在の状態を取得する入り口を拡充
+- [2fa0d4a](https://github.com/LIghtJUNction/OniMods/commit/2fa0d4adfd89025e4ae820c1a3cb62eef6109bc3): 2026-07-04 - refactor(oni-mcp): コンテンツのプロトコル型を分割
+- [c811c5a](https://github.com/LIghtJUNction/OniMods/commit/c811c5ac28886c9a2ed142be1099aaf3e9acebbd): 2026-07-04 - refactor(oni-mcp): リソース登録のカタログを分割
+- [8aff82a](https://github.com/LIghtJUNction/OniMods/commit/8aff82a264a6740025b1747c079a4b0d341f110d): 2026-07-04 - feat(oni-mcp): ワールドエディターのインターフェースを整理
+- [3398c3e](https://github.com/LIghtJUNction/OniMods/commit/3398c3efe7a8ac363da47bc891e4c169214f2fac): 2026-07-03 - 計画プロンプトの UI を削除
+- [4a3c1a0](https://github.com/LIghtJUNction/OniMods/commit/4a3c1a0ea2e1583a78537617f06695f57f6ddeeb): 2026-07-02 - 更新
+- [aa7e97c](https://github.com/LIghtJUNction/OniMods/commit/aa7e97cc8372f2e1a0836053d0a6d89d092d2b36): 2026-07-02 - fix: server_control の再帰的な Program 呼び出しを保護
+- [449477a](https://github.com/LIghtJUNction/OniMods/commit/449477af73b6b03b72b26656239ccf30a874f5f9): 2026-07-02 - fix: 配線・配管の自動接続の経路展開を制限
+- [af0f548](https://github.com/LIghtJUNction/OniMods/commit/af0f5480fa69d2cde00b59ca39160bd44ea3e705): 2026-07-02 - ONI MCP の自律的な計画機能を改善
+- [5cbca21](https://github.com/LIghtJUNction/OniMods/commit/5cbca2128429f40300d56b52490345248cb75d4e): 2026-07-02 - 再帰保護の修正へ main をマージ
+- [efa230b](https://github.com/LIghtJUNction/OniMods/commit/efa230b73aeb15d3ab3905d67aa8d995d049e6dc): 2026-07-02 - LIghtJUNction/codex/fix-unauthenticated-mcp-server-vulnerability からのプルリクエスト #6 をマージ
+- [691cb2c](https://github.com/LIghtJUNction/OniMods/commit/691cb2c28964ad797f167acc12ef8c35fe9aa76a): 2026-07-02 - MCP の CORS 処理を改善
+- [e305f44](https://github.com/LIghtJUNction/OniMods/commit/e305f442e14fa7b142e87e3b137c3aad4152991c): 2026-07-02 - 経路の最大セル数チェックをリファクタリング
+- [11a675f](https://github.com/LIghtJUNction/OniMods/commit/11a675f63019600667cbef05361bf6d0a6bd723e): 2026-07-02 - 経路展開の修正へ main をマージ
+- [1287f19](https://github.com/LIghtJUNction/OniMods/commit/1287f197fc7c77986857e52dda47a1525e319721): 2026-07-02 - LIghtJUNction/codex/propose-fix-for-agent-program-tool-vulnerability からのプルリクエスト #4 をマージ
+- [b692a93](https://github.com/LIghtJUNction/OniMods/commit/b692a9394fb975e83669325fe465a7bfcc8525e3): 2026-07-02 - LIghtJUNction/codex/fix-auto-connect-path-dos-vulnerability からのプルリクエスト #3 をマージ
+- [5fec124](https://github.com/LIghtJUNction/OniMods/commit/5fec1248fc8c41ec28494c2828be5fee065a48e5): 2026-07-02 - server_control の再帰実行を保護
+- [1ac998f](https://github.com/LIghtJUNction/OniMods/commit/1ac998f02e61403ddbe5bc744b78d417b6041563): 2026-07-02 - MCP HTTP の制御インターフェースのセキュリティを強化
+- [fa6ef03](https://github.com/LIghtJUNction/OniMods/commit/fa6ef033575827c1127c3fc9a31e75591e63c95b): 2026-07-02 - 配線・配管の経路展開を制限
+- [bf02a27](https://github.com/LIghtJUNction/OniMods/commit/bf02a2755d1e19860d2743cd2a0a5c38351c2198): 2026-07-02 - Agent Program の実行予算を制限
+- [3059424](https://github.com/LIghtJUNction/OniMods/commit/3059424ffd750a01d4cd931fb150a863980aa10c): 2026-07-02 - fix: 配線・配管の自動接続の経路展開を制限
+- [bc9e80e](https://github.com/LIghtJUNction/OniMods/commit/bc9e80ec7648bdd53dea58766eded82a8b0e7ff9): 2026-07-02 - ONI の生存計画とライブコメントのスキルを改善
+- [b2f8db1](https://github.com/LIghtJUNction/OniMods/commit/b2f8db19c857a8f90e72d33f0120d02352caf52b): 2026-07-02 - feat: ONI MCP ツールの計画用制御を拡充
+- [cd7eb2a](https://github.com/LIghtJUNction/OniMods/commit/cd7eb2af5c6210094663702652c67b203eae70e6): 2026-07-01 - ONI MCP のツールインターフェースとスケジュールの命名をリファクタリング
+- [cc530c5](https://github.com/LIghtJUNction/OniMods/commit/cc530c5ddd92d3b78da7e174a09220e5656eb340): 2026-07-01 - ONI MCP のツールインターフェースをリファクタリング
+- [d4bedd5](https://github.com/LIghtJUNction/OniMods/commit/d4bedd54c185af90f90b91da70c975ca2f49f95e): 2026-06-18 - OniMcp 0.1.8 をリリース
+- [e1b5b08](https://github.com/LIghtJUNction/OniMods/commit/e1b5b08ea6cd79c2803c7031064362d64dd4123e): 2026-06-06 - feat: 座標付きスクリーンショットと配線・配管検索を追加
+- [406a8a9](https://github.com/LIghtJUNction/OniMods/commit/406a8a9d9ce93b963f37e50740c9054aeb2713f4): 2026-06-06 - fix: ストレスの読み取りとスクリーンショットへのアクセスを改善
+- [ad0789f](https://github.com/LIghtJUNction/OniMods/commit/ad0789f357c7a38b8f305c487210d2e63a115ab5): 2026-05-26 - 同期
+- [ea1df0f](https://github.com/LIghtJUNction/OniMods/commit/ea1df0fff1c8bdf2dd2e1b962624205852b94304): 2026-05-26 - 同期
+- [cf358f7](https://github.com/LIghtJUNction/OniMods/commit/cf358f70baef88fcec8435d37f6c26afa1741f97): 2026-05-25 - ONI MCP ツールカタログのトークン負荷を削減
+- [5fc2ba6](https://github.com/LIghtJUNction/OniMods/commit/5fc2ba63d8da3dcf776547e55b0781c4c2929435): 2026-05-25 - v0.1.5
+- [f5f41f5](https://github.com/LIghtJUNction/OniMods/commit/f5f41f5e0efae35a213bc010a7b2f394208d8faa): 2026-05-25 - v0.1.4
+- [0705731](https://github.com/LIghtJUNction/OniMods/commit/070573151f30a0acb1581f293143023235882e32): 2026-05-25 - バージョンを 0.1.4 に更新
+- [e2cf55f](https://github.com/LIghtJUNction/OniMods/commit/e2cf55ff09a064c6811c26ecf7b9980f642fe8ba): 2026-05-25 - v0.1.4
+- [f752700](https://github.com/LIghtJUNction/OniMods/commit/f752700a4c15cc10cdde84dfda0f0d3eb423bc74): 2026-05-24 - README_EN.md を更新
+- [bd669f1](https://github.com/LIghtJUNction/OniMods/commit/bd669f132f5cd27dddf5f9b2e6aa4732d1219a05): 2026-05-24 - README.md を更新
+- [87c12ed](https://github.com/LIghtJUNction/OniMods/commit/87c12edbf30954eedc046c8ba1fa5ecd44718b1e): 2026-05-24 - v0.1.3
+- [57c3df2](https://github.com/LIghtJUNction/OniMods/commit/57c3df2475baa9809270ef25b5935e82e0c889ca): 2026-05-24 - スキル
+- [e2567c0](https://github.com/LIghtJUNction/OniMods/commit/e2567c055c2dfaf3b10ccfe0f4cefa97bfb6d3f6): 2026-05-24 - 初期化応答を修正
+- [ee87d78](https://github.com/LIghtJUNction/OniMods/commit/ee87d78fd3afd3223895c29a6089dda087a361b1): 2026-05-24 - ドキュメント
+- [db1f958](https://github.com/LIghtJUNction/OniMods/commit/db1f95854a81700bcdbd84953d8f8e802928b27b): 2026-05-24 - ドキュメント
+- [1c796ad](https://github.com/LIghtJUNction/OniMods/commit/1c796ad357deac939554746488fe834d0f7f8d8b): 2026-05-24 - revert: --desc-file を削除し、手動アップロードへ切り替え
+- [309b855](https://github.com/LIghtJUNction/OniMods/commit/309b85533f69b1ea0ab309d39be295f04dd9b577): 2026-05-24 - docs: 英語 README（README_EN.md）を追加し、コピーするよう csproj を更新
+- [10986f3](https://github.com/LIghtJUNction/OniMods/commit/10986f33360668ece8bbf1e03c950614faf0b9d6): 2026-05-24 - docs: README にクレジット（gpt5.5、Kimi k2.6、LIghtJUNction）を追加
+- [7f29dd8](https://github.com/LIghtJUNction/OniMods/commit/7f29dd8cf27534c87f8e21f36261418f32ea9d89): 2026-05-24 - reinit: LFS 追跡付きの MCP サーバー・ツール・ドキュメント・スキル

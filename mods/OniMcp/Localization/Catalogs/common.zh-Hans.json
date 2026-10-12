@@ -1,0 +1,21 @@
+{
+  "errors.task_required": "必须提供 task：每次调用工具前，请简要说明要执行的操作。",
+  "errors.tool_name_required": "必须提供工具名称。",
+  "errors.operation_name_required": "必须提供操作名称。",
+  "errors.tool_not_found": "未找到工具：{0}",
+  "errors.operation_not_found": "未找到操作：{0}",
+  "errors.tool_execution": "工具执行错误：{0}",
+  "errors.operation_execution": "内部操作错误：{0}",
+  "errors.coordinates": "只有 coordinate_control 支持坐标参数；请通过 query/target/areaId 为此工具指定目标。",
+  "errors.validated_coordinates": "直接传入坐标参数需要经过验证的 world-editor 语义命令。",
+  "warnings.legacy_aliases": "已弃用：'{0}' 的旧别名将在 {1} 中移除；请直接使用 '{0}'。",
+  "warnings.legacy_alias": "已弃用：旧工具名或别名 '{0}' 将在 {1} 中移除；请改用 '{2}'。",
+  "modern.task.description": "此 benchmark 调用必须提供：简要说明要执行的操作。无状态的 2026 路径不会在 ONI 中显示此文本。",
+  "coordinates.orientation": "Y+（Y 增大）是上方（朝向地表）；Y-（Y 减小）是下方（朝向地下）。",
+  "coordinates.map_rows": "地图行从上到下按 Y 递减顺序显示。",
+  "chores.urination.unknown": "排尿相关・尚未判定",
+  "chores.urination.incontinence": "失禁",
+  "chores.urination.toilet": "前往／使用厕所",
+  "chores.urination.using": "使用厕所",
+  "chores.urination.moving": "前往厕所"
+}

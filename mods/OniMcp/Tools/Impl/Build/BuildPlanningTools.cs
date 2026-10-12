@@ -1,0 +1,353 @@
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using OniMcp.Core;
+using UnityEngine;
+
+namespace OniMcp.Tools
+{
+    public static partial class BuildPlanningTools
+    {
+        private static JObject ForwardArgs(JObject args)
+        {
+            var forwardArgs = (JObject)args.DeepClone();
+            forwardArgs.Remove("action");
+            return forwardArgs;
+        }
+
+        private static Dictionary<string, McpToolParameter> BuildPlanningControlParams()
+        {
+            var parameters = new Dictionary<string, McpToolParameter>
+            {
+                ["action"] = new McpToolParameter
+                {
+                    Type = "string",
+                    Description = "操作: parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/build_area/room_template",
+                    Required = true,
+                    EnumValues = new List<string> { "parse_plan", "search_defs", "materials", "preview", "placement_candidates", "auto_connect", "repair_line", "connect_line", "build_area", "room_template" }
+                }
+            };
+
+            MergeParameters(parameters, ParseBuildPlan().Parameters);
+            MergeParameters(parameters, SearchBuildables().Parameters);
+            MergeParameters(parameters, ListBuildMaterials().Parameters);
+            MergeParameters(parameters, PreviewBuild().Parameters);
+            MergeParameters(parameters, FindPlacementCandidates().Parameters);
+            MergeParameters(parameters, AutoConnectUtility().Parameters);
+            parameters["direction"] = new McpToolParameter { Type = "string", Description = "repair_line: missing edge direction right/left/up/down or R/L/U/D/右/左/上/下 from x/y.", Required = false };
+            parameters["dir"] = new McpToolParameter { Type = "string", Description = "Alias of direction for repair_line.", Required = false };
+            parameters["steps"] = new McpToolParameter { Type = "integer", Description = "repair_line: cells to connect in direction, default 1.", Required = false };
+            MergeParameters(parameters, BuildArea().Parameters);
+ MergeParameters(parameters, RoomTemplatePlan().Parameters);
+            return parameters;
+        }
+
+        private static void MergeParameters(Dictionary<string, McpToolParameter> target, Dictionary<string, McpToolParameter> source)
+        {
+            if (source == null)
+                return;
+            foreach (var item in source)
+            {
+                if (target.ContainsKey(item.Key))
+                    continue;
+                target[item.Key] = CopyOptionalParameter(item.Value);
+            }
+        }
+
+        private static McpToolParameter CopyOptionalParameter(McpToolParameter source)
+        {
+            return new McpToolParameter
+            {
+                Type = source.Type,
+                Description = source.Description,
+                Required = false,
+                EnumValues = source.EnumValues == null ? null : new List<string>(source.EnumValues)
+            };
+        }
+
+        public static McpTool ControlBuildPlanning()
+        {
+            return new McpTool
+            {
+                Name = "build_planning_control",
+                Group = "buildings",
+                Mode = "execute",
+                Risk = "medium",
+                Aliases = new List<string> { "buildings_planning_control", "build_control" },
+                Tags = new List<string> { "buildings", "materials", "preview", "placement", "utility", "建造", "材料", "预检", "候选" },
+ Description = "建築計画の集約ツール: action=search_defs/materials/preview/placement_candidates/auto_connect/build_area/room_template",
+                Parameters = BuildPlanningControlParams(),
+                Handler = args =>
+                {
+                    string action = (args["action"]?.ToString() ?? string.Empty).Trim().ToLowerInvariant();
+                    var forwardArgs = ForwardArgs(args);
+                    switch (action)
+                {
+                    case "parse_plan":
+                    case "parse_sequence":
+                    case "parse":
+                    case "plan_text":
+                        return ParseBuildPlan().Handler(forwardArgs);
+                    case "search_defs":
+                        case "search":
+                        case "defs":
+                            return SearchBuildables().Handler(forwardArgs);
+                        case "materials":
+                        case "list_materials":
+                            return ListBuildMaterials().Handler(forwardArgs);
+                        case "preview":
+                        case "validate":
+                            return PreviewBuild().Handler(forwardArgs);
+                        case "placement_candidates":
+                        case "candidates":
+                        case "anchors":
+                            return FindPlacementCandidates().Handler(forwardArgs);
+                    case "auto_connect":
+                    case "utility_auto_connect":
+                    case "connect":
+                        return AutoConnectUtility().Handler(forwardArgs);
+                    case "repair_line":
+                    case "connect_line":
+                    case "fix_line":
+                    case "repair_wire":
+                    case "connect_wire":
+                    case "接线":
+                    case "修线":
+                        return RepairUtilityLine(forwardArgs);
+ case "build_area":
+ case "area":
+ case "batch_build":
+ return BuildArea().Handler(forwardArgs);
+ case "room_template":
+ case "room_plan":
+ case "quick_room":
+ return RoomTemplatePlan().Handler(forwardArgs);
+                    default:
+                        return CallToolResult.Error("action must be parse_plan, search_defs, materials, preview, placement_candidates, auto_connect, repair_line, build_area, or room_template");
+                    }
+                }
+            };
+        }
+
+
+        private static string DefaultUtilityPrefab(string type)
+        {
+            switch ((type ?? "wire").Trim().ToLowerInvariant())
+            {
+                case "liquid":
+                case "water":
+                case "pipe":
+                    return "LiquidConduit";
+                case "gas":
+                    return "GasConduit";
+                case "solid":
+                case "conveyor":
+                case "shipping":
+                    return "SolidConduit";
+                case "logic":
+                case "automation":
+                case "signal":
+                    return "LogicWire";
+                default:
+                    return "Wire";
+            }
+        }
+
+        private sealed class PlacementDetails
+        {
+            public string PrefabId;
+            public int AnchorX;
+            public int AnchorY;
+            public int WorldId;
+            public Orientation Orientation;
+            public int Width;
+            public int Height;
+            public int OriginX, OriginY, OriginCell;
+            public bool GeometryAvailable;
+            public string GeometryError;
+            public bool? FillsBounds;
+            public Vector3 PlacementPoint;
+            public List<FootprintCell> Footprint = new List<FootprintCell>();
+
+            public Dictionary<string, object> ToDictionary()
+            {
+                return new Dictionary<string, object>
+                {
+                    ["prefabId"] = PrefabId,
+                    ["anchor"] = "lowerLeftCell",
+                    ["anchorX"] = AnchorX,
+                    ["anchorY"] = AnchorY,
+                    ["worldId"] = WorldId,
+                    ["orientation"] = Orientation.ToString(),
+                    ["width"] = Width,
+                    ["height"] = Height,
+                    ["footprintCells"] = GeometryAvailable ? (object)Footprint.Count : null,
+                    ["geometryAvailable"] = GeometryAvailable, ["geometryError"] = GeometryError,
+                    ["geometrySource"] = NativeBuildingFootprint.NativeSource,
+                    ["origin"] = new[] { OriginX, OriginY }, ["originCell"] = OriginCell,
+                    ["bottomLeft"] = GeometryAvailable ? new[] { AnchorX, AnchorY } : null,
+                    ["fillsBounds"] = GeometryAvailable ? FillsBounds : null,
+                    ["placementPoint"] = new
+                    {
+                        x = Math.Round(PlacementPoint.x, 3),
+                        y = Math.Round(PlacementPoint.y, 3),
+                        z = Math.Round(PlacementPoint.z, 3)
+                    },
+                    ["operationGuide"] = BuildingOperationGuidance.MapPlacement(PrefabId),
+                    ["guidance"] = BuildingOperationGuidance.Placement
+                };
+            }
+        }
+
+        private sealed class FootprintCell
+        {
+            public int X;
+            public int Y;
+            public int Cell;
+            public int WorldId;
+            public bool Valid;
+            public bool Visible;
+            public bool InWorld;
+
+            public Dictionary<string, object> ToDictionary()
+            {
+                return new Dictionary<string, object>
+                {
+                    ["x"] = X,
+                    ["y"] = Y,
+                    ["cell"] = Cell,
+                    ["worldId"] = WorldId,
+                    ["valid"] = Valid,
+                    ["visible"] = Visible,
+                    ["inWorld"] = InWorld,
+                    ["reasonCode"] = Valid && Visible && InWorld ? null : (!Valid ? "invalid_cell" : (!Visible ? "unrevealed" : "wrong_world"))
+                };
+            }
+        }
+
+        private sealed class FootprintValidation
+        {
+            public bool Valid;
+            public string Error;
+            public List<Dictionary<string, object>> InvalidCells = new List<Dictionary<string, object>>();
+            public List<Dictionary<string, object>> Obstructions = new List<Dictionary<string, object>>();
+
+            public static FootprintValidation Success()
+            {
+                return new FootprintValidation { Valid = true };
+            }
+
+            public static FootprintValidation Invalid(string error, List<Dictionary<string, object>> invalidCells, List<Dictionary<string, object>> obstructions = null)
+            {
+                return new FootprintValidation
+                {
+                    Valid = false,
+                    Error = error,
+                    InvalidCells = invalidCells ?? new List<Dictionary<string, object>>(),
+                    Obstructions = obstructions ?? new List<Dictionary<string, object>>()
+                };
+            }
+
+            public Dictionary<string, object> ToDictionary(PlacementDetails placement)
+            {
+                return new Dictionary<string, object>
+                {
+                    ["valid"] = Valid,
+                    ["error"] = Error,
+                    ["placement"] = placement.ToDictionary(),
+                    ["invalidCells"] = InvalidCells,
+                    ["obstructions"] = Obstructions
+                };
+            }
+        }
+
+        private sealed class BuildDragPolicyResult
+        {
+            public bool Allowed;
+            public string PrefabId;
+            public int Width;
+            public int Height;
+            public bool SingleCell;
+            public bool AllowFootprintDrag;
+            public string Reason;
+
+            public static BuildDragPolicyResult Allow(string prefabId, int width, int height, bool singleCell, bool allowFootprintDrag)
+            {
+                return new BuildDragPolicyResult
+                {
+                    Allowed = true,
+                    PrefabId = prefabId,
+                    Width = width,
+                    Height = height,
+                    SingleCell = singleCell,
+                    AllowFootprintDrag = allowFootprintDrag,
+                    Reason = singleCell ? "single-cell footprint" : "allowFootprintDrag=true"
+                };
+            }
+
+            public static BuildDragPolicyResult Reject(string prefabId, int width, int height)
+            {
+                return new BuildDragPolicyResult
+                {
+                    Allowed = false,
+                    PrefabId = prefabId,
+                    Width = width,
+                    Height = height,
+                    SingleCell = false,
+                    AllowFootprintDrag = false,
+                    Reason = "Multi-cell buildings must be placed one anchor click at a time to avoid shifted furniture or machines."
+                };
+            }
+
+            public Dictionary<string, object> ToDictionary()
+            {
+                return new Dictionary<string, object>
+                {
+                    ["allowed"] = Allowed,
+                    ["prefabId"] = PrefabId,
+                    ["width"] = Width,
+                    ["height"] = Height,
+                    ["singleCell"] = SingleCell,
+                    ["allowFootprintDrag"] = AllowFootprintDrag,
+                    ["reason"] = Reason,
+                    ["next"] = Allowed ? null : BuildingOperationGuidance.Placement
+                };
+            }
+        }
+
+        private sealed class AutoDigContext
+        {
+            private readonly HashSet<int> reservedCells = new HashSet<int>();
+            private int distance;
+
+            public int MaxCells;
+            public int Marked;
+            public bool LimitReached;
+
+            public static AutoDigContext FromArgs(JObject args)
+            {
+                return new AutoDigContext
+                {
+                    MaxCells = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "maxAutoDigCells") ?? 100, 500))
+                };
+            }
+
+            public bool TryReserve(int cell)
+            {
+                if (!reservedCells.Add(cell))
+                    return false;
+                if (Marked >= MaxCells)
+                {
+                    LimitReached = true;
+                    return false;
+                }
+                return true;
+            }
+
+            public int NextDistance()
+            {
+                return distance++;
+            }
+        }
+    }
+}

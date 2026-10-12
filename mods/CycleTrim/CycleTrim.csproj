@@ -1,0 +1,91 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>CycleTrim</AssemblyName>
+    <RootNamespace>CycleTrim</RootNamespace>
+    <LangVersion>7.3</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <ModTitle>CycleTrim</ModTitle>
+    <ModDescription>Reduces redundant smart reservoir signals, streamlines fetch pickup candidates, limits expensive pickup/chore refreshes for active duplicants only, and throttles stationary-critter navigation probing; IdleChore, idle duplicants, and explicit priority updates retain the vanilla immediate path. / スマート液体貯蔵庫・気体貯蔵庫の重複信号を減らし、拾得候補の選択を最適化します。実際に作業中の複製人間に限って負荷の高い拾得・作業情報の更新を抑え、静止中の動物の経路探索プローブ呼び出し頻度も制限します。IdleChore、待機中の複製人間、明示的な優先度更新は、いずれもバニラの即時処理を維持します。</ModDescription>
+    <ModStaticID>LIghtJUNction.CycleTrim</ModStaticID>
+    <ModVersion>0.3.2</ModVersion>
+    <ModApiVersion>2</ModApiVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>$(OniManagedPath)/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(OniManagedPath)/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(OniManagedPath)/Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(OniManagedPath)/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PreviewImage Include="$(MSBuildProjectDirectory)/preview.png" Condition="Exists('$(MSBuildProjectDirectory)/preview.png')" />
+    <PreviewImage Include="$(MSBuildProjectDirectory)/preview.jpg" Condition="Exists('$(MSBuildProjectDirectory)/preview.jpg')" />
+  </ItemGroup>
+
+  <Target Name="GenerateModFiles" AfterTargets="Build">
+    <WriteLinesToFile File="$(OutputPath)mod.yaml" Lines="title: &quot;$(ModTitle)&quot;;description: &quot;$(ModDescription)&quot;;staticID: &quot;$(ModStaticID)&quot;" Overwrite="true" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="supportedContent: ALL" Overwrite="true" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="minimumSupportedBuild: 525812" Overwrite="false" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="APIVersion: $(ModApiVersion)" Overwrite="false" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="version: &quot;$(ModVersion)&quot;" Overwrite="false" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/docs/steam-description-zh.md" DestinationFolder="$(OutputPath)docs" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/docs/steam-description-zh.md')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/docs/steam-description-en.md" DestinationFolder="$(OutputPath)docs" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/docs/steam-description-en.md')" />
+    <Copy SourceFiles="@(PreviewImage)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" Condition="'@(PreviewImage)' != ''" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/README.md" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="PackageMod" AfterTargets="GenerateModFiles">
+    <PropertyGroup>
+      <DistPath>$(MSBuildProjectDirectory)/../../dist/</DistPath>
+      <DistModPath>$(DistPath)$(AssemblyName)/</DistModPath>
+      <ZipFile>$(DistPath)$(AssemblyName).zip</ZipFile>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(DistPath)" />
+    <RemoveDir Directories="$(DistModPath)" />
+    <Delete Files="$(ZipFile)" />
+    <Delete Files="$(DistPath)$(AssemblyName)-src.tar.gz" />
+
+    <ItemGroup>
+      <ModOutputFiles Include="$(OutputPath)$(AssemblyName).dll" />
+      <ModOutputFiles Include="$(OutputPath)mod.yaml" />
+      <ModOutputFiles Include="$(OutputPath)mod_info.yaml" />
+      <ModOutputFiles Include="$(OutputPath)preview.png" Condition="Exists('$(OutputPath)preview.png')" />
+      <ModOutputFiles Include="$(OutputPath)preview.jpg" Condition="Exists('$(OutputPath)preview.jpg')" />
+      <ModOutputFiles Include="$(OutputPath)README.md" />
+      <ModOutputFiles Include="$(OutputPath)docs/steam-description-zh.md" Condition="Exists('$(OutputPath)docs/steam-description-zh.md')" />
+      <ModOutputFiles Include="$(OutputPath)docs/steam-description-en.md" Condition="Exists('$(OutputPath)docs/steam-description-en.md')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModOutputFiles)" DestinationFolder="$(DistModPath)" />
+    <ZipDirectory SourceDirectory="$(DistModPath)" DestinationFile="$(ZipFile)" Overwrite="true" />
+    <Exec Command="tar -czf &quot;$(DistPath)$(AssemblyName)-src.tar.gz&quot; -C &quot;$(MSBuildProjectDirectory)&quot; --exclude=bin --exclude=obj --exclude=dist ." />
+
+    <Message Text="Packaged mod -&gt; $(ZipFile)" Importance="high" />
+    <Message Text="Packaged source -&gt; $(DistPath)$(AssemblyName)-src.tar.gz" Importance="high" />
+  </Target>
+
+</Project>

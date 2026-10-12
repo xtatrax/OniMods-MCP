@@ -1,0 +1,5 @@
+{
+  "test.englishOnly": "English fallback {0}",
+  "settings.fixture.literalBraces": "Literal {value}, {0}, and <tag>",
+  "test.html": "<script>&\"'"
+}

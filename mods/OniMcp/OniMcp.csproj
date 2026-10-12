@@ -1,0 +1,204 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ========================================
+    ONI MCP Server Mod
+    ========================================
+    Oxygen Not Included のゲーム操作を Model Context Protocol サービスとして提供する
+    Streamable HTTP トランスポートを使用する
+  -->
+
+  <Import Project="BuildNumber.targets" />
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>OniMcp</AssemblyName>
+    <RootNamespace>OniMcp</RootNamespace>
+    <LangVersion>7.3</LangVersion>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- MOD のメタデータ -->
+    <ModTitle>ONI MCP Server (Public Fork)</ModTitle>
+    <ModDescription>Independent experimental fork for public distribution of LIghtJUNction/OniMods. Report issues to the distributor of this fork. ONI MCP Server - /mcp/ exposes the Model Context Protocol endpoint. The root path shows a virtual save and world file browser for feedback.</ModDescription>
+    <ModStaticID>PublicFork.OniMcp</ModStaticID>
+    <ModVersion>0.2.5</ModVersion>
+    <Version>$(ModVersion)</Version>
+
+    <!-- mod_info.yaml のメタデータ -->
+    <ModApiVersion>2</ModApiVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="com.rlabrecque.steamworks.net">
+      <HintPath>$(OniManagedPath)/com.rlabrecque.steamworks.net.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Browser/human-map.*" LogicalName="OniMcp.Browser.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
+
+  <!--
+    ゲームの DLL を参照する。
+    $(OniManagedPath) はルートの Directory.Build.props で設定する。
+    Private=false により、これらの DLL が出力先へコピーされないようにする
+  -->
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>$(OniManagedPath)/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(OniManagedPath)/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(OniManagedPath)/Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(OniManagedPath)/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(OniManagedPath)/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(OniManagedPath)/Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.ScreenCaptureModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Newtonsoft.Json はゲームに同梱されているため、結合しない -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(OniManagedPath)/Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- プロジェクトのルートにあるプレビュー画像を出力先へ自動でコピーする -->
+  <ItemGroup>
+    <PreviewImage Include="$(MSBuildProjectDirectory)/preview.png" Condition="Exists('$(MSBuildProjectDirectory)/preview.png')" />
+    <PreviewImage Include="$(MSBuildProjectDirectory)/preview.jpg" Condition="Exists('$(MSBuildProjectDirectory)/preview.jpg')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildProjectDirectory)/assets/edit_mark_tool.png" Condition="Exists('$(MSBuildProjectDirectory)/assets/edit_mark_tool.png')">
+      <Link>assets/edit_mark_tool.png</Link>
+      <TargetPath>assets/edit_mark_tool.png</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildProjectDirectory)/assets/restart_oni_steam_relay.sh" Condition="Exists('$(MSBuildProjectDirectory)/assets/restart_oni_steam_relay.sh')">
+      <Link>assets/restart_oni_steam_relay.sh</Link>
+      <TargetPath>assets/restart_oni_steam_relay.sh</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.45">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="PLib" Version="4.24.0" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <!-- ビルド後にメタデータファイルを生成する -->
+  <Target Name="GenerateModFiles" AfterTargets="Build">
+    <!-- mod.yaml: ゲームの実行時に読み込まれる -->
+    <WriteLinesToFile File="$(OutputPath)mod.yaml" Lines="title: &quot;$(ModTitle)&quot;;description: &quot;$(ModDescription)&quot;;staticID: &quot;$(ModStaticID)&quot;" Overwrite="true" />
+    <Message Text="Generated mod.yaml -&gt; $(OutputPath)mod.yaml" Importance="high" />
+
+    <!-- mod_info.yaml: OniUploader とゲームの MOD 一覧で読み込まれる -->
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="supportedContent: ALL" Overwrite="true" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="minimumSupportedBuild: 525812" Overwrite="false" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="APIVersion: $(ModApiVersion)" Overwrite="false" />
+    <WriteLinesToFile File="$(OutputPath)mod_info.yaml" Lines="version: &quot;$(OniMcpDisplayVersion)&quot;" Overwrite="false" />
+    <Message Text="Generated mod_info.yaml -&gt; $(OutputPath)mod_info.yaml" Importance="high" />
+
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/docs/steam-description-zh.md" DestinationFolder="$(OutputPath)docs" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/docs/steam-description-zh.md')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/docs/steam-description-en.md" DestinationFolder="$(OutputPath)docs" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/docs/steam-description-en.md')" />
+
+    <!-- プレビュー画像をコピーする -->
+    <Copy SourceFiles="@(PreviewImage)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" Condition="'@(PreviewImage)' != ''">
+      <Output TaskParameter="CopiedFiles" PropertyName="CopiedPreviewImage" />
+    </Copy>
+    <Message Text="Copied preview image -&gt; $(OutputPath)" Importance="high" Condition="'@(PreviewImage)' != ''" />
+
+    <!-- README をコピーする -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/README.md" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/README.md')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/README_EN.md" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/README_EN.md')" />
+    <MakeDir Directories="$(OutputPath)assets" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/assets/edit_mark_tool.png" DestinationFolder="$(OutputPath)assets" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/assets/edit_mark_tool.png')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/assets/restart_oni_steam_relay.sh" DestinationFolder="$(OutputPath)assets" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)/assets/restart_oni_steam_relay.sh')" />
+  </Target>
+
+  <!-- ビルド後にリポジトリのルートの dist/ へ MOD をパッケージ化する -->
+  <Target Name="PackageMod" AfterTargets="GenerateModFiles">
+    <PropertyGroup>
+      <DistPath>$(MSBuildProjectDirectory)/../../dist/</DistPath>
+      <DistModPath>$(DistPath)$(AssemblyName)/</DistModPath>
+      <ZipFile>$(DistPath)$(AssemblyName).zip</ZipFile>
+    </PropertyGroup>
+
+    <!-- 古いファイルを削除する -->
+    <RemoveDir Directories="$(DistModPath)" />
+    <Delete Files="$(ZipFile)" />
+    <Delete Files="$(DistPath)$(AssemblyName)-src.tar.gz" />
+
+    <!-- MOD のファイルを dist/ModName/ へコピーする -->
+    <ItemGroup>
+      <ModOutputFiles Include="$(OutputPath)$(AssemblyName).dll" />
+      <ModOutputFiles Include="$(OutputPath)mod.yaml" />
+      <ModOutputFiles Include="$(OutputPath)mod_info.yaml" />
+      <ModOutputFiles Include="$(OutputPath)preview.png" Condition="Exists('$(OutputPath)preview.png')" />
+      <ModOutputFiles Include="$(OutputPath)preview.jpg" Condition="Exists('$(OutputPath)preview.jpg')" />
+      <ModOutputFiles Include="$(OutputPath)README.md" Condition="Exists('$(OutputPath)README.md')" />
+      <ModOutputFiles Include="$(OutputPath)README_EN.md" Condition="Exists('$(OutputPath)README_EN.md')" />
+      <ModOutputFiles Include="$(OutputPath)docs/steam-description-zh.md" Condition="Exists('$(OutputPath)docs/steam-description-zh.md')" />
+      <ModOutputFiles Include="$(OutputPath)docs/steam-description-en.md" Condition="Exists('$(OutputPath)docs/steam-description-en.md')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModOutputFiles)" DestinationFolder="$(DistModPath)" />
+    <MakeDir Directories="$(DistModPath)assets" />
+    <Copy SourceFiles="$(OutputPath)assets/edit_mark_tool.png" DestinationFolder="$(DistModPath)assets" Condition="Exists('$(OutputPath)assets/edit_mark_tool.png')" />
+    <Copy SourceFiles="$(OutputPath)assets/restart_oni_steam_relay.sh" DestinationFolder="$(DistModPath)assets" Condition="Exists('$(OutputPath)assets/restart_oni_steam_relay.sh')" />
+
+    <!-- zip にまとめる（MOD の配布パッケージ） -->
+    <ZipDirectory SourceDirectory="$(DistModPath)" DestinationFile="$(ZipFile)" Overwrite="true" />
+
+    <!-- ソースコードを tar.gz にまとめる。Windows の tar ではパスを単一引用符で囲めない。ソースのパッケージ化に失敗するとビルドも失敗する。 -->
+    <Exec Command="tar -czf &quot;$(DistPath)$(AssemblyName)-src.tar.gz&quot; -C &quot;$(MSBuildProjectDirectory)&quot; --exclude=bin --exclude=obj --exclude=dist ." />
+
+    <Message Text="Packaged mod -&gt; $(ZipFile)" Importance="high" />
+    <Message Text="Packaged source -&gt; $(DistPath)$(AssemblyName)-src.tar.gz" Importance="high" />
+  </Target>
+
+</Project>

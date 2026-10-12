@@ -1,0 +1,263 @@
+using System;
+using System.IO;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+using OniMcp.Core;
+
+namespace OniMcp.Tools
+{
+    public static partial class WorldEditorTools
+    {
+        private static CallToolResult Read(JObject args)
+        {
+            string path = NormalizePath(Text(args, "path"), _cwd);
+            if (IsDirectory(path))
+                return Ls(new JObject { ["path"] = path });
+
+            if (path.StartsWith("/active/", StringComparison.Ordinal))
+            {
+                if (!HasLoadedActiveWorld())
+                    return ActiveGameNotLoaded(path);
+
+                string relative = SaveRelativePath(path);
+                if (TryReadExactPatchRectangle(args, path, relative, out CallToolResult patchResult))
+                    return patchResult;
+                if (relative == "index.md")
+                    return CallToolResult.Text(ReadActiveIndexMarkdown(args));
+                if (relative == "manifest.oni")
+                    return GameControlEntryTools.ControlGame().Handler(Child(args, "state", "status"));
+                if (relative == "colony/steam_achievements.oni")
+                    return SteamAchievementTools.Read(args);
+                if (relative == "colony/achievements.oni")
+                    return ColonyAchievementTools.Read(args);
+                if (relative == "colony/status.oni")
+                    return ColonyTools.ControlColony().Handler(Child(args, "snapshot", "get", ("profile", "minimal")));
+                if (relative == "map/viewport.html" || relative == "map/viewport.md" || relative == "map/index.html" || relative == "map/index.md")
+                    return CallToolResult.Text(ReadMapFileWithArgs(args, path));
+                if (TryParseZoomPath(relative, out int zoomX1, out int zoomY1, out int zoomX2, out int zoomY2))
+                {
+                    var views = ResolveZoomViews(ParseZoomViews(args)).ToList();
+                    if (views.Count == 0)
+                        views = ResolveZoomViews(DefaultZoomViews()).ToList();
+                    string syncNote = SyncZoomCameraAndView(args, zoomX1, zoomY1, zoomX2, zoomY2, views);
+                    return CallToolResult.Text(ReadZoomMarkdown(
+                        zoomX1,
+                        zoomY1,
+                        zoomX2,
+                        zoomY2,
+                        views.Select(view => view.Name),
+                        syncNote,
+                        ShouldCompactMap(args)));
+                }
+                if (TryParseCellSnapshotPath(relative, out int cellX, out int cellY))
+                    return CallToolResult.Text(ReadCellSnapshotMarkdown(args, cellX, cellY));
+                if (relative.StartsWith("map/layers/", StringComparison.Ordinal)
+                    && (relative.EndsWith(".html", StringComparison.Ordinal) || relative.EndsWith(".md", StringComparison.Ordinal)))
+                    return CallToolResult.Text(ReadFileDirectly(path));
+                if (relative == "symbols/index.md" || relative == "symbols/glyphs.md")
+                    return CallToolResult.Text(ReadSymbolMarkdown(path, Text(args, "query", "target", "search")));
+                if (IsBlueprintVirtualFile(relative))
+                    return ReadBlueprintVirtualFile(relative);
+                if (IsInfrastructureMapMarkdown(relative))
+                    return CallToolResult.Text(ReadInfrastructureMapMarkdown(args, path, relative));
+                if (IsManagementMarkdown(relative))
+                    return ReadManagementMarkdown(args, path, relative);
+                if (IsOperationMarkdown(relative))
+                    return ReadOperationMarkdown(path, relative);
+
+                if (relative == "infrastructure/power.oni")
+                    return ReadTools.ControlRead().Handler(Child(args, "infrastructure", "power_summary"));
+                if (relative == "infrastructure/power_ports.oni")
+                    return CallToolResult.Error("power_ports.oni is hidden from world_editor because broad port scans are crash-prone. Use /active/infrastructure/power.md or /active/map/cell_X_Y.md for low-token anchors.");
+                if (relative == "infrastructure/rooms.oni")
+                    return ReadTools.ControlRead().Handler(Child(args, "infrastructure", "rooms"));
+                if (relative == "infrastructure/liquid_conduits.oni")
+                    return ReadEditableTemplate(path, "Use exactly: connect (x1,y1) -> (x2,y2) [-> (x3,y3) ...]. This file builds LiquidConduit.");
+                if (relative == "infrastructure/gas_conduits.oni")
+                    return ReadEditableTemplate(path, "Use exactly: connect (x1,y1) -> (x2,y2) [-> (x3,y3) ...]. This file builds GasConduit.");
+                if (relative == "infrastructure/logic.oni")
+                    return ReadEditableTemplate(path, "Use exactly: connect (x1,y1) -> (x2,y2) [-> (x3,y3) ...]. This file builds LogicWire.");
+                if (relative == "infrastructure/solid_conveyor.oni")
+                    return ReadEditableTemplate(path, "Use exactly: connect (x1,y1) -> (x2,y2) [-> (x3,y3) ...]. This file builds SolidConduit.");
+                if (relative == "buildings/geometry.md")
+                    return BuildingGeometryTools.Read(args);
+                if (relative == "buildings/index.oni")
+                    return ReadTools.ControlRead().Handler(Child(args, "buildings", "list"));
+                if (relative == "buildings/index.md")
+                    return CallToolResult.Text(ReadBuildingIndexMarkdown());
+                if (IsBuildingDetailMarkdown(relative))
+                    return CallToolResult.Text(ReadBuildingDetailMarkdown(relative));
+                if (relative == "buildings/catalog.oni")
+                    return Search(args, "buildings");
+                if (relative == "buildings/plans.oni")
+                    return ReadEditableTemplate(path, "Add or change desired buildings by replacing text in this file.");
+                if (relative == "orders/orders.oni")
+                    return CallToolResult.Text("# " + path + "\n\nThis legacy file is read-only. Use `/active/ops/orders.md` for executable orders.\n");
+                if (relative == "resources/inventory.oni")
+                    return ReadTools.ControlRead().Handler(Child(args, "resources", "inventory"));
+                if (relative == "objects/details.oni") return EntitySectionTools.Read(args);
+                if (relative == "buildings/specs.oni") return PrefabSpecTools.Read(args, "buildings");
+                if (relative == "resources/specs.oni") return PrefabSpecTools.Read(args, "resources");
+                if (relative == "resources/food.oni")
+                    return ReadTools.ControlRead().Handler(Child(args, "resources", "food"));
+                if (relative == "dupes/index.md")
+                    return CallToolResult.Text(ReadDupeIndexMarkdown());
+                if (relative == "dupes/reachability.md")
+                    return CallToolResult.Text(ReadDupeReachabilityMarkdown(args));
+                if (IsDupeDetailMarkdown(relative))
+                    return CallToolResult.Text(ReadDupeDetailMarkdown(relative));
+                if (relative == "dupes/index.oni")
+                    return DuplicantTools.ControlDupes().Handler(Child(args, "info", "status"));
+                if (relative == "diagnostics/logs.md")
+                    return CallToolResult.Text(ReadLogDiagnosticsMarkdown(args));
+                if (relative == "screenshots/index.md")
+                    return CallToolResult.Text(ReadFileDirectly(path));
+
+                return CallToolResult.Error("unknown /active/ virtual file: " + path);
+            }
+
+            if (path.StartsWith("/saves/", StringComparison.Ordinal))
+            {
+                string relative = SaveRelativePath(path);
+                if (relative == "manifest.oni")
+                {
+                    string resolved;
+                    if (!ResolveSaveFilePath(path, out resolved))
+                        return CallToolResult.Error("Save file not found: " + path);
+                    var files = SaveLoader.GetAllFiles(sort: true, type: SaveLoader.SaveType.both);
+                    var entry = files.FirstOrDefault(f => string.Equals(f.path, resolved, StringComparison.OrdinalIgnoreCase));
+                    if (!string.IsNullOrEmpty(entry.path))
+                    {
+                        var info = new JObject
+                        {
+                            ["colony"] = GetColonyName(entry.path),
+                            ["name"] = Path.GetFileNameWithoutExtension(entry.path),
+                            ["fileName"] = Path.GetFileName(entry.path),
+                            ["path"] = entry.path,
+                            ["timestampUtc"] = entry.timeStamp.ToString("o"),
+                            ["cloud"] = SaveLoader.IsSaveCloud(entry.path),
+                            ["local"] = SaveLoader.IsSaveLocal(entry.path),
+                            ["autoSave"] = SaveLoader.IsSaveAuto(entry.path),
+                            ["active"] = string.Equals(entry.path, SaveLoader.GetActiveSaveFilePath(), StringComparison.OrdinalIgnoreCase),
+                            ["activeAlias"] = "/active/"
+                        };
+                        return JsonResult(info);
+                    }
+                    return CallToolResult.Error("Save file not found: " + path);
+                }
+                return CallToolResult.Error("Only manifest.oni is currently exposed for save snapshots.");
+            }
+
+            return CallToolResult.Error("unknown virtual file: " + path);
+        }
+
+        private static bool HasLoadedActiveWorld()
+        {
+            try
+            {
+                if (Game.Instance == null || ClusterManager.Instance == null)
+                    return false;
+                int worldId = ClusterManager.Instance.activeWorldId;
+                return worldId >= 0 && ClusterManager.Instance.GetWorld(worldId) != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static CallToolResult ActiveGameNotLoaded(string path)
+        {
+            return CallToolResult.Error(JsonResultText(new JObject
+            {
+                ["ok"] = false,
+                ["reasonCode"] = "game_not_loaded",
+                ["state"] = "main_menu_or_loading",
+                ["path"] = path,
+                ["message"] = "No active colony is loaded; /active/ virtual files are unavailable.",
+                ["next"] = "Use game_control domain=launch action=status, then load a save and retry this read."
+            }));
+        }
+
+        private static bool TryReadExactPatchRectangle(
+            JObject args,
+            string path,
+            string relative,
+            out CallToolResult result)
+        {
+            result = null;
+            if (!ToolUtil.GetBool(args, "_patchRectRender", false) || !IsEditableMapMarkdown(relative))
+                return false;
+
+            if (!TryReadMapFocusBounds(args, out int pxMin, out int pyMin, out int pxMax, out int pyMax, out string boundsError))
+            {
+                result = CallToolResult.Text("# " + path + "\n\nExact patch rectangle requires x1,y1,x2,y2 bounds.\n");
+                return true;
+            }
+            if (!string.IsNullOrWhiteSpace(boundsError))
+            {
+                result = CallToolResult.Text("# " + path + "\n\nInvalid exact patch rectangle: " + boundsError + "\n");
+                return true;
+            }
+
+            HashedString mode;
+            string viewName;
+            if (IsInfrastructureMapMarkdown(relative))
+            {
+                mode = ModeForInfrastructurePath(relative);
+                viewName = GetOverlayViewName(mode);
+            }
+            else if (relative.StartsWith("map/layers/", StringComparison.Ordinal))
+            {
+                mode = OverlayScreen.Instance != null ? OverlayScreen.Instance.mode : OverlayModes.None.ID;
+                viewName = GetOverlayViewName(mode);
+            }
+            else
+            {
+                string requestedView = FirstZoomText(args, "view", "activeView", "displayView");
+                if (string.IsNullOrWhiteSpace(requestedView))
+                    requestedView = "default";
+                if (!TryResolveZoomView(requestedView, out ZoomView view))
+                {
+                    result = CallToolResult.Text("# " + path + "\n\nInvalid exact patch rectangle view: " + requestedView + "\n");
+                    return true;
+                }
+                mode = view.Mode;
+                viewName = view.Name;
+            }
+
+            string map = GetMapMd("[ビュー: " + viewName + "] Patch Rect Map (X: "
+                + pxMin + "~" + pxMax + ", Y: " + pyMin + "~" + pyMax + ")",
+                pxMin, pxMax, pyMin, pyMax, mode, ShouldCompactMap(args));
+            result = CallToolResult.Text(map);
+            return true;
+        }
+
+        private static CallToolResult Search(JObject args, string forcedDomain = null)
+        {
+            var forwarded = CopyPayload(args);
+            string domain = forcedDomain ?? Text(args, "domain");
+            if (string.IsNullOrWhiteSpace(domain))
+                domain = InferSearchDomain(NormalizePath(Text(args, "path"), _cwd));
+            forwarded["domain"] = NormalizeSearchDomain(domain);
+            string query = Text(args, "query", "target", "search");
+            if (!string.IsNullOrWhiteSpace(query))
+                forwarded["query"] = query;
+            return SearchControlTools.ControlSearch().Handler(forwarded);
+        }
+
+        private static CallToolResult ReadEditableTemplate(string path, string note)
+        {
+            string text =
+                "# " + path + "\n" +
+                "# " + note + "\n" +
+                "# Edit file by sending exactly one SEARCH/REPLACE block. Non-empty SEARCH is validated against current virtual file snapshot.\n" +
+                "<<<<<<< SEARCH\n" +
+                "# observed or empty planning text\n" +
+                "=======\n" +
+                "# desired replacement text\n" +
+                ">>>>>>> REPLACE\n";
+            return CallToolResult.Text(text);
+        }
+    }
+}

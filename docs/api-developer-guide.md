@@ -1,0 +1,361 @@
+# ONI MCP API 开发者指南
+
+本文档面向开发者和高级用户，说明如何通过 HTTP JSON-RPC 2.0 与 Oxygen Not Included MCP 服务器交互。
+
+**API 稳定性警告:** 在 `OniMcp` 发布 `1.0.0` 之前，HTTP 行为、工具名称、参数结构、资源路径和返回字段都可能发生不兼容变更。第三方客户端应锁定目标版本，运行时读取 `server_control domain=catalog action=manifest` 或 `oni://tools/manifest`，并为字段缺失、重命名和语义调整预留兼容逻辑。
+
+## 快速开始
+
+### 1. 启动服务器
+
+1. 将 `OniMcp` Mod 安装到缺氧游戏的 `mods/` 目录。
+2. 启动游戏并启用 **ONI MCP Server**。
+3. 加载存档。
+4. MCP 服务器默认在 `http://localhost:8788/mcp/` 启动。
+
+如需局域网访问，创建或编辑 `OniMcpConfig.json`:
+
+```json
+{
+  "Host": "0.0.0.0",
+  "Port": 8788,
+  "AuthEnabled": true,
+  "AuthToken": "replace-with-a-strong-token"
+}
+```
+
+启用认证时，客户端应发送:
+
+```text
+Authorization: Bearer <token>
+```
+
+也兼容:
+
+```text
+X-Oni-Mcp-Token: <token>
+```
+
+### 2. 配置 MCP 客户端
+
+Claude Desktop / Cursor 的示例配置:
+
+```json
+{
+  "mcpServers": {
+    "oni": {
+      "url": "http://localhost:8788/mcp/"
+    }
+  }
+}
+```
+
+### 3. 协议协商
+
+OniMcp 同时保留两个协议时代。新客户端优先尝试 MCP `2026-07-28` 的无会话路径；旧客户端继续使用 `2025-11-25` / `2025-06-18` 的 `initialize` + `Mcp-Session-Id` 路径。
+
+#### MCP 2026-07-28：无会话发现
+
+现代请求不执行 `initialize`，也不创建、要求或返回 `Mcp-Session-Id`。每个请求自行携带协议元数据，并通过 HTTP headers 声明方法；需要资源名或工具名时还要发送匹配的 `Mcp-Name`。
+
+推荐先调用 `server/discover`：
+
+```bash
+curl -sS -X POST http://localhost:8788/mcp/ \
+  -H 'Content-Type: application/json' \
+  -H 'MCP-Protocol-Version: 2026-07-28' \
+  -H 'Mcp-Method: server/discover' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "server/discover",
+    "params": {
+      "_meta": {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": { "name": "cli", "version": "1.0" }
+      }
+    }
+  }'
+```
+
+当前现代路径刻意保持较小：支持 `server/discover`、`resources/list`、`resources/templates/list`、`resources/read`，以及只读 `benchmark` 的 `tools/list` / `tools/call`。它不会广告 2025 core Tasks、MRTR、订阅或会修改游戏状态的工具。调用方应以 `server/discover` 返回的 capability 和 `tools/list` 为准，不要假设旧版完整工具面在现代路径可用。
+
+#### MCP 2025：legacy initialize/session
+
+需要完整现有游戏控制工具面的旧客户端继续使用初始化握手：
+
+```bash
+curl -sS -X POST http://localhost:8788/mcp/ \
+  -H 'Content-Type: application/json' \
+  -H 'Mcp-Protocol-Version: 2025-11-25' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-11-25",
+      "capabilities": {},
+      "clientInfo": { "name": "cli", "version": "1.0" }
+    }
+  }'
+```
+
+服务端响应头会包含 `Mcp-Session-Id`。之后的 legacy 请求必须携带：
+
+```text
+Mcp-Session-Id: <session id>
+Mcp-Protocol-Version: 2025-11-25
+```
+
+## 推荐工具面
+
+Authoritative `world_editor` model:
+
+- Saves are directories; `latest/` is the fixed alias for the current/latest save.
+- `cd latest` enters a save; `cd` or `cd ~` exits to `/`.
+- The world is represented as structured files, not action endpoints.
+- World changes use SEARCH/REPLACE edits against one file. Prefer one block; multiple blocks require outer `allowPartial=true` and cannot be transactionally rolled back.
+- Do not add `*.patch` action files; route edits by the file being edited.
+
+Default public surface: compact aggregate tools:
+
+| Tool | Purpose |
+|------|---------|
+| `benchmark` | Read-only protocol benchmark. The modern `2026-07-28` path currently exposes this as its only tool. |
+| `building_control` | Building planning, materials, configuration, storage, filters, production, side screens, and rockets. |
+| `game_control` | Pause, speed, saves, sandbox, and UI operations. |
+| `navigation_control` | Camera movement, world switching, overlays, focus, and screenshots. |
+| `orders_control` | Area orders, priorities, designation changes, and conduit/wire cuts. |
+| `server_control` | MCP diagnostics, catalog, batch calls, resources, and server operations. |
+| `world_editor` | Filesystem-style world editor. Supports read/search and SEARCH/REPLACE edits over virtual save/world files, including typed operation files under `/active/ops/`. |
+
+Internal virtual-file operations are not direct MCP tools:
+
+- `colony_control`, `coordinate_control`, `dupes_control`, `read_control`, and `search_control` are registered only for validated `world_editor` virtual-file routing.
+- Do not send those names as `tools/call params.name`. Use `world_editor`, structured resources, or one of the public aggregate tools above.
+- Exact orders read `/active/ops/tools.md` and edit the matching typed operation file. Raw-coordinate compatibility entries remain internal and are not a public client surface.
+
+New integrations should discover the public aggregate entrypoints from `tools/list` instead of hard-coding historical internal operation names.
+
+## 参数设计约定
+
+新工具面采用搜索/动作优先:
+
+- Use `world_editor command=search` for world/building discovery and `server_control domain=catalog action=search` for tool discovery. Internal `search_control` is a virtual-file implementation detail, not a direct client tool.
+- 优先传 `query`、`target`、`search`、`name`、`id`、`areaId`。
+- Public tools do not accept raw `x/y`, `x1/y1/x2/y2`, `dx/dy`, `points`, or `anchors`. Exact orders read `/active/ops/tools.md` and edit `/active/ops/orders.md`; select only current public typed files/tools and ignore hidden `coordinate_control` and `/active/ops/coordinate.md` compatibility entries.
+- 写入和执行动作应支持 `dryRun` 或 `confirm`。
+- 危险或大范围精确操作必须保持 pause -> read/plan -> dry-run -> confirm -> verify。
+- 面向任务的结果应返回 `reachable`、`executable`、失败原因、缺失条件和建议下一步。
+- 建造相关结果应返回材料可行性，至少说明需要材料、可用材料和缺口。
+
+当前 legacy 公开工具的 `tools/call` 都要求 `arguments.task` 是非空字符串，用来描述这次调用的用户任务；缺失或空值会在工具分派前被拒绝。
+
+## 调用示例
+
+### 列出工具（legacy 2025 会话路径）
+
+```bash
+curl -sS -X POST http://localhost:8788/mcp/ \
+  -H 'Content-Type: application/json' \
+  -H "Mcp-Session-Id: $SID" \
+  -H 'Mcp-Protocol-Version: 2025-11-25' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list",
+    "params": {}
+  }'
+```
+
+现代 `2026-07-28` 客户端不要发送 `Mcp-Session-Id`；应按上面的无会话规则携带 `_meta`、`MCP-Protocol-Version` 和 `Mcp-Method`。当前现代 `tools/list` 只广告只读 `benchmark`。
+
+### 搜索工具
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "server_control",
+    "arguments": {
+      "task": "Find the public tool for wiring and build materials",
+      "domain": "catalog",
+      "action": "search",
+      "query": "wire build material",
+      "detail": "brief"
+    }
+  }
+}
+```
+
+### 读取殖民地状态
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "resources/read",
+  "params": {
+    "uri": "oni://colony/status"
+  }
+}
+```
+
+### 查看可用的 typed operations
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "world_editor",
+    "arguments": {
+      "task": "Inspect the typed operation files before planning an exact order",
+      "command": "read",
+      "path": "/active/ops/tools.md"
+    }
+  }
+}
+```
+
+需要区域或精确位置时，以 `world_editor` 暴露的地图和 typed operation files 为准；不要直接调用内部 `read_control` / `coordinate_control`。
+
+### 预览蓝图和材料
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "building_control",
+    "arguments": {
+      "task": "Preview a Manual Generator near the Printing Pod",
+      "domain": "planning",
+      "action": "preview",
+      "prefabId": "ManualGenerator",
+      "material": "CopperOre",
+      "query": "near printing pod"
+    }
+  }
+}
+```
+
+预期结果包含类似字段:
+
+```json
+{
+  "reachable": true,
+  "executable": true,
+  "materials": {
+    "requirementKnown": true,
+    "requiredKg": 400.0,
+    "selectedAvailableKg": 910.0,
+    "satisfied": true,
+    "shortageKg": 0.0,
+    "availableMaterials": [
+      { "tag": "CopperOre", "availableKg": 910.0 }
+    ]
+  }
+}
+```
+
+如果 `materials.satisfied=false`，客户端应向用户展示需求、可用材料和缺口，不应继续执行建造。
+
+### 放置精确建造计划
+
+精确建造先读 `/active/map/viewport.md`（需要时 zoom 或读 `symbols/glyphs.md`），再对可编辑地图 Markdown 执行 SEARCH/REPLACE，把目标空格 token 改为 `建筑名:优先级`，可选加 `#材料字`。该路由内部翻译为 `building_control build_area` anchors；`/active/ops/build.md` 只用于不带 raw coordinates 的语义 `plan`/`auto_connect` 等 typed calls。默认建议单 block；多 block 只在外层 `allowPartial=true` 时允许，且无法事务回滚。预览时外层 edit 用 `dryRun=true`、`confirm=false`（或省略）；执行必须新建独立 edit，外层用 `dryRun=false`、`confirm=true`，并确保内层命令标志不冲突。执行后重读地图/状态验证。
+
+### 剪断线路
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "tools/call",
+  "params": {
+    "name": "orders_control",
+    "arguments": {
+      "task": "Cut conduits in the starter-wire area",
+      "domain": "conduit",
+      "action": "cut_conduits",
+      "areaId": "starter-wire",
+      "type": "auto",
+      "confirm": true
+    }
+  }
+}
+```
+
+`type=auto` 默认包含气管、液管、固体轨道、电线和逻辑线。只剪电线可传 `type=wire`，只剪逻辑线可传 `type=logic`。
+
+## 资源读取
+
+常用资源:
+
+| URI | 说明 |
+|-----|------|
+| `oni://colony/status` | 周期、复制人数、速度、暂停状态 |
+| `oni://colony/diagnostics` | 缺氧、断粮、过热等诊断 |
+| `oni://colony/summary` | 面向行动规划的殖民地摘要 |
+| `oni://resources/inventory` | 资源库存 |
+| `oni://resources/food` | 食物库存和保质信息 |
+| `oni://dupes/status-check` | 复制人位置、差事、需求和疑似不可达 |
+| `oni://power/summary` | 电网摘要和电池状态 |
+| `oni://power/ports` | 电力接口格、锚点、接线点和端口是否已有电线 |
+| `oni://world/text-map` | 文本地图 |
+| `oni://buildings/defs` | 可建造建筑定义 |
+| `oni://tools/manifest` | 工具清单 |
+| `oni://tools/guide` | 按目标推荐工具链 |
+
+## Agent Program
+
+`server_control domain=program action=execute` 可执行小型工具脚本。建议只用于结构明确的短流程，并先用 `dryRun=true` 验证结构和工具名。
+
+核心语义:
+
+- `saveAs` 保存工具返回 JSON。
+- `$name.path` 读取变量路径。
+- 表达式支持 `eq/ne/lt/lte/gt/gte/and/or/not/add/sub/mul/div/mod/contains/exists`。
+- `maxSteps` 限制执行步数。
+
+## 开发目录
+
+```text
+mods/OniMcp/
+├── ModInfo.cs           # KMod 入口
+├── Config/              # 选项
+├── Core/                # MCP 协议类型
+├── Localization/        # STRINGS
+├── Patches/             # Harmony 补丁与游戏策略
+├── UI/                  # 运行时 Overlay
+├── Server/              # HTTP/MCP 服务
+├── Support/             # 日志、路径、反射
+└── Tools/
+    ├── Core/            # 工具与资源注册
+    ├── Entry/           # 聚合入口（*Control* / Read / 英文描述）
+    ├── WorldEditor/     # 虚拟世界文件系统
+    ├── Shared/          # 共享辅助
+    └── Impl/            # 各域实现
+```
+
+开发建议:
+
+1. 新公开能力优先扩展 `Tools/Entry/` 的聚合入口。
+2. 域实现放在 `Tools/Impl/<Domain>/`。
+3. Shared search, material, and reachability logic lives in `Tools/Shared/`; exact spatial operations are routed through typed files under `/active/ops/`.
+4. Default-public tool descriptions are maintained in `Tools/Entry/CoreToolEnglishDescriptions.cs`; keep them in English.
+5. 使用 `server_control domain=catalog action=static_audit` 和 `manifest` 验证注册结果。
+
+## 客户端兼容建议
+
+- 新客户端优先尝试 `2026-07-28` `server/discover`，按发现结果使用当前现代 capability；需要完整旧工具面时继续使用受支持的 2025 initialize/session 路径。
+- 不要硬编码旧版细粒度工具列表。
+- Do not pass coordinates to ordinary tools. Exact orders use `/active/ops/orders.md`; exact construction edits map tokens in `/active/map/viewport.md`. Ignore hidden coordinate compatibility entries.
+- 先读取 manifest，再按 `domain/action` 组织调用。
+- 对缺失字段、未知 action 和 `executable=false` 做兼容处理。
+- 对危险动作始终要求用户确认，并在执行后读取状态验证。

@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    Directory.Build.props としてコピーし、OniGamePath にローカルの ONI インストール先を設定する。
+    `onim setup` で自動生成することもできる。このコマンドは現在のプラットフォームに応じた OniManagedPath を生成する。
+    macOS で手動設定する場合、Managed ディレクトリは次のパスになる。
+    $(OniGamePath)/OxygenNotIncluded.app/Contents/Resources/Data/Managed
+  -->
+
+  <PropertyGroup>
+    <OniGamePath></OniGamePath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Windows/Linux の既定の配置。macOS では上記の .app/Contents/Resources/Data/Managed パスを使用する。 -->
+    <OniManagedPath>$(OniGamePath)/OxygenNotIncluded_Data/Managed</OniManagedPath>
+  </PropertyGroup>
+
+  <Target Name="ValidateOniGamePath" BeforeTargets="BeforeBuild">
+    <Error Text="ゲームのパスが未設定です。Directory.Build.props.example を Directory.Build.props としてコピーし、OniGamePath を設定してください。" Condition="'$(OniGamePath)' == ''" />
+  </Target>
+
+</Project>

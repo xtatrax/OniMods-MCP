@@ -1,0 +1,423 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using CycleTrim.Core;
+using HarmonyLib;
+
+namespace CycleTrim.Patches
+{
+    internal static class AsyncPathProbeOptimizationPatch
+    {
+        private const string FastTrackPatchType =
+            "PeterHan.FastTrack.GamePatches.FetchManagerFastUpdate";
+        private const int MaxConsecutiveSkips = 8;
+        private static readonly ConditionalWeakTable<
+            AsyncPathProber.Manager,
+            ManagerState>.CreateValueCallback StateFactory = CreateState;
+        private static readonly ConditionalWeakTable<AsyncPathProber.Manager, ManagerState> States =
+            new ConditionalWeakTable<AsyncPathProber.Manager, ManagerState>();
+        private static readonly AccessTools.FieldRef<AsyncPathProber.Manager, Thread[]> Agents =
+            AccessTools.FieldRefAccess<AsyncPathProber.Manager, Thread[]>("agents");
+        private static readonly AccessTools.FieldRef<
+            AsyncPathProber.Manager,
+            Dictionary<Navigator, int>> Navigators =
+            AccessTools.FieldRefAccess<AsyncPathProber.Manager, Dictionary<Navigator, int>>(
+                "navigators");
+        private static readonly AccessTools.FieldRef<Navigator, PathFinderAbilities> Abilities =
+            AccessTools.FieldRefAccess<Navigator, PathFinderAbilities>("abilities");
+        private static readonly AccessTools.FieldRef<PathFinderAbilities, int> PrefabInstanceId =
+            AccessTools.FieldRefAccess<PathFinderAbilities, int>("prefabInstanceID");
+        private static readonly AccessTools.FieldRef<AsyncPathProber.Manager, ushort> ActiveSerialNo =
+            AccessTools.FieldRefAccess<AsyncPathProber.Manager, ushort>("activeSerialNo");
+        private static bool? sentinelRecycleIsSafe;
+
+        private sealed class ManagerState
+        {
+            internal readonly ConditionalWeakTable<Navigator, NavigatorState> Navigators =
+                new ConditionalWeakTable<Navigator, NavigatorState>();
+            internal volatile int Tick;
+            internal int QueueQuotaTick = -1;
+            internal int QueueQuota = 1;
+        }
+
+        private sealed class NavigatorState
+        {
+            internal readonly PathProbeAdmissionState Admission =
+                new PathProbeAdmissionState(MaxConsecutiveSkips);
+            internal int LastTick = -1;
+            internal NavGrid NavGrid;
+        }
+
+        private static bool IsCompatible()
+        {
+            return AccessTools.TypeByName(FastTrackPatchType) == null
+                && IsSentinelRecycleSafe();
+        }
+
+        private static bool IsSentinelRecycleSafe()
+        {
+            if (sentinelRecycleIsSafe.HasValue)
+            {
+                return sentinelRecycleIsSafe.Value;
+            }
+            var method = typeof(CreaturePathFinderAbilities).GetMethod(
+                "RecycleClone",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            var body = method == null ? null : method.GetMethodBody();
+            var il = body == null ? null : body.GetILAsByteArray();
+            sentinelRecycleIsSafe = method != null
+                && method.DeclaringType == typeof(CreaturePathFinderAbilities)
+                && il != null
+                && il.Length == 1
+                && il[0] == OpCodes.Ret.Value;
+            return sentinelRecycleIsSafe.Value;
+        }
+
+        private static ManagerState CreateState(AsyncPathProber.Manager manager)
+        {
+            return new ManagerState();
+        }
+
+        private static void SynchronizeNavigatorTick(
+            ManagerState managerState,
+            NavigatorState state)
+        {
+            lock (state.Admission)
+            {
+                if (state.LastTick != managerState.Tick)
+                {
+                    state.Admission.BeginTick();
+                    state.LastTick = managerState.Tick;
+                }
+            }
+        }
+
+        private static NavigatorState GetNavigatorState(
+            AsyncPathProber.Manager manager,
+            Navigator navigator)
+        {
+            var managerState = States.GetValue(manager, StateFactory);
+            var state = managerState.Navigators.GetOrCreateValue(navigator);
+            SynchronizeNavigatorTick(managerState, state);
+            return state;
+        }
+
+        private static bool TryGetNavigatorState(
+            AsyncPathProber.Manager manager,
+            Navigator navigator,
+            out NavigatorState state)
+        {
+            state = null;
+            ManagerState managerState;
+            if (!States.TryGetValue(manager, out managerState)
+                || !managerState.Navigators.TryGetValue(navigator, out state))
+            {
+                return false;
+            }
+
+            SynchronizeNavigatorTick(managerState, state);
+            return true;
+        }
+
+        private static void ResetNavigatorState(
+            AsyncPathProber.Manager manager,
+            Navigator navigator)
+        {
+            ManagerState managerState;
+            NavigatorState state;
+            if (States.TryGetValue(manager, out managerState)
+                && managerState.Navigators.TryGetValue(navigator, out state))
+            {
+                lock (state.Admission)
+                {
+                    state.Admission.Reset();
+                }
+            }
+        }
+
+        private static PathProbeStamp CreateStamp(
+            Navigator navigator,
+            CreaturePathFinderAbilities creature,
+            int prefabInstanceId)
+        {
+            var fingerprint = PathProbeAbilityFingerprint.Create(
+                prefabInstanceId,
+                creature.canTraverseSubmered);
+            return new PathProbeStamp(
+                NavigationInvalidationVersions.Get(navigator.NavGrid),
+                navigator.cachedCell,
+                navigator.PathGrid.AllocatedClassification,
+                (int)navigator.CurrentNavType,
+                (int)navigator.flags,
+                navigator.reportOccupation,
+                typeof(CreaturePathFinderAbilities).MetadataToken,
+                fingerprint);
+        }
+
+        private static PathProbeStamp StampFromOrder(
+            AsyncPathProber.WorkOrder order,
+            int prefabInstanceId)
+        {
+            var creature = (CreaturePathFinderAbilities)order.abilities;
+            var fingerprint = PathProbeAbilityFingerprint.Create(
+                prefabInstanceId,
+                creature.canTraverseSubmered);
+            return new PathProbeStamp(
+                NavigationInvalidationVersions.Get(order.navGrid),
+                order.originCell,
+                order.gridClassification,
+                (int)order.startingNavType,
+                (int)order.startingFlags,
+                order.computeReachables,
+                typeof(CreaturePathFinderAbilities).MetadataToken,
+                fingerprint);
+        }
+
+        private static int GetQueueQuota(AsyncPathProber.Manager manager)
+        {
+            var managerState = States.GetValue(manager, StateFactory);
+            var tick = managerState.Tick;
+            if (managerState.QueueQuotaTick == tick)
+            {
+                return managerState.QueueQuota;
+            }
+
+            var agents = Agents(manager);
+            var navigators = Navigators(manager);
+            var inFlight = 0;
+            foreach (var value in navigators.Values)
+            {
+                if (value == -1)
+                {
+                    inFlight++;
+                }
+            }
+
+            // TickFrame holds the Manager lock while rebuilding workQueue, so
+            // NextTask cannot change in-flight markers between loop-condition
+            // checks. Cache this O(N) scan once per TickFrame instead of once
+            // for every evaluation of the former `workQueue.Count < 4` limit.
+            var quota = PathProbeBackpressure.ComputeQueueQuota(
+                agents == null ? 0 : agents.Length,
+                inFlight);
+            managerState.QueueQuota = quota;
+            managerState.QueueQuotaTick = tick;
+            return quota;
+        }
+
+        [HarmonyPatch(typeof(AsyncPathProber.Manager), "TickFrame")]
+        private static class TickFramePatch
+        {
+            private static bool Prepare() { return IsCompatible(); }
+
+            private static void Prefix(AsyncPathProber.Manager __instance)
+            {
+                States.GetValue(__instance, StateFactory).Tick++;
+            }
+
+            private static IEnumerable<CodeInstruction> Transpiler(
+                IEnumerable<CodeInstruction> instructions)
+            {
+                var original = new List<CodeInstruction>(instructions);
+                var list = new List<CodeInstruction>(original);
+                var matches = 0;
+                var replacement = AccessTools.Method(
+                    typeof(AsyncPathProbeOptimizationPatch),
+                    nameof(GetQueueQuota));
+                for (var index = 0; index < list.Count; index++)
+                {
+                    if (list[index].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        matches++;
+                        // Preserve branch labels and exception boundaries on
+                        // the first instruction replacing the original constant.
+                        list[index] = new CodeInstruction(list[index])
+                        {
+                            opcode = OpCodes.Ldarg_0,
+                            operand = null
+                        };
+                        list.Insert(index + 1, new CodeInstruction(OpCodes.Call, replacement));
+                        index++;
+                    }
+                }
+                if (matches != 1)
+                {
+                    UnityEngine.Debug.LogWarning(
+                        "[CycleTrim] Skipping AsyncPathProber.Manager.TickFrame optimization: "
+                        + "expected one queue-limit constant, found " + matches + ".");
+                    return original;
+                }
+                return list;
+            }
+        }
+
+        [HarmonyPatch]
+        private static class MakeWorkOrderPatch
+        {
+            private static bool Prepare() { return IsCompatible(); }
+            private static MethodBase TargetMethod()
+            {
+                return AccessTools.Method(
+                    typeof(AsyncPathProber.Manager),
+                    "makeWorkOrder",
+                    new[] { typeof(Navigator) });
+            }
+
+            private static bool Prefix(
+                AsyncPathProber.Manager __instance,
+                Navigator nav,
+                ref AsyncPathProber.WorkOrder __result)
+            {
+                var rawAbilities = Abilities(nav);
+                if (rawAbilities == null
+                    || rawAbilities.GetType() != typeof(CreaturePathFinderAbilities))
+                {
+                    ResetNavigatorState(__instance, nav);
+                    return true;
+                }
+
+                var abilities = (CreaturePathFinderAbilities)nav.GetCurrentAbilities();
+                var prefabInstanceId = PrefabInstanceId(abilities);
+                var stamp = CreateStamp(nav, abilities, prefabInstanceId);
+                var state = GetNavigatorState(__instance, nav);
+                var admitted = false;
+                lock (state.Admission)
+                {
+                    // Navigation generations are scoped per grid; equal
+                    // counters from different grids do not identify equal paths.
+                    if (!ReferenceEquals(state.NavGrid, nav.NavGrid))
+                    {
+                        state.Admission.Reset();
+                        state.NavGrid = nav.NavGrid;
+                    }
+                    admitted = state.Admission.TryAdmit(stamp, supported: true);
+                }
+                if (admitted)
+                {
+                    __result = new AsyncPathProber.WorkOrder
+                    {
+                        navigator = nav,
+                        navGrid = nav.NavGrid,
+                        gridClassification = nav.PathGrid.AllocatedClassification,
+                        abilities = abilities.Clone(),
+                        originCell = nav.cachedCell,
+                        startingNavType = nav.CurrentNavType,
+                        startingFlags = nav.flags,
+                        serialNo = ActiveSerialNo(__instance),
+                        computeReachables = nav.reportOccupation
+                    };
+                    lock (state.Admission)
+                    {
+                        state.Admission.ReplaceQueuedStamp(
+                            StampFromOrder(__result, prefabInstanceId));
+                    }
+                }
+                else
+                {
+                    __result = new AsyncPathProber.WorkOrder
+                    {
+                        navigator = nav,
+                        abilities = abilities,
+                        originCell = -1
+                    };
+                }
+                return false;
+            }
+
+            private static Exception Finalizer(
+                Exception __exception,
+                AsyncPathProber.Manager __instance,
+                Navigator nav)
+            {
+                if (__exception != null && !ReferenceEquals(nav, null))
+                {
+                    ResetNavigatorState(__instance, nav);
+                }
+                return __exception;
+            }
+        }
+
+        [HarmonyPatch(typeof(AsyncPathProber.Manager), "NextTask")]
+        private static class NextTaskPatch
+        {
+            private static bool Prepare() { return IsCompatible(); }
+            private static void Postfix(
+                AsyncPathProber.Manager __instance,
+                bool __result,
+                AsyncPathProber.WorkOrder order)
+            {
+                NavigatorState state;
+                if (__result
+                    && order.navigator != null
+                    && TryGetNavigatorState(__instance, order.navigator, out state))
+                {
+                    var admission = state.Admission;
+                    lock (admission)
+                    {
+                        admission.MarkDequeued();
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Navigator), "TakeResult")]
+        private static class TakeResultPatch
+        {
+            private static bool Prepare() { return IsCompatible(); }
+            private static void Postfix(Navigator __instance)
+            {
+                var manager = AsyncPathProber.Instance;
+                ManagerState managerState;
+                NavigatorState state;
+                if (manager != null
+                    && States.TryGetValue(manager, out managerState)
+                    && managerState.Navigators.TryGetValue(__instance, out state))
+                {
+                    lock (state.Admission)
+                    {
+                        state.Admission.MarkApplied();
+                    }
+                }
+            }
+
+            private static Exception Finalizer(Exception __exception, Navigator __instance)
+            {
+                var manager = AsyncPathProber.Instance;
+                if (__exception != null && manager != null)
+                {
+                    ResetNavigatorState(manager, __instance);
+                }
+                return __exception;
+            }
+        }
+
+        [HarmonyPatch(typeof(AsyncPathProber.Manager), "Unregister")]
+        private static class UnregisterPatch
+        {
+            private static bool Prepare() { return IsCompatible(); }
+            private static void Postfix(
+                AsyncPathProber.Manager __instance,
+                Navigator nav)
+            {
+                ManagerState state;
+                if (States.TryGetValue(__instance, out state))
+                {
+                    state.Navigators.Remove(nav);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(AsyncPathProber.Manager), "Shutdown")]
+        private static class ShutdownPatch
+        {
+            private static bool Prepare() { return IsCompatible(); }
+            private static void Postfix(AsyncPathProber.Manager __instance)
+            {
+                States.Remove(__instance);
+            }
+        }
+    }
+}

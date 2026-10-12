@@ -1,0 +1,8 @@
+{
+  "cell.pickups.title": "Pickup summary",
+  "cell.pickups.items": "Dropped items: ",
+  "cell.pickups.count": " items, ",
+  "cell.pickups.details": "Details",
+  "cell.pickups.groups": "Groups",
+  "cell.pickups.element": "Element"
+}

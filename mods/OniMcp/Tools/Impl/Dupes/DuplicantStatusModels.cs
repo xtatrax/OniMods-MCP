@@ -1,0 +1,85 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Klei.AI;
+
+namespace OniMcp.Tools
+{
+    public static partial class DuplicantTools
+{
+        private static Dictionary<string, object> GetAttributeSummary(MinionIdentity dupe)
+        {
+            var resume = dupe.GetComponent<MinionResume>();
+            var attributes = new List<Dictionary<string, object>>();
+            var attrs = dupe.GetAttributes();
+            if (attrs != null)
+            {
+                foreach (AttributeInstance attr in attrs)
+                {
+                    if (attr == null || attr.hide) continue;
+                    attributes.Add(new Dictionary<string, object>
+                    {
+                        ["id"] = attr.Id,
+                        ["name"] = attr.Name,
+                        ["value"] = Math.Round(attr.GetTotalValue(), 2),
+                        ["baseValue"] = Math.Round(attr.GetBaseValue(), 2)
+                    });
+                }
+            }
+
+            var mastered = resume != null
+                ? resume.MasteryBySkillID.Where(kv => kv.Value).Select(kv => kv.Key).OrderBy(x => x).ToList()
+                : new List<string>();
+
+            var aptitudes = resume != null
+                ? resume.AptitudeBySkillGroup.OrderByDescending(kv => kv.Value).ToDictionary(kv => kv.Key.ToString(), kv => Math.Round(kv.Value, 2))
+                : new Dictionary<string, double>();
+
+            return new Dictionary<string, object>
+            {
+                ["id"] = dupe.GetComponent<KPrefabID>()?.InstanceID ?? -1,
+                ["name"] = dupe.GetProperName(),
+                ["profession"] = attrs?.GetProfession()?.Name,
+                ["suggestedRole"] = GuessRole(dupe),
+                ["availableSkillPoints"] = resume?.AvailableSkillpoints ?? 0,
+                ["skillsMastered"] = mastered,
+                ["aptitudes"] = aptitudes,
+                ["attributes"] = attributes.OrderByDescending(a => Convert.ToDouble(a["value"])).ToList()
+            };
+        }
+
+        private static Dictionary<string, object> GetNeedsSummary(MinionIdentity dupe)
+        {
+            var amounts = new Dictionary<string, object>();
+            var amountInstance = dupe.GetAmounts();
+            if (amountInstance != null)
+            {
+                foreach (var amount in amountInstance.ModifierList)
+                {
+                    if (amount == null || amount.amount == null) continue;
+                    float value = amount.value;
+                    amounts[amount.amount.Name] = float.IsNaN(value) || float.IsInfinity(value) ? null : (object)Math.Round(value, 2);
+                }
+            }
+            return new Dictionary<string, object>
+            {
+                ["id"] = dupe.GetComponent<KPrefabID>()?.InstanceID ?? -1,
+                ["name"] = dupe.GetProperName(),
+                ["amounts"] = amounts,
+                ["amountDetails"] = NativeAmountDetails(dupe),
+                ["bionic"] = NativeBionicNeeds(dupe, false),
+                ["amountsAvailable"] = amountInstance != null,
+                ["amountsSource"] = amountInstance != null ? "MinionIdentity.GetAmounts().ModifierList" : null
+            };
+        }
+
+        private sealed class ReachabilitySummary
+        {
+            public int ReachableCells;
+            public int VisibleCells;
+            public int SolidCells;
+            public readonly List<Dictionary<string, object>> Samples = new List<Dictionary<string, object>>();
+        }
+
+}
+}

@@ -1,0 +1,62 @@
+# Build artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.cache
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.csproj.user
+
+# Local MSBuild config
+Directory.Build.props
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Game decompiled source & game files (copyrighted, do not commit)
+oni/
+
+# Rust build
+target/
+
+# Node artifacts
+node_modules/
+
+# Mod output
+mods/*/publish/
+mods/*/dll/
+mods/*/dist/
+dist/
+
+
+# Added by cargo
+
+/target
+deps/
+
+__pycache__
+.env
+.tokensave/
+.codegraph/
+.memsearch/
+.agent_backups/
+
+# Local monotonically increasing OniMcp build counter (survives clean)
+mods/OniMcp/.build-number*
+
+# Personal runtime/configuration excluded from public snapshots
+/.claude/
+/.codex/
+/.mcp.json
+/.agents/mcp_config.json
+/scratch/
+/docs/evidence/
+*.sav
+*.jsonl
+*.log

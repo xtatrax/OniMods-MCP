@@ -1,0 +1,14 @@
+# onim の設定ファイル
+# ゲームのパスは Directory.Build.props で一元管理する
+
+# 既定の MOD（-m を指定しない場合に使用）
+default_mod = "OniMcp"
+
+[mods.OniMcp]
+path = "mods/OniMcp"
+# Steam Workshop ID。初回アップロード後に設定すると、以後の公開時に自動で使用する
+# Fork has no Workshop item; never reuse an upstream ID.
+workshop_title = "ONI MCP Server (Public Fork)"
+[mods.CycleTrim]
+path = "mods/CycleTrim"
+workshop_title = "CycleTrim (Early Development)"

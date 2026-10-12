@@ -1,0 +1,107 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OniMcp\n"
+"Application: Oxygen Not Included\n"
+"POT Version: 2.0\n"
+"PO-Revision-Date: 2026-06-07 00:00+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. OniMcp.STRINGS.MOD.TITLE
+msgctxt "OniMcp.STRINGS.MOD.TITLE"
+msgid "OniMcp.STRINGS.MOD.TITLE"
+msgstr "ONI MCP Server"
+
+#. OniMcp.STRINGS.MOD.DESCRIPTION
+msgctxt "OniMcp.STRINGS.MOD.DESCRIPTION"
+msgid "OniMcp.STRINGS.MOD.DESCRIPTION"
+msgstr "Oxygen Not Included MCP Server - exposes game state and actions through Model Context Protocol."
+
+#. OniMcp.STRINGS.OPTIONS.CATEGORIES.SERVER
+msgctxt "OniMcp.STRINGS.OPTIONS.CATEGORIES.SERVER"
+msgid "OniMcp.STRINGS.OPTIONS.CATEGORIES.SERVER"
+msgstr "Server"
+
+#. OniMcp.STRINGS.OPTIONS.CATEGORIES.SECURITY
+msgctxt "OniMcp.STRINGS.OPTIONS.CATEGORIES.SECURITY"
+msgid "OniMcp.STRINGS.OPTIONS.CATEGORIES.SECURITY"
+msgstr "Security"
+
+#. OniMcp.STRINGS.OPTIONS.CATEGORIES.SCREENSHOTS
+msgctxt "OniMcp.STRINGS.OPTIONS.CATEGORIES.SCREENSHOTS"
+msgid "OniMcp.STRINGS.OPTIONS.CATEGORIES.SCREENSHOTS"
+msgstr "Screenshots"
+
+#. OniMcp.STRINGS.OPTIONS.HOST.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.HOST.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.HOST.NAME"
+msgstr "Host"
+
+#. OniMcp.STRINGS.OPTIONS.HOST.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.HOST.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.HOST.TOOLTIP"
+msgstr "HTTP listen host. Use localhost for local-only access, or 0.0.0.0 to listen on all interfaces."
+
+#. OniMcp.STRINGS.OPTIONS.PORT.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.PORT.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.PORT.NAME"
+msgstr "Port"
+
+#. OniMcp.STRINGS.OPTIONS.PORT.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.PORT.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.PORT.TOOLTIP"
+msgstr "HTTP listen port for the MCP endpoint."
+
+#. OniMcp.STRINGS.OPTIONS.AUTH_ENABLED.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.AUTH_ENABLED.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.AUTH_ENABLED.NAME"
+msgstr "Require token"
+
+#. OniMcp.STRINGS.OPTIONS.AUTH_ENABLED.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.AUTH_ENABLED.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.AUTH_ENABLED.TOOLTIP"
+msgstr "Require clients to send Authorization: Bearer <token> or X-Oni-Mcp-Token."
+
+#. OniMcp.STRINGS.OPTIONS.AUTH_TOKEN.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.AUTH_TOKEN.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.AUTH_TOKEN.NAME"
+msgstr "Token"
+
+#. OniMcp.STRINGS.OPTIONS.AUTH_TOKEN.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.AUTH_TOKEN.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.AUTH_TOKEN.TOOLTIP"
+msgstr "Shared token used when token authentication is enabled."
+
+#. OniMcp.STRINGS.OPTIONS.SCREENSHOT_CLEANUP_ENABLED.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.SCREENSHOT_CLEANUP_ENABLED.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.SCREENSHOT_CLEANUP_ENABLED.NAME"
+msgstr "Auto-clean screenshots"
+
+#. OniMcp.STRINGS.OPTIONS.SCREENSHOT_CLEANUP_ENABLED.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.SCREENSHOT_CLEANUP_ENABLED.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.SCREENSHOT_CLEANUP_ENABLED.TOOLTIP"
+msgstr "Automatically delete old temporary screenshots created by MCP camera tools."
+
+#. OniMcp.STRINGS.OPTIONS.SCREENSHOT_RETENTION_MINUTES.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.SCREENSHOT_RETENTION_MINUTES.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.SCREENSHOT_RETENTION_MINUTES.NAME"
+msgstr "Screenshot retention minutes"
+
+#. OniMcp.STRINGS.OPTIONS.SCREENSHOT_RETENTION_MINUTES.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.SCREENSHOT_RETENTION_MINUTES.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.SCREENSHOT_RETENTION_MINUTES.TOOLTIP"
+msgstr "Delete MCP temporary screenshots older than this many minutes."
+
+#. OniMcp.STRINGS.OPTIONS.SCREENSHOT_MAX_FILES.NAME
+msgctxt "OniMcp.STRINGS.OPTIONS.SCREENSHOT_MAX_FILES.NAME"
+msgid "OniMcp.STRINGS.OPTIONS.SCREENSHOT_MAX_FILES.NAME"
+msgstr "Maximum screenshots"
+
+#. OniMcp.STRINGS.OPTIONS.SCREENSHOT_MAX_FILES.TOOLTIP
+msgctxt "OniMcp.STRINGS.OPTIONS.SCREENSHOT_MAX_FILES.TOOLTIP"
+msgid "OniMcp.STRINGS.OPTIONS.SCREENSHOT_MAX_FILES.TOOLTIP"
+msgstr "Keep at most this many MCP temporary screenshots."

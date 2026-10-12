@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <StartupObject>BenchmarkMetadataRegressionEntry</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateForwardingSafety.cs" Link="Source/CoordinateForwardingSafety.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Colony/FoodAccessBreakdown.cs" Link="Source/FoodAccessBreakdown.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Shared/NativeBuildingFootprint.cs" Link="Source/NativeBuildingFootprint.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditFootprints.cs" Link="Source/WorldEditorMapEditFootprints.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingOperationGuidance.cs" Link="Source/BuildingOperationGuidance.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Dupes/NativeAmountSnapshot.cs" Link="Source/NativeAmountSnapshot.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingGeometrySnapshot.cs" Link="Source/BuildingGeometrySnapshot.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Dupes/DiagnosticKeyNeeds.cs" Link="Source/DiagnosticKeyNeeds.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Dupes/UrinationChoreClassification.cs" Link="Source/UrinationChoreClassification.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Core/McpToolInfoLocalization.cs" Link="Source/McpToolInfoLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
+    <Compile Include="../../mods/OniMcp/Core/McpTypes.cs" Link="Source/McpTypes.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Entry/BenchmarkTools.cs" Link="Source/BenchmarkTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Bio/HarvestMarkPolicy.cs" Link="Source/HarvestMarkPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/RoomTypeCatalogTools.cs" Link="Source/RoomTypeCatalogTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningBackwallSupportPolicy.cs" Link="Source/BuildPlanningBackwallSupportPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Core/SandboxDryRunRoutingPolicy.cs" Link="Source/SandboxDryRunRoutingPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Sandbox/SandboxFloodFillExecution.cs" Link="Source/SandboxFloodFillExecution.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Server/AgentProgram*.cs" Link="Source/%(Filename)%(Extension)" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Server/ToolBatch*.cs" Link="Source/%(Filename)%(Extension)" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorQueryTools.cs" Link="Source/WorldEditorQueryTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditTokenParsing.cs" Link="Source/WorldEditorMapEditTokenParsing.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorCellObjectPolicy.cs" Link="Source/WorldEditorCellObjectPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningErrors.cs" Link="Source/BuildPlanningErrors.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanTextAliases.cs" Link="Source/BuildPlanTextAliases.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPrefabResolver.cs" Link="Source/BuildPlanningPrefabResolver.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/PowerConnectionReadiness.cs" Link="Source/PowerConnectionReadiness.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/TemperatureSampleReadiness.cs" Link="Source/TemperatureSampleReadiness.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/ThresholdReading.cs" Link="Source/ThresholdReading.cs" />
+  </ItemGroup>
+  <ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionCandidates.cs" Link="EntitySectionCandidates.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionText.cs" Link="EntitySectionText.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Orders/SweepTargetPolicy.cs" Link="SweepTargetPolicy.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorBuriedMarkers.cs" Link="WorldEditorBuriedMarkers.cs" /></ItemGroup>
+</Project>
