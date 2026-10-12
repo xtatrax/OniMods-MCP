@@ -35,7 +35,7 @@ namespace OniMcp.Tools
             AppendRunLines(sb, "Floor/platform", platforms, 8);
             AppendBuriedMarkerSummary(sb, xMin, xMax, yMin, yMax);
             AppendBuildingFootprints(sb, xMin, xMax, yMin, yMax);
-            AppendDupeEnvironmentWarnings(sb, xMin, xMax, yMin, yMax);
+            AppendDupeEnvironmentObservations(sb, xMin, xMax, yMin, yMax);
         }
 
         private static void AppendTemperatureSpatialSummary(StringBuilder sb, int xMin, int xMax, int yMin, int yMax)
@@ -211,19 +211,19 @@ namespace OniMcp.Tools
             }
         }
 
-        private static void AppendDupeEnvironmentWarnings(StringBuilder sb, int xMin, int xMax, int yMin, int yMax)
+        private static void AppendDupeEnvironmentObservations(StringBuilder sb, int xMin, int xMax, int yMin, int yMax)
         {
-            var warnings = new List<string>();
+            var observations = new List<string>();
             ForEachCoordinate(xMin, xMax, yMin, yMax, (x, y, cell) =>
             {
                 var dupe = Grid.Objects[cell, (int)ObjectLayer.Minion];
                 if (dupe == null || !IsLiquidCell(cell)) return;
-                warnings.Add(StripLinkTags(dupe.GetProperName()) + " in " + StripLinkTags(Grid.Element[cell].name)
+                observations.Add(StripLinkTags(dupe.GetProperName()) + " in " + StripLinkTags(Grid.Element[cell].name)
                     + " @(" + x + "," + y + "), " + Grid.Mass[cell].ToString("F1") + "kg");
             });
-            sb.AppendLine(warnings.Count == 0
-                ? "- Movement warning: no duplicant is standing in liquid in this view."
-                : "- Movement warning: " + string.Join("; ", warnings.ToArray()) + ".");
+            sb.AppendLine(observations.Count == 0
+                ? "- Environment observation: no duplicant is standing in liquid in this view."
+                : "- Environment observation: " + string.Join("; ", observations.ToArray()) + ".");
         }
 
         private static bool IsLiquidCell(int cell)
