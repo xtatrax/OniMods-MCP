@@ -46,3 +46,5 @@ Technical topics retained from the development backlog. Some are partially imple
 
 - [ ] **電力集計の稼働数と定格・実消費・発電実績の意味を揃える。** 回路別generatorOperationalが、停止中設備を含む設置数と一致し、全体値・個別operationalと食い違った。PowerSummaryToolsの回路別GeneratorOperational/ConsumerOperational加算条件を検査する。netActiveWattsとgeneratorStoredJも、実発電収支や燃料在庫と混同しない名称・根拠・単位を示す。
 - [ ] **案内する読取ツールを実際の登録カタログと一致させる。** read_controlを直接案内する一方、実行環境では未登録で、仮想coordinate経由のみ利用できる事例がある。直接経路の有無と現行の代替経路を明示する。
+
+- [ ] **信号ポートのconnectedと端点間の信号到達を区別する。** 出力側グリーン・入力側レッドで両端connected=trueとなる事例を確認した。4セルのLogicWireは存在していたが全セルdirs=空で隣接未接続。通常線と同様に、線の存在・辺の接続・信号値の一致を別々に示し、セル単位施工後の未接続を検知する。ポートだけを見て開通とした運用上の誤判定も記録する。
