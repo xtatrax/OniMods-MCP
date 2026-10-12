@@ -1,5 +1,7 @@
 # OniMods
 
+[main からの変更点](docs/main-differences_JP.md) · [公開版の構成と検証範囲](PUBLIC_RELEASE.md)
+
 > 公開用の独立した実験用フォークです。MOD ID: `PublicFork.OniMcp`。この版の不具合はフォーク側 (this fork’s issue tracker)へ報告してください。このフォークのSteam公開経路は無効化しています。
 
 > **通常の利用には、[オリジナル版の OniMods](https://github.com/LIghtJUNction/OniMods) をおすすめします。** このリポジトリは、日本語化や機能改良を試すための派生版です。

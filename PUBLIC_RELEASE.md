@@ -1,5 +1,7 @@
 # Public fork snapshot
 
+[Changes from main (Japanese)](docs/main-differences_JP.md) documents the pinned baseline, feature changes, compatibility and validation limits.
+
 This branch is an independent, parentless source snapshot. It preserves the latest committed feature work while excluding development-machine and gameplay records. It does not include uncommitted development changes.
 
 ## Included and excluded
