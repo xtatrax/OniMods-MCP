@@ -376,56 +376,29 @@ int cell,
 
         private static string BridgeText(int cell, HashedString mode)
         {
-            var go = CellBuildingObject(cell);
-            if (go == null)
+            string kind = mode == OverlayModes.Power.ID ? "power"
+                : mode == OverlayModes.LiquidConduits.ID ? "liquid"
+                : mode == OverlayModes.GasConduits.ID ? "gas"
+                : mode == OverlayModes.Logic.ID ? "logic"
+                : mode == OverlayModes.SolidConveyor.ID ? "solid" : null;
+            if (kind == null && mode != default(HashedString))
                 return string.Empty;
-            string id = go.GetComponent<BuildingComplete>()?.name ?? go.name;
-            if (id.IndexOf("Bridge", StringComparison.OrdinalIgnoreCase) < 0)
-                return string.Empty;
-
-            var building = go.GetComponent<Building>();
-            string ports = BridgePortText(go, building, mode);
-            return string.IsNullOrEmpty(ports)
-                ? "bridge=" + id
-                : "bridge=" + id + " bridgePorts=" + ports + " bridgeRoute=" + ports;
+            var parts = new List<string>();
+            foreach (var go in NativeBuildingCellIndex.At(cell))
+            {
+                var route = NativeBridgeRead.Read(go);
+                if (route == null || (kind != null && route.Kind != kind))
+                    continue;
+                string ports = route.Available
+                    ? BridgePortRoute(route.From, route.Via, route.To) : "unavailable";
+                parts.Add("bridge=" + route.PrefabId + " bridgePorts=" + ports
+                    + (route.Available ? " bridgeRoute=" + ports : string.Empty)
+                    + " bridgeState=" + (route.Planned ? "planned" : "complete")
+                    + " bridgePortSource=" + route.Source
+                    + " bridgeConnection=not_evaluated");
+            }
+            return string.Join(" ", parts.ToArray());
         }
-
-        private static string BridgePortText(GameObject go, Building building, HashedString mode)
-        {
-            if (mode == OverlayModes.Logic.ID && go != null)
-            {
-                if (LogicPortReadSemantics.TryBridgeRoute(go, out int from, out int to))
-                    return BridgePortRoute(from, Grid.PosToCell(go), to);
-                var ports = go.GetComponent<LogicPorts>();
-                if (ports != null)
-                {
-                    int logicInput = FirstLogicPortCell(ports, ports.inputPortInfo);
-                    int logicOutput = FirstLogicPortCell(ports, ports.outputPortInfo);
-if (Grid.IsValidCell(logicInput) && Grid.IsValidCell(logicOutput))
-return BridgePortRoute(logicInput, Grid.PosToCell(go), logicOutput);
-                }
-            }
-
-            if (building == null)
-                return string.Empty;
-
-            int input = Grid.InvalidCell;
-            int output = Grid.InvalidCell;
-            if (mode == OverlayModes.Power.ID)
-            {
-                input = building.GetPowerInputCell();
-                output = building.GetPowerOutputCell();
-            }
-            else
-            {
-                input = building.GetUtilityInputCell();
-                output = building.GetUtilityOutputCell();
-            }
-
-            if (!Grid.IsValidCell(input) || !Grid.IsValidCell(output))
-                return string.Empty;
-return BridgePortRoute(input, Grid.PosToCell(go), output);
-}
 
 private static string BridgePortRoute(int input, int via, int output)
 {
