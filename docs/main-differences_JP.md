@@ -116,3 +116,12 @@ git diff 60d7a5b7e4246e59b4fe2acf6c26596526d08ad0 1f03cfac19819907108befb9658a59
 | 配布画像 | 既存の3つのPNGはGit LFSポインター。実体の描画・再監査は未実施 |
 
 全検査成功・全設備対応・全MOD/DLC互換を示すものではありません。残る検証や仕様課題は [TODO.md](../TODO.md) を参照してください。
+
+
+## 追補: 建材の数量診断
+
+単一素材の建設必要量をネイティブ BuildingDef.Mass から取得するよう修正。配置のvalidとは別に、materialSelectionのrequiredKg・selectedAvailableKg・shortageKg・satisfied・quantityStatusで資材の充足性を返す。正の在庫不足でも設計図予約を一律拒否する変更ではない。在庫ゼロの拒否は維持する。
+
+必要量／在庫未取得はnull・unknownとして返す。複数素材の総量を一つの素材在庫と比較しない。複数素材スロット、予約量、到達／運搬可能量は引き続き未評価。quantityScope・inventoryScopeを参照する。
+
+不足、在庫ゼロ、境界、余剰、未取得／非有限値、複数素材、free-build例外のホスト回帰を公開作業ツリーで確認。開発版では参照ビルドと実機予行を確認したが、公開版固有IDでの実機確認は未実施。個別のセーブ名・座標・実機ログは公開差分に含まない。

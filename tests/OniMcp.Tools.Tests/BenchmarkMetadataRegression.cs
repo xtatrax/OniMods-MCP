@@ -14,6 +14,7 @@ internal static class BenchmarkMetadataRegressionEntry
         ToolLocalizationRegression.Run();
         UrinationChoreRegression.Run();
         DiagnosticKeyNeedsRegression.Run();
+        MaterialQuantityRegression.Run();
         RoomTypeCatalogRegression.Run();
         BuildingGeometryRegression.Run();
         NativeBuildingFootprintRegression.Run();

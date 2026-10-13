@@ -61,11 +61,13 @@ namespace OniMcp.Tools
 
             if (match.AvailableKg <= 0f && !IsFreeBuildContext())
             {
-                return MaterialSelection.Invalid(
+                var unavailable = MaterialSelection.Invalid(
                     $"Material '{match.Tag.Name}' is valid for {def.PrefabID}, but none is currently available",
                     requested,
                     available,
                     candidates);
+                unavailable.Selected = match;
+                return unavailable;
             }
 
             return ValidatedMaterialSelection(new List<Tag> { match.Tag }, "explicit", requested, match, available);
@@ -121,24 +123,9 @@ namespace OniMcp.Tools
 
         private static float RequiredMaterialKg(BuildingDef def)
         {
-            if (def == null)
-                return 0f;
-
-            try
-            {
-                var buildingsType = typeof(BuildingDef).Assembly.GetType("TUNING+BUILDINGS") ?? Type.GetType("TUNING+BUILDINGS");
-                var massField = buildingsType?.GetField("CONSTRUCTION_MASS_KG", BindingFlags.Public | BindingFlags.Static);
-                var masses = massField?.GetValue(null) as float[];
-                int tier = Mathf.RoundToInt(ToolUtil.SafeFloat(def.MassTier));
-                if (masses != null && tier >= 0 && tier < masses.Length)
-                    return Math.Max(0f, masses[tier]);
-            }
-            catch
-            {
-                // Keep material diagnostics best-effort across ONI builds.
-            }
-
-            return 0f;
+            // Mass contains native per-material-slot construction quantities.
+            // Never compare one selected material with a sum of unrelated slots.
+            return MaterialQuantityDiagnostics.SingleSlotRequirement(def?.Mass);
         }
 
         private static IEnumerable<Tag> CandidateMaterialTags(BuildingDef def, int worldId)
@@ -431,10 +418,10 @@ namespace OniMcp.Tools
 
             public Dictionary<string, object> ToDictionary()
             {
-                float selectedAvailableKg = Selected != null ? ToolUtil.SafeFloat(Selected.AvailableKg) : 0f;
-                bool hasRequiredKg = RequiredKg > 0f;
-                object satisfied = hasRequiredKg ? (object)(IsFreeBuildContext() || selectedAvailableKg >= RequiredKg) : null;
-                float shortageKg = hasRequiredKg ? Math.Max(0f, RequiredKg - selectedAvailableKg) : 0f;
+                float selectedAvailableKg = Selected != null ? Selected.AvailableKg : float.NaN;
+                var quantity = MaterialQuantityDiagnostics.Evaluate(RequiredKg, selectedAvailableKg, IsFreeBuildContext());
+                bool hasRequiredKg = quantity.RequiredKg.HasValue;
+                object satisfied = quantity.Satisfied;
 
                 return new Dictionary<string, object>
                 {
@@ -442,17 +429,27 @@ namespace OniMcp.Tools
                     ["mode"] = Mode,
                     ["requested"] = Requested,
                     ["requirementKnown"] = hasRequiredKg,
-                    ["requiredKg"] = hasRequiredKg ? (object)Math.Round(ToolUtil.SafeFloat(RequiredKg), 3) : null,
-                    ["selectedAvailableKg"] = Selected != null ? (object)Math.Round(selectedAvailableKg, 3) : null,
+                    ["requirementSource"] = hasRequiredKg ? "BuildingDef.Mass[0]" : null,
+                    ["quantityScope"] = "single_material_slot; multi-slot requirements are not evaluated",
+                    ["requiredKg"] = hasRequiredKg ? (object)Math.Round(quantity.RequiredKg.Value, 3) : null,
+                    ["selectedAvailableKg"] = quantity.AvailableKg.HasValue ? (object)Math.Round(quantity.AvailableKg.Value, 3) : null,
                     ["satisfied"] = satisfied,
-                    ["shortageKg"] = hasRequiredKg ? (object)Math.Round(shortageKg, 3) : null,
+                    ["shortageKg"] = quantity.ShortageKg.HasValue ? (object)Math.Round(quantity.ShortageKg.Value, 3) : null,
+                    ["quantityStatus"] = quantity.Status,
+                    ["inventoryScope"] = "world inventory including related worlds and loose items; reservations and delivery reachability not evaluated",
                     ["selected"] = Selected != null ? Selected.ToDictionary() : null,
                     ["elements"] = Elements.Select(tag => tag.Name).ToList(),
                     ["availableMaterials"] = Available.Take(20).Select(item => item.ToDictionary()).ToList(),
                     ["candidateMaterials"] = Candidates.Take(20).Select(item => item.ToDictionary()).ToList(),
                     ["fallbackMaterial"] = Available.Count > 0 ? Available[0].Tag.Name : null,
                     ["next"] = Valid
-                        ? "Material is usable."
+                        ? quantity.Status == "insufficient"
+                            ? "Material is compatible, but stock is insufficient. A blueprint can be queued; acquire more material before completion."
+                            : quantity.Status == "unknown"
+                                ? "Material is compatible; required quantity or stock is unknown. Do not assume sufficient material."
+                                : quantity.Status == "not_required"
+                                    ? "Material stock is not required in free-build mode."
+                                    : "Material is compatible and inventory quantity is sufficient; delivery reachability is not evaluated."
                         : Available.Count > 0
                             ? "Retry with material=auto or material=" + Available[0].Tag.Name + " if exact material is not required."
                             : "No usable material is currently available; inspect inventory/material candidates before retrying.",
