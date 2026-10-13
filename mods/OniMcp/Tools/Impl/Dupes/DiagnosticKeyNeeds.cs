@@ -104,6 +104,8 @@ namespace OniMcp.Tools
 
         internal string RiskWithCoverage(List<string> reasons, bool bionicCoverageComplete = true)
         {
+            // Backward-compatible callers may still provide the former environmental reason.
+            reasons.RemoveAll(reason => reason == "standing_in_liquid");
             string risk = reasons.Contains("invalid_current_cell") || reasons.Contains("no_reachable_nearby_cells") || reasons.Contains("low_breath") || reasons.Contains("bionic_battery_empty") || reasons.Contains("bionic_oxygen_empty")
                 ? "critical" : reasons.Count > 0 ? "warning" : IsComplete && bionicCoverageComplete ? "ok" : "unknown";
             if (!IsComplete) reasons.Add("needs_unavailable");

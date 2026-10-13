@@ -282,8 +282,9 @@ namespace OniMcp.Tools
             needs.AddRiskReasons(reasons);
             if (environment.TryGetValue("temperatureC", out var tempObj) && tempObj is double tempC && (tempC < -20d || tempC > 60d))
                 reasons.Add("dangerous_temperature");
-            if (environment.TryGetValue("state", out var stateObj) && stateObj?.ToString() == "liquid")
-                reasons.Add("standing_in_liquid");
+            bool standingInLiquid = environment.TryGetValue("state", out var stateObj) && stateObj?.ToString() == "liquid";
+            // Foot-cell liquid is an observation, not proof of suffocation or entrapment.
+            environment["standingInLiquid"] = standingInLiquid;
             var idle = current == null ? IdleDiagnostics(dupe, reachable, needs, canReceiveMove) : null;
             if (idle != null && idle.ContainsKey("reasonCode"))
                 reasons.Add("idle_" + idle["reasonCode"]);
@@ -325,6 +326,14 @@ namespace OniMcp.Tools
                 ["needsAssessmentComplete"] = needs.IsComplete,
                 ["unknownNeeds"] = needs.UnknownFields,
                 ["environment"] = environment,
+                ["riskScope"] = "observed_needs_and_local_navigation; not a guarantee of safe return",
+                ["returnSafety"] = new Dictionary<string, object>
+                {
+                    ["assessmentComplete"] = false,
+                    ["status"] = "not_evaluated",
+                    ["reason"] = "breathable_destination_and_route_cost_not_evaluated",
+                    ["safe"] = null
+                },
                 ["scanRect"] = new[] { x - radius, y - radius, x + radius, y + radius },
                 ["nextRead"] = risk == "ok" ? null : $"world_area_snapshot x1={x - radius} y1={y - radius} x2={x + radius} y2={y + radius} worldId={worldId} preset=construction encoding=rle"
             };

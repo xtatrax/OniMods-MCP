@@ -40,7 +40,14 @@ internal static class DiagnosticKeyNeedsRegression
         retry["breath"].Read(() => { throw new InvalidOperationException(); });
         Assert(retry.Breath == null && retry["breath"].Reason == "read_failed", "Failed retry must clear earlier normal value");
         reasons = new List<string> { "standing_in_liquid" };
-        Assert(retry.RiskWithCoverage(reasons) == "warning", "Missing observations must preserve known warning");
+        Assert(retry.RiskWithCoverage(reasons) == "unknown", "Liquid observation must not replace missing breath with a warning or safety claim");
+        var liquidNormal = Complete();
+        reasons = new List<string> { "standing_in_liquid" };
+        Assert(liquidNormal.RiskWithCoverage(reasons) == "ok" && !reasons.Contains("standing_in_liquid"), "Liquid alone does not create an intervention reason");
+        reasons = new List<string> { "standing_in_liquid", "low_breath" };
+        Assert(liquidNormal.RiskWithCoverage(reasons) == "critical", "Liquid must not hide confirmed low breath");
+        reasons = new List<string> { "standing_in_liquid", "dangerous_temperature" };
+        Assert(liquidNormal.RiskWithCoverage(reasons) == "warning", "Liquid must not suppress independent thermal warning");
         reasons = new List<string> { "no_reachable_nearby_cells" };
         Assert(retry.RiskWithCoverage(reasons) == "critical", "Missing observations must preserve known critical risk");
         var zero = Complete();
