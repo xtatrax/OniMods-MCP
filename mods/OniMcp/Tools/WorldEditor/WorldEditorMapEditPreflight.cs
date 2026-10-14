@@ -29,7 +29,7 @@ namespace OniMcp.Tools
 
         private static bool ValidateCompiledMapChanges(JObject args, List<MapEditCell> changes, out string error)
         {
-            error = null;
+            if (!ValidateMapEditInput(args, changes, out error)) return false;
             foreach (var group in changes.GroupBy(ChangeKind))
             {
                 if (group.Key == "wire")

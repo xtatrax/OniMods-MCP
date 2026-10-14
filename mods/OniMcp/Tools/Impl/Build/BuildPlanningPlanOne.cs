@@ -263,7 +263,7 @@ prefabId = resolvedPrefabId;
                 return ErrorResult(prefabId, x, y, "Native footprint unavailable: " + earlyPlacement.GeometryError,
                     ValidateFootprint(earlyPlacement).ToDictionary(earlyPlacement));
             var earlyExistingBuild = ExistingMatchingBuildAtPlacement(def, earlyPlacement);
-            if (earlyExistingBuild != null)
+            if (earlyExistingBuild != null && ExistingMaterialRequestSatisfied(def, earlyExistingBuild, args["material"]?.ToString()))
             {
                 var instantRetry = TryCompleteExistingVirtualFileBlueprint(def, earlyPlacement, args, earlyExistingBuild);
                 if (instantRetry != null)
@@ -306,6 +306,10 @@ prefabId = resolvedPrefabId;
             var existingBuild = ExistingMatchingBuildAtPlacement(def, placement);
             if (existingBuild != null)
             {
+                var materialMismatch = ExistingMaterialMismatchResult(
+                    prefabId, x, y, existingBuild, materialResult, args["material"]?.ToString());
+                if (materialMismatch != null)
+                    return materialMismatch;
                 var instantRetry = TryCompleteExistingVirtualFileBlueprint(def, placement, args, existingBuild);
                 if (instantRetry != null)
                     return instantRetry;
@@ -349,6 +353,10 @@ prefabId = resolvedPrefabId;
             var existingUtility = ExistingMatchingUtilityAtPlacement(def, placement);
             if (existingUtility != null)
             {
+                var materialMismatch = ExistingMaterialMismatchResult(
+                    prefabId, x, y, existingUtility, materialResult, args["material"]?.ToString());
+                if (materialMismatch != null)
+                    return materialMismatch;
                 RegisterSupportBlueprint(prefabId, x, y, plannedSupportCells);
                 return ExistingPlacementResult(def, placement, existingUtility, utility: true);
             }
@@ -385,6 +393,10 @@ prefabId = resolvedPrefabId;
             var executionExistingBuild = ExistingMatchingBuildAtPlacement(def, placement);
             if (executionExistingBuild != null)
             {
+                var materialMismatch = ExistingMaterialMismatchResult(
+                    prefabId, x, y, executionExistingBuild, materialResult, args["material"]?.ToString());
+                if (materialMismatch != null)
+                    return materialMismatch;
                 var instantRetry = TryCompleteExistingVirtualFileBlueprint(def, placement, args, executionExistingBuild);
                 if (instantRetry != null)
                     return instantRetry;
@@ -393,7 +405,13 @@ prefabId = resolvedPrefabId;
 
             var executionExistingUtility = ExistingMatchingUtilityAtPlacement(def, placement);
             if (executionExistingUtility != null)
+            {
+                var materialMismatch = ExistingMaterialMismatchResult(
+                    prefabId, x, y, executionExistingUtility, materialResult, args["material"]?.ToString());
+                if (materialMismatch != null)
+                    return materialMismatch;
                 return ExistingPlacementResult(def, placement, executionExistingUtility, utility: true);
+            }
 
             var executionFootprintResult = ValidateFootprint(placement);
             if (HasUnsafeExecutionConflict(executionFootprintResult))

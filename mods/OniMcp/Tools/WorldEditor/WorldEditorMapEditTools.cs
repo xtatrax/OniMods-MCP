@@ -296,7 +296,7 @@ namespace OniMcp.Tools
                 }
                 if (offset < 0)
                 {
-                    error = "SEARCH row Y=" + item.Key + " no longer matches current map. `?` matches one token; `*` matches one token; `/regex/` or `~regex` matches one token by regex.";
+                    error = "SEARCH row Y=" + item.Key + " no longer matches current map. `?` and `*` match literally; `.*` is a wildcard; `/regex/` or `~regex` matches one token by regex.";
                     return null;
                 }
 

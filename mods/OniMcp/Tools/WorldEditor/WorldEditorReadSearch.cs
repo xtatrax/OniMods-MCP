@@ -36,9 +36,14 @@ namespace OniMcp.Tools
                     return CallToolResult.Text(ReadMapFileWithArgs(args, path));
                 if (TryParseZoomPath(relative, out int zoomX1, out int zoomY1, out int zoomX2, out int zoomY2))
                 {
+                    var zoomArgs = (JObject)args.DeepClone();
+                    zoomArgs["path"] = path;
+                    if (!TryReadZoomBounds(zoomArgs, out zoomX1, out zoomY1, out zoomX2, out zoomY2, out string zoomError))
+                        return CallToolResult.Error(zoomError);
                     var views = ResolveZoomViews(ParseZoomViews(args)).ToList();
                     if (views.Count == 0)
                         views = ResolveZoomViews(DefaultZoomViews()).ToList();
+                    ValidateMapCellBudget(args, zoomX1, zoomX2, zoomY1, zoomY2);
                     string syncNote = SyncZoomCameraAndView(args, zoomX1, zoomY1, zoomX2, zoomY2, views);
                     return CallToolResult.Text(ReadZoomMarkdown(
                         zoomX1,
@@ -51,9 +56,13 @@ namespace OniMcp.Tools
                 }
                 if (TryParseCellSnapshotPath(relative, out int cellX, out int cellY))
                     return CallToolResult.Text(ReadCellSnapshotMarkdown(args, cellX, cellY));
-                if (relative.StartsWith("map/layers/", StringComparison.Ordinal)
-                    && (relative.EndsWith(".html", StringComparison.Ordinal) || relative.EndsWith(".md", StringComparison.Ordinal)))
-                    return CallToolResult.Text(ReadFileDirectly(path));
+                if (relative.StartsWith("map/layers/", StringComparison.Ordinal))
+                {
+                    if (relative.EndsWith(".md", StringComparison.Ordinal))
+                        return CallToolResult.Text(ReadMapLayerWithArgs(args, path));
+                    if (relative.EndsWith(".html", StringComparison.Ordinal))
+                        return CallToolResult.Text(ReadFileDirectly(path));
+                }
                 if (relative == "symbols/index.md" || relative == "symbols/glyphs.md")
                     return CallToolResult.Text(ReadSymbolMarkdown(path, Text(args, "query", "target", "search")));
                 if (IsBlueprintVirtualFile(relative))
@@ -191,12 +200,12 @@ namespace OniMcp.Tools
 
             if (!TryReadMapFocusBounds(args, out int pxMin, out int pyMin, out int pxMax, out int pyMax, out string boundsError))
             {
-                result = CallToolResult.Text("# " + path + "\n\nExact patch rectangle requires x1,y1,x2,y2 bounds.\n");
+                result = CallToolResult.Error("Exact patch rectangle requires x1,y1,x2,y2 bounds.");
                 return true;
             }
             if (!string.IsNullOrWhiteSpace(boundsError))
             {
-                result = CallToolResult.Text("# " + path + "\n\nInvalid exact patch rectangle: " + boundsError + "\n");
+                result = CallToolResult.Error("Invalid exact patch rectangle: " + boundsError);
                 return true;
             }
 
@@ -207,25 +216,14 @@ namespace OniMcp.Tools
                 mode = ModeForInfrastructurePath(relative);
                 viewName = GetOverlayViewName(mode);
             }
-            else if (relative.StartsWith("map/layers/", StringComparison.Ordinal))
-            {
-                mode = OverlayScreen.Instance != null ? OverlayScreen.Instance.mode : OverlayModes.None.ID;
-                viewName = GetOverlayViewName(mode);
-            }
             else
             {
-                string requestedView = FirstZoomText(args, "view", "activeView", "displayView");
-                if (string.IsNullOrWhiteSpace(requestedView))
-                    requestedView = "default";
-                if (!TryResolveZoomView(requestedView, out ZoomView view))
-                {
-                    result = CallToolResult.Text("# " + path + "\n\nInvalid exact patch rectangle view: " + requestedView + "\n");
-                    return true;
-                }
+                ZoomView view = ResolveReadMapView(args);
                 mode = view.Mode;
                 viewName = view.Name;
             }
 
+            ValidateMapCellBudget(args, pxMin, pxMax, pyMin, pyMax);
             string map = GetMapMd("[ビュー: " + viewName + "] Patch Rect Map (X: "
                 + pxMin + "~" + pxMax + ", Y: " + pyMin + "~" + pyMax + ")",
                 pxMin, pxMax, pyMin, pyMax, mode, ShouldCompactMap(args));

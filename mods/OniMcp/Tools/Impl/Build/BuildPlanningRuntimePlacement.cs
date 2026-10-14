@@ -121,6 +121,7 @@ namespace OniMcp.Tools
                     ["kind"] = "building",
                     ["prefabId"] = existingPrefabId,
                     ["id"] = go.GetComponent<KPrefabID>()?.InstanceID ?? -1,
+                    ["material"] = ExistingConstructionMaterialTag(go),
                     ["actualPlacement"] = actual,
                     ["placementCheck"] = check
                 };
@@ -136,6 +137,7 @@ namespace OniMcp.Tools
                 ["kind"] = "blueprint",
                 ["prefabId"] = blueprintBuilding?.Def?.PrefabID ?? blueprint.GetComponent<KPrefabID>()?.PrefabTag.Name ?? blueprint.name,
                 ["id"] = blueprint.GetComponent<KPrefabID>()?.InstanceID ?? -1,
+                ["material"] = ExistingConstructionMaterialTag(blueprint),
                 ["actualPlacement"] = ActualPlacementDetails(blueprint, def, placement.AnchorX, placement.AnchorY),
                 ["placementCheck"] = ComparePlacement(placement, ActualPlacementDetails(blueprint, def, placement.AnchorX, placement.AnchorY))
             };
@@ -168,6 +170,8 @@ namespace OniMcp.Tools
             {
                 ["prefabId"] = def.PrefabID,
                 ["mode"] = "reuse_existing_same_utility_layer",
+                // A linear utility occupies one cell; an unexpected shape stays unknown.
+                ["material"] = existing.Count == 1 ? existing[0]["material"] : null,
                 ["cells"] = existing,
                 ["note"] = "A matching wire/pipe already exists on this utility layer, so this cell is treated as connected instead of placing a duplicate blueprint."
             };
@@ -190,7 +194,8 @@ namespace OniMcp.Tools
                     ["cell"] = cellInfo.Cell,
                     ["layer"] = layer.ToString(),
                     ["id"] = prefabId,
-                    ["name"] = ToolUtil.CleanName(go.GetProperName())
+                    ["name"] = ToolUtil.CleanName(go.GetProperName()),
+                    ["material"] = ExistingConstructionMaterialTag(go)
                 };
             }
 

@@ -10,12 +10,6 @@ namespace OniMcp.Tools
 {
     public static partial class WorldEditorTools
     {
-        private static bool _hasSynchronizedViewportBounds;
-        private static int _synchronizedViewportXMin;
-        private static int _synchronizedViewportYMin;
-        private static int _synchronizedViewportXMax;
-        private static int _synchronizedViewportYMax;
-
         private static CallToolResult Zoom(JObject args)
         {
             if (!TryReadZoomBounds(args, out int xMin, out int yMin, out int xMax, out int yMax, out string error))
@@ -26,9 +20,8 @@ namespace OniMcp.Tools
                 views = ResolveZoomViews(DefaultZoomViews()).ToList();
 
             string syncNote = SyncZoomCameraAndView(args, xMin, yMin, xMax, yMax, views);
-            bool syncEachView = ToolUtil.GetBool(args, "syncView", true);
             string text = ReadZoomMarkdown(xMin, yMin, xMax, yMax, views.Select(view => view.Name), syncNote,
-                ShouldCompactMap(args), syncEachView, ToolUtil.GetBool(args, "allowSound", false));
+                ShouldCompactMap(args));
             return CallToolResult.Text(text);
         }
 
@@ -56,7 +49,7 @@ namespace OniMcp.Tools
         }
 
         private static string ReadZoomMarkdown(int xMin, int yMin, int xMax, int yMax, IEnumerable<string> views,
-            string syncNote = null, bool compact = true, bool syncEachView = false, bool allowSound = false)
+            string syncNote = null, bool compact = true)
         {
             NormalizeZoomBounds(ref xMin, ref yMin, ref xMax, ref yMax);
             var resolved = ResolveZoomViews(views).ToList();
@@ -76,31 +69,28 @@ namespace OniMcp.Tools
 
             foreach (var view in resolved)
             {
-                if (syncEachView)
-                    ApplyZoomOverlayMode(view.Mode, allowSound);
                 sb.AppendLine(GetMapMd("部分拡大 - " + view.Name, xMin, xMax, yMin, yMax, view.Mode, compact));
-                if (syncEachView)
-                    sb.AppendLine("- ゲームのレイヤー同期: 切り替え先 " + view.Name + "。このビューをゲーム内に表示しました。");
                 sb.AppendLine();
             }
-
-            if (syncEachView && resolved.Count > 0)
-                sb.AppendLine("- 最終的なゲームのレイヤー: " + resolved[resolved.Count - 1].Name + "（最後に読み取ったテキストビューと一致）");
 
             return sb.ToString();
         }
 
         private static string SyncZoomCameraAndView(JObject args, int xMin, int yMin, int xMax, int yMax, List<ZoomView> views)
         {
-            if (!ToolUtil.GetBool(args, "syncView", true))
-                return "未同期(syncView=false)";
+            if (!ToolUtil.GetBool(args, "syncView", false))
+                return string.Empty;
 
             string viewName = FirstZoomText(args, "activeView", "displayView", "view");
             ZoomView activeView;
-            if (string.IsNullOrWhiteSpace(viewName) || !TryResolveZoomView(viewName, out activeView))
+            if (string.IsNullOrWhiteSpace(viewName))
                 activeView = views.Count > 0 ? views[0] : new ZoomView { Name = "default", Mode = OverlayModes.None.ID };
+            else if (!TryResolveZoomView(viewName, out activeView))
+                throw new ArgumentException("Unknown display view: " + viewName);
 
             bool focusCamera = ToolUtil.GetBool(args, "focusCamera", true);
+            if (OverlayScreen.Instance == null || (focusCamera && CameraController.Instance == null))
+                throw new ArgumentException("View synchronization is unavailable; no camera or overlay was changed.");
             float zoom = 0f;
             if (focusCamera)
                 zoom = SyncZoomCamera(args, xMin, yMin, xMax, yMax);
@@ -117,7 +107,7 @@ namespace OniMcp.Tools
         {
             var camera = CameraController.Instance;
             if (camera == null)
-                return 0f;
+                throw new ArgumentException("Camera controller is not initialized; no view was synchronized.");
 
             float centerX = (xMin + xMax) * 0.5f;
             float centerY = (yMin + yMax) * 0.5f;
@@ -125,25 +115,7 @@ namespace OniMcp.Tools
                 ?? ToolUtil.GetFloat(args, "zoom")
                 ?? CalculateZoomForBounds(args, xMin, yMin, xMax, yMax);
             camera.SnapTo(new Vector3(centerX, centerY, -100f), zoom);
-            _hasSynchronizedViewportBounds = true;
-            _synchronizedViewportXMin = xMin;
-            _synchronizedViewportYMin = yMin;
-            _synchronizedViewportXMax = xMax;
-            _synchronizedViewportYMax = yMax;
             return zoom;
-        }
-
-        private static bool TryGetSynchronizedViewportBounds(out int xMin, out int yMin, out int xMax, out int yMax)
-        {
-            xMin = yMin = xMax = yMax = 0;
-            if (!_hasSynchronizedViewportBounds)
-                return false;
-
-            xMin = _synchronizedViewportXMin;
-            yMin = _synchronizedViewportYMin;
-            xMax = _synchronizedViewportXMax;
-            yMax = _synchronizedViewportYMax;
-            return true;
         }
 
         private static float CalculateZoomForBounds(JObject args, int xMin, int yMin, int xMax, int yMax)
@@ -194,6 +166,7 @@ namespace OniMcp.Tools
         {
             error = null;
             xMin = yMin = xMax = yMax = 0;
+            if (!ValidateMapCoordinateArguments(args, out error)) return true;
             int? x1 = ToolUtil.GetInt(args, "x1") ?? ToolUtil.GetInt(args, "xMin") ?? ToolUtil.GetInt(args, "left");
             int? y1 = ToolUtil.GetInt(args, "y1") ?? ToolUtil.GetInt(args, "yMin") ?? ToolUtil.GetInt(args, "bottom");
             int? x2 = ToolUtil.GetInt(args, "x2") ?? ToolUtil.GetInt(args, "xMax") ?? ToolUtil.GetInt(args, "right");
@@ -226,7 +199,19 @@ namespace OniMcp.Tools
             }
 
             string mode = ResolveFocusMode(args, 1, 1);
-            int radius = Math.Max(2, ToolUtil.GetInt(args, "radius") ?? (mode == "overview" ? 24 : 8));
+            if (args?["radius"] != null && (args["radius"].Type != JTokenType.Integer
+                || !int.TryParse(args["radius"].ToString(), out int parsedRadius) || parsedRadius < 1))
+            {
+                error = "radius must be a positive integer.";
+                return true;
+            }
+            int radius = ToolUtil.GetInt(args, "radius") ?? (mode == "overview" ? 24 : 8);
+            if ((long)x.Value - radius < 0 || (long)y.Value - radius < 0
+                || (long)x.Value + radius >= Grid.WidthInCells || (long)y.Value + radius >= Grid.HeightInCells)
+            {
+                error = "The focus rectangle is outside the loaded grid; no radius or bounds were clamped.";
+                return true;
+            }
             xMin = x.Value - radius;
             xMax = x.Value + radius;
             yMin = y.Value - radius;
@@ -239,9 +224,10 @@ namespace OniMcp.Tools
         {
             var overlay = OverlayScreen.Instance;
             if (overlay == null)
-                return;
+                throw new ArgumentException("Overlay screen is not initialized; no view was synchronized.");
 
-            overlay.ToggleOverlay(mode, allowSound);
+            if (overlay.mode != mode)
+                overlay.ToggleOverlay(mode, allowSound);
             if (Game.Instance != null)
                 Game.Instance.ForceOverlayUpdate(true);
         }
@@ -249,14 +235,22 @@ namespace OniMcp.Tools
         private static bool TryReadZoomBounds(JObject args, out int xMin, out int yMin, out int xMax, out int yMax, out string error)
         {
             error = null;
+            xMin = yMin = xMax = yMax = 0;
+            if (!ValidateMapCoordinateArguments(args, out error)) return false;
             xMin = ToolUtil.GetInt(args, "x1") ?? ToolUtil.GetInt(args, "xMin") ?? ToolUtil.GetInt(args, "left") ?? int.MinValue;
             yMin = ToolUtil.GetInt(args, "y1") ?? ToolUtil.GetInt(args, "yMin") ?? ToolUtil.GetInt(args, "bottom") ?? int.MinValue;
             xMax = ToolUtil.GetInt(args, "x2") ?? ToolUtil.GetInt(args, "xMax") ?? ToolUtil.GetInt(args, "right") ?? int.MinValue;
             yMax = ToolUtil.GetInt(args, "y2") ?? ToolUtil.GetInt(args, "yMax") ?? ToolUtil.GetInt(args, "top") ?? int.MinValue;
 
+            bool hasExplicitRange = new[] { "x1", "y1", "x2", "y2", "xMin", "yMin", "xMax", "yMax", "left", "bottom", "right", "top" }
+                .Any(key => args?[key] != null);
+            if (hasExplicitRange && (xMin == int.MinValue || yMin == int.MinValue || xMax == int.MinValue || yMax == int.MinValue))
+            {
+                error = "Explicit zoom bounds require x1,y1,x2,y2 together; the path cannot replace a partial range.";
+                return false;
+            }
             string path = NormalizePath(Text(args, "path"), _cwd);
-            if ((xMin == int.MinValue || yMin == int.MinValue || xMax == int.MinValue || yMax == int.MinValue)
-                && path.StartsWith("/active/", StringComparison.Ordinal)
+            if (!hasExplicitRange && path.StartsWith("/active/", StringComparison.Ordinal)
                 && TryParseZoomPath(SaveRelativePath(path), out int px1, out int py1, out int px2, out int py2))
             {
                 xMin = px1;
@@ -272,44 +266,67 @@ namespace OniMcp.Tools
             }
 
             NormalizeZoomBounds(ref xMin, ref yMin, ref xMax, ref yMax);
-            int maxCells = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "maxCells") ?? 900, 2500));
-            int cells = (xMax - xMin + 1) * (yMax - yMin + 1);
-            if (cells > maxCells)
+            try
             {
-                error = "zoom range too large: " + cells + " cells, maxCells=" + maxCells
-                    + ". Narrow the range or pass a higher maxCells up to 2500.";
+                ValidateMapCellBudget(args, xMin, xMax, yMin, yMax);
+            }
+            catch (ArgumentException ex)
+            {
+                error = ex.Message;
                 return false;
             }
 
             return true;
         }
 
+        private static void ValidateMapCellBudget(JObject args, int xMin, int xMax, int yMin, int yMax)
+        {
+            if (args?["maxCells"] != null && (args["maxCells"].Type != JTokenType.Integer
+                || !int.TryParse(args["maxCells"].ToString(), out _)))
+                throw new ArgumentException("maxCells must be an integer from 1 through 2500.");
+            int maxCells = ToolUtil.GetInt(args, "maxCells") ?? 900;
+            if (maxCells < 1 || maxCells > 2500)
+                throw new ArgumentException("maxCells must be from 1 through 2500.");
+            NormalizeZoomBounds(ref xMin, ref yMin, ref xMax, ref yMax);
+            long cells = ((long)xMax - xMin + 1) * ((long)yMax - yMin + 1);
+            if (cells > maxCells)
+                throw new ArgumentException("map range too large: " + cells + " cells, maxCells=" + maxCells
+                    + ". Narrow x1,y1,x2,y2 or pass a higher maxCells up to 2500.");
+        }
+
+        private static bool ValidateMapCoordinateArguments(JObject args, out string error)
+        {
+            error = null;
+            foreach (string key in new[] { "x1", "y1", "x2", "y2", "xMin", "yMin", "xMax", "yMax",
+                "left", "bottom", "right", "top", "x", "y", "centerX", "centerY" })
+            {
+                if (args?[key] != null && (args[key].Type != JTokenType.Integer
+                    || !int.TryParse(args[key].ToString(), out _)))
+                {
+                    error = key + " must be an integer grid coordinate; no camera fallback was used.";
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private static void NormalizeZoomBounds(ref int xMin, ref int yMin, ref int xMax, ref int yMax)
         {
-            if (xMin > xMax)
-            {
-                int tmp = xMin;
-                xMin = xMax;
-                xMax = tmp;
-            }
-            if (yMin > yMax)
-            {
-                int tmp = yMin;
-                yMin = yMax;
-                yMax = tmp;
-            }
-
-            xMin = Mathf.Clamp(xMin, 0, Grid.WidthInCells - 1);
-            xMax = Mathf.Clamp(xMax, 0, Grid.WidthInCells - 1);
-            yMin = Mathf.Clamp(yMin, 0, Grid.HeightInCells - 1);
-            yMax = Mathf.Clamp(yMax, 0, Grid.HeightInCells - 1);
+            string error = MapTextReadPolicy.BoundsError(xMin, yMin, xMax, yMax, Grid.WidthInCells, Grid.HeightInCells);
+            if (error != null) throw new ArgumentException(error);
         }
 
         private static IEnumerable<string> ParseZoomViews(JObject args)
         {
             JToken token = args?["views"] ?? args?["viewList"] ?? args?["view"];
             if (token is JArray array)
+            {
+                if (array.Count == 0 || array.Any(item => item.Type != JTokenType.String || string.IsNullOrWhiteSpace(item.ToString())))
+                    throw new ArgumentException("views must contain at least one non-empty view name.");
                 return array.Select(item => item.ToString());
+            }
+            if (token != null && token.Type != JTokenType.Null && token.Type != JTokenType.String)
+                throw new ArgumentException("views must be an array or a comma-separated string.");
 
             string text = token?.ToString();
             if (string.IsNullOrWhiteSpace(text))
@@ -320,7 +337,7 @@ namespace OniMcp.Tools
 
         private static IEnumerable<string> DefaultZoomViews()
         {
-            return new[] { "default", "power", "oxygen", "temperature" };
+            return new[] { "default" };
         }
 
         private static IEnumerable<ZoomView> ResolveZoomViews(IEnumerable<string> views)
@@ -330,7 +347,7 @@ namespace OniMcp.Tools
             {
                 ZoomView view;
                 if (!TryResolveZoomView(raw, out view))
-                    continue;
+                    throw new ArgumentException("Unsupported text map view: " + raw);
                 if (seen.Add(view.Name))
                     yield return view;
             }

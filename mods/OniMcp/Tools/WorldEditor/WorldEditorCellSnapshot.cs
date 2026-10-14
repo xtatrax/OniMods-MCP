@@ -26,12 +26,13 @@ namespace OniMcp.Tools
 
         private static string ReadCellSnapshotMarkdown(JObject args, int x, int y)
         {
-            int cell = Grid.XYToCell(x, y);
+            int cell = MapTextReadPolicy.Inside(x, y, Grid.WidthInCells, Grid.HeightInCells)
+                ? Grid.XYToCell(x, y) : Grid.InvalidCell;
             var sb = new StringBuilder();
             sb.AppendLine("# Cell (" + x + "," + y + ") Cross-View Snapshot");
             sb.AppendLine();
 
-            if (!Grid.IsValidCell(cell))
+            if (!IsReadableMapCell(cell))
             {
                 sb.AppendLine("- 状態: 無効なセル");
                 return sb.ToString();
@@ -240,12 +241,14 @@ namespace OniMcp.Tools
             char glyph = mode == OverlayModes.Power.ID
                 ? ResolvePowerConnectionSymbol(cell)
                 : ResolveUtilityConnectionSymbol(cell, layers);
+            bool connectionsKnown = TryGetUtilityConnections(cell, layers, out _);
             var dirs = ConnectionDirections(cell, layers, mode == OverlayModes.Power.ID);
             string text = "glyph=" + glyph
-                + " dirs=" + (dirs.Count == 0 ? "." : string.Join("", dirs.Select(d => d.Dir).ToArray()))
-                + " links=" + ConnectionLinkText(dirs)
-                 + " open=" + OpenAdjacentConnectionText(cell, layers, dirs)
-            + " to=" + (dirs.Count == 0 ? "." : string.Join(",", dirs.Select(d => CellCoord(d.Cell)).ToArray()));
+                + " dirs=" + (!connectionsKnown ? "?" : dirs.Count == 0 ? "." : string.Join("", dirs.Select(d => d.Dir).ToArray()))
+                + " links=" + (connectionsKnown ? ConnectionLinkText(dirs) : "?")
+                 + " open=" + (connectionsKnown ? OpenAdjacentConnectionText(cell, layers, dirs) : "?")
+            + " to=" + (!connectionsKnown ? "?" : dirs.Count == 0 ? "." : string.Join(",", dirs.Select(d => CellCoord(d.Cell)).ToArray()));
+            text += " " + UtilityConnectionReadState(cell, layers);
             if (mode == OverlayModes.Power.ID)
                 text += " " + PowerCircuitText(cell);
             string bridge = BridgeText(cell, mode);
