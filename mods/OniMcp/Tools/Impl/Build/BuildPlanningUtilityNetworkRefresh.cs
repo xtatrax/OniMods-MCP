@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -10,46 +8,30 @@ namespace OniMcp.Tools
     {
         private static bool IsExactConnectionUtilityPrefab(string prefabId)
         {
-            return EqualsIgnoreCase(prefabId, "LogicWire")
-                || EqualsIgnoreCase(prefabId, "Wire")
-                || EqualsIgnoreCase(prefabId, "LiquidConduit")
-                || EqualsIgnoreCase(prefabId, "GasConduit")
-                || EqualsIgnoreCase(prefabId, "SolidConduit");
+            var prefab = Assets.GetBuildingDef(prefabId)?.BuildingComplete;
+            return prefab != null && prefab.GetComponent<KAnimGraphTileVisualizer>() != null
+                && (prefab.GetComponent<Wire>() != null || prefab.GetComponent<LogicWire>() != null
+                    || prefab.GetComponent<Conduit>() != null || prefab.GetComponent<SolidConduit>() != null);
         }
 
         private static bool EnsureCompletedUtilityNetworkRegistration(
             BuildingDef def, GameObject completed, bool isolateConnections, out string error)
         {
+            // Do not AddToNetworks here. Conduit registers after structure temperature
+            // registration; a second registration destroys the previous object, even
+            // when it is the same instance. SolidConduit is not a FlowUtilityNetwork.IItem.
             error = null;
-            if (def == null || !IsExactConnectionUtilityPrefab(def.PrefabID))
-                return true;
-            var connector = completed == null ? null : completed.GetComponent<IHaveUtilityNetworkMgr>();
-            var manager = connector?.GetNetworkManager();
-            int cell = completed == null ? Grid.InvalidCell : Grid.PosToCell(completed);
-            if (connector == null || manager == null || !Grid.IsValidCell(cell))
+            if (def == null || !IsExactConnectionUtilityPrefab(def.PrefabID)) return true;
+            var graph = completed?.GetComponent<KAnimGraphTileVisualizer>();
+            if (graph == null || !graph.isPhysicalBuilding || graph.ConnectionManager == null)
             {
-                error = "completed utility is missing its connector, network manager, or valid cell";
+                error = "completed utility is missing its graph or native manager";
                 return false;
             }
-
-            if (!TryGetRegisteredUtilityConnector(manager, cell, out object registered, out error))
-                return false;
-            if (registered != null && !ReferenceEquals(registered, connector))
-            {
-                error = "utility network cell is registered to a different connector";
-                return false;
-            }
-            if (registered == null)
-                manager.AddToNetworks(cell, connector, is_endpoint: false);
-
-            var disconnectable = completed.GetComponent<IDisconnectable>();
-            if (disconnectable != null && disconnectable.IsDisconnected() && !disconnectable.Connect())
-            {
-                error = "completed utility connector could not be connected";
-                return false;
-            }
-            return RefreshUtilityConnectionCells(
-                def, new[] { cell }, manager, isolateConnections, out error);
+            graph.connectionManager = graph.ConnectionManager;
+            if (isolateConnections) graph.UpdateConnections((UtilityConnections)0);
+            graph.Refresh();
+            return true;
         }
 
         private static bool RefreshAndValidateUtilityPathNetwork(
@@ -59,26 +41,11 @@ namespace OniMcp.Tools
             if (def == null || !IsExactConnectionUtilityPrefab(def.PrefabID) || path == null || path.Count == 0)
                 return true;
 
-            IUtilityNetworkMgr manager = null;
-            foreach (var point in path)
-            {
-                int cell = Grid.XYToCell(point.x, point.y);
-                var go = Grid.IsValidCell(cell) ? Grid.Objects[cell, (int)def.ObjectLayer] : null;
-                if (!EnsureCompletedUtilityNetworkRegistration(
-                        def, go, isolateConnections: false, out error))
-                    return false;
-                var current = go.GetComponent<IHaveUtilityNetworkMgr>()?.GetNetworkManager();
-                if (manager == null)
-                    manager = current;
-                else if (!ReferenceEquals(manager, current))
-                {
-                    error = "utility path resolved to multiple network managers";
-                    return false;
-                }
-            }
+            IUtilityNetworkMgr manager = def.BuildingComplete
+                .GetComponent<KAnimGraphTileVisualizer>()?.ConnectionManager;
             if (manager == null)
             {
-                error = "utility path has no network manager";
+                error = "utility path has no native network manager";
                 return false;
             }
 
@@ -114,58 +81,14 @@ namespace OniMcp.Tools
                 int current = Grid.XYToCell(path[i].x, path[i].y);
                 TryExpectedConnectionBits(previous, current,
                     out UtilityConnections fromBit, out UtilityConnections toBit);
-                if ((manager.GetConnections(previous, is_physical_building: true) & fromBit) == 0
-                    || (manager.GetConnections(current, is_physical_building: true) & toBit) == 0)
+                if ((manager.GetConnections(previous, is_physical_building: false) & fromBit) == 0
+                    || (manager.GetConnections(current, is_physical_building: false) & toBit) == 0)
                 {
                     error = "utility network rebuild did not register a bidirectional adjacent path segment";
                     return false;
                 }
             }
 
-            foreach (int endpointCell in new[]
-                     { Grid.XYToCell(path[0].x, path[0].y), Grid.XYToCell(path[path.Count - 1].x, path[path.Count - 1].y) })
-            {
-                if (manager.GetEndpoint(endpointCell) != null && manager.GetNetworkForCell(endpointCell) == null)
-                {
-                    error = "utility endpoint is not attached to the rebuilt path network";
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static bool RefreshUtilityConnectionCells(BuildingDef def, IEnumerable<int> seedCells,
-            IUtilityNetworkMgr manager, bool isolateConnections, out string error)
-        {
-            error = null;
-            var visualizers = new Dictionary<int, KAnimGraphTileVisualizer>();
-            foreach (int seed in seedCells)
-            {
-                if (!TryGetCompatibleUtilityVisualizer(def, seed, manager,
-                        out KAnimGraphTileVisualizer visualizer))
-                {
-                    error = "completed utility is missing its physical graph tile visualizer";
-                    return false;
-                }
-                visualizers[seed] = visualizer;
-            }
-
-            foreach (var item in visualizers)
-            {
-                UtilityConnections connections = manager.GetConnections(
-                    item.Key, is_physical_building: false);
-                if (isolateConnections)
-                {
-                    manager.ClearCell(item.Key, is_physical_building: true);
-                    connections = (UtilityConnections)0;
-                }
-                item.Value.connectionManager = manager;
-                item.Value.UpdateConnections(connections);
-            }
-            if (!RefreshUtilityNetworkManager(manager, out error))
-                return false;
-            foreach (var item in visualizers)
-                item.Value.Refresh();
             return true;
         }
 
@@ -180,8 +103,14 @@ namespace OniMcp.Tools
                 if (!TryGetCompatibleUtilityVisualizer(def, item.Key, manager,
                         out KAnimGraphTileVisualizer visualizer))
                 {
-                    error = "utility path cell is missing its physical graph tile visualizer";
+                    error = "utility path cell is missing its matching blueprint or completed graph";
                     return false;
+                }
+                foreach (UtilityConnections bit in new[] { UtilityConnections.Left, UtilityConnections.Right,
+                    UtilityConnections.Up, UtilityConnections.Down })
+                {
+                    if ((item.Value & bit) != 0 && (manager.GetConnections(item.Key, false) & bit) == 0
+                        && !manager.CanAddConnection(bit, item.Key, false, out error)) return false;
                 }
                 visualizers[item.Key] = visualizer;
             }
@@ -207,9 +136,9 @@ namespace OniMcp.Tools
                 return false;
             var go = Grid.Objects[cell, (int)def.TileLayer];
             visualizer = go?.GetComponent<KAnimGraphTileVisualizer>();
-            var provider = go?.GetComponent<IHaveUtilityNetworkMgr>();
-            return visualizer != null && visualizer.isPhysicalBuilding
-                && provider != null && ReferenceEquals(provider.GetNetworkManager(), manager);
+            var building = go?.GetComponent<Building>();
+            return visualizer != null && EqualsIgnoreCase(building?.Def?.PrefabID, def.PrefabID)
+                && ReferenceEquals(visualizer.ConnectionManager, manager);
         }
 
         private static bool IsCompletedUtilityPath(BuildingDef def, List<CellCoord> path)
@@ -228,24 +157,20 @@ namespace OniMcp.Tools
             return true;
         }
 
-        private static bool TryGetRegisteredUtilityConnector(
-            IUtilityNetworkMgr manager, int cell, out object connector, out string error)
+        private static bool IsPhysicalUtilityPathConnected(BuildingDef def, List<CellCoord> path)
         {
-            connector = null;
-            error = null;
-            Type type = manager.GetType();
-            while (type != null)
+            if (!IsCompletedUtilityPath(def, path)) return false;
+            var manager = def.BuildingComplete.GetComponent<KAnimGraphTileVisualizer>()?.ConnectionManager;
+            if (manager == null) return false;
+            for (int i = 1; i < path.Count; i++)
             {
-                var field = type.GetField("items", BindingFlags.Instance | BindingFlags.NonPublic);
-                if (field?.GetValue(manager) is IDictionary items)
-                {
-                    connector = items.Contains(cell) ? items[cell] : null;
-                    return true;
-                }
-                type = type.BaseType;
+                int a = Grid.XYToCell(path[i - 1].x, path[i - 1].y);
+                int b = Grid.XYToCell(path[i].x, path[i].y);
+                if (!TryExpectedConnectionBits(a, b, out var from, out var to)
+                    || (manager.GetConnections(a, true) & from) == 0
+                    || (manager.GetConnections(b, true) & to) == 0) return false;
             }
-            error = "utility network manager connector registry is unavailable";
-            return false;
+            return true;
         }
 
         private static bool RefreshUtilityNetworkManager(IUtilityNetworkMgr manager, out string error)

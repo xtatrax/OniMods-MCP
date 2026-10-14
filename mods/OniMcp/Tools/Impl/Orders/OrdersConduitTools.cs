@@ -105,9 +105,12 @@ namespace OniMcp.Tools
                 Mode = "execute",
                 Risk = "dangerous",
                 Aliases = new List<string> { "orders_cut_conduits", "cut_conduits" },
-                Description = "互換用の入口。orders_control domain=designation action=cut_conduits を優先して使う。セルや矩形領域単位で配管・電線・コンベアレールを切断する。実際には該当部分の解体指示を出すため、confirm=true が必要",
+                Description = "互換用の入口。orders_control domain=designation action=cut_conduits を優先して使う。設備を残して接続だけを切断する。矩形内の隣接辺、単一セルはdirection指定。旧解体はmode=deconstruct。dryRun対応、実行はconfirm=true",
                 Parameters = RectParams(new Dictionary<string, McpToolParameter>
                 {
+                    ["mode"] = new McpToolParameter { Type = "string", Description = "disconnect (default), or explicit legacy deconstruct", Required = false },
+                    ["direction"] = new McpToolParameter { Type = "string", Description = "Single cell edge: up/down/left/right. Rectangle cuts internal edges only.", Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = "Preview without mutation", Required = false },
                     ["x"] = new McpToolParameter { Type = "integer", Description = "対象のセルの X。矩形が未指定の場合は単一セルを処理する", Required = false },
                     ["y"] = new McpToolParameter { Type = "integer", Description = "対象のセルの Y。矩形が未指定の場合は単一セルを処理する", Required = false },
                     ["type"] = new McpToolParameter
@@ -117,13 +120,16 @@ namespace OniMcp.Tools
                         Required = false,
                         EnumValues = new List<string> { "auto", "all", "gas", "liquid", "solid", "wire", "logic", "travel_tube" }
                     },
-                    ["priority"] = new McpToolParameter { Type = "integer", Description = "解体作業の優先度 1-9。既定値は 5", Required = false },
+                    ["priority"] = new McpToolParameter { Type = "integer", Description = "mode=deconstructでの解体優先度 1-9。既定値は 5", Required = false },
                     ["topPriority"] = new McpToolParameter { Type = "boolean", Description = "赤色の最優先にするか。既定値は false", Required = false },
-                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = "危険な操作の確認。true が必須", Required = true }
+                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = "実行はtrue必須。dryRunでは省略可", Required = false }
                 }),
                 Handler = args =>
                 {
-                    if (!ToolUtil.GetBool(args, "confirm", false))
+                    if (!string.Equals(args["mode"]?.ToString(), "deconstruct", StringComparison.OrdinalIgnoreCase))
+                        return DisconnectUtilityEdges(args);
+                    bool dryRun = ToolUtil.GetBool(args, "dryRun", false);
+                    if (!dryRun && !ToolUtil.GetBool(args, "confirm", false))
                         return CallToolResult.Error("confirm=true is required for cutting conduits");
                     if (!HasRectInput(args) && (args["x"] == null || args["y"] == null))
                         return CallToolResult.Error("areaId, x/y or x1/y1/x2/y2 are required");
@@ -156,11 +162,11 @@ namespace OniMcp.Tools
                                     continue;
                                 seen.Add(go);
 
-                                string error;
-                                if (QueueDeconstruct(go, args, out error))
+                                string error = null;
+                                if (dryRun || QueueDeconstruct(go, args, out error))
                                 {
                                     queued++;
-                                    results.Add(CutResult(go, cell, "queued", null));
+                                    results.Add(CutResult(go, cell, dryRun ? "would_deconstruct" : "queued", null));
                                 }
                                 else
                                 {
@@ -173,7 +179,10 @@ namespace OniMcp.Tools
 
                     return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
                     {
-                        ["queued"] = queued,
+                        ["queued"] = dryRun ? 0 : queued,
+                        ["wouldDeconstruct"] = dryRun ? queued : 0,
+                        ["mode"] = "deconstruct",
+                        ["dryRun"] = dryRun,
                         ["skipped"] = skipped,
                         ["worldId"] = worldId,
                         ["rect"] = rect,
@@ -194,9 +203,9 @@ namespace OniMcp.Tools
                 layers.AddRange(new[] { ObjectLayer.LiquidConduit, ObjectLayer.LiquidConduitTile, ObjectLayer.ReplacementLiquidConduit });
             if (type == "auto" || type == "all" || type == "solid")
                 layers.AddRange(new[] { ObjectLayer.SolidConduit, ObjectLayer.SolidConduitTile, ObjectLayer.ReplacementSolidConduit });
-            if (type == "auto" || type == "all" || type == "wire")
+            if (type == "all" || type == "wire")
                 layers.AddRange(new[] { ObjectLayer.Wire, ObjectLayer.WireTile, ObjectLayer.ReplacementWire });
-            if (type == "auto" || type == "all" || type == "logic")
+            if (type == "all" || type == "logic")
                 layers.AddRange(new[] { ObjectLayer.LogicWire, ObjectLayer.LogicWireTile, ObjectLayer.ReplacementLogicWire });
             if (type == "all" || type == "travel_tube")
                 layers.AddRange(new[] { ObjectLayer.TravelTubeTile, ObjectLayer.ReplacementTravelTube, ObjectLayer.Building });

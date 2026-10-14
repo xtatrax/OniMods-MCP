@@ -79,7 +79,7 @@ namespace OniMcp.Tools
             }
 
             var before = CountUtilityPathCells(def, path, worldId);
-            result["beforeConnectedCells"] = before;
+            result["beforePresentCells"] = before;
 
             object tool = SelectUtilityBuildTool(def.PrefabID);
             if (tool == null)
@@ -119,8 +119,8 @@ namespace OniMcp.Tools
                 InvokeBest(tool, "OnLeftClickUp", new object[] { endPos });
 
                 var after = CountUtilityPathCells(def, path, worldId);
-                result["afterConnectedCells"] = after;
-                result["newConnectedCells"] = Math.Max(0, after - before);
+                result["afterPresentCells"] = after;
+                result["newPresentCells"] = Math.Max(0, after - before);
                 result["pathCells"] = path.Count;
                 result["materialSelection"] = materialResult.ToDictionary();
                 result["facade"] = facadeResult.ResponseId;
@@ -128,9 +128,11 @@ namespace OniMcp.Tools
                 result["segments"] = BuildPathSegments(path);
 
                 string networkError = null;
-                bool networkConnected = !IsCompletedUtilityPath(def, path)
-                    || RefreshAndValidateUtilityPathNetwork(def, path, out networkError);
-                result["networkConnected"] = networkConnected;
+                bool networkConnected = RefreshAndValidateUtilityPathNetwork(def, path, out networkError);
+                result["connectionPlanApplied"] = networkConnected;
+                result["constructionComplete"] = IsCompletedUtilityPath(def, path);
+                result["networkConnected"] = IsCompletedUtilityPath(def, path) ? (object)IsPhysicalUtilityPathConnected(def, path) : null;
+                result["flowVerified"] = false;
                 result["networkError"] = networkError;
                 bool allConnected = after >= path.Count && networkConnected;
                 result["success"] = allConnected;

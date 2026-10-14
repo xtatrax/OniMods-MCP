@@ -79,7 +79,7 @@ namespace OniMcp.Tools
             return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
             {
                 ["ok"] = false,
-                ["error"] = "Coordinate deconstruction found utility or mixed-layer targets. Re-run with id, or use action=cut_conduits type=wire/liquid/gas/solid/logic/travel_tube.",
+                ["error"] = "Coordinate deconstruction found utility or mixed-layer targets. Re-run with id, or use action=cut_conduits mode=deconstruct type=wire/liquid/gas/solid/logic/travel_tube.",
                 ["x"] = x,
                 ["y"] = y,
                 ["worldId"] = worldId,
@@ -92,7 +92,7 @@ namespace OniMcp.Tools
             return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
             {
                 ["ok"] = false,
-                ["error"] = "Ambiguous deconstruct target: multiple objects share cell. Re-run with id, or use action=cut_conduits with explicit type.",
+                ["error"] = "Ambiguous deconstruct target: multiple objects share cell. Re-run with id, or use action=cut_conduits mode=deconstruct with explicit type.",
                 ["x"] = x,
                 ["y"] = y,
                 ["worldId"] = worldId,

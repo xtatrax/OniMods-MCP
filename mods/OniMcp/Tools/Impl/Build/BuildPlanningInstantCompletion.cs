@@ -74,7 +74,8 @@ namespace OniMcp.Tools
             details["verified"] = true;
             details["gridRegistered"] = true;
             details["logicPortsRegistered"] = true;
-            details["utilityNetworkRegistered"] = true;
+            details["utilityRegistration"] = "native_lifecycle";
+            details["flowVerified"] = false;
             details["prefabId"] = def.PrefabID;
             details["id"] = completed.GetComponent<KPrefabID>()?.InstanceID ?? -1;
             details["actualPlacement"] = ActualPlacementDetails(

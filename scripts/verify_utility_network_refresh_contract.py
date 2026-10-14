@@ -27,58 +27,24 @@ def main() -> None:
     native = (BUILD / "BuildPlanningNativeUtilityPath.cs").read_text(encoding="utf-8")
     placement = (BUILD / "BuildPlanningActionPlacement.cs").read_text(encoding="utf-8")
 
-    exact = body(refresh, "private static bool IsExactConnectionUtilityPrefab")
-    for prefab in ("LogicWire", "Wire", "LiquidConduit", "GasConduit", "SolidConduit"):
-        assert f'EqualsIgnoreCase(prefabId, "{prefab}")' in exact
-    for forbidden in ("Sensor", "Bridge", "Endpoint", "IndexOf", "Contains"):
-        assert forbidden not in exact
-
-    registration = body(refresh, "private static bool EnsureCompletedUtilityNetworkRegistration")
-    for required in ("TryGetRegisteredUtilityConnector", "ReferenceEquals", "manager.AddToNetworks",
-                     "IDisconnectable", "disconnectable.Connect()", "isolateConnections"):
-        assert required in registration
-    registry = body(refresh, "private static bool TryGetRegisteredUtilityConnector")
-    assert 'GetField("items"' in registry and "items.Contains(cell)" in registry
-    manager_refresh = body(refresh, "private static bool RefreshUtilityNetworkManager")
-    assert "ForceRebuildNetworks" in manager_refresh
-    assert 'GetMethod("Update"' not in manager_refresh and "update.Invoke" not in manager_refresh
-
-    topology = body(refresh, "private static bool RefreshUtilityConnectionCells")
-    for required in ("TryGetCompatibleUtilityVisualizer", "manager.GetConnections",
-                     "isolateConnections", "manager.ClearCell", "UpdateConnections",
-                     "RefreshUtilityNetworkManager", "Refresh()"):
-        assert required in topology
-    assert "OrthogonalCells" not in refresh
-    assert "CalculateUtilityConnections" not in refresh
-    assert "manager.GetConnections(\n                    item.Key, is_physical_building: false)" in topology
-    apply_path = body(refresh, "private static bool ApplyRequestedUtilityPathConnections")
-    assert "requestedConnections" in apply_path and "UpdateConnections(item.Value)" in apply_path
-    assert "ClearCell" not in apply_path and "manager.SetConnections" not in apply_path
-    compatible = body(refresh, "private static bool TryGetCompatibleUtilityVisualizer")
-    assert "def.TileLayer" in compatible and "visualizer.isPhysicalBuilding" in compatible
-    assert "ReferenceEquals(provider.GetNetworkManager(), manager)" in compatible
-
-    validation = body(refresh, "private static bool RefreshAndValidateUtilityPathNetwork")
-    for required in ("EnsureCompletedUtilityNetworkRegistration", "TryExpectedConnectionBits",
-                     "requestedConnections[previous] |= fromBit", "requestedConnections[current] |= toBit",
-                     "ApplyRequestedUtilityPathConnections", "manager.GetConnections(previous", "manager.GetConnections(current",
-                     "manager.GetEndpoint(endpointCell)", "manager.GetNetworkForCell(endpointCell)"):
-        assert required in validation
-    assert "is_physical_building: true" in validation
-    assert "cell, is_physical_building: false" in validation
-    completed_path = body(refresh, "private static bool IsCompletedUtilityPath")
-    assert "BuildingComplete" in completed_path and "complete?.Def?.PrefabID" in completed_path
-    bits = body(refresh, "private static bool TryExpectedConnectionBits")
-    for pair in (("Right", "Left"), ("Left", "Right"), ("Up", "Down"), ("Down", "Up")):
-        assert f"UtilityConnections.{pair[0]}" in bits and f"UtilityConnections.{pair[1]}" in bits
-
-    assert "EnsureCompletedUtilityNetworkRegistration" in completion
-    assert "isolateConnections: true" in completion
+    # Guard against the two runtime failures: premature native registration and
+    # silently skipping the connection plan while normal construction is pending.
+    for forbidden in ("manager.AddToNetworks(", "GetField(\"items\"", "disconnectable.Connect()"):
+        assert forbidden not in refresh
+    assert "ConnectionManager" in refresh and "CanAddConnection" in refresh
     for caller in (native, placement):
-        assert "IsCompletedUtilityPath(def, path)" in caller
         assert "RefreshAndValidateUtilityPathNetwork(def, path" in caller
-    assert '"utility_network_incomplete"' in placement
-    assert 'result["networkConnected"]' in native
+        assert "!IsCompletedUtilityPath(def, path) ||" not in caller
+        assert '["flowVerified"] = false' in caller
+    assert '["constructionComplete"]' in placement
+    assert '["presentCells"]' in placement
+    exact = body(refresh, "private static bool IsExactConnectionUtilityPrefab")
+    for component in ("LogicWire", "Wire", "Conduit", "SolidConduit"):
+        assert "GetComponent<" + component + ">" in exact
+    disconnect = (ROOT / "mods/OniMcp/Tools/Impl/Orders/OrdersUtilityDisconnect.cs").read_text()
+    assert "QueueDeconstruct" not in disconnect and "DeleteObject" not in disconnect
+    assert "beforeA & ~from" in disconnect and "beforeB & ~to" in disconnect
+    assert "if (!dryRun)" in disconnect
 
     LEFT, RIGHT, UP, DOWN = 1, 2, 4, 8
 
@@ -118,7 +84,6 @@ def main() -> None:
 
     # All supported utility prefabs share this exact path-edge implementation.
     for prefab in ("LogicWire", "Wire", "LiquidConduit", "GasConduit", "SolidConduit"):
-        assert prefab in exact
         assert explicit_path({}, [(0, 0), (1, 0)]) == {(0, 0): RIGHT, (1, 0): LEFT}
     print("utility network refresh contract passed")
 

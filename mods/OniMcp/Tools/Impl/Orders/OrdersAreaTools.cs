@@ -230,6 +230,7 @@ namespace OniMcp.Tools
                     ["id"] = new McpToolParameter { Type = "integer", Description = "対象のオブジェクトの InstanceID。deconstruct/attack/capture/manual_delivery に使用できる", Required = false },
                     ["x"] = new McpToolParameter { Type = "integer", Description = "対象のセルの X。deconstruct/attack/cut_conduits/manual_delivery に使用できる", Required = false },
                     ["y"] = new McpToolParameter { Type = "integer", Description = "対象のセルの Y。deconstruct/attack/cut_conduits/manual_delivery に使用できる", Required = false },
+                    ["direction"] = new McpToolParameter { Type = "string", Description = "cut_conduits single-cell edge: up/down/left/right", Required = false },
                     ["type"] = new McpToolParameter { Type = "string", Description = "empty_conduits/cut_conduits の配管・配線の種類", Required = false },
                     ["priority"] = new McpToolParameter { Type = "integer", Description = "対応する操作で使用する作業優先度 1-9。既定値は 5", Required = false },
                     ["topPriority"] = new McpToolParameter { Type = "boolean", Description = "対応する操作で、赤色の最優先にするか", Required = false },

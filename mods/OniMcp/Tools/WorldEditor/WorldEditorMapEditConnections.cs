@@ -41,7 +41,7 @@ namespace OniMcp.Tools
                     call["prefabId"] = prefabId;
                     call["material"] = parentArgs["material"] ?? "auto";
                     call["confirm"] = ToolUtil.GetBool(parentArgs, "confirm", false);
-                    call["nativePathPlacement"] = true;
+                    call["nativePathPlacement"] = parentArgs["nativePathPlacement"] ?? true;
                     call["allowCellFallback"] = false;
                     call["points"] = new JArray
                     {
