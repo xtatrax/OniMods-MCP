@@ -1,7 +1,5 @@
 # 診断の未取得値と正常値の区別
 
-2026-10-05、ブランチ `fix/diagnostic-unknown-needs`。既存の排尿関連の未コミット変更を保全したまま実装。
-
 対象はstatus_checkの主要欲求6項目（stamina、calories、stress、bladder、breath、bodyTemperature）と、それらを使う危険／待機診断です。未取得の呼吸を100としていた初期値を廃止し、未取得・取得例外・NaN/Infinityはnull、有限な実値0は0として返します。値の取得失敗を正常値や危険値へ置き換えません。
 
 インストール済みONIのAmount.LookupとModifiersExtensions.GetAmountsを読み取り確認。AmountsはComponentではなくModifiersが保持するため、GetComponent<Amounts>()では値を取得できませんでした。固定のDb.Amounts定義からLookup(MinionIdentity)で取得し、翻訳名・部分一致には依存しません。詳細診断のAmounts一覧もGetAmounts経由へ修正しました。

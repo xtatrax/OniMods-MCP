@@ -1,10 +1,10 @@
 # OniMods contributor instructions
 
-## Development-first commits and selective public changes
+## Selective public changes
 
-Use `xt-dev-gpt` for ordinary implementation, testing, documentation and commits. Before editing, verify the current branch and worktree; do not use `fork_public` as the default development checkout. Preserve existing uncommitted work when switching.
+Keep ordinary implementation, testing, documentation and commits in a separate development checkout. Before editing, verify the current branch and worktree; do not use `fork_public` as the default development checkout. Preserve existing uncommitted work when switching. Public-specific maintenance may be performed directly in the public checkout.
 
-Reflect only changes required by the public fork on `fork_public`: public-specific compatibility, identity/privacy/publishing safeguards, fixes to defects present in the public version, required dependencies of an accepted public change, or changes explicitly requested for public inclusion. A change being publishable does not by itself require public synchronization. Ordinary development features, experiments and gameplay records remain on `xt-dev-gpt` unless selected for public inclusion.
+Reflect only changes required by the public fork on `fork_public`: public-specific compatibility, identity/privacy/publishing safeguards, fixes to defects present in the public version, required dependencies of an accepted public change, or changes explicitly requested for public inclusion. A change being publishable does not by itself require public synchronization. Ordinary development features, experiments and gameplay records remain in development unless selected for public inclusion.
 
 Read [the public synchronization procedure](docs/fork-public-sync_JP.md) when applying a selected public change. Sanitize it and commit it locally with neutral metadata; never merge private development history. This authorizes necessary local public commits, not remote pushes or publication. Report whether public reflection was needed, performed or blocked.
 
