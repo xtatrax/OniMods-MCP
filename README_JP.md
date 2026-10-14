@@ -40,6 +40,8 @@ Oxygen Not Included の MOD 開発を支える、モジュール構成の大規�
 
 > **AI インフラとオープンソース開発への支援**: OniMcp の開発とエージェントによるテストには、モデル API のクレジットを使用します。MCP クライアント用に OpenAI 互換のエンドポイントが必要な場合は、[LMM API Gateway](https://api.lmm.best) が選択肢の1つです。[ソースコード](https://github.com/TokenNotIncluded/api.lmm.best)は [TokenNotIncluded](https://github.com/TokenNotIncluded) が公開しています。購入は本プロジェクトの開発支援につながり、有益な Issue、プルリクエスト、テストへの貢献に対して API クレジットが提供される場合もあります。OniMods は引き続きオープンソースであり、このサービスの利用は必須ではありません。
 
+> **上流由来の内容について:** 購入・支援案内、公開書簡、RTKの利用指示、Bilibili連携は、上流への敬意から保持しています。そこで案内するサービス・ツール・連携機能について、本フォークでの動作・互換性を保証するものではありません。
+
 ## 目次
 
 - [プロジェクト概要](#プロジェクト概要)

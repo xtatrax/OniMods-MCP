@@ -12,6 +12,7 @@ This branch is an independent, parentless source snapshot. It preserves the late
 - Steam publishing remains disabled. Account and default Workshop target configuration are absent. Public upstream item references and synthetic offline test fixtures are not publishing targets.
 - Livestream tools require an explicit room ID. MCP configuration is an opt-in example in `examples/mcp-config.json`.
 - Third-party project names, public reference URLs, game API constants and required copyright notices are retained as attribution and reproducibility information.
+- Upstream purchase/support notices, the open letter, RTK instructions and Bilibili integration are retained out of respect for the original project. Their retention does not guarantee operation or compatibility of the referenced services, tools or integrations with this fork.
 
 ## Local setup
 

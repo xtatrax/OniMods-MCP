@@ -38,7 +38,7 @@ namespace OniMcp.Tools
                 {
                     "Do not call knowledge/database reads during live game testing unless explicitly needed.",
                     "Do not issue huge batch edits in one frame; prefer template/batched summaries and compact verification.",
-                    "Do not retry Bilibili sends or MCP writes in a tight loop after an error."
+                    "Do not retry Bilibili sends or MCP writes in a tight loop after an error. Bilibili integration is retained out of respect for upstream; operation and compatibility with this fork are not guaranteed."
                 }
             };
         }

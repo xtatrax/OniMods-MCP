@@ -39,6 +39,8 @@
 
 > **开源激励计划**：可购买 token，也可以通过参与开源项目贡献赚取 token。服务地址：[api.lmm.best](https://api.lmm.best)；[项目源码](https://github.com/TokenNotIncluded/api.lmm.best)由 [TokenNotIncluded](https://github.com/TokenNotIncluded) 组织托管，欢迎使用与贡献。
 
+> **关于上游内容：** 出于对原项目的尊重，保留上游的购买／支持说明、公开信、RTK 使用指引和 Bilibili 集成。本分支不保证其中所述服务、工具及集成功能的正常运行及兼容性。
+
 ## 快速入口
 
 | 项目 | 路径 | 说明 |

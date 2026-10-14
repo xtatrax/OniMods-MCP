@@ -229,7 +229,10 @@ namespace OniMcp.Config
                 new OptionAttribute(
                     "AI トークンを購入 / プロジェクトを支援",
                     ProjectSupportUrl + "\nAI トークンを購入できます（購入は完全に任意です）。MOD のアクセストークンとは無関係です。"
-                        + "\nBuy AI tokens there (optional); OniMcp requires no purchase.",
+                        + "\nBuy AI tokens there (optional); OniMcp requires no purchase."
+                        + "\n上流への敬意から保持していますが、本フォークでの動作・互換性を保証するものではありません。"
+                        + "\nRetained out of respect for upstream; operation and compatibility with this fork are not guaranteed."
+                        + "\n出于对上游的尊重而保留，但不保证其在本分支中的正常运行及兼容性。",
                     "Support"));
             supportButton.Value = (Action<object>)(_ => Application.OpenURL(ProjectSupportUrl));
             yield return supportButton;

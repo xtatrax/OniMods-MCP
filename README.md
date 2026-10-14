@@ -38,6 +38,8 @@ A large-scale modular repository for Oxygen Not Included mod development:
 
 > **AI infrastructure & open-source support:** OniMcp development and agent testing consume model API credits. If you need an OpenAI-compatible endpoint for your MCP client, [LMM API Gateway](https://api.lmm.best) is one available option. Its [source code](https://github.com/TokenNotIncluded/api.lmm.best) is hosted by [TokenNotIncluded](https://github.com/TokenNotIncluded). Purchases help fund this work, while substantive issues, pull requests, and testing may receive API credits. OniMods remains open source and does not require this provider.
 
+> **Upstream content notice:** The upstream purchase/support notices, open letter, RTK instructions and Bilibili integration are retained out of respect for the original project. Operation and compatibility of the referenced services, tools and integrations with this fork are not guaranteed.
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)

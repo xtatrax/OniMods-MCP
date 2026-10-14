@@ -1,5 +1,7 @@
 # RTK - Rust Token Killer (Codex CLI)
 
+> **Fork note:** Retained out of respect for the upstream project; operation and compatibility with this fork are not guaranteed.
+
 **Usage**: Token-optimized CLI proxy for shell commands.
 
 ## Rule

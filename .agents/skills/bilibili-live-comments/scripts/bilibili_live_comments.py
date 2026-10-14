@@ -149,7 +149,10 @@ def format_message(item):
 
 def main():
     load_dotenv()
-    parser = argparse.ArgumentParser(description="Poll Bilibili live room comments.")
+    parser = argparse.ArgumentParser(
+        description="Poll Bilibili live room comments.",
+        epilog="Retained out of respect for upstream; operation and compatibility with this fork are not guaranteed.",
+    )
     parser.add_argument("--room-id", required=True)
     parser.add_argument("--interval", type=float, default=60.0)
     parser.add_argument("--timeout", type=float, default=8.0)

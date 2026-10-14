@@ -1,5 +1,7 @@
 # A Letter to Everyone Who Finds This Project Interesting
 
+> **Fork note:** This letter is by the upstream author and is retained out of respect for their work. Operation and compatibility of the services and integrations described here with this fork are not guaranteed.
+
 To everyone who finds this project interesting:
 
 Recently, I have been working on something a little unusual.

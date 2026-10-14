@@ -5,6 +5,8 @@ description: Use when reading, polling, or sending Bilibili live-room comments/d
 
 # Bilibili Live Comments
 
+> **Fork note:** Retained out of respect for the upstream project; operation and compatibility with this fork are not guaranteed.
+
 Use this skill when the user asks to read, poll, monitor, or send comments in a Bilibili live room.
 
 ## Safety And Credentials
