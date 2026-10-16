@@ -26,7 +26,7 @@ namespace OniMcp.Tools
             parameters["maxAnchors"] = new McpToolParameter { Type = "integer", Description = "処理する anchors の数の上限。既定は 100、最大 500", Required = false };
             parameters["maxCommitAnchors"] = new McpToolParameter { Type = "integer", Description = "confirm=true で1回に実際に書き込む anchor 数の上限。既定は 32、最大 128。超過分は次回続行できるよう remainingAction を返し、大量の建築予定・採掘指示による描画負荷を避ける。", Required = false };
             parameters["allowPartial"] = new McpToolParameter { Type = "boolean", Description = "既定は false。建築実行前に1つでも anchor の事前検証が失敗するとバッチ全体を拒否。true では失敗した anchor をスキップ", Required = false };
-            parameters["autoConnectPower"] = new McpToolParameter { Type = "boolean", Description = "電力を消費する設備の既定は true。建築予定の配置時に、最寄りの既存電線・電源出力から電力ポートまで配線する。false で無効化可能", Required = false };
+            parameters["autoConnectPower"] = new McpToolParameter { Type = "boolean", Description = "電力を消費する設備の既定は true。自然地形を通る経路はallowUtilityTerrainDig=trueを明示した場合だけ許可し、本体の建設結果と分けて返す。false で自動配線を無効化可能", Required = false };
             parameters["maxAutoConnectRadius"] = new McpToolParameter { Type = "integer", Description = "autoConnectPower が最寄りの既存電線・電源出力を探す半径。既定は 80、最大 200", Required = false };
 
             return new McpTool

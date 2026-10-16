@@ -274,5 +274,7 @@
   "tools.benchmark.parameters.includeDetails": "各テストの詳細なフィールドも返すか。既定値は false。",
   "tools.task.description": "毎回のツール呼び出しで必須。ゲーム内のプレイヤーのマウス付近に表示できるよう、何をしているかを短く説明する。",
   "tools.building_control.parameters.compact": "設備形状の取得形式。true（既定）は範囲と接続点の簡易版、falseは全占有セル・定義オフセット・取得根拠を含む完全版。",
-  "tools.building_control.parameters.capability": "config listの機能による絞り込み。threshold、direction、activation_rangeなど。実際の設定読取先はconfigurationReadsを参照。"
+  "tools.building_control.parameters.capability": "config listの機能による絞り込み。threshold、direction、activation_rangeなど。実際の設定読取先はconfigurationReadsを参照。",
+  "tools.world_editor.parameters.allowUtilityTerrainDig": "配線・配管と自動電力接続に伴う自然地形の採掘を明示許可。既定false。confirmだけでは許可しない。支持関係は未評価。",
+  "tools.world_editor.parameters.autoConnectPower": "電力を消費する設備を自動配線する。既定true。自然地形を通る経路にはallowUtilityTerrainDig=trueが必要。falseで本体だけ建設する。"
 }

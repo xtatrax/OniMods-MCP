@@ -22,7 +22,7 @@ namespace OniMcp.Tools
             {
                 if (!cellInfo.Valid)
                     continue;
-                if (!utility && Grid.Solid[cellInfo.Cell])
+                if (Grid.Solid[cellInfo.Cell] && (!utility || !Grid.Foundation[cellInfo.Cell]))
                 {
                     bool diggable = IsNaturalDiggableSolidCell(cellInfo.Cell, placement.WorldId);
                     bool alreadyMarked = Grid.Objects[cellInfo.Cell, (int)ObjectLayer.DigPlacer] != null;
@@ -127,7 +127,10 @@ namespace OniMcp.Tools
             var digTargets = placement.Footprint
                 .Where(cell => IsNaturalDiggableSolidCell(cell.Cell, placement.WorldId))
                 .ToList();
+            // Utilities may dig terrain only with explicit consent, but must not
+            // also uproot plants on another layer as an incidental side effect.
             var uprootTargets = placement.Footprint
+                .Where(cell => !IsUtilityPrefab(placement.PrefabId) || UsesNativeBridgeEndpointRegistration(ResolveBuildingDefForPlacement(placement)))
                 .SelectMany(cell => UprootablesAtCell(cell.Cell, placement.WorldId).Select(uprootable => new { cell, uprootable }))
                 .GroupBy(item => item.uprootable.gameObject.GetInstanceID())
                 .Select(group => group.First())

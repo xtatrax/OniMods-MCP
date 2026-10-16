@@ -274,5 +274,7 @@
   "tools.benchmark.parameters.includeDetails": "Whether to return detailed fields for each test. Defaults to false.",
   "tools.task.description": "Required for every tool call: briefly describe what you are doing so it can be shown near the player's mouse in-game.",
   "tools.building_control.parameters.compact": "Geometry read profile: true (default) returns compact bounds and ports; false includes all occupied cells, definition offsets and source evidence.",
-  "tools.building_control.parameters.capability": "config list capability filter, including threshold, direction and activation_range. Read configurationReads for the actual setting route."
+  "tools.building_control.parameters.capability": "config list capability filter, including threshold, direction and activation_range. Read configurationReads for the actual setting route.",
+  "tools.world_editor.parameters.allowUtilityTerrainDig": "Explicitly permit natural terrain digging for utility placement and automatic power routes. Default false; confirm alone does not permit it. Supports are not evaluated.",
+  "tools.world_editor.parameters.autoConnectPower": "Automatically wire powered buildings; default true. Natural terrain routes require allowUtilityTerrainDig=true. Set false to build without automatic wiring."
 }

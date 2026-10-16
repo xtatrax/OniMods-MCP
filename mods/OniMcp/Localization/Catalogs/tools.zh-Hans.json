@@ -274,5 +274,7 @@
   "tools.benchmark.parameters.includeDetails": "是否返回每个测试的详细字段，默认 false。",
   "tools.task.description": "每次工具调用都必须填写。简述正在执行的操作，以便在游戏内玩家鼠标附近显示。",
   "tools.building_control.parameters.compact": "建筑几何读取格式：true（默认）返回范围与端口简版；false包含全部占用格、定义偏移及读取依据。",
-  "tools.building_control.parameters.capability": "config list按能力筛选，包括threshold、direction、activation_range。实际设置读取路线参见configurationReads。"
+  "tools.building_control.parameters.capability": "config list按能力筛选，包括threshold、direction、activation_range。实际设置读取路线参见configurationReads。",
+  "tools.world_editor.parameters.allowUtilityTerrainDig": "明确允许铺设管线及自动电力连接时挖掘天然地形。默认false；仅confirm不会授权。支撑关系尚未评估。",
+  "tools.world_editor.parameters.autoConnectPower": "自动为耗电建筑布线，默认true。穿过天然地形需allowUtilityTerrainDig=true。设为false时只建造建筑本体。"
 }

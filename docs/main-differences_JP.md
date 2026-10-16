@@ -171,3 +171,8 @@ git diff 60d7a5b7e4246e59b4fe2acf6c26596526d08ad0 1f03cfac19819907108befb9658a59
 - `verify_world_editor_safety.py` 全体は、変更していない `BuildPlanningActionPlacement.cs` 502行と `InventoryTools.cs` 515行の既存制限超過で失敗する。全体検査を全成功とは扱わない。
 
 これらは今回の選択差分に対する検証であり、冒頭のスナップショット作成時の結果を置き換えない。個別の実機ログ・セーブ情報・環境設定・開発履歴は含めない。
+
+
+## 自動配線の自然地形保護（2026-10-16）
+
+自動配線の既定ONを維持し、自然固体を通る経路は既定で敷設前に拒否する。意図した採掘敷設にはallowUtilityTerrainDig=trueを別途明示する。新規／既存採掘を分離し、通常utility敷設にも同じ保護を適用。支持関係は未評価、修正後実機受入は未実施。[仕様と検証範囲](utility-terrain-safety_JP.md)を参照。

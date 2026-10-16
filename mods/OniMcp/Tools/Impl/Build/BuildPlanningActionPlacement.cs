@@ -211,7 +211,8 @@ namespace OniMcp.Tools
                     ["dryRun"] = new McpToolParameter { Type = "boolean", Description = "事前検証のみ。建築予定を作成しない", Required = false },
                     ["confirm"] = new McpToolParameter { Type = "boolean", Description = "変更の実行には true が必須。dryRun=true の場合は省略可能", Required = false },
                     ["maxCells"] = new McpToolParameter { Type = "integer", Description = "処理する経路セル数の上限。既定は 200、最大 500", Required = false },
-                    ["autoDigObstructions"] = new McpToolParameter { Type = "boolean", Description = "既定は true。自然の固体に対して採掘を自動で指示", Required = false },
+                    ["allowUtilityTerrainDig"] = new McpToolParameter { Type = "boolean", Description = "既定false。自然地形を採掘して配線・配管を敷く明示許可。confirmとは別。支持関係は未評価", Required = false },
+                    ["autoDigObstructions"] = new McpToolParameter { Type = "boolean", Description = "既定true。自然地形の敷設には別途allowUtilityTerrainDig=trueも必須。falseの場合は採掘を許可しない", Required = false },
                     ["autoUprootObstructions"] = new McpToolParameter { Type = "boolean", Description = "既定は true。掘り起こせる植物に対して掘り起こしを自動で指示", Required = false },
                     ["maxAutoDigCells"] = new McpToolParameter { Type = "integer", Description = "採掘・掘り起こしを自動指定するセル数の上限。既定は 100、最大 500", Required = false },
                     ["nativePathPlacement"] = new McpToolParameter { Type = "boolean", Description = "Default true. Use ONI's native utility drag placement for the whole path before falling back to per-cell placement.", Required = false }
@@ -255,6 +256,13 @@ return CallToolResult.Error("utility_auto_connect only supports linear utility p
                     if (args["autoUprootObstructions"] == null)
                         args["autoUprootObstructions"] = true;
                     int worldId = ToolUtil.ResolveWorldId(args);
+                    var terrainConflict = UtilityTerrainConflict(def,
+                        path.Select(p => Grid.XYToCell(p.x, p.y)), worldId,
+                        ToolUtil.GetBool(args, "allowUtilityTerrainDig", false),
+                        System.Math.Max(1, System.Math.Min(ToolUtil.GetInt(args, "maxAutoDigCells") ?? 100, 500)),
+                        ToolUtil.GetBool(args, "autoDigObstructions", true));
+                    if (terrainConflict != null && !GetBool(terrainConflict, "allowed"))
+                        return CallToolResult.Error(JsonConvert.SerializeObject(terrainConflict, McpJsonUtil.Settings));
                     var pathSafety = ValidateUtilityPathSafety(def, path, worldId);
                     if (!pathSafety.Valid)
                         return CallToolResult.Error(JsonConvert.SerializeObject(
@@ -281,6 +289,7 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     int reused = 0;
                     int valid = 0;
                     int autoMarked = 0;
+                    int digNewlyQueued = 0, digAlreadyQueued = 0, wouldDig = 0;
                     foreach (var point in path)
                     {
                         var result = TryPlanOne(def.PrefabID, point.x, point.y, args, plannedSupportCells, autoDigContext);
@@ -288,6 +297,9 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                         bool validPlacement = result.ContainsKey("valid") && (bool)result["valid"];
                     bool alreadyPresent = result.ContainsKey("alreadyPresent") && (bool)result["alreadyPresent"];
                     bool alreadyConnected = result.ContainsKey("alreadyConnected") && (bool)result["alreadyConnected"];
+                        digNewlyQueued += GetAutoDigInt(result, "marked");
+                        digAlreadyQueued += GetAutoDigInt(result, "alreadyMarked");
+                        wouldDig += GetAutoDigInt(result, "wouldMark");
                         autoMarked += GetAutoDigInt(result, "marked") + GetAutoDigInt(result, "uprootMarked") + GetAutoDigInt(result, "alreadyMarked") + GetAutoDigInt(result, "alreadyUprootMarked");
                     if (ok || alreadyPresent || alreadyConnected || (dryRun && validPlacement) || IsAutoDigResult(result))
                     {
@@ -322,6 +334,10 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                 ["reusedExisting"] = reused,
                 ["valid"] = valid,
                 ["autoMarkedObstructions"] = autoMarked,
+                ["digNewlyQueued"] = digNewlyQueued,
+                ["digAlreadyQueued"] = digAlreadyQueued,
+                ["wouldDig"] = dryRun ? (object)wouldDig : null,
+                ["terrainImpact"] = terrainConflict,
                 ["failed"] = errors.Count,
                 ["presentCells"] = connectedCells,
                 ["connectedCells"] = dryRun ? (object)null : (IsPhysicalUtilityPathConnected(def, path) ? connectedCells : 0),

@@ -34,6 +34,25 @@ namespace OniMcp.Tools
             }
 
             int worldId = ToolUtil.ResolveWorldId(args);
+            var terrainConflict = UtilityTerrainConflict(def,
+                path.Select(p => Grid.XYToCell(p.x, p.y)), worldId,
+                ToolUtil.GetBool(args, "allowUtilityTerrainDig", false),
+                System.Math.Max(1, System.Math.Min(ToolUtil.GetInt(args, "maxAutoDigCells") ?? 100, 500)),
+                ToolUtil.GetBool(args, "autoDigObstructions", true));
+            if (terrainConflict != null && !GetBool(terrainConflict, "allowed"))
+            {
+                foreach (var item in terrainConflict) result[item.Key] = item.Value;
+                result["attempted"] = false;
+                result["shouldFallback"] = false;
+                return result;
+            }
+            if (terrainConflict != null)
+            {
+                result["attempted"] = false;
+                result["reason"] = "Explicit terrain digging uses counted cell placement, not native drag";
+                result["terrainImpact"] = terrainConflict;
+                return result;
+            }
             var safety = ValidateUtilityPathSafety(def, path, worldId);
             result["safetyChecked"] = true;
             result["existingSamePrefabCells"] = safety.ExistingSamePrefabCells;

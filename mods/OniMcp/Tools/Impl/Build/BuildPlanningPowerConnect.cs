@@ -75,11 +75,42 @@ namespace OniMcp.Tools
                 };
             }
 
+            // Automatic wiring remains ON; terrain requires separate explicit consent.
+            string wireId, wireError;
+            var wireDef = ResolveBuildingDef("Wire", out wireId, out wireError);
+            if (wireDef == null)
+                return new Dictionary<string, object> { ["enabled"] = true,
+                    ["status"] = "wire_definition_unavailable", ["planned"] = 0,
+                    ["failed"] = 1, ["error"] = wireError };
+            var terrainConflict = UtilityTerrainConflict(wireDef,
+                path.Select(p => Grid.XYToCell(p.x, p.y)), worldId,
+                ToolUtil.GetBool(args, "allowUtilityTerrainDig", false),
+                System.Math.Max(1, System.Math.Min(ToolUtil.GetInt(args, "maxAutoDigCells") ?? 100, 500)),
+                ToolUtil.GetBool(args, "autoDigObstructions", true));
+            if (terrainConflict != null && !GetBool(terrainConflict, "allowed"))
+            {
+                terrainConflict["enabled"] = true;
+                terrainConflict["status"] = "blocked_natural_terrain";
+                terrainConflict["dryRun"] = IsDryRun(args);
+                terrainConflict["input"] = CellCoordDictionary(inputCell);
+                terrainConflict["source"] = CellCoordDictionary(sourceCell);
+                terrainConflict["path"] = path.Select(p => new { x = p.x, y = p.y }).ToList();
+                terrainConflict["pathCells"] = path.Count;
+                terrainConflict["next"] = "Building placement is separate from wiring. Reroute explicitly or pass autoConnectPower=false; no automatic wire placement was attempted.";
+                return terrainConflict;
+            }
+
             var wireArgs = new JObject
             {
                 ["prefabId"] = "Wire",
                 ["material"] = args["wireMaterial"] ?? args["material"] ?? new JValue("auto"),
                 ["autoConnectPower"] = false,
+                ["allowUtilityTerrainDig"] = ToolUtil.GetBool(args, "allowUtilityTerrainDig", false),
+                ["autoDigObstructions"] = ToolUtil.GetBool(args, "allowUtilityTerrainDig", false)
+                    && ToolUtil.GetBool(args, "autoDigObstructions", true),
+                ["maxAutoDigCells"] = args["maxAutoDigCells"] ?? new JValue(100),
+                ["autoUprootObstructions"] = false,
+                ["nativePathPlacement"] = false,
                 ["confirm"] = true,
                 ["dryRun"] = IsDryRun(args),
                 ["worldId"] = worldId,
@@ -115,12 +146,14 @@ namespace OniMcp.Tools
                 ["dryRun"] = IsDryRun(args),
                 ["input"] = CellCoordDictionary(inputCell),
                 ["source"] = CellCoordDictionary(sourceCell),
+                ["terrainImpact"] = terrainConflict,
                 ["pathMode"] = "continuous_manhattan_path",
                 ["pathCells"] = path.Count,
                 ["planned"] = GetInt(connectPayload, "planned"),
                 ["reused"] = GetInt(connectPayload, "reusedExisting"),
                 ["failed"] = GetInt(connectPayload, "failed"),
-                ["autoDigQueued"] = GetInt(connectPayload, "autoMarkedObstructions"),
+                ["autoDigQueued"] = GetInt(connectPayload, "digNewlyQueued"),
+                ["autoDigAlreadyQueued"] = GetInt(connectPayload, "digAlreadyQueued"),
                 ["path"] = path.Select(p => new { x = p.x, y = p.y }).ToList(),
                 ["segments"] = BuildPathSegments(path),
                 ["connectResult"] = connectPayload

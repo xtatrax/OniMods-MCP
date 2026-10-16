@@ -130,6 +130,9 @@ namespace OniMcp.Tools
             CopyIfPresent(args, arguments, "priority");
             CopyIfPresent(args, arguments, "allowUnsupported");
             CopyIfPresent(args, arguments, "autoConnectPower");
+            CopyIfPresent(args, arguments, "allowUtilityTerrainDig");
+            CopyIfPresent(args, arguments, "autoDigObstructions");
+            CopyIfPresent(args, arguments, "maxAutoDigCells");
             CopyIfPresent(args, arguments, "maxAutoConnectRadius");
 
             return new Dictionary<string, object>
@@ -262,6 +265,13 @@ prefabId = resolvedPrefabId;
             if (!earlyPlacement.GeometryAvailable)
                 return ErrorResult(prefabId, x, y, "Native footprint unavailable: " + earlyPlacement.GeometryError,
                     ValidateFootprint(earlyPlacement).ToDictionary(earlyPlacement));
+            var terrainConflict = UtilityTerrainConflict(def,
+                earlyPlacement.Footprint.Select(c => c.Cell), ToolUtil.ResolveWorldId(args),
+                ToolUtil.GetBool(args, "allowUtilityTerrainDig", false),
+                System.Math.Max(1, System.Math.Min(ToolUtil.GetInt(args, "maxAutoDigCells") ?? 100, 500)),
+                ToolUtil.GetBool(args, "autoDigObstructions", true));
+            if (terrainConflict != null && !GetBool(terrainConflict, "allowed"))
+                return ErrorResult(prefabId, x, y, terrainConflict["error"].ToString(), terrainConflict);
             var earlyExistingBuild = ExistingMatchingBuildAtPlacement(def, earlyPlacement);
             if (earlyExistingBuild != null && ExistingMaterialRequestSatisfied(def, earlyExistingBuild, args["material"]?.ToString()))
             {
@@ -346,7 +356,7 @@ prefabId = resolvedPrefabId;
                 if (autoDig == null)
                     return ErrorResult(prefabId, x, y, footprintResult.Error, details);
                 details["autoDig"] = autoDig;
-                if (!GetBool(autoDig, "available"))
+                if (!GetBool(autoDig, "available") || GetInt(autoDig, "failed") > 0 || GetInt(autoDig, "skipped") > 0)
                     return ErrorResult(prefabId, x, y, footprintResult.Error, details);
             }
 
@@ -386,6 +396,7 @@ prefabId = resolvedPrefabId;
                     ["materials"] = materialResult.ToDictionary(),
                     ["facade"] = facadeResult.ResponseId,
                     ["powerAutoConnect"] = powerAutoConnect,
+                    ["terrainImpact"] = terrainConflict,
                     ["autoDig"] = autoDig
                 };
             }
@@ -483,6 +494,7 @@ prefabId = resolvedPrefabId;
                 ["materials"] = materialResult.ToDictionary(),
                 ["facade"] = facadeResult.ResponseId,
                 ["powerAutoConnect"] = placedPowerAutoConnect,
+                ["terrainImpact"] = terrainConflict,
                 ["autoDig"] = autoDig,
                 ["instantCompletion"] = instantCompletion,
                 ["id"] = go.GetComponent<KPrefabID>()?.InstanceID ?? -1

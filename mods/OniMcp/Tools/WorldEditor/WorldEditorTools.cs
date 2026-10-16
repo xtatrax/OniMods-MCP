@@ -346,6 +346,8 @@ namespace OniMcp.Tools
                 ["allowSandbox"] = new McpToolParameter { Type = "boolean", Description = "Master permission for world_editor sandbox writes and instantBuild; default false.", Required = false },
                 ["instantBuild"] = new McpToolParameter { Type = "boolean", Description = "Scoped instant build for this call only; default false and requires allowSandbox=true confirm=true.", Required = false },
                 ["allowForce"] = new McpToolParameter { Type = "boolean", Description = "Permit forwarded sandbox force=true; default false.", Required = false },
+                ["allowUtilityTerrainDig"] = new McpToolParameter { Type = "boolean", Description = "Explicitly permit natural terrain digging for utility placement and automatic power routes. Default false; confirm alone does not permit it. Supports are not evaluated.", Required = false },
+                ["autoConnectPower"] = new McpToolParameter { Type = "boolean", Description = "Automatically wire powered buildings; default true. Natural terrain routes require allowUtilityTerrainDig=true. Set false to build without automatic wiring.", Required = false },
                 ["allowTerrainMutation"] = new McpToolParameter { Type = "boolean", Description = "Permit sandbox area/map_designate writes; default false.", Required = false },
                 ["allowEntitySpawn"] = new McpToolParameter { Type = "boolean", Description = "Permit sandbox entity/story/auto-plumb writes; default false.", Required = false },
                 ["allowDestroy"] = new McpToolParameter { Type = "boolean", Description = "Permit sandbox destroy in addition to terrain mutation; default false.", Required = false },
