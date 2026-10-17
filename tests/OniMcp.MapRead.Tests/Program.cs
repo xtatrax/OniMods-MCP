@@ -4,6 +4,7 @@ using OniMcp.Tools;
 
 WorldEditorTools.RunReadRegressions();
 WorldEditorTools.RunMapContractRegressions();
+WorldAnalysisTools.RunTextMapFormattingRegressions();
 
 namespace OniMcp.Tools
 {

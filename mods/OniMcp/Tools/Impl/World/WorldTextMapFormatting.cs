@@ -14,6 +14,7 @@ namespace OniMcp.Tools
             string view = value.Trim().ToLowerInvariant();
             switch (view)
             {
+                case "base":
                 case "terrain":
                 case "normal":
                 case "none":
@@ -26,16 +27,20 @@ namespace OniMcp.Tools
                 case "gas_pipe":
                 case "gas_pipes":
                 case "gas_conduit":
+                case "gas_conduits":
                     return "gas_conduits";
                 case "liquid":
                 case "liquid_pipe":
                 case "liquid_pipes":
                 case "liquid_conduit":
+                case "liquid_conduits":
                     return "liquid_conduits";
                 case "solid":
                 case "shipping":
                 case "conveyor":
                 case "solid_conduit":
+                case "solid_conduits":
+                case "solid_conveyor":
                     return "solid_conveyor";
                 case "automation":
                 case "logic":
@@ -46,7 +51,8 @@ namespace OniMcp.Tools
                 case "heat":
                     return "temperature";
                 default:
-                    return "base";
+                    throw new ArgumentException("Unknown or unsupported legacy JSON map view '" + value
+                        + "'; use base, power, gas_conduits, liquid_conduits, solid_conveyor, logic or temperature.");
             }
         }
 
