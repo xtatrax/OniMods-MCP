@@ -54,22 +54,29 @@ namespace OniMcp.Tools
 
         private static CallToolResult ReadSkillsManagementMarkdown(JObject args, string path)
         {
-            var state = DuplicantTools.ControlDupes().Handler(new JObject { ["domain"] = "skill", ["action"] = "list" });
+            var readArgs = new JObject { ["domain"] = "skill", ["action"] = "list" };
+            // Keep this reader read-only while preserving the requested dupe and skill scope.
+            foreach (string key in new[] { "id", "name", "query", "limit" })
+                if (args?[key] != null)
+                    readArgs[key] = args[key].DeepClone();
+            var state = DuplicantTools.ControlDupes().Handler(readArgs);
             if (WantsManagementJson(args))
                 return StateJsonResult(state);
             var root = ParseManagementState(state);
             var sb = ManagementHeader("Duplicant Skill Tree", path, "dupes_control domain=skill");
-            if (!string.IsNullOrEmpty(Str(root, "dupe")))
-                sb.AppendLine("- dupe: `" + Esc(Str(root, "dupe")) + "`");
+            var dupe = root["dupe"] as JObject;
+            if (dupe != null)
+                sb.AppendLine("- dupe: `" + Esc(Str(dupe, "name")) + "` (ID " + Esc(Str(dupe, "id")) + ")");
             sb.AppendLine();
             sb.AppendLine("## Skills");
-            sb.AppendLine("| Group | Tier | ID | Name | Morale | Requires |");
-            sb.AppendLine("| --- | ---: | --- | --- | ---: | --- |");
+            sb.AppendLine("| Group | Tier | ID | Name | Morale | Requires |" + (dupe == null ? "" : " Mastered | Can learn |"));
+            sb.AppendLine("| --- | ---: | --- | --- | ---: | --- |" + (dupe == null ? "" : " --- | --- |"));
             foreach (var skill in Arr(root, "skills").OfType<JObject>().OrderBy(s => Str(s, "skillGroup")).ThenBy(s => Int(s, "tier", 0)).ThenBy(s => Str(s, "id")))
             {
                 sb.AppendLine("| " + Esc(Str(skill, "skillGroup")) + " | " + Int(skill, "tier", 0)
                     + " | `" + Esc(Str(skill, "id")) + "` | " + Esc(Str(skill, "name"))
-                    + " | " + Int(skill, "moraleExpectation", 0) + " | " + Esc(JoinStrings(skill["priorSkills"])) + " |");
+                    + " | " + Int(skill, "moraleExpectation", 0) + " | " + Esc(JoinStrings(skill["priorSkills"])) + " |"
+                    + (dupe == null ? "" : " " + Esc(Str(skill, "mastered")) + " | " + Esc(Str(skill, "canMaster")) + " |"));
             }
             AppendEditCommands(sb, new[]
             {
