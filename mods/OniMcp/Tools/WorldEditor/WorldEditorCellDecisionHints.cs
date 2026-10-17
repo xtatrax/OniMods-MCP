@@ -53,7 +53,7 @@ namespace OniMcp.Tools
             }
 
             var pickups = Components.Pickupables.Items
-                .Where(item => item != null && item.gameObject != null && Grid.PosToCell(item.gameObject) == cell)
+                .Where(item => IsCellSweepHintCandidate(item, cell))
                 .ToList();
             if (pickups.Count > 0)
             {
@@ -64,6 +64,22 @@ namespace OniMcp.Tools
             }
 
             return wrote;
+        }
+
+        private static bool IsCellSweepHintCandidate(Pickupable item, int cell)
+        {
+            if (item == null || item.gameObject == null || Grid.PosToCell(item.gameObject) != cell)
+                return false;
+            // Pickupable also includes duplicants, stored contents and critters.
+            // Match the ordinary sweep eligibility before recommending an order.
+            if (SweepTargetPolicy.IsLiveDuplicant(item.gameObject) || item.storage != null)
+                return false;
+            var prefab = item.KPrefabID ?? item.GetComponent<KPrefabID>();
+            if (prefab != null && (prefab.HasTag(GameTags.Stored) || prefab.HasTag(GameTags.Equipped)))
+                return false;
+            var clearable = item.GetComponent<Clearable>();
+            return SweepEligibilityPolicy.RejectionReason(
+                clearable != null, clearable != null && clearable.isClearable) == null;
         }
 
         private static bool AppendPortDecisionHint(StringBuilder sb, int x, int y, int cell)
