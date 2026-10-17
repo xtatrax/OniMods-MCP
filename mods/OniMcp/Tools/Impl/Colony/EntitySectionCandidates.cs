@@ -4,8 +4,9 @@ using UnityEngine;
 
 namespace OniMcp.Tools
 {
-    // Use the same live registries as farming reads. Planted crops are not
-    // BuildingCompletes or Pickupables, even though their seeds are pickupable.
+    // Crops and geysers need their own live registries; they are not necessarily
+    // BuildingCompletes or Pickupables. Geysers follow the visible/uncovered gate
+    // used by the GeoTuner list, so this addition does not reveal hidden vents.
     internal static class EntitySectionCandidates
     {
         internal static IEnumerable<GameObject> LiveObjects()
@@ -15,8 +16,20 @@ namespace OniMcp.Tools
                 .Concat(Components.LiveMinionIdentities.Items.Where(d => d != null).Select(d => d.gameObject))
                 .Concat(Components.HarvestDesignatables.Items.Where(p => p != null).Select(p => p.gameObject))
                 .Concat(Components.Uprootables.Items.Where(p => p != null).Select(p => p.gameObject))
+                .Concat(Components.Geysers.GetWorldsIds()
+                    .SelectMany(worldId => Components.Geysers.GetItems(worldId))
+                    .Where(IsVisibleGeyser).Select(g => g.gameObject))
                 .Where(go => go != null)
                 .Distinct();
+        }
+
+        private static bool IsVisibleGeyser(Geyser geyser)
+        {
+            if (geyser == null || geyser.gameObject == null)
+                return false;
+            int cell = Grid.PosToCell(geyser.gameObject);
+            return Grid.IsValidCell(cell) && Grid.Visible[cell] > 0
+                && (geyser.GetComponent<Uncoverable>()?.IsUncovered ?? false);
         }
     }
 }
