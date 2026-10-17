@@ -5,16 +5,20 @@
 | section | 対象データ |
 | --- | --- |
 | `status`（既定） | 現在の状態名・ツールチップ、稼働フラグ、蓄電量、設備説明・効果・要求条件 |
-| `properties` | 現物の元素・質量・温度・病原菌、素材の比熱／熱伝導率／融点／放射線吸収係数、設備経過サイクル・稼働率、複製人間の特性 |
+| `properties` | 現物の元素・質量・温度・病原菌、素材の比熱／熱伝導率／融点／放射線吸収係数、設備経過サイクル・稼働率、付属する特性の静的情報 |
 | `personality` | 複製人間の個性リソースID・性別・モデル・到着時刻。非複製人間は非対応を明示 |
 | `work` | 複製人間の現在作業、設備のWorkableごとの担当者ID・所要時間・残り時間・進捗 |
 
 要求した区分のみを返し、他区分を混ぜない。`unavailableFields` は未取得項目。対応しない部品の省略はゼロや正常を意味しない。workables が空でも設備全般の作業が完全に不存在とは断定しない。作業予約の全候補や履歴は対象外。
 
+特性の`traits`は`id`、静的フィールドの`name`/`description`、`textSource=native_static_fields`を返す。動的な`Trait.GetName/GetTooltip`はコールバックや属性検索の副作用を起こすため呼ばない。`tooltip=null`、`tooltipStatus=not_evaluated`とし、`unavailableFields`に`Traits.tooltip`を含める。静的説明を動的ツールチップの完全な再現とみなさない。
+
+`attributeModifiers`は`attributeId`、生の`value`、`isMultiplier`を返す。属性名解決や単位換算はしない。有限値は`valueStatus=native_raw`、NaN/Infinityは`value=null`・`valueStatus=unavailable`。一覧や本文の未取得もnullと未取得項目で区別する。
+
 これは現物読み取りであり、Prefab定義を取得する `buildings/specs.oni`／`resources/specs.oni` とは別系統。native descriptor は現物の素材補正等を含み、definition の基礎値と異なる場合がある。ゲームの選択やタブ操作は不要。
 
 個性の経歴全文など、個性リソースの全フィールドはまだ対象外。UIタブ全体の完全な再現ではなく、対応した項目を区分ごとに取得する。
 
-対象の解決は本体登録済みの完成設備・拾得可能アイテム・生存複製人間・収穫指定可能な植物・掘り起こし可能な植物に限定する。複数の登録一覧にある同一植物は一度だけ返す。掘り起こし前の植物IDと、その後の種子・移植後の植物IDは別物なので、農業リソースから読み直す。表示用メーターやPrefabは対象外。未登録の特殊実体は未対応。
+対象の解決は本体登録済みの完成設備・拾得可能アイテム・生存複製人間・収穫指定可能な植物・掘り起こし可能な植物・可視かつ露出済みの間欠泉に限定する。複数の登録一覧にある同一植物は一度だけ返す。掘り起こし前の植物IDと、その後の種子・移植後の植物IDは別物なので、農業リソースから読み直す。表示用メーターやPrefabは対象外。未登録の特殊実体は未対応。
 
 作業の `inProgress` は担当者の有無。ネイティブ部品の作業候補と実行中の作業を区別する。未実行の修理部品などのInfinityは数値にせず、`numericState=indefinite`、NaNや負の未設定値は `undefined` にする。`percentComplete` は本体の0〜1の進捗比率。

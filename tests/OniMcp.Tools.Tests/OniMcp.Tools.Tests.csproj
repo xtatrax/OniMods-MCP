@@ -46,7 +46,7 @@
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/TemperatureSampleReadiness.cs" Link="Source/TemperatureSampleReadiness.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/ThresholdReading.cs" Link="Source/ThresholdReading.cs" />
   </ItemGroup>
-  <ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionCandidates.cs" Link="EntitySectionCandidates.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionText.cs" Link="EntitySectionText.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionCandidates.cs" Link="EntitySectionCandidates.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionText.cs" Link="EntitySectionText.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Colony/EntitySectionTraits.cs" Link="EntitySectionTraits.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Orders/SweepTargetPolicy.cs" Link="SweepTargetPolicy.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorBuriedMarkers.cs" Link="WorldEditorBuriedMarkers.cs" /></ItemGroup>
 </Project>

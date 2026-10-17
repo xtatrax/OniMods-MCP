@@ -20,6 +20,7 @@ internal static class BenchmarkMetadataRegressionEntry
         NativeBuildingFootprintRegression.Run();
         FoodAccessRegression.Run();
         EntitySectionTextRegression.Run();
+        EntitySectionTraitsRegression.Run();
         EntitySectionCandidatesRegression.Run();
         BuriedMarkerRegression.Run();
         NativeAmountRegression.Run();

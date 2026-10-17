@@ -101,7 +101,7 @@ namespace OniMcp.Tools
                 var operational = go.GetComponent<Operational>();
                 if (operational != null) result["uptime"] = new { currentCycle = operational.GetCurrentCycleUptime(), lastCycle = operational.GetLastCycleUptime(), lastFiveCycles = operational.GetUptimeOverCycles(5) };
                 var traits = go.GetComponent<Klei.AI.Traits>();
-                if (traits != null) result["traits"] = traits.TraitList.Select(t => new { id = t.Id, name = Plain(t.GetName()), tooltip = Plain(t.GetTooltip()) }).ToList();
+                if (traits != null) result["traits"] = EntitySectionTraits.Read(traits.TraitList, errors);
             }
             else if (section == "personality")
             {
