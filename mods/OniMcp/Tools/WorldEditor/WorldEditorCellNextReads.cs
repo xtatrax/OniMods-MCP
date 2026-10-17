@@ -91,11 +91,11 @@ namespace OniMcp.Tools
         private static void AppendCellThermalReads(StringBuilder sb, int x, int y, int cell)
         {
             float tempC = Grid.Temperature[cell] - 273.15f;
-            if (tempC >= 10f && tempC <= 37f)
+            if (TemperatureSuitabilityBand(tempC) == "dupe_comfort")
                 return;
 
             sb.AppendLine("- temperature: `" + LocalZoomCall(x, y, "temperature")
-                + "` comfort=10~37C, current=" + tempC.ToString("F1") + "C");
+                + "` comfort=10~40C, current=" + tempC.ToString("F1") + "C");
             sb.AppendLine("- temperature detail: `read_control domain=world action=cell_info x="
                 + x + " y=" + y + " includeTemperature=true marginC=15 limit=20`");
         }

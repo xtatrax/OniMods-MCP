@@ -25,10 +25,11 @@ namespace OniMcp.Tools
         private static bool AppendThermalDecisionHint(StringBuilder sb, int x, int y, int cell)
         {
             float tempC = Grid.Temperature[cell] - 273.15f;
-            if (tempC >= 10f && tempC <= 37f)
+            string band = TemperatureSuitabilityBand(tempC);
+            if (band == "dupe_comfort")
                 return false;
 
-            string level = tempC > 37f ? "hot" : "cold";
+            string level = band == "hot" || band == "danger_hot" ? "hot" : "cold";
             sb.AppendLine("- thermal: " + level + " " + tempC.ToString("F1")
                 + "C; read `" + LocalZoomCall(x, y, "temperature") + "` before assigning long work here.");
             return true;
