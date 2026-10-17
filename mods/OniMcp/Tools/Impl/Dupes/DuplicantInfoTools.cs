@@ -280,7 +280,12 @@ namespace OniMcp.Tools
             if (targetCell.HasValue && !targetReachable)
                 reasons.Add("target_unreachable");
             needs.AddRiskReasons(reasons);
-            if (environment.TryGetValue("temperatureC", out var tempObj) && tempObj is double tempC && (tempC < -20d || tempC > 60d))
+            // Vacuum has no ambient thermal medium; its zero-K cell value is not exposure.
+            // Needs/navigation checks stay unchanged; body temperature remains available to readers.
+            bool vacuumFootCell = environment.TryGetValue("state", out var thermalState)
+                && string.Equals(thermalState?.ToString(), "vacuum", StringComparison.OrdinalIgnoreCase);
+            if (!vacuumFootCell && environment.TryGetValue("temperatureC", out var tempObj)
+                && tempObj is double tempC && (tempC < -20d || tempC > 60d))
                 reasons.Add("dangerous_temperature");
             bool standingInLiquid = environment.TryGetValue("state", out var stateObj) && stateObj?.ToString() == "liquid";
             // Foot-cell liquid is an observation, not proof of suffocation or entrapment.
