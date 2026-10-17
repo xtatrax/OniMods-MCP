@@ -159,13 +159,17 @@ namespace OniMcp.Tools
                     bool readyOnly = ToolUtil.GetBool(args, "readyOnly", false);
                     int limit = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "limit") ?? 100, 500));
 
-                    var harvestables = Components.HarvestDesignatables.Items
+                    // Count the filtered set before applying the response limit. A full
+                    // page is not evidence that absent crops do not exist.
+                    var matchingHarvestables = Components.HarvestDesignatables.Items
                         .Where(item => item != null && item.gameObject != null)
                         .Where(item => ToolUtil.GameObjectMatchesWorld(item.gameObject, worldId))
                         .Where(item => rect == null || CellInRect(Grid.PosToCell(item.gameObject), rect, worldId))
                         .Where(item => !readyOnly || item.CanBeHarvested())
                         .Where(item => HarvestableMatches(item, query))
                         .OrderBy(item => TargetName(item.gameObject))
+                        .ToList();
+                    var harvestables = matchingHarvestables
                         .Take(limit)
                         .Select(HarvestableInfo)
                         .ToList();
@@ -173,6 +177,9 @@ namespace OniMcp.Tools
                     return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
                     {
                         ["returned"] = harvestables.Count,
+                        ["filteredTotal"] = matchingHarvestables.Count,
+                        ["limit"] = limit,
+                        ["truncated"] = matchingHarvestables.Count > harvestables.Count,
                         ["worldId"] = worldId >= 0 ? (object)worldId : null,
                         ["readyOnly"] = readyOnly,
                         ["harvestables"] = harvestables
