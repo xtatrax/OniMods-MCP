@@ -46,7 +46,7 @@ ONI MCP Server is an Oxygen Not Included mod that exposes a local MCP service (`
 
 ## Settings and Security
 
-- Config file: `OniMcpConfig.json`
+- Config file: `PublicFork.OniMcpConfig.json`
 - Default fields and load precedence are in: [mods/OniMcp/ModInfo.cs](ModInfo.cs)
 - Default `AuthEnabled` is `false`; token enforcement applies only after authentication is manually enabled, and auth should be enabled if exposing beyond local host.
 - Security migration records its version without changing an existing `AuthEnabled` choice; legacy configurations with auth enabled continue to require a token from clients.

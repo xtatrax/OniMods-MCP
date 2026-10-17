@@ -6,8 +6,8 @@ namespace OniMcp.Support
 {
     public static class OniMcpPaths
     {
-        private const string ConfigFileName = "OniMcpConfig.json";
-        private const string RestartIntentFileName = "OniMcpRestartIntent.json";
+        private const string ConfigFileName = "PublicFork.OniMcpConfig.json";
+        private const string RestartIntentFileName = "PublicFork.OniMcpRestartIntent.json";
         private static string _modPath;
 
         public static void Initialize(string modPath, Assembly assembly)

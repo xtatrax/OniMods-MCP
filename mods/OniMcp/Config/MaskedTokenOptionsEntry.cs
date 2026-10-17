@@ -11,7 +11,7 @@ namespace OniMcp.Config
         public MaskedTokenOptionsEntry(string field)
             : base(field, new OptionAttribute(
                 "Token",
-                "Used only when Require token is enabled. Edit here or open OniMcpConfig.json to copy it.",
+                "Used only when Require token is enabled. Edit here or open PublicFork.OniMcpConfig.json to copy it.",
                 "Security"))
         {
         }

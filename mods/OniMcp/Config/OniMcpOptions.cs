@@ -14,7 +14,7 @@ using UnityEngine;
 namespace OniMcp.Config
 {
     /// <summary>Persistent server and security settings exposed through PLib.</summary>
-    [ConfigFile("OniMcpConfig.json", true)]
+    [ConfigFile("PublicFork.OniMcpConfig.json", true)]
     public class OniMcpOptions : IOptions
     {
         private static readonly object SyncRoot = new object();
@@ -193,7 +193,7 @@ namespace OniMcp.Config
             yield return new TextBlockOptionsEntry(
                 "OniMcpStatus",
                 new OptionAttribute(
-                    "Endpoint: " + displayedEndpoint + "\nConfig: OniMcpConfig.json\nAuthentication: " + (AuthEnabled ? "enabled" : "disabled by default"),
+                    "Endpoint: " + displayedEndpoint + "\nConfig: PublicFork.OniMcpConfig.json\nAuthentication: " + (AuthEnabled ? "enabled" : "disabled by default"),
                     "Endpoint: " + endpoint + "\nConfig: " + ConfigPath + "\nUse Open config folder to locate the file.",
                     "Status"));
 
@@ -219,7 +219,7 @@ namespace OniMcp.Config
                 "OpenConfigFolder",
                 new OptionAttribute(
                     "Open config folder",
-                    "Open the folder containing OniMcpConfig.json.",
+                    "Open the folder containing PublicFork.OniMcpConfig.json.",
                     "Status"));
             configButton.Value = (Action<object>)(_ => OpenConfigFolder());
             yield return configButton;

@@ -85,7 +85,7 @@ def main() -> int:
     for entry in ("OniMcpStatus", "OpenBrowser", "RestartMcpServer", "OpenConfigFolder", "OpenProjectSupport"):
         assert entry in create_options
     assert "MaxDisplayedEndpointLength" in create_options
-    assert "Config: OniMcpConfig.json" in create_options
+    assert "Config: PublicFork.OniMcpConfig.json" in create_options
     assert "Application.OpenURL(ProjectSupportUrl)" in create_options
     assert 'ProjectSupportUrl = "https://api.lmm.best"' in options
 

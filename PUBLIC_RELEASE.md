@@ -8,7 +8,7 @@ This branch is an independent, parentless source snapshot. It preserves the late
 
 - Source, regression fixtures, licenses, upstream attribution and general technical documentation are retained.
 - Private save identities, raw runtime captures/screenshots, personal paths, local schedules/client configuration and session scripts are excluded.
-- The mod/Harmony identity is `PublicFork.OniMcp`. This is distinct from the development and upstream IDs; settings are not automatically migrated. Do not enable these variants together.
+- The mod/Harmony identity is `PublicFork.OniMcp`. This is distinct from the development and upstream IDs; settings use `PublicFork.OniMcpConfig.json` and restart intents use `PublicFork.OniMcpRestartIntent.json`; legacy files are not read or automatically migrated. Do not enable these variants together.
 - Steam publishing remains disabled. Account and default Workshop target configuration are absent. Public upstream item references and synthetic offline test fixtures are not publishing targets.
 - Livestream tools require an explicit room ID. MCP configuration is an opt-in example in `examples/mcp-config.json`.
 - Third-party project names, public reference URLs, game API constants and required copyright notices are retained as attribution and reproducibility information.

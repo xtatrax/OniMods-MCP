@@ -46,7 +46,7 @@ ONI MCP Server は、Oxygen Not Included 向けの MOD です。ローカルの 
 
 ## 設定とセキュリティ
 
-- 設定ファイル: `OniMcpConfig.json`
+- 設定ファイル: `PublicFork.OniMcpConfig.json`
 - 主なフィールド、既定値、読み込み先の優先順位: [mods/OniMcp/ModInfo.cs](ModInfo.cs)
 - `localhost`、`127.0.0.1`、`::1` では、既定でトークンを必要としないローカル開発用の設定を維持します。既定値は `AuthEnabled=false` です。
 - ループバック以外のアドレス（`0.0.0.0`、LAN の IP アドレス、リモートのホスト名を含む）では、`AuthEnabled=true` が必須です。無効のままでは、設定の保存や待ち受け開始は安全側に倒して失敗し、ネットワークの待ち受けを開始しません。
