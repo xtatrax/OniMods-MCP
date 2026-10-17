@@ -29,62 +29,6 @@ namespace OniMcp.Tools
                 Cell = cell;
             }
         }
-        private sealed class SupportValidation
-        {
-            public bool Valid;
-            public bool WarningOnly;
-            public string Rule;
-            public List<Dictionary<string, object>> MissingSupportCells = new List<Dictionary<string, object>>();
-            public string Error;
-
-            public static SupportValidation Success(string rule, List<Dictionary<string, object>> missing)
-            {
-                return new SupportValidation
-                {
-                    Valid = true,
-                    WarningOnly = false,
-                    Rule = rule,
-                    MissingSupportCells = missing ?? new List<Dictionary<string, object>>()
-                };
-            }
-
-            public static SupportValidation Warning(string rule, List<Dictionary<string, object>> missing, string error)
-            {
-                return new SupportValidation
-                {
-                    Valid = true,
-                    WarningOnly = true,
-                    Rule = rule,
-                    MissingSupportCells = missing ?? new List<Dictionary<string, object>>(),
-                    Error = error
-                };
-            }
-
-            public static SupportValidation Invalid(string rule, List<Dictionary<string, object>> missing, string error)
-            {
-                return new SupportValidation
-                {
-                    Valid = false,
-                    WarningOnly = false,
-                    Rule = rule,
-                    MissingSupportCells = missing ?? new List<Dictionary<string, object>>(),
-                    Error = error
-                };
-            }
-
-            public Dictionary<string, object> ToDictionary()
-            {
-                return new Dictionary<string, object>
-                {
-                    ["valid"] = Valid,
-                    ["warningOnly"] = WarningOnly,
-                    ["buildLocationRule"] = Rule,
-                    ["missingSupportCells"] = MissingSupportCells,
-                    ["error"] = Error
-                };
-            }
-        }
-
         private sealed class PlacementCandidate
         {
             public int Score;

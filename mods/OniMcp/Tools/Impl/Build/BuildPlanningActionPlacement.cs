@@ -390,7 +390,7 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     ["y2"] = new McpToolParameter { Type = "integer", Description = "区域の終点・右上の Y。省略時は現在のカメラの表示範囲付近", Required = false },
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "ワールド ID。既定は現在アクティブなワールド", Required = false },
                     ["visibleOnly"] = new McpToolParameter { Type = "boolean", Description = "発見済みのセルだけを対象にするか。既定は true", Required = false },
-                    ["allowUnsupported"] = new McpToolParameter { Type = "boolean", Description = "OnFloor 設備に支えがない場合でも候補を返すか。既定は false", Required = false },
+                    ["allowUnsupported"] = new McpToolParameter { Type = "boolean", Description = "床・天井・回転支持設備に支えがない場合でも候補を返すか。既定は false", Required = false },
                     ["material"] = new McpToolParameter { Type = "string", Description = "任意の建築素材。省略または auto の場合は自動選択", Required = false },
                     ["facade"] = new McpToolParameter { Type = "string", Description = "任意の設備の外観・permit id", Required = false },
                     ["orientation"] = new McpToolParameter { Type = "string", Description = "任意の向き。既定は Neutral", Required = false },

@@ -81,17 +81,18 @@ namespace OniMcp.Tools
         private static void AppendCellBaseSnapshot(StringBuilder sb, int cell)
         {
             Element element = Grid.Element[cell];
-            string elementName = element != null ? StripLinkTags(element.name) : "Vacuum";
-            string elementId = element != null ? element.id.ToString() : "Vacuum";
+            string elementName = element != null ? StripLinkTags(element.name) : "Unknown";
+            string elementId = element != null ? element.id.ToString() : "Unknown";
             sb.AppendLine("## Base");
             sb.AppendLine("- Cell: " + cell);
             sb.AppendLine("- 元素: " + elementName + " (" + elementId + ")");
             sb.AppendLine("- 質量: " + Grid.Mass[cell].ToString("F2") + " kg");
             float tempC = Grid.Temperature[cell] - 273.15f;
-            sb.AppendLine("- 温度: " + tempC.ToString("F1") + "°C");
-            sb.AppendLine("- 温度の適合性: " + TemperatureSuitabilityText(tempC));
-            sb.AppendLine("- 温度の適合性詳細: band=" + TemperatureSuitabilityBand(tempC)
-                + " dupeComfortC=10~40 cautionC=-20~10/40~72 dangerC=<-20/>=72");
+            sb.AppendLine("- 温度: " + tempC.ToString("F1") + "°C"
+                + (element != null && element.IsVacuum ? "（ゲーム内セル値。真空の熱危険判定には使用しない）" : ""));
+            sb.AppendLine("- 温度の適合性: " + AmbientTemperaturePolicy.MapText(ToolUtil.GetElementState(element), tempC));
+            sb.AppendLine("- 温度の適合性詳細: band=" + AmbientTemperaturePolicy.MapBand(ToolUtil.GetElementState(element), tempC)
+                + " dupeComfortC=10~40 cautionC=-20~10/40~72 dangerC=<=-20/>=72");
             sb.AppendLine("- 環境判定: " + CellEnvironmentText(element, Grid.Mass[cell], tempC));
             sb.AppendLine("- 埋蔵物マーカー: " + ReadBuriedMarker(cell)
                 + " (source=EntombedItemVisualizer.IsEntombedItem; visible solid cells only; contents unknown; read-only)");
@@ -99,7 +100,7 @@ namespace OniMcp.Tools
 
         private static string CellEnvironmentText(Element element, float massKg, float tempC)
         {
-            string phase = CellPhase(element, massKg);
+            string phase = ToolUtil.GetElementState(element);
             string breathable = IsBreathableElement(element, massKg) ? "yes" : "no";
             string pressure = CellPressureBand(element, massKg);
             string liquidRisk = element != null && element.IsLiquid && massKg > 1f ? "yes" : "no";
@@ -107,20 +108,7 @@ namespace OniMcp.Tools
                 + " breathable=" + breathable
                 + " pressure=" + pressure
                 + " liquidRisk=" + liquidRisk
-                + " tempBand=" + TemperatureSuitabilityBand(tempC);
-        }
-
-        private static string CellPhase(Element element, float massKg)
-        {
-            if (element == null || massKg <= 0.001f)
-                return "vacuum";
-            if (element.IsSolid)
-                return "solid";
-            if (element.IsLiquid)
-                return "liquid";
-            if (element.IsGas)
-                return "gas";
-            return "unknown";
+                + " tempBand=" + AmbientTemperaturePolicy.MapBand(ToolUtil.GetElementState(element), tempC);
         }
 
         private static bool IsBreathableElement(Element element, float massKg)
@@ -132,8 +120,8 @@ namespace OniMcp.Tools
 
         private static string CellPressureBand(Element element, float massKg)
         {
-            if (element == null || massKg <= 0.001f)
-                return "vacuum";
+            if (element == null) return "unknown";
+            if (element.IsVacuum) return "vacuum";
             if (element.IsLiquid)
                 return massKg > 1f ? "liquid_blocking" : "liquid_trace";
             if (!element.IsGas)
@@ -145,24 +133,6 @@ namespace OniMcp.Tools
             if (massKg > 3f)
                 return "overpressure";
             return "normal";
-        }
-
-        private static string TemperatureSuitabilityText(float tempC)
-        {
-            if (tempC >= 72f) return "危険-やけどのリスク; comfort=10~40°C, caution=40~72°C";
-            if (tempC <= -20f) return "危険-低温のリスク; comfort=10~40°C, caution=-20~10°C";
-            if (tempC > 40f) return "やや高温; comfort=10~40°C";
-            if (tempC < 10f) return "やや低温; comfort=10~40°C";
-            return "適温; comfort=10~40°C";
-        }
-
-        private static string TemperatureSuitabilityBand(float tempC)
-        {
-            if (tempC >= 72f) return "danger_hot";
-            if (tempC <= -20f) return "danger_cold";
-            if (tempC > 40f) return "hot";
-            if (tempC < 10f) return "cold";
-            return "dupe_comfort";
         }
 
         private static void AppendCellObjectSnapshot(StringBuilder sb, int x, int y, int cell)

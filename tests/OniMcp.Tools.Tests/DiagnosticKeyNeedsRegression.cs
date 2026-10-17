@@ -56,8 +56,48 @@ internal static class DiagnosticKeyNeedsRegression
         Assert(reasons.Contains("low_calories"), "Observed zero calories are not missing");
         zero["bodyTemperature"].Read(() => new RawNeedSample { Value = -1, Unit = "Kelvin" });
         Assert((double)zero.ToDictionary()["bodyTemperature"] == -1, "No sentinel overwrites an observed finite value");
+        AmbientTemperatureRegression();
         BionicRegression();
         Console.WriteLine("PASS: need diagnostics distinguish observed normal/low/zero, missing, exception, non-finite and partial risk");
+    }
+
+    private static void AmbientTemperatureRegression()
+    {
+        foreach (double temp in new[] { -273.15, -21, 20, 61, 200 })
+        {
+            Assert(!AmbientTemperaturePolicy.WarnForDupe("vacuum", temp), "Vacuum cell value is not thermal exposure");
+            Assert(AmbientTemperaturePolicy.MapBand("vacuum", temp) == "not_applicable_vacuum", "Vacuum is not comfortable or dangerously cold");
+            Assert(!AmbientTemperaturePolicy.SuggestThermalRead("vacuum", temp), "Vacuum does not recommend thermal work precautions");
+            Assert(AmbientTemperaturePolicy.MapText("vacuum", temp).Contains("対象外"), "Cell text explains vacuum exclusion");
+        }
+        foreach (string state in new[] { "gas", "liquid", "solid" })
+        {
+            foreach (double temp in new[] { -273.15, -21, -20, 10, 38.6, 40, 60, 60.01, 72, 200 })
+            {
+                Assert(AmbientTemperaturePolicy.WarnForDupe(state, temp) == (temp < -20 || temp > 60), "Keep existing non-vacuum dupe thresholds including boundaries");
+                string expected = temp >= 72 ? "danger_hot" : temp <= -20 ? "danger_cold" : temp > 40 ? "hot" : temp < 10 ? "cold" : "dupe_comfort";
+                Assert(AmbientTemperaturePolicy.MapBand(state, temp) == expected, "Keep native material temperature bands (even trace gas/liquid)");
+                Assert(AmbientTemperaturePolicy.SuggestThermalRead(state, temp) == (expected != "dupe_comfort"), "Map hints agree with non-vacuum bands");
+            }
+        }
+        foreach (double temp in new[] { double.NaN, double.PositiveInfinity, double.NegativeInfinity })
+        {
+            Assert(AmbientTemperaturePolicy.Status("gas", temp) == "unknown", "Nonfinite temperature stays unknown");
+            Assert(!AmbientTemperaturePolicy.WarnForDupe("gas", temp), "Invalid temperature does not create a confirmed thermal warning");
+        }
+        Assert(AmbientTemperaturePolicy.Status(null, -273.15) == "unknown", "Missing element is not vacuum");
+        var needs = Complete();
+        needs["breath"].Read(() => new RawNeedSample { Value = 20, Unit = "Flat" });
+        var reasons = new List<string> { "target_unreachable" };
+        needs.AddRiskReasons(reasons);
+        if (AmbientTemperaturePolicy.WarnForDupe("vacuum", -273.15)) reasons.Add("dangerous_temperature");
+        Assert(needs.RiskWithCoverage(reasons) == "critical" && reasons.Contains("low_breath") && reasons.Contains("target_unreachable"), "Vacuum exclusion preserves breath and navigation warnings");
+        Assert((double)needs.ToDictionary()["bodyTemperature"] == 310, "Ambient exclusion does not alter observed body temperature");
+        reasons = new List<string> { "target_unreachable" };
+        Assert(Complete().RiskWithCoverage(reasons) == "warning", "Normal breath in vacuum cannot erase unreachable target warning");
+        reasons = new List<string>();
+        Assert(new KeyNeeds().RiskWithCoverage(reasons) == "unknown", "Vacuum exclusion does not fill missing needs");
+        Console.WriteLine("PASS: vacuum/non-vacuum thermal policy, finite data, cell hints, independent breath/navigation/body temperature");
     }
 
     private static void BionicRegression()

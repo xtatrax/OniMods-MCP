@@ -25,8 +25,9 @@ namespace OniMcp.Tools
         private static bool AppendThermalDecisionHint(StringBuilder sb, int x, int y, int cell)
         {
             float tempC = Grid.Temperature[cell] - 273.15f;
-            string band = TemperatureSuitabilityBand(tempC);
-            if (band == "dupe_comfort")
+            string state = ToolUtil.GetElementState(Grid.Element[cell]);
+            string band = AmbientTemperaturePolicy.MapBand(state, tempC);
+            if (!AmbientTemperaturePolicy.SuggestThermalRead(state, tempC))
                 return false;
 
             string level = band == "hot" || band == "danger_hot" ? "hot" : "cold";

@@ -114,7 +114,7 @@ namespace OniMcp.Tools
                 return new Dictionary<string, object> { ["valid"] = false };
 
             var element = Grid.Element[cell];
-            float tempK = ToolUtil.SafeFloat(Grid.Temperature[cell]);
+            float tempK = Grid.Temperature[cell];
             return new Dictionary<string, object>
             {
                 ["valid"] = true,
@@ -123,7 +123,8 @@ namespace OniMcp.Tools
                 ["elementName"] = ToolUtil.CleanName(element?.name ?? "Unknown"),
                 ["state"] = ToolUtil.GetElementState(element),
                 ["massKg"] = Math.Round(ToolUtil.SafeFloat(Grid.Mass[cell]), 3),
-                ["temperatureC"] = Math.Round(tempK - 273.15f, 2),
+                ["temperatureC"] = float.IsNaN(tempK) || float.IsInfinity(tempK)
+                    ? null : (object)Math.Round(tempK - 273.15f, 2),
                 ["solid"] = Grid.Solid[cell],
                 ["foundation"] = Grid.Foundation[cell],
                 ["diseaseCount"] = Grid.DiseaseCount[cell]

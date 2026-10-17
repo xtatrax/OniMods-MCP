@@ -91,7 +91,7 @@ namespace OniMcp.Tools
         private static void AppendCellThermalReads(StringBuilder sb, int x, int y, int cell)
         {
             float tempC = Grid.Temperature[cell] - 273.15f;
-            if (TemperatureSuitabilityBand(tempC) == "dupe_comfort")
+            if (!AmbientTemperaturePolicy.SuggestThermalRead(ToolUtil.GetElementState(Grid.Element[cell]), tempC))
                 return;
 
             sb.AppendLine("- temperature: `" + LocalZoomCall(x, y, "temperature")

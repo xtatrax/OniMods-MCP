@@ -36,7 +36,7 @@ namespace OniMcp.Tools
                 ["facade"] = new McpToolParameter { Type = "string", Description = "任意の設備の外観・permit id", Required = false },
                 ["orientation"] = new McpToolParameter { Type = "string", Description = "任意の向き。既定は Neutral", Required = false },
                 ["priority"] = new McpToolParameter { Type = "integer", Description = "建築の優先度 1..9。既定は 5", Required = false },
-                ["allowUnsupported"] = new McpToolParameter { Type = "boolean", Description = "既定は false。OnFloor 設備に支えがない場合は拒否", Required = false },
+                ["allowUnsupported"] = new McpToolParameter { Type = "boolean", Description = "既定は false。床・天井・回転支持設備に支えがない場合は拒否", Required = false },
                 ["allowUtilityTerrainDig"] = new McpToolParameter { Type = "boolean", Description = "既定false。自然地形を採掘してutilityを敷く明示許可。自動配線の追加経路にも適用。支持関係は未評価", Required = false },
                 ["autoDigObstructions"] = new McpToolParameter { Type = "boolean", Description = "既定は true。設備の占有範囲に採掘可能な自然の固体がある場合、建築実行時に先に採掘を自動で指示し、同じセルへの建築予定の配置を続けて試みる", Required = false },
                 ["autoUprootObstructions"] = new McpToolParameter { Type = "boolean", Description = "既定は true。設備の占有範囲に掘り起こせる植物がある場合、自動で掘り起こしを指示し、建築予定の配置を続けて試みる", Required = false },

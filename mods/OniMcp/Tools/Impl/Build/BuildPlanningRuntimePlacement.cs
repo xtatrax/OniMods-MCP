@@ -329,51 +329,6 @@ namespace OniMcp.Tools
             return layers;
         }
 
-        private static SupportValidation ValidateSupport(BuildingDef def, int x, int y, bool allowUnsupported, HashSet<int> plannedSupportCells, Orientation orientation = Orientation.Neutral)
-        {
-            if (def == null)
-                return SupportValidation.Success("unknown", null);
-
-            string rule = def.BuildLocationRule.ToString();
-            if (!EqualsIgnoreCase(rule, "OnFloor"))
-                return SupportValidation.Success(rule, null);
-
-            var missing = new List<Dictionary<string, object>>();
-            foreach (var supportCell in FloorSupportCells(def, x, y, orientation))
-            {
-                bool supported = Grid.IsValidCell(supportCell.Cell)
-                    && (Grid.Solid[supportCell.Cell]
-                        || HasSupportBlueprint(supportCell.Cell)
-                        || (plannedSupportCells != null && plannedSupportCells.Contains(supportCell.Cell)));
-                if (!supported)
-                    missing.Add(new Dictionary<string, object>
-                    {
-                        ["x"] = supportCell.X,
-                        ["y"] = supportCell.Y,
-                        ["cell"] = supportCell.Cell,
-                        ["reasonCode"] = "missing_support",
-                        ["reason"] = "OnFloor building requires solid terrain, a constructed support tile, or a support blueprint below this cell."
-                    });
-            }
-
-            if (missing.Count == 0)
-                return SupportValidation.Success(rule, null);
-
-            string error = $"Unsupported OnFloor building: place floor/support tiles below {def.PrefabID} first, or set allowUnsupported=true";
-            return allowUnsupported
-                ? SupportValidation.Warning(rule, missing, error)
-                : SupportValidation.Invalid(rule, missing, error);
-        }
-
-        private static IEnumerable<SupportCell> FloorSupportCells(BuildingDef def, int x, int y, Orientation orientation)
-        {
-            var shape = NativeBuildingFootprint.FromLowerLeft(def, x, y, orientation);
-            if (!shape.Available) yield break;
-            int supportY = shape.Bounds[1] - 1;
-            for (int sx = shape.Bounds[0]; sx <= shape.Bounds[2]; sx++)
-                yield return new SupportCell(sx, supportY, NativeBuildingFootprint.AbsoluteCell(sx, supportY).Cell.Value);
-        }
-
         private static bool HasSupportBlueprint(int cell)
         {
             if (!Grid.IsValidCell(cell))
@@ -386,11 +341,8 @@ namespace OniMcp.Tools
                     continue;
 
                 var building = go.GetComponent<Building>();
-                if (building != null && building.Def != null && IsSupportPrefab(building.Def.PrefabID))
-                    return true;
-
-                var prefabId = go.GetComponent<KPrefabID>()?.PrefabTag.Name;
-                if (IsSupportPrefab(prefabId))
+                if (building != null && building.Def != null && building.Def.IsFoundation
+                    && (go.GetComponent<BuildingUnderConstruction>() != null || go.GetComponent<Constructable>() != null))
                     return true;
             }
 

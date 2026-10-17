@@ -309,7 +309,12 @@ prefabId = resolvedPrefabId;
 
             var supportResult = ValidateSupport(def, x, y, ToolUtil.GetBool(args, "allowUnsupported", false), plannedSupportCells, orientation);
             if (!supportResult.Valid)
-                return ErrorResult(prefabId, x, y, supportResult.Error, supportResult.ToDictionary());
+                return ErrorResult(prefabId, x, y, supportResult.Error, new Dictionary<string, object>
+                {
+                    ["reasonCode"] = "unsupported", ["worldId"] = worldId,
+                    ["support"] = supportResult.ToDictionary(),
+                    ["missingSupportCells"] = supportResult.MissingSupportCells
+                });
 
             var placement = BuildPlacementDetails(def, x, y, worldId, orientation);
             var footprintResult = ValidateFootprint(placement);

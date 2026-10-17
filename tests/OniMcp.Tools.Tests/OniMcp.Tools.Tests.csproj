@@ -9,6 +9,7 @@
     <StartupObject>BenchmarkMetadataRegressionEntry</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/Shared/AmbientTemperaturePolicy.cs" Link="Source/AmbientTemperaturePolicy.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialQuantityDiagnostics.cs" Link="Source/MaterialQuantityDiagnostics.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateForwardingSafety.cs" Link="Source/CoordinateForwardingSafety.cs" />
