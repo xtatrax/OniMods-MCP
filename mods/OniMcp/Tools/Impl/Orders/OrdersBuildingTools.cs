@@ -63,7 +63,7 @@ namespace OniMcp.Tools
                 Risk = "medium",
                 Aliases = new List<string> { "logic_switch_set", "building_toggle_set" },
                 Hidden = true,
-                Description = "互換用エントリー。building_control domain=config action=set_toggle を使用すること。論理スイッチなど、プレイヤーによる手動切り替えに対応する設備や自動化スイッチの状態を設定する。対象が IPlayerControlledToggle を実装している場合のみ使用できる。一時停止中はネイティブの再開時切替要求を設定し、デュプ作業は不要",
+                Description = "互換用エントリー。building_control domain=config action=set_toggle を使用すること。論理スイッチなど、プレイヤーによる手動切り替えに対応する設備や自動化スイッチの状態を設定する。対象が IPlayerControlledToggle を実装している場合のみ使用できる。id または x/y を明示し、対象のワールドをアクティブにして実行する。通常の詳細画面ボタン経由で変更し、一時停止中の予約・取消を本体へ委譲する。操作時は詳細画面の対象が変わる場合がある。デュプ作業は不要",
                 Parameters = LookupParams(new Dictionary<string, McpToolParameter>
                 {
                     ["on"] = new McpToolParameter { Type = "boolean", Description = "true でオン、false でオフ", Required = true }
@@ -72,34 +72,88 @@ namespace OniMcp.Tools
                 {
                     if (ToolUtil.GetBool(args, "dryRun", false))
                         return CallToolResult.Error("dryRun is not supported; read config state without executing instead");
+                    int? requestedId = ToolUtil.GetInt(args, "id");
+                    int? requestedX = ToolUtil.GetInt(args, "x");
+                    int? requestedY = ToolUtil.GetInt(args, "y");
+                    string selectorError = NativePlayerToggleUi.ValidateSelectors(requestedId, requestedX, requestedY);
+                    if (selectorError != null)
+                        return CallToolResult.Error(selectorError);
                     var go = FindTarget(args);
-                    if (go == null)
-                        return CallToolResult.Error("Target not found");
+                    int? requestedWorld = requestedX.HasValue ? ToolUtil.ResolveWorldId(args) : ToolUtil.GetInt(args, "worldId");
+                    string query = args["query"]?.ToString()?.Trim();
+                    string targetError = NativePlayerToggleUi.ValidateTarget(go, requestedId, requestedX, requestedY,
+                        requestedWorld, query, MatchesQuery);
+                    if (targetError != null)
+                        return CallToolResult.Error(targetError);
                     var toggle = go.GetComponents<Component>().OfType<IPlayerControlledToggle>().FirstOrDefault();
                     if (toggle == null)
                         return CallToolResult.Error("Target does not expose a player-controlled toggle");
 
                     if (args["on"] == null)
                         return CallToolResult.Error("on is required");
+                    if (SpeedControlScreen.Instance == null)
+                        return CallToolResult.Error("Native speed control is not ready");
                     bool desired = ToolUtil.GetBool(args, "on", true);
                     bool before = toggle.ToggledOn();
+                    bool beforePending = toggle.ToggleRequested;
                     bool paused = SpeedControlScreen.Instance.IsPaused;
-                    NativeBuildingToggle.SetPlayerToggle(before, toggle.ToggleRequested, desired, paused,
-                        pending => toggle.ToggleRequested = pending, () => toggle.ToggledByPlayer());
-
-                    return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
+                    bool uiRefreshAttempted = false;
+                    bool actionAttempted = false;
+                    bool uiRetargeted = false;
+                    var beforeUiTarget = DetailsScreen.Instance != null ? DetailsScreen.Instance.target : null;
+                    var beforeUiSelection = SelectTool.Instance != null ? SelectTool.Instance.selected : null;
+                    try
                     {
-                        ["id"] = go.GetComponent<KPrefabID>()?.InstanceID ?? go.GetInstanceID(),
-                        ["name"] = ToolUtil.CleanName(go.GetProperName()),
-                        ["before"] = before,
-                        ["on"] = toggle.ToggledOn(),
-                        ["requestedOn"] = desired,
-                        ["toggleRequested"] = toggle.ToggleRequested,
-                        ["requiresDuplicantWork"] = false,
-                        ["completed"] = toggle.ToggledOn() == desired && !toggle.ToggleRequested,
-                        ["executionPath"] = paused ? "native_simulation_request" : "IPlayerControlledToggle.ToggledByPlayer",
-                        ["sideScreenTitleKey"] = toggle.SideScreenTitleKey
-                    }, McpJsonUtil.Settings));
+                        bool clicked = NativeBuildingToggle.SetPlayerToggle(before, beforePending, desired, paused, () =>
+                        {
+                            uiRetargeted = NativePlayerToggleUi.Click(go, toggle, () => actionAttempted = true,
+                                () => uiRefreshAttempted = true);
+                        });
+                        bool actual = toggle.ToggledOn();
+                        bool pending = toggle.ToggleRequested;
+                        NativeBuildingToggle.RequirePlayerToggleAccepted(desired, paused, actual, pending);
+                        return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
+                        {
+                            ["id"] = go.GetComponent<KPrefabID>()?.InstanceID ?? go.GetInstanceID(),
+                            ["name"] = ToolUtil.CleanName(go.GetProperName()),
+                            ["before"] = before,
+                            ["beforeToggleRequested"] = beforePending,
+                            ["on"] = actual,
+                            ["desiredOn"] = desired,
+                            ["requestedOn"] = pending ? !actual : actual,
+                            ["toggleRequested"] = pending,
+                            ["requiresDuplicantWork"] = false,
+                            ["completed"] = actual == desired && !pending,
+                            ["changed"] = clicked,
+                            ["actionAttempted"] = actionAttempted,
+                            ["uiRetargeted"] = uiRetargeted,
+                            ["executionPath"] = "PlayerControlledToggleSideScreen.toggleButton.SignalClick",
+                            ["sideScreenTitleKey"] = toggle.SideScreenTitleKey
+                        }, McpJsonUtil.Settings));
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = "Native player toggle failed: " + ex.GetBaseException().Message;
+                        if (!uiRefreshAttempted)
+                            return CallToolResult.Error(error);
+                        var result = NativeBuildingToggle.ReadPlayerToggleObservation(desired,
+                            () => toggle.ToggledOn(), () => toggle.ToggleRequested);
+                        bool? observedUiRetargeted = null;
+                        try { observedUiRetargeted = DetailsScreen.Instance != null && SelectTool.Instance != null
+                            ? DetailsScreen.Instance.target != beforeUiTarget || SelectTool.Instance.selected != beforeUiSelection
+                            : (bool?)null; } catch { }
+                        result["error"] = error;
+                        result["before"] = before;
+                        result["beforeToggleRequested"] = beforePending;
+                        result["desiredOn"] = desired;
+                        result["actionAttempted"] = actionAttempted;
+                        result["uiRefreshAttempted"] = uiRefreshAttempted;
+                        result["uiInitializing"] = ex is NativePlayerToggleUi.InitializationPendingException;
+                        result["uiRetargeted"] = observedUiRetargeted;
+                        result["executionPath"] = "PlayerControlledToggleSideScreen.toggleButton.SignalClick";
+                        result["next"] = "Native UI work may already be accepted. Read config state before retrying; unavailable observations are null.";
+                        return CallToolResult.Error(JsonConvert.SerializeObject(result, McpJsonUtil.Settings));
+                    }
                 }
             };
         }

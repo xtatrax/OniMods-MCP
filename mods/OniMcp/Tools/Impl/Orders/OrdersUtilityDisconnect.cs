@@ -41,6 +41,7 @@ namespace OniMcp.Tools
 
             var requested = new Dictionary<KAnimGraphTileVisualizer, UtilityConnections>();
             var edges = new List<object>();
+            var targetCells = new Dictionary<KAnimGraphTileVisualizer, int>();
             for (int y = rect["y1"]; y <= rect["y2"]; y++)
             for (int x = rect["x1"]; x <= rect["x2"]; x++)
             {
@@ -56,6 +57,8 @@ namespace OniMcp.Tools
                     int a = Grid.XYToCell(x, y), b = Grid.XYToCell(nx, ny);
                     if (!ToolUtil.CellMatchesWorld(a, world) || !ToolUtil.CellMatchesWorld(b, world))
                         return CallToolResult.Error("Disconnect edge crosses world boundary; no changes applied");
+                    if (!Grid.IsVisible(a) || !Grid.IsVisible(b))
+                        return CallToolResult.Error("Disconnect edge is not visible; no changes applied");
                     UtilityConnections from = offset[0] == 1 ? UtilityConnections.Right
                         : offset[0] == -1 ? UtilityConnections.Left
                         : offset[1] == 1 ? UtilityConnections.Up : UtilityConnections.Down;
@@ -75,6 +78,11 @@ namespace OniMcp.Tools
                         var beforeA = requested.TryGetValue(first, out var va) ? va : manager.GetConnections(a, false);
                         var beforeB = requested.TryGetValue(second, out var vb) ? vb : manager.GetConnections(b, false);
                         if ((beforeA & from) == 0 && (beforeB & to) == 0) continue;
+                        if ((targetCells.TryGetValue(first, out int firstCell) && firstCell != a)
+                            || (targetCells.TryGetValue(second, out int secondCell) && secondCell != b))
+                            return CallToolResult.Error("Disconnect target spans multiple requested cells; no changes applied");
+                        targetCells[first] = a;
+                        targetCells[second] = b;
                         requested[first] = beforeA & ~from;
                         requested[second] = beforeB & ~to;
                         edges.Add(new { from = new[] { x, y }, to = new[] { nx, ny },
@@ -83,30 +91,81 @@ namespace OniMcp.Tools
                     }
                 }
             }
+            string nativeError = null;
+            int nativeCalls = 0;
+            if (!dryRun && requested.Count > 0)
+            {
+                try
+                {
+                    // Resolve the exact native UI entrypoint and every target before
+                    // invoking any callback. Missing UI/API never enables a direct fallback.
+                    var native = NativeUtilityDisconnect.Prepare(DisconnectTool.Instance);
+                    var pending = new List<System.Action>();
+                    foreach (var pair in requested)
+                    {
+                        var graph = pair.Key;
+                        int cell = targetCells[graph];
+                        if (Grid.PosToCell(graph) != cell)
+                            throw new InvalidOperationException("Native disconnect target moved outside its requested cell; no changes applied");
+                        var target = graph.gameObject;
+                        var building = target.GetComponent<Building>();
+                        var utility = building?.Def?.BuildingComplete?.GetComponent<IHaveUtilityNetworkMgr>();
+                        var manager = graph.ConnectionManager;
+                        if (utility == null || manager == null
+                            || !ReferenceEquals(graph.connectionManager, manager)
+                            || !ReferenceEquals(manager, utility.GetNetworkManager()))
+                            throw new InvalidOperationException("Native disconnect target is unavailable or changed; no changes applied");
+                        UtilityConnections remove = manager.GetConnections(cell, false) & ~pair.Value;
+                        pending.Add(() => native.Execute(cell, target, utility, remove));
+                    }
+                    foreach (var disconnect in pending)
+                    {
+                        // A callback can fail after changing native state. Report an
+                        // uncertain partial result rather than repairing it ourselves.
+                        nativeCalls++;
+                        disconnect();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    nativeError = ex.Message;
+                }
+            }
+            bool? connectionVerified = null;
             if (!dryRun)
             {
-                foreach (var pair in requested)
+                try
                 {
-                    pair.Key.connectionManager = pair.Key.ConnectionManager;
-                    pair.Key.UpdateConnections(pair.Value);
+                    connectionVerified = requested.All(pair => pair.Key != null
+                        && Grid.PosToCell(pair.Key) == targetCells[pair.Key]
+                        && pair.Key.ConnectionManager != null
+                        && pair.Key.ConnectionManager.GetConnections(targetCells[pair.Key], false) == pair.Value);
+                    if (connectionVerified == false && nativeError == null)
+                        nativeError = "Native disconnect did not produce the requested connection state";
                 }
-                foreach (var manager in requested.Keys.Select(g => g.ConnectionManager).Distinct())
-                    manager.ForceRebuildNetworks();
-                foreach (var graph in requested.Keys) graph.Refresh();
+                catch (Exception ex)
+                {
+                    nativeError = (nativeError == null ? "" : nativeError + "; ")
+                        + "Native disconnect verification failed: " + ex.Message;
+                }
             }
-            bool verified = dryRun || requested.All(pair =>
-                pair.Key.ConnectionManager.GetConnections(Grid.PosToCell(pair.Key), false) == pair.Value);
+            bool success = (dryRun || connectionVerified == true) && nativeError == null;
             var result = new Dictionary<string, object>
             {
                 ["mode"] = "disconnect", ["dryRun"] = dryRun, ["worldId"] = world,
-                ["rect"] = rect, ["success"] = verified, ["wouldDisconnectEdges"] = edges.Count,
-                ["disconnectedEdges"] = dryRun ? 0 : edges.Count, ["deconstructionQueued"] = false,
-                ["connectionVerified"] = dryRun ? (object)null : verified,
-                ["flowVerified"] = false
+                ["rect"] = rect, ["success"] = success, ["wouldDisconnectEdges"] = edges.Count,
+                ["disconnectedEdges"] = dryRun || nativeCalls == 0 ? (object)0 : success ? (object)edges.Count : null,
+                ["deconstructionQueued"] = false,
+                ["connectionVerified"] = connectionVerified,
+                ["flowVerified"] = false,
+                ["executionPath"] = NativeUtilityDisconnect.ExecutionPath,
+                ["nativeCalls"] = nativeCalls,
+                ["partial"] = !dryRun && nativeCalls > 0 && !success,
+                ["error"] = nativeError
             };
             if (ToolUtil.GetBool(args, "detail", false)) result["edges"] = edges;
             var json = JsonConvert.SerializeObject(result, McpJsonUtil.Settings);
-            return verified ? CallToolResult.Text(json) : CallToolResult.Error(json);
+            return success ? CallToolResult.Text(json) : CallToolResult.Error(json);
         }
     }
 }

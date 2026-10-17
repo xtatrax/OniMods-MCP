@@ -33,6 +33,8 @@ orders_control domain=designation action=cut_conduits の既定はmode=disconnec
 
 同じ切断の繰り返しは対象辺0となる。再接続は同じ2セルをauto_connectで指定する。
 
+切断は通常UIと同じDisconnectCellsActionを使用し、両端の可視性と正確な対象を検証する。UI/APIが使えない場合に接続マスクの直接変更へ切り替えない。コールバック途中の失敗はpartial=true、disconnectedEdges=nullとなる場合があり、成功件数として扱わず現物を読み直す。flowVerified=falseは維持する。
+
 ## 旧動作の解体
 
 旧cut_conduitsは設備の解体予約だった。旧動作が必要な場合はmode=deconstructを明示する。通常の解体操作で正確な設備IDを指定する方法もある。cutだけで従来の解体が予約されることを期待する既存クライアントは変更が必要。

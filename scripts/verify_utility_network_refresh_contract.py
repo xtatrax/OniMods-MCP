@@ -44,7 +44,16 @@ def main() -> None:
     disconnect = (ROOT / "mods/OniMcp/Tools/Impl/Orders/OrdersUtilityDisconnect.cs").read_text()
     assert "QueueDeconstruct" not in disconnect and "DeleteObject" not in disconnect
     assert "beforeA & ~from" in disconnect and "beforeB & ~to" in disconnect
-    assert "if (!dryRun)" in disconnect
+    assert "if (!dryRun && requested.Count > 0)" in disconnect
+    assert "NativeUtilityDisconnect.Prepare(DisconnectTool.Instance)" in disconnect
+    assert "native.Execute(cell, target, utility, remove)" in disconnect
+    for forbidden in (".UpdateConnections(", ".ForceRebuildNetworks(", ".Refresh()", "connectionManager ="):
+        assert forbidden not in disconnect, forbidden
+    native_disconnect = (ROOT / "mods/OniMcp/Tools/Impl/Orders/NativeUtilityDisconnect.cs").read_text()
+    assert '"DisconnectCellsAction"' in native_disconnect
+    assert "typeof(int), typeof(GameObject), typeof(IHaveUtilityNetworkMgr), typeof(UtilityConnections)" in native_disconnect
+    assert "action.ReturnType != typeof(void)" in native_disconnect
+    assert "TargetInvocationException" in native_disconnect
 
     LEFT, RIGHT, UP, DOWN = 1, 2, 4, 8
 

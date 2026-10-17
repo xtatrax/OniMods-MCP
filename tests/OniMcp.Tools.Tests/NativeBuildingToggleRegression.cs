@@ -34,13 +34,47 @@ internal static class NativeBuildingToggleRegression
         foreach (bool desired in new[] { false, true })
         foreach (bool paused in new[] { false, true })
         {
-            bool state = current, pending = queued; int toggles = 0;
-            NativeBuildingToggle.SetPlayerToggle(current, queued, desired, paused,
-                v => pending = v, () => { state = !state; toggles++; });
-            Check(paused ? state == current && pending == (current != desired) && toggles == 0
-                : state == desired && !pending && toggles == (current == desired ? 0 : 1),
-                "dupe-free native switch must preserve pause request semantics");
+            bool state = current, pending = queued; int clicks = 0;
+            bool nativeBusy = false;
+            bool changed = false;
+            try
+            {
+                changed = NativeBuildingToggle.SetPlayerToggle(current, queued, desired, paused, () =>
+                {
+                    clicks++;
+                    // This fixture models the installed UI handler, including its queue cancellation.
+                    if (paused) pending = !pending;
+                    else { state = !state; pending = false; }
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                nativeBusy = ex.Message.Contains("pending simulation");
+            }
+            if (!paused && queued)
+            {
+                Check(nativeBusy && state == current && pending == queued && clicks == 0,
+                    "running pending request must be rejected before any UI click");
+                continue;
+            }
+            Check(!nativeBusy && (pending ? !state : state) == desired,
+                "native button must establish the requested effective state");
+            Check(paused ? state == current && pending == (current != desired)
+                : state == desired && !pending, "paused and running state semantics");
+            Check(clicks == (((queued ? !current : current) == desired) ? 0 : 1) && changed == (clicks == 1),
+                "matching requests must be idempotent and changed must reflect actual invocation");
         }
+        Check(!NativeBuildingToggle.SetPlayerToggle(true, false, true, true, null),
+            "no-op does not require a UI instance");
+        rejected = false;
+        try { NativeBuildingToggle.SetPlayerToggle(false, false, true, true, null); }
+        catch (InvalidOperationException) { rejected = true; }
+        Check(rejected, "missing native button fails closed");
+        var nativeFailure = new InvalidOperationException("native callback failed");
+        bool preservedFailure = false;
+        try { NativeBuildingToggle.SetPlayerToggle(false, false, true, true, () => { throw nativeFailure; }); }
+        catch (InvalidOperationException ex) { preservedFailure = ReferenceEquals(ex, nativeFailure); }
+        Check(preservedFailure, "native button failure must propagate without direct mutation fallback");
         Console.WriteLine("Native building toggle regressions passed");
     }
     private static void Check(bool value, string message) { if (!value) throw new Exception(message); }

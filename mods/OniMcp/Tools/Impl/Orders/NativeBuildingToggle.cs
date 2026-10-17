@@ -56,18 +56,46 @@ namespace OniMcp.Tools
             return result;
         }
 
-        internal static void SetPlayerToggle(bool current, bool queued, bool desired, bool paused,
-            System.Action<bool> setRequested, System.Action toggleByPlayer)
+        internal static Dictionary<string, object> ReadPlayerToggleObservation(bool desired,
+            Func<bool> readOn, Func<bool> readPending)
         {
-            if (paused)
+            bool? on = null;
+            bool? pending = null;
+            try { on = readOn(); } catch { }
+            try { pending = readPending(); } catch { }
+            bool? requested = on.HasValue && pending.HasValue
+                ? pending.Value ? !on.Value : on.Value : (bool?)null;
+            bool? completed = on.HasValue && pending.HasValue
+                ? on.Value == desired && !pending.Value : (bool?)null;
+            return new Dictionary<string, object>
             {
-                // Native ClickToggle defers these dupe-free switches to their Sim33ms.
-                bool pending = current != desired;
-                if (queued != pending) setRequested(pending);
-                return;
-            }
-            if (queued) setRequested(false);
-            if (current != desired) toggleByPlayer();
+                ["on"] = on,
+                ["toggleRequested"] = pending,
+                ["requestedOn"] = requested,
+                ["completed"] = completed
+            };
         }
+
+        internal static void RequirePlayerToggleAccepted(bool desired, bool paused, bool actual, bool pending)
+        {
+            if ((pending ? !actual : actual) != desired || (!paused && pending))
+                throw new InvalidOperationException("Native button did not establish the requested toggle state; read config state before retrying");
+        }
+
+        internal static bool SetPlayerToggle(bool current, bool queued, bool desired, bool paused,
+            System.Action clickNativeButton)
+        {
+            // Once simulation resumes a pending request belongs to the game's next Sim33ms.
+            // A running UI click always flips the actual state and cannot cancel that request.
+            if (!paused && queued)
+                throw new InvalidOperationException("Native toggle is pending simulation; retry after the request is applied");
+            if ((queued ? !current : current) == desired)
+                return false;
+            if (clickNativeButton == null)
+                throw new InvalidOperationException("Native player-toggle button is unavailable; refusing direct state mutation");
+            clickNativeButton();
+            return true;
+        }
+
     }
 }
