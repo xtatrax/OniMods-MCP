@@ -39,19 +39,22 @@ namespace OniMcp.Tools
         {
             string surface = capability == "activation_range" ? "activation"
                 : capability == "direction" || capability == "few_option" || capability == "broadcast_receiver" || capability == "radbolt_direction" ? "option" : null;
+            string filterKind = capability == "filterable" ? "single"
+                : capability == "tree_filter" ? "tree" : capability == "flat_filter" ? "flat" : null;
             var args = new Dictionary<string, object>
             {
-                ["domain"] = surface == null ? "config" : "side_surface", ["action"] = "list",
+                ["domain"] = filterKind != null ? "filter" : surface == null ? "config" : "side_surface", ["action"] = "list",
                 ["query"] = prefabId, ["worldId"] = worldId, ["limit"] = 500
             };
+            if (filterKind != null) args["kind"] = filterKind;
             if (surface != null) args["surface"] = surface;
             if (surface == "option") args["kind"] = capability;
             return new Dictionary<string, object>
             {
                 ["capability"] = capability, ["stateIncluded"] = stateIncluded,
                 ["expectedTargetId"] = targetId,
-                ["read"] = surface == null && !stateIncluded ? null : new Dictionary<string, object> { ["tool"] = "building_control", ["arguments"] = args },
-                ["note"] = surface != null ? "Follow read and match expectedTargetId in returned targets; capability alone is not the current setting."
+                ["read"] = surface == null && filterKind == null && !stateIncluded ? null : new Dictionary<string, object> { ["tool"] = "building_control", ["arguments"] = args },
+                ["note"] = surface != null || filterKind != null ? "Follow read and match expectedTargetId in returned targets; capability alone is not the current setting."
                     : stateIncluded ? "Current state is included in this config record."
                     : "Capability detected, but current state is not included by config list; no detailed reader is promised by this record."
             };

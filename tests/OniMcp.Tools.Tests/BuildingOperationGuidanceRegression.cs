@@ -4,6 +4,8 @@ using OniMcp.Tools;
 
 internal static class BuildingOperationGuidanceRegression
 {
+    private static void Main() => Run();
+
     internal static void Run()
     {
         FullPrefabIdWins();
@@ -25,6 +27,17 @@ internal static class BuildingOperationGuidanceRegression
         Check((string)activation["read"]["arguments"]["surface"] == "activation", "Battery thresholds use activation surface");
         var threshold = JObject.FromObject(BuildingOperationGuidance.ConfigurationRead("threshold", true, "LogicTemperatureSensor", 0, 789));
         Check((bool)threshold["stateIncluded"] && (string)threshold["read"]["arguments"]["domain"] == "config", "Native threshold state remains in config");
+        foreach (string capability in new[] { "filterable", "tree_filter", "flat_filter" })
+        {
+            var filter = JObject.FromObject(BuildingOperationGuidance.ConfigurationRead(capability, false, "GasFilter", 2, 321));
+            Check(filter["read"].Type == JTokenType.Object, "Filter capability must link to its existing state reader");
+            var args = filter["read"]["arguments"];
+            Check((string)args["domain"] == "filter" && (string)args["action"] == "list", "Filter state reader uses filter list");
+            string kind = capability == "filterable" ? "single" : capability == "tree_filter" ? "tree" : "flat";
+            Check((string)args["kind"] == kind && (string)args["query"] == "GasFilter", "Filter reader preserves kind and prefab query");
+            Check((int)args["worldId"] == 2 && (int)filter["expectedTargetId"] == 321, "Reader preserves world and target matching guidance");
+            Check(args["id"] == null && !(bool)filter["stateIncluded"], "List must not promise an unsupported id filter or included state");
+        }
         var unsupported = JObject.FromObject(BuildingOperationGuidance.ConfigurationRead("capacity", false, "StorageLocker", 0, 1));
         Check(unsupported["read"].Type == JTokenType.Null, "Do not promise a reader that only repeats capability");
         Console.WriteLine("Building operation guidance regression passed");
