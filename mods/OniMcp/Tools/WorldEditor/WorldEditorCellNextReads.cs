@@ -24,8 +24,7 @@ namespace OniMcp.Tools
             if (!CellLikelyNeedsReachability(cell))
                 return;
 
-            sb.AppendLine("- reachability: `world_editor command=read path=/active/dupes/reachability.md x="
-                + x + " y=" + y + " radius=12 sampleLimit=12` before rescue/dig/build/sweep work.");
+            sb.AppendLine("- nearby dupe reachability: `world_editor command=read path=/active/dupes/reachability.md radius=12 sampleLimit=12` scans around each duplicant, not this cell. It does not establish target-cell or work-position reachability.");
         }
 
         private static bool CellLikelyNeedsReachability(int cell)
