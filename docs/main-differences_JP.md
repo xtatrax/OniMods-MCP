@@ -247,7 +247,7 @@ git diff 60d7a5b7e4246e59b4fe2acf6c26596526d08ad0 1f03cfac19819907108befb9658a59
 
 手動スイッチを通常の詳細画面ボタンへ、配線・配管等の辺切断をネイティブDisconnectCellsActionへ委譲する。停止中の予約・取消やネットワーク更新をMOD独自の直接代入で代行しない。UI/APIが利用不能ならエラーまたは初期化待ちを返し、直接変更へfallbackしない。
 
-スイッチは明示したidまたは座標とアクティブワールドを確認し、操作で詳細画面の対象が変わる場合がある。初回UIのuiInitializing=true/actionAttempted=falseは再要求が必要な未実行状態。desiredOnは依頼値、requestedOnは本体の予約反映後の要求状態で、completedと区別する。切断は非可視の辺を拒否し、途中失敗時はpartialと未確定のdisconnectedEdgesを返す。NativeUi・NativeDisconnect・Tools・UtilityConnectionsのホスト回帰とネットワーク契約を確認した。
+公開のスイッチ操作はconfig一覧から得たidを明示し、対象ワールドをアクティブにする。公開のbuilding_controlにx/yを直接渡す案内ではない。操作で詳細画面の対象が変わる場合がある。初回UIのuiInitializing=true/actionAttempted=falseは再要求が必要な未実行状態。desiredOnは依頼値、requestedOnは本体の予約反映後の要求状態で、completedと区別する。切断は非可視の辺を拒否し、途中失敗時はpartialと未確定のdisconnectedEdgesを返す。NativeUi・NativeDisconnect・Tools・UtilityConnectionsのホスト回帰とネットワーク契約を確認した。
 
 公開作業ツリーで変更に関連する検査とゲーム同梱DLLによる参照コンパイルを実施。公開IDでの配備・実機受入は未実施。個別のプレイ記録・生ログ・利用者設定は含めない。
 
@@ -262,5 +262,12 @@ git diff 60d7a5b7e4246e59b4fe2acf6c26596526d08ad0 1f03cfac19819907108befb9658a59
 ## 選択修正: 特性の副作用を起こさない読取（2026-10-18）
 
 現物のproperties読取から動的なTrait.GetName/GetTooltip呼出を除いた。これらは属性検索やコールバックを実行し、存在しない属性によって本体エラーを発生させる場合がある。静的フィールドのname/descriptionと生の属性修正値を返し、動的tooltipはnull/not_evaluated、未取得項目を明示する。単位未解決・非有限値を正常値で補わない。関連するToolsホスト回帰を確認した。
+
+公開作業ツリーで変更に関連する検査とゲーム同梱DLLによる参照コンパイルを実施。公開IDでの配備・実機受入は未実施。個別のプレイ記録・生ログ・利用者設定は含めない。
+
+
+## 選択修正: 公開窓口に合わせたスイッチ案内（2026-10-18）
+
+公開のbuilding_controlではconfig一覧から得たidを明示する形へ案内を揃えた。内部の座標検証能力と、公開ツールへ直接渡せる引数を区別する。対象解決・確認・本体UI呼出の挙動は変更しない。
 
 公開作業ツリーで変更に関連する検査とゲーム同梱DLLによる参照コンパイルを実施。公開IDでの配備・実機受入は未実施。個別のプレイ記録・生ログ・利用者設定は含めない。

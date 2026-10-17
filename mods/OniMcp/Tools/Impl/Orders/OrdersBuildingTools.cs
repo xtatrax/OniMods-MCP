@@ -63,7 +63,7 @@ namespace OniMcp.Tools
                 Risk = "medium",
                 Aliases = new List<string> { "logic_switch_set", "building_toggle_set" },
                 Hidden = true,
-                Description = "互換用エントリー。building_control domain=config action=set_toggle を使用すること。論理スイッチなど、プレイヤーによる手動切り替えに対応する設備や自動化スイッチの状態を設定する。対象が IPlayerControlledToggle を実装している場合のみ使用できる。id または x/y を明示し、対象のワールドをアクティブにして実行する。通常の詳細画面ボタン経由で変更し、一時停止中の予約・取消を本体へ委譲する。操作時は詳細画面の対象が変わる場合がある。デュプ作業は不要",
+                Description = "互換用エントリー。building_control domain=config action=set_toggle を使用すること。論理スイッチなど、プレイヤーによる手動切り替えに対応する設備や自動化スイッチの状態を設定する。対象が IPlayerControlledToggle を実装している場合のみ使用できる。config 一覧から得た id を明示し、対象のワールドをアクティブにして実行する。公開の building_control に x/y を直接渡さない。通常の詳細画面ボタン経由で変更し、一時停止中の予約・取消を本体へ委譲する。操作時は詳細画面の対象が変わる場合がある。デュプ作業は不要",
                 Parameters = LookupParams(new Dictionary<string, McpToolParameter>
                 {
                     ["on"] = new McpToolParameter { Type = "boolean", Description = "true でオン、false でオフ", Required = true }
