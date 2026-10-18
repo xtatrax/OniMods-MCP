@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import math
 import sys
 import time
 import urllib.error
@@ -107,6 +108,91 @@ def pause(session_id):
     return call_tool(session_id, "game_control", {"domain": "speed", "action": "pause"})
 
 
+def _stop_tool_call(session_id, action):
+    try:
+        _, data = post(
+            {"jsonrpc": "2.0", "id": int(time.time() * 1000) % 1_000_000,
+             "method": "tools/call", "params": {"name": "game_control", "arguments": {
+                 "domain": "speed", "action": action, "task": "survival_watch.stop." + action}}},
+            session_id=session_id, timeout=10,
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise RuntimeError("pause_transport_unavailable") from exc
+    if not isinstance(data, dict) or "error" in data:
+        raise RuntimeError("pause_rpc_error")
+    result = data.get("result")
+    if not isinstance(result, dict) or result.get("isError", False) is not False:
+        raise RuntimeError("pause_mcp_error")
+    content = result.get("content")
+    first = content[0] if isinstance(content, list) and content else None
+    if not isinstance(first, dict) or first.get("type") != "text" or not isinstance(first.get("text"), str):
+        raise RuntimeError("pause_primary_text_unavailable")
+    return first["text"]
+
+
+def _finite_clock_number(value):
+    return type(value) is int or (type(value) is float and math.isfinite(value))
+
+
+def _stop_observation(state):
+    if not isinstance(state, dict):
+        return None, "unknown", "pause_time_invalid"
+    paused = state.get("isPaused")
+    if type(paused) is not bool:
+        return None, "unknown", "pause_flag_unknown"
+    speed, internal = state.get("speed"), state.get("internalSpeed")
+    if type(speed) is not int or type(internal) is not int or internal not in (0, 1, 2) or speed != internal + 1:
+        return None, "unknown", "pause_ui_unavailable"
+    if not all(_finite_clock_number(state.get(key)) for key in ("cycle", "timeOfDayPercent")):
+        return paused, "unknown", "pause_time_metadata_unknown"
+    scale = state.get("timeScale")
+    try:
+        finite_scale = type(scale) in (int, float) and math.isfinite(scale) and scale >= 0
+    except OverflowError:
+        finite_scale = False
+    if not finite_scale:
+        return paused, "unknown", "pause_timescale_unknown"
+    if paused is True and scale == 0:
+        return True, "confirmed", None
+    return paused, "unconfirmed", "pause_not_confirmed"
+
+
+def pause_and_verify(session_id):
+    outcome = {"pausedAtEnd": None, "pauseStatus": "unknown", "pauseAttempts": 0,
+               "pauseIncident": False, "pauseReason": None, "postPause": None}
+    for attempt in range(2):
+        outcome["pauseAttempts"] += 1
+        try:
+            acknowledgement = _stop_tool_call(session_id, "pause")
+            if not acknowledgement.strip():
+                raise RuntimeError("pause_acknowledgement_empty")
+            time.sleep(0.5)
+            text = _stop_tool_call(session_id, "time")
+        except RuntimeError as exc:
+            outcome.update(pausedAtEnd=None, pauseStatus="unknown", pauseIncident=True, pauseReason=str(exc), postPause=None)
+            return outcome
+        try:
+            state = json.loads(text, parse_constant=lambda _value: None)
+        except (ValueError, RecursionError):
+            state = None
+        paused, status, reason = _stop_observation(state)
+        outcome.update(pausedAtEnd=paused, pauseStatus=status)
+        outcome["postPause"] = ({key: state.get(key) for key in
+            ("cycle", "timeOfDayPercent", "timeScale", "isPaused", "speed", "internalSpeed")}
+            if isinstance(state, dict) else None)
+        if outcome["postPause"] is not None:
+            for key in ("cycle", "timeOfDayPercent", "timeScale", "speed", "internalSpeed"):
+                if not _finite_clock_number(outcome["postPause"][key]):
+                    outcome["postPause"][key] = None
+            if type(outcome["postPause"]["isPaused"]) is not bool:
+                outcome["postPause"]["isPaused"] = None
+            outcome["postPause"]["paused"] = paused
+        if status == "confirmed":
+            return outcome
+        outcome.update(pauseIncident=True, pauseReason=reason)
+    return outcome
+
+
 def is_bad_snapshot(snap):
     metrics = snap.get("metrics") or {}
     if metrics.get("dupes", 1) <= 0:
@@ -155,15 +241,15 @@ def main():
     start = snapshot(session_id) if args.no_load else ensure_loaded(session_id, args.save_index, True, args.speed)
     start_cycle = float(start.get("cycle", 0))
     target_cycle = start_cycle + max(0.0, args.target_cycles)
-    set_speed(session_id, args.speed)
 
     deadline = time.time() + args.max_seconds if args.max_seconds > 0 else None
     samples = []
     ok = False
     failure = None
-    post_pause = None
-    paused_at_end = None
+    stop = {"pausedAtEnd": None, "pauseStatus": "not_requested", "pauseAttempts": 0,
+            "pauseIncident": False, "pauseReason": None, "postPause": None}
     try:
+        set_speed(session_id, args.speed)
         while True:
             current = snapshot(session_id)
             alerts = [] if args.ignore_critical_diagnostics else diagnostic_alerts(session_id)
@@ -193,26 +279,12 @@ def main():
             time.sleep(max(1.0, args.poll_seconds))
     finally:
         if not args.no_pause_at_end:
-            try:
-                pause(session_id)
-                time.sleep(0.5)
-                post_pause = snapshot(session_id)
-                paused_at_end = bool(post_pause.get("paused"))
-            except Exception:
-                paused_at_end = False
+            stop = pause_and_verify(session_id)
 
     final = samples[-1] if samples else {}
-    post_pause_compact = None
-    if post_pause:
-        post_pause_compact = {
-            "cycle": post_pause.get("cycle"),
-            "paused": post_pause.get("paused"),
-            "speed": post_pause.get("speed"),
-            "alertLevel": post_pause.get("alertLevel"),
-            "summary": post_pause.get("summary"),
-        }
+    pause_ok = args.no_pause_at_end or (stop["pauseStatus"] == "confirmed" and not stop["pauseIncident"])
     result = {
-        "ok": ok and not failure,
+        "ok": ok and not failure and pause_ok,
         "targetCycles": args.target_cycles,
         "startCycle": start_cycle,
         "targetCycle": target_cycle,
@@ -222,9 +294,8 @@ def main():
         "partialAllowed": args.allow_partial,
         "diagnosticsIgnored": args.ignore_critical_diagnostics,
         "last": final,
-        "pausedAtEnd": paused_at_end,
-        "postPause": post_pause_compact,
     }
+    result.update(stop)
     print(json.dumps(result, ensure_ascii=False))
     if not result["ok"]:
         sys.exit(1)
