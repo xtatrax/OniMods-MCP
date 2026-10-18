@@ -9,6 +9,7 @@ internal static class BenchmarkMetadataRegressionEntry
 {
     private static void Main()
     {
+        PriorityTableProjectionRegression.Run();
         NativeBuildingToggleRegression.Run();
         CoordinateForwardingSafetyRegression.Run();
         ToolLocalizationRegression.Run();

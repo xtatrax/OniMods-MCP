@@ -340,37 +340,12 @@ namespace OniMcp.Tools
 
         private static List<string> CollectPriorityColumns(List<JObject> rows)
         {
-            var skip = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "name", "dupe", "dupeName", "duplicant", "id", "instanceId" };
-            var cols = new List<string>();
-            foreach (var row in rows)
-            {
-                foreach (var prop in row.Properties())
-                {
-                    if (skip.Contains(prop.Name))
-                        continue;
-                    if (prop.Value is JObject)
-                    {
-                        foreach (var sub in ((JObject)prop.Value).Properties())
-                            if (!cols.Contains(sub.Name))
-                                cols.Add(sub.Name);
-                    }
-                    else if (prop.Value.Type != JTokenType.Array && !cols.Contains(prop.Name))
-                    {
-                        cols.Add(prop.Name);
-                    }
-                }
-            }
-            return cols.Take(18).ToList();
+            return PriorityTableProjection.CollectColumns(rows);
         }
 
         private static string PriorityValue(JObject row, string col)
         {
-            if (row[col] != null)
-                return Scalar(row[col]);
-            foreach (var obj in row.Properties().Select(p => p.Value).OfType<JObject>())
-                if (obj[col] != null)
-                    return Scalar(obj[col]);
-            return "";
+            return Scalar(PriorityTableProjection.ValueToken(row, col));
         }
 
         private static void AppendScalar(StringBuilder sb, string label, JObject root, params string[] names)
