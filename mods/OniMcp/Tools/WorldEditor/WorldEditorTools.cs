@@ -177,6 +177,7 @@ namespace OniMcp.Tools
             bool partial = false;
             bool anyFailure = false;
             int mutatedSteps = 0;
+            var changes = new List<bool?>();
             foreach (JObject compiledStep in compiled)
             {
                 int i = compiledStep.Value<int>("index");
@@ -189,10 +190,11 @@ namespace OniMcp.Tools
                     continue;
                 }
                 var result = CallBatchStep(tool, step);
+                changes.Add(ResultChanged(result));
                 bool failed = WorldEditorResultFailed(result, step);
                 int childActual = ResultAppliedCount(result);
                 anyFailure = anyFailure || failed;
-                if (mutating && (!failed || childActual > 0))
+                if (mutating && (!failed || childActual > 0 || ResultHasProgressEvidence(result) && ResultChanged(result) == true))
                     mutatedSteps++;
                 applied += BatchStepAppliedCount(childActual, mutating, failed);
                 partial = partial || BatchStepReportsPartial(result, failed, childActual);
@@ -208,6 +210,7 @@ namespace OniMcp.Tools
                 ["partial"] = partial,
                 ["applied"] = applied,
                 ["mutatedSteps"] = mutatedSteps,
+                ["changed"] = changes.Count == 0 ? false : MergeOutcomeChanged(changes),
                 ["requested"] = items.Count,
                 ["executed"] = results.Count,
                 ["failed"] = results.Count(item => (bool)item["isError"]),
@@ -261,8 +264,11 @@ namespace OniMcp.Tools
                 ["isError"] = failed,
                 ["partial"] = BatchStepReportsPartial(result, failed, childActual),
                 ["applied"] = BatchStepAppliedCount(childActual, mutating, failed),
-                ["text"] = TrimText(text, 900)
+                ["text"] = TrimText(text, 900),
+                ["nativeOutcome"] = NativeOutcome(result)
             };
+            if (ResultHasProgressEvidence(result) && args?["detail"]?.Type == JTokenType.Boolean && args.Value<bool>("detail"))
+                summary["result"] = text;
             if (text.Length > 900)
             {
                 summary["truncated"] = true;
@@ -282,7 +288,8 @@ namespace OniMcp.Tools
 
         private static bool BatchStepReportsPartial(CallToolResult result, bool failed, int childActual)
         {
-            return failed ? childActual > 0 : ResultReportsPartial(result);
+            return failed ? childActual > 0 || ResultHasProgressEvidence(result)
+                && (ResultProgressPartial(result) || ResultChanged(result) == true) : ResultProgressPartial(result);
         }
 
         private static string TrimText(string text, int max)

@@ -27,4 +27,28 @@
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorEdits.cs" Link="Source/WorldEditorEdits.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorSearchReplace.cs" Link="Source/WorldEditorSearchReplace.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditTools.cs" Link="Source/WorldEditorMapEditTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditPreflight.cs" Link="Source/WorldEditorMapEditPreflight.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapPatchCoordinates.cs" Link="Source/WorldEditorMapPatchCoordinates.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditFootprints.cs" Link="Source/WorldEditorMapEditFootprints.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditTokenParsing.cs" Link="Source/WorldEditorMapEditTokenParsing.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditInputValidation.cs" Link="Source/WorldEditorMapEditInputValidation.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditOrderTokens.cs" Link="Source/WorldEditorMapEditOrderTokens.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditConnections.cs" Link="Source/WorldEditorMapEditConnections.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditLayerContext.cs" Link="Source/WorldEditorMapEditLayerContext.cs" Condition="Exists('../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditLayerContext.cs')" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/MapTextReadPolicy.cs" Link="Source/MapTextReadPolicy.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorTools.cs" Link="Source/WorldEditorTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorBatchSafety.cs" Link="Source/WorldEditorBatchSafety.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorResultEvidence.cs" Link="Source/WorldEditorResultEvidence.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapBuildProgress.cs" Link="Source/WorldEditorMapBuildProgress.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapBuildEdit.cs" Link="Source/WorldEditorMapBuildEdit.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/result_progress.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>

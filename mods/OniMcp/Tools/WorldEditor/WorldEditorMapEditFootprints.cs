@@ -7,20 +7,32 @@ namespace OniMcp.Tools
 {
     public static partial class WorldEditorTools
     {
+        private sealed class MapEditAnchorRequest
+        {
+            internal int X;
+            internal int Y;
+            internal List<MapEditCell> RequestedCells;
+        }
+
         private static bool TryBuildAnchorsForPrefabFootprints(
-            JObject parentArgs,
-            string prefabId,
-            IEnumerable<MapEditCell> cells,
-            out JArray anchors,
-            out string error)
+            JObject parentArgs, string prefabId, IEnumerable<MapEditCell> cells,
+            out JArray anchors, out string error)
+        {
+            return TryBuildAnchorsForPrefabFootprints(parentArgs, prefabId, cells, out anchors, out _, out error);
+        }
+
+        private static bool TryBuildAnchorsForPrefabFootprints(
+            JObject parentArgs, string prefabId, IEnumerable<MapEditCell> cells,
+            out JArray anchors, out List<MapEditAnchorRequest> requests, out string error)
         {
             anchors = new JArray();
+            requests = new List<MapEditAnchorRequest>();
             error = null;
             var def = Assets.GetBuildingDef(prefabId);
             if (def == null)
             {
                 foreach (var cell in cells)
-                    anchors.Add(new JObject { ["x"] = cell.X, ["y"] = cell.Y });
+                    AddMapAnchorRequest(anchors, requests, cell.X, cell.Y, new List<MapEditCell> { cell });
                 return true;
             }
 
@@ -37,7 +49,7 @@ namespace OniMcp.Tools
             if (width == 1 && height == 1)
             {
                 foreach (var cell in cells)
-                    anchors.Add(new JObject { ["x"] = cell.X, ["y"] = cell.Y });
+                    AddMapAnchorRequest(anchors, requests, cell.X, cell.Y, new List<MapEditCell> { cell });
                 return true;
             }
 
@@ -53,7 +65,7 @@ namespace OniMcp.Tools
 
             foreach (var component in ConnectedCellComponents(cells))
             {
-                if (!TryAddFootprintAnchor(prefabId, orientation, width, height, occupied, component, anchors, out error))
+                if (!TryAddFootprintAnchor(prefabId, orientation, width, height, occupied, component, anchors, requests, out error))
                     return false;
             }
 
@@ -68,6 +80,7 @@ namespace OniMcp.Tools
             HashSet<string> occupied,
             List<MapEditCell> component,
             JArray anchors,
+            List<MapEditAnchorRequest> requests,
             out string error)
         {
             error = null;
@@ -82,7 +95,7 @@ namespace OniMcp.Tools
             // Explicit masks must match the native occupied cells, including holes and rotation.
             if (component.Count == 1 && actualWidth == 1 && actualHeight == 1)
             {
-                anchors.Add(new JObject { ["x"] = minX, ["y"] = minY });
+                AddMapAnchorRequest(anchors, requests, minX, minY, component);
                 return true;
             }
 
@@ -93,8 +106,15 @@ namespace OniMcp.Tools
                 return false;
             }
 
-            anchors.Add(new JObject { ["x"] = minX, ["y"] = minY });
+            AddMapAnchorRequest(anchors, requests, minX, minY, component);
             return true;
+        }
+
+        private static void AddMapAnchorRequest(JArray anchors, List<MapEditAnchorRequest> requests,
+            int x, int y, List<MapEditCell> cells)
+        {
+            anchors.Add(new JObject { ["x"] = x, ["y"] = y });
+            requests.Add(new MapEditAnchorRequest { X = x, Y = y, RequestedCells = cells });
         }
 
         private static IEnumerable<List<MapEditCell>> ConnectedCellComponents(IEnumerable<MapEditCell> cells)

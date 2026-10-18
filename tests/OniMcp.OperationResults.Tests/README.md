@@ -1,6 +1,6 @@
 # Operation result response regression
 
-This host suite compiles the production operation-file execution code, its command tokenizer/parser, semantic parser, confirmation/dry-run execution policy and JSON response types. Only the game/registry dispatch boundary, sandbox entry scope and unrelated file/screen access are substituted. Tests use regular `call key=value` commands; semantic map execution and game rules are outside this suite.
+This host suite compiles the production operation-file execution code, its command tokenizer/parser, semantic parser, confirmation/dry-run execution policy and JSON response types. Only the game/registry dispatch boundary, sandbox entry scope and unrelated file/screen access are substituted. Tests use regular `call key=value` commands and actual virtual-map edit/outer-batch adapters with supplied native results. Native placement and game rules are outside this suite.
 
 An explicit child `detail=true` must retain the complete raw result string, including long JSON objects, arrays, Unicode and non-JSON text. Ordinary replies remain compact. Successful canonical `search_control` calls preserve the complete child result by default, without argument echo. Native `detail=brief|compact|full` values keep their search meaning and pass through unchanged; legacy boolean `detail=false` opts out of result output. Search failures retain compact previews unless boolean `detail=true` explicitly requests the full error. Existing error summaries, confirmation/dry-run gates, task requirements and the one-command restriction remain in effect. Tests also check that the native operation is called once and that response handling does not modify parent arguments or native result content.
 
@@ -19,3 +19,23 @@ These are host adapter tests. They do not establish successful compilation again
 The search regression uses the same production operation adapter with substituted registry/native results. It preserves heterogeneous child counts and truncation fields without inferring totals or changing the `applied` aggregate. It also covers generic canonical routes, rejection of currently unregistered internal aliases, typed-file tool overrides, long results, unchanged child arguments and the existing execution guards. Direct native search equivalence and live non-mutation remain runtime acceptance checks.
 
 The management-skill regression also compiles the complete production management-table reader and management-file dispatcher. Its native skill-list boundary supplies fixed responses and records arguments; it does not implement query filtering, target resolution, skill eligibility or learning. Unrelated game/screen entry points throw if called. Tests exercise scalar queries, the existing explicit/nested/path format precedence (including empty/null behavior), target/global Markdown fields, detached argument forwarding, escaping and exact raw JSON output. `ManagementTablesSource` can replace that linked production file for a known-bad or semantic mutation check. Live native list/Markdown equivalence, model-specific eligibility and actual game state preservation remain separate acceptance work.
+
+The count/progress regressions additionally link the complete production map edit,
+SEARCH/REPLACE preflight and parser, footprint-to-anchor compiler, outer edit,
+world editor dispatcher and batch safety sources. Native building/order results
+are queued raw fixtures; the wrapper results and aggregate counts are never
+implemented by the fixture. Tests distinguish requested map cells, native anchor
+outcomes, actual operation calls and successfully executed edit blocks, including
+partial content in a successful block. Native `changed=false`, integer zero and
+unknown evidence remain distinct. Explicit Boolean `detail=true` on a batch step
+with progress metadata preserves the entire child result; default/false/string
+values retain the existing bounded text.
+
+The map fixture supplies a fixed visible snapshot and native definition shapes.
+It does not validate game visibility, rendering, native placement, geometry APIs,
+registry initialization or save restoration. Unrelated detail/screen branches
+throw; narrow file/token helpers support only the exact plain prefab IDs and
+active map path used by these tests. The existing Tools.Tests geometry suite
+continues to link NativeBuildingFootprint itself and now verifies the compiled
+original-request mapping for masks, markers, sparse holes and rotations. Native
+reference compilation and development/public runtime acceptance remain separate.

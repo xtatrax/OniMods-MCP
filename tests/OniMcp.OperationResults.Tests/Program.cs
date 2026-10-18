@@ -20,6 +20,8 @@ internal static partial class Program
         Console.WriteLine("Operation result regression checks passed: " + checks);
         SearchResultsRemainAvailable();
         ManagementSkillReadRegression.Run();
+        MapCountRegression.Run();
+        OutcomeRegression.Run();
     }
 
     private static void DetailedPayloadsRemainExact()

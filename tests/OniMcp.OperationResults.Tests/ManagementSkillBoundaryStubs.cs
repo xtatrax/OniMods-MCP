@@ -67,16 +67,4 @@ namespace OniMcp.Tools
         internal object GetPosition() => throw new NotSupportedException();
     }
 
-    internal sealed class KPrefabID
-    {
-        internal int InstanceID => throw new NotSupportedException();
-    }
-
-    internal static class Grid
-    {
-        internal static int PosToCell(object position) => throw new NotSupportedException();
-        internal static bool IsValidCell(int cell) => throw new NotSupportedException();
-        internal static int CellColumn(int cell) => throw new NotSupportedException();
-        internal static int CellRow(int cell) => throw new NotSupportedException();
-    }
 }

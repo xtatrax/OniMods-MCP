@@ -77,7 +77,8 @@ namespace OniMcp.Tools
                     sb.AppendLine("```json\n" + JsonConvert.SerializeObject(ToolSummary(tool), McpJsonUtil.Settings) + "\n```");
             }
             sb.AppendLine();
-            sb.AppendLine("## Edit Commands");
+            sb.AppendLine(McpLocalization.Get("result_progress.operation_count_contract"));
+        sb.AppendLine("## Edit Commands");
             sb.AppendLine("```text");
             foreach (string line in OperationExamples(relative))
                 sb.AppendLine("# " + line);
@@ -168,6 +169,8 @@ namespace OniMcp.Tools
         bool anyError = false;
         bool partial = false;
         int executed = 0;
+        int executedCommands = 0;
+        var changes = new List<bool?>();
         bool stopOnError = parentArgs?["stopOnError"] == null || ToolUtil.GetBool(parentArgs, "stopOnError", true);
         foreach (var item in compiled)
         {
@@ -183,18 +186,21 @@ namespace OniMcp.Tools
 
             CallToolResult result = RunWithWorldEditorInstantBuildScope(arguments,
                 () => OniToolRegistry.CallToolFromWorldEditor(toolName, arguments, semanticCoordinates));
+            executedCommands++;
+            changes.Add(ResultChanged(result));
             bool failed = WorldEditorResultFailed(result, arguments);
             anyError = anyError || failed;
-            partial = partial || ResultReportsPartial(result);
+            partial = partial || NativeRefusalReportsPartial(result, failed && ResultChanged(result) == false);
             if (!failed)
                 executed += ResultAppliedCount(result);
-            string text = result.Content?.FirstOrDefault()?.Text ?? string.Empty;
+            string text = result?.Content?.FirstOrDefault()?.Text ?? string.Empty;
             var resultItem = new JObject
             {
                 ["line"] = line,
                 ["tool"] = toolName,
                 ["ok"] = !failed,
-                ["isError"] = failed
+                ["isError"] = failed,
+                ["nativeOutcome"] = NativeOutcome(result)
             };
             if (failed)
                 resultItem["error"] = TrimOperationText(text, 4000);
@@ -215,9 +221,12 @@ namespace OniMcp.Tools
         var summary = new JObject
         {
             ["ok"] = !anyError,
-            ["partial"] = partial || (anyError && executed > 0),
+            ["partial"] = partial || (anyError && (executed > 0 || changes.Contains(true))),
             ["file"] = relative,
             ["applied"] = executed,
+            ["appliedUnit"] = "legacy_child_counter",
+            ["executedCommands"] = executedCommands,
+            ["changed"] = executedCommands == 0 ? false : MergeOutcomeChanged(changes),
             ["failed"] = anyError ? 1 : 0,
             ["results"] = results
         };

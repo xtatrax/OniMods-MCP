@@ -35,7 +35,7 @@ namespace OniMcp.Tools
 
         private static CallToolResult WorldEditorPreview(string route, string path, JToken details)
         {
-            return JsonResult(new JObject
+            var preview = new JObject
             {
                 ["ok"] = true,
                 ["preview"] = true,
@@ -44,16 +44,27 @@ namespace OniMcp.Tools
                 ["path"] = path,
                 ["details"] = details ?? new JObject(),
                 ["next"] = "repeat with dryRun=false confirm=true after reviewing this preview"
-            });
+            };
+            if (route == "operation")
+            {
+                preview["executedCommands"] = 0;
+                preview["appliedUnit"] = "legacy_child_counter";
+            }
+            if (route == "search_replace") preview["appliedUnit"] = "edit_blocks";
+            preview["changed"] = false;
+            return JsonResult(preview);
         }
 
-        private static CallToolResult WorldEditorExecutionFailure(string route, string path, int applied, JArray results)
+        private static CallToolResult WorldEditorExecutionFailure(string route, string path, int applied, JArray results,
+            bool? partial = null, bool? changed = null)
         {
             return CallToolResult.Error(JsonResultText(new JObject
             {
                 ["ok"] = false,
-                ["partial"] = applied > 0,
+                ["partial"] = partial ?? applied > 0,
                 ["applied"] = applied,
+                ["appliedUnit"] = "edit_blocks",
+                ["changed"] = changed,
                 ["failed"] = 1,
                 ["route"] = route,
                 ["path"] = path,

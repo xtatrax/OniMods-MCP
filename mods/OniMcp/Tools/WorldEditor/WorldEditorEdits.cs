@@ -37,10 +37,12 @@ namespace OniMcp.Tools
                         ["ok"] = false,
                         ["phase"] = "preflight",
                         ["block"] = i,
-                        ["error"] = result.Content?.FirstOrDefault()?.Text ?? "preflight failed",
-                        ["applied"] = 0
+                        ["error"] = result?.Content?.FirstOrDefault()?.Text ?? "preflight failed",
+                        ["applied"] = 0,
+                        ["appliedUnit"] = "edit_blocks",
+                        ["changed"] = false
                     }));
-                preflight.Add(new JObject { ["block"] = i, ["result"] = result.Content?.FirstOrDefault()?.Text ?? string.Empty });
+                preflight.Add(new JObject { ["block"] = i, ["result"] = result?.Content?.FirstOrDefault()?.Text ?? string.Empty });
             }
 
             if (!WorldEditorExecutionAllowed(args))
@@ -49,6 +51,7 @@ namespace OniMcp.Tools
             var results = new JArray();
             int applied = 0;
             bool partial = false;
+            var changes = new List<bool?>();
             for (int i = 0; i < edits.Count; i++)
             {
                 var result = ApplySingleEditBlock(args, path, relative, edits[i].Key, edits[i].Value);
@@ -58,13 +61,15 @@ namespace OniMcp.Tools
                     ["ok"] = !WorldEditorResultFailed(result),
                     ["result"] = result?.Content?.FirstOrDefault()?.Text ?? "edit failed"
                 });
+                changes.Add(ResultChanged(result));
+                partial = partial || ResultProgressPartial(result);
                 if (WorldEditorResultFailed(result))
-                    return WorldEditorExecutionFailure("search_replace", path, applied + ResultAppliedCount(result), results);
-                partial = partial || ResultReportsPartial(result);
+                    return WorldEditorExecutionFailure("search_replace", path, applied, results,
+                        partial || applied > 0 || MergeOutcomeChanged(changes) == true, MergeOutcomeChanged(changes));
                 applied++;
             }
 
-            return JsonResult(new JObject { ["ok"] = true, ["partial"] = partial, ["applied"] = applied, ["failed"] = 0, ["results"] = results });
+            return JsonResult(new JObject { ["ok"] = true, ["partial"] = partial, ["applied"] = applied, ["appliedUnit"] = "edit_blocks", ["changed"] = MergeOutcomeChanged(changes), ["failed"] = 0, ["results"] = results });
         }
 
         private static CallToolResult PreflightSingleEditBlock(JObject args, string path, string relative, string search, string replace)

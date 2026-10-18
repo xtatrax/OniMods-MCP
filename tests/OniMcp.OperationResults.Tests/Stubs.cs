@@ -16,6 +16,7 @@ namespace OniMcp.Tools
         internal static JObject LastArguments;
         internal static CallToolResult LastResult;
         internal static string LastTool;
+        internal static readonly Queue<CallToolResult> Results = new Queue<CallToolResult>();
 
         internal static void Reset(string text, bool error)
         {
@@ -25,13 +26,14 @@ namespace OniMcp.Tools
             LastArguments = null;
             LastResult = null;
             LastTool = null;
+            Results.Clear();
         }
 
         internal static CallToolResult Call(JObject args)
         {
             Calls++;
             LastArguments = (JObject)args.DeepClone();
-            LastResult = Error ? CallToolResult.Error(Text) : CallToolResult.Text(Text);
+            LastResult = Results.Count > 0 ? Results.Dequeue() : Error ? CallToolResult.Error(Text) : CallToolResult.Text(Text);
             return LastResult;
         }
     }
@@ -137,10 +139,6 @@ namespace OniMcp.Tools
             return ApplyOperationMarkdownEdit(parent, relative, text);
         }
 
-        private static string NormalizeSearchText(string text) => (text ?? string.Empty)
-            .Replace("\r\n", "\n").Replace("\r", "\n").Trim();
-        private static string SaveRelativePath(string path) => path;
-        private static int? ParsePriority(string token) => throw new NotSupportedException();
         private static JObject InheritWorldEditorSandboxPolicy(JObject parent, JObject child) => child;
         private static CallToolResult RunWithWorldEditorInstantBuildScope(JObject args, Func<CallToolResult> call) => call();
         private static bool ValidateWorldEditorSandboxPolicy(JObject args, out string error)

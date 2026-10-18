@@ -120,3 +120,33 @@ msgstr "{0} @({1},{2}), {3:F1}kg"
 msgctxt "OniMcp.MCP.OPERATION_FILES.RESULT_CONTRACT"
 msgid "- result: compact summaries normally; successful `search_control` calls retain the complete child result. `detail=brief|compact|full` keeps its native search meaning; legacy boolean `detail=false` suppresses result output. Boolean `detail=true` also echoes arguments and retains full results/errors. Narrow searches with `query`/`limit`; counts and truncation remain as reported by the child."
 msgstr "- 結果: 通常は簡易要約です。成功した `search_control` は子の結果を完全に保持します。`detail=brief|compact|full` は検索本来の粒度指定のまま渡します。従来の真偽値 `detail=false` は結果の出力を抑制します。真偽値 `detail=true` は引数と完全な結果・エラーも返します。`query`/`limit` で検索を絞り、件数・打切りは子の報告どおり扱います。"
+
+#. Runtime JSON key: result_progress.map_build_invalid_token
+#. Runtime zh-Hans msgstr: "无效的建造令牌“{0}”。请使用 建筑名:优先级 或 建筑名:优先级#材料标记。"
+msgctxt "OniMcp.MCP.RESULT_PROGRESS.MAP_BUILD_INVALID_TOKEN"
+msgid "Invalid build token '{0}'. Use BuildingName:priority or BuildingName:priority#MaterialToken."
+msgstr "建設トークン「{0}」が不正です。設備名:優先度 または 設備名:優先度#素材トークン を使用してください。"
+
+#. Runtime JSON key: result_progress.map_build_missing_priority
+#. Runtime zh-Hans msgstr: "建造令牌“{0}”缺少 :priority。不带 :priority 的令牌仅视为现有对象。"
+msgctxt "OniMcp.MCP.RESULT_PROGRESS.MAP_BUILD_MISSING_PRIORITY"
+msgid "Build token '{0}' is missing :priority. Tokens without :priority are treated as existing objects only."
+msgstr "建設トークン「{0}」には :priority がありません。:priority のないトークンは既存オブジェクトとしてのみ扱われます。"
+
+#. Runtime JSON key: result_progress.map_build_unknown_prefab
+#. Runtime zh-Hans msgstr: "无法将建筑令牌“{0}”对应到可建造的 Prefab。"
+msgctxt "OniMcp.MCP.RESULT_PROGRESS.MAP_BUILD_UNKNOWN_PREFAB"
+msgid "Cannot map building token '{0}' to a buildable prefab."
+msgstr "建設トークン「{0}」に対応する建設用 Prefab を特定できません。"
+
+#. Runtime JSON key: result_progress.map_edit_pending
+#. Runtime zh-Hans msgstr: "请重新读取地图，再针对剩余或状态未知的单元提交新补丁。"
+msgctxt "OniMcp.MCP.RESULT_PROGRESS.MAP_EDIT_PENDING"
+msgid "Re-read the map, then submit a fresh patch for remaining or unknown cells."
+msgstr "地図を再取得し、残りのセルまたは状態が不明なセルについて新しいパッチを作成してください。"
+
+#. Runtime JSON key: result_progress.operation_count_contract
+#. Runtime zh-Hans msgstr: "编辑块、已执行命令、原生计数和请求的地图单元使用不同单位。成功返回的编辑块也可能包含部分结果。原生计数不能证明发生了多少次游戏变更；缺失值仍视为未知。 对于 world_editor batch，只有目标 step 自身设置 boolean 类型的 detail=true，且子结果提供进度元数据时，才保留完整的原始子结果。父级 detail 设置和字符串“true”不会启用此功能。默认 text 仍保留900字符的摘录；若要不受该摘录限制地检查成功的 ID 和 remainingAction，请明确请求完整结果。"
+msgctxt "OniMcp.MCP.RESULT_PROGRESS.OPERATION_COUNT_CONTRACT"
+msgid "Edit blocks, executed commands, native counters and requested map cells use separate units. A successful edit block can contain partial results. Native counters do not establish how many game changes occurred; missing values remain unknown. For world_editor batch, the individual step must set boolean detail=true, and the child must provide progress metadata, to retain the complete raw child result. The parent detail setting and the string \"true\" do not enable this. The default text keeps its 900-character excerpt; request the full result explicitly to inspect successful IDs and remainingAction without that excerpt limit."
+msgstr "編集ブロック数、実行したコマンド数、本体が返した件数、要求した地図セル数は、それぞれ別の単位です。成功扱いの編集ブロックにも部分結果が含まれることがあります。本体の件数からゲームの変更数を推測せず、未取得値は不明のまま扱います。 world_editor batch で子結果の生データ全文を保持するには、対象 step 自身に boolean の detail=true を指定し、その子結果に進捗メタデータがある必要があります。親の detail 設定や文字列の「true」では有効になりません。既定の text は900文字の抜粋を維持します。成功した ID や remainingAction を抜粋制限なしで確認する場合は、全文を明示的に要求してください。"

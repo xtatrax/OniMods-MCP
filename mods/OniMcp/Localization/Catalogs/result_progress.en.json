@@ -1,0 +1,7 @@
+{
+  "result_progress.map_build_invalid_token": "Invalid build token '{0}'. Use BuildingName:priority or BuildingName:priority#MaterialToken.",
+  "result_progress.map_build_missing_priority": "Build token '{0}' is missing :priority. Tokens without :priority are treated as existing objects only.",
+  "result_progress.map_build_unknown_prefab": "Cannot map building token '{0}' to a buildable prefab.",
+  "result_progress.map_edit_pending": "Re-read the map, then submit a fresh patch for remaining or unknown cells.",
+  "result_progress.operation_count_contract": "Edit blocks, executed commands, native counters and requested map cells use separate units. A successful edit block can contain partial results. Native counters do not establish how many game changes occurred; missing values remain unknown. For world_editor batch, the individual step must set boolean detail=true, and the child must provide progress metadata, to retain the complete raw child result. The parent detail setting and the string \"true\" do not enable this. The default text keeps its 900-character excerpt; request the full result explicitly to inspect successful IDs and remainingAction without that excerpt limit."
+}

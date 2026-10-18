@@ -89,6 +89,18 @@ internal static class NativeBuildingFootprintRegression
         Assets.BuildingDefs.Add(disconnected);
         Check(!WorldEditorTools.FootprintMaskTest("native-disconnected","Neutral",new[]{new[]{20,20},new[]{22,20}},out anchors,out error), "disconnected full mask does not create multiple buildings");
         Check(WorldEditorTools.FootprintMaskTest("native-disconnected","Neutral",new[]{new[]{20,20}},out anchors,out error) && anchors.Count==1, "disconnected shape supports one explicit lower-left marker");
+        JArray requests;
+        Check(WorldEditorTools.FootprintRequestsTest("native-strip","R90",new[]{new[]{10,10},new[]{10,11},new[]{10,12}},out requests)
+            && requests.Count==1 && ((JArray)requests[0]["requestedCells"]).Count==3, "compiled request mapping preserves full rotated mask");
+        Check(WorldEditorTools.FootprintRequestsTest("native-strip","R270",new[]{new[]{10,10}},out requests)
+            && requests.Count==1 && ((JArray)requests[0]["requestedCells"]).Count==1, "compiled single marker remains one requested cell");
+        Check(WorldEditorTools.FootprintRequestsTest("native-sparse","FlipH",new[]{new[]{20,20},new[]{21,20},new[]{21,21}},out requests)
+            && ((JArray)requests[0]["requestedCells"]).Count==3
+            && !requests[0]["requestedCells"].Any(cell=>cell[0].Value<int>()==20 && cell[1].Value<int>()==21), "compiled mapping preserves the sparse hole");
+        Check(WorldEditorTools.FootprintRequestsTest("native-strip","Neutral",new[]{new[]{10,10},new[]{20,10}},out requests)
+            && requests.Count==2 && requests.All(item=>((JArray)item["requestedCells"]).Count==1), "compiled mapping keeps separate marker scopes");
+        Check(WorldEditorTools.FootprintRequestsTest("native-disconnected","Neutral",new[]{new[]{20,20}},out requests)
+            && ((JArray)requests[0]["requestedCells"]).Count==1, "disconnected native footprint does not expand a marker request");
         Assets.BuildingDefs.Remove(disconnected);
         Assets.BuildingDefs.Remove(strip); Assets.BuildingDefs.Remove(sparse);
         Console.WriteLine("Native footprint and map-mask regression passed: " + checks + " checks");
@@ -98,6 +110,14 @@ namespace OniMcp.Tools
 {
     public static partial class WorldEditorTools
     {
+        internal static bool FootprintRequestsTest(string id,string orientation,int[][] positions,out JArray result)
+        {
+            bool ok = TryBuildAnchorsForPrefabFootprints(new JObject {["orientation"]=orientation},id,
+                positions.Select(p=>new MapEditCell {X=p[0],Y=p[1]}),out _,out List<MapEditAnchorRequest> requests,out _);
+            result = new JArray(requests.Select(item=>new JObject { ["x"]=item.X,["y"]=item.Y,
+                ["requestedCells"]=new JArray(item.RequestedCells.Select(cell=>new JArray(cell.X,cell.Y))) }));
+            return ok;
+        }
         internal static bool FootprintMaskTest(string id,string orientation,int[][] positions,out JArray anchors,out string error) =>
             TryBuildAnchorsForPrefabFootprints(new JObject {["orientation"]=orientation},id,
                 positions.Select(p=>new MapEditCell {X=p[0],Y=p[1]}),out anchors,out error);

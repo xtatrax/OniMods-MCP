@@ -1,0 +1,7 @@
+{
+  "result_progress.map_build_invalid_token": "建設トークン「{0}」が不正です。設備名:優先度 または 設備名:優先度#素材トークン を使用してください。",
+  "result_progress.map_build_missing_priority": "建設トークン「{0}」には :priority がありません。:priority のないトークンは既存オブジェクトとしてのみ扱われます。",
+  "result_progress.map_build_unknown_prefab": "建設トークン「{0}」に対応する建設用 Prefab を特定できません。",
+  "result_progress.map_edit_pending": "地図を再取得し、残りのセルまたは状態が不明なセルについて新しいパッチを作成してください。",
+  "result_progress.operation_count_contract": "編集ブロック数、実行したコマンド数、本体が返した件数、要求した地図セル数は、それぞれ別の単位です。成功扱いの編集ブロックにも部分結果が含まれることがあります。本体の件数からゲームの変更数を推測せず、未取得値は不明のまま扱います。 world_editor batch で子結果の生データ全文を保持するには、対象 step 自身に boolean の detail=true を指定し、その子結果に進捗メタデータがある必要があります。親の detail 設定や文字列の「true」では有効になりません。既定の text は900文字の抜粋を維持します。成功した ID や remainingAction を抜粋制限なしで確認する場合は、全文を明示的に要求してください。"
+}
