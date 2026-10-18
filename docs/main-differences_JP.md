@@ -381,3 +381,8 @@ calls/itemsの要素型をobjectとして公開し、翻訳ごとの独立コピ
 survival_watchの終了停止を公開game_controlのpause/timeで独立確認し、未確認でもok=true/終了0を返し得る問題を修正した。true/false/null、有限の時刻・UI値・timeScaleを照合し、不正な数値を厳密JSONのnullへ整理する。成功応答後のfalse/unknownに限り追加pauseは最大1回。回復してもincidentを残して監視を終了し、通信/RPC/MCP失敗では要求を再送しない。明示no-pause opt-outと先行するfailureを維持する。
 
 公開側の実helper/mainホスト1373条件と既存legacy/modern loopback回帰が成功。開発版の停止済み実機で85条件を確認した。公開版の実機はこのコミット後に実施する。本体ソース/DLLは不変で、無関係なビルド番号更新は行わない。全監視mainの旧task/内部colony経路・初期ロード前提、過去の再開主体は別の未解決範囲。生の応答・セーブ・設定・ゲームログは含めない。
+
+
+公開反映後、公開IDのDLL・専用設定・公開作業ツリーから読み込んだ同一helperを照合し、停止済み実機でも85条件が成功した。task付きpause/time各1回でconfirmed・incident=false、元の時刻・カメラ・技能/健康・両版セーブと設定・導入物を保持し、新ログのException行0を確認した。元の開発環境への復帰は60条件と通常画面で再照合した。
+
+異常系とmainの終了判定はホスト試験の範囲で、全監視の旧API・初期ロード経路や歴史的な再開主体は未解決。個別の実機記録は公開側へ含めない。
