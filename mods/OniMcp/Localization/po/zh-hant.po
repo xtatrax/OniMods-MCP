@@ -61,3 +61,15 @@ msgstr "{0} 名複製人，最高壓力不適用（沒有複製人），已知�
 msgctxt "OniMcp.MCP.SNAPSHOT.ALERT.STRESS"
 msgid "Max stress {0}."
 msgstr "最高壓力 {0}。"
+
+#. Runtime JSON key: warnings.legacy_alias
+#. Runtime zh-Hans msgstr: "已弃用：旧工具名或别名 '{0}' 将在 {1} 中移除；请改用 '{2}'。"
+msgctxt "OniMcp.MCP.COMMON.WARNINGS.LEGACY_ALIAS"
+msgid "DEPRECATED: legacy tool name/alias '{0}' will be removed in {1}; use '{2}' instead."
+msgstr "已棄用：舊工具名稱或別名 '{0}' 將在 {1} 中移除；請改用 '{2}'。"
+
+#. Runtime JSON key: errors.game_not_initialized
+#. Runtime zh-Hans msgstr: "游戏尚未初始化。"
+msgctxt "OniMcp.MCP.COMMON.ERRORS.GAME_NOT_INITIALIZED"
+msgid "Game not initialized"
+msgstr "遊戲尚未初始化。"

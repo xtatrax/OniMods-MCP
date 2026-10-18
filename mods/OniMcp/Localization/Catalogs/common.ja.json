@@ -17,5 +17,6 @@
   "chores.urination.incontinence": "失禁",
   "chores.urination.toilet": "トイレへ移動／使用",
   "chores.urination.using": "トイレを使用",
-  "chores.urination.moving": "トイレへ移動"
+  "chores.urination.moving": "トイレへ移動",
+  "errors.game_not_initialized": "ゲームは初期化されていません。"
 }

@@ -17,5 +17,6 @@
   "chores.urination.incontinence": "失禁",
   "chores.urination.toilet": "前往／使用厕所",
   "chores.urination.using": "使用厕所",
-  "chores.urination.moving": "前往厕所"
+  "chores.urination.moving": "前往厕所",
+  "errors.game_not_initialized": "游戏尚未初始化。"
 }

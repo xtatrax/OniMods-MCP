@@ -11,7 +11,7 @@ namespace OniMcp.Tools
     /// <summary>
     /// コロニー情報関連の MCP ツール
     /// </summary>
-    public static class ColonyTools
+    public static partial class ColonyTools
     {
         public static McpTool ControlColony()
         {
@@ -207,62 +207,6 @@ namespace OniMcp.Tools
                     catch { }
 
                     return CallToolResult.Text(JsonConvert.SerializeObject(info, McpJsonUtil.Settings));
-                }
-            };
-        }
-
-        public static McpTool GetDuplicants()
-        {
-            return new McpTool
-            {
-                Name = "dupes_list",
-                Group = "dupes",
-                Mode = "read",
-                Risk = "none",
-                Aliases = new List<string> { "get_duplicants" },
-                Hidden = true,
-                Description = "非推奨の警告: 旧ツールは 0.3.0 で削除予定。colony_control domain=read action=dupes を使用してください",
-                Parameters = new Dictionary<string, McpToolParameter>(),
-                Handler = args =>
-                {
-                    if (Game.Instance == null)
-                        return CallToolResult.Error("Game not initialized");
-
-                    var minions = new List<Dictionary<string, object>>();
-
-                    foreach (var minion in Components.LiveMinionIdentities.Items)
-                    {
-                        if (minion == null) continue;
-
-                        var name = minion.GetProperName();
-                        var resume = minion.GetComponent<MinionResume>();
-                        var skills = resume != null
-                            ? resume.MasteryBySkillID.Where(kv => kv.Value).Select(kv => kv.Key).ToList()
-                            : new List<string>();
-
-                        var amounts = new Dictionary<string, float>();
-                        var amountInstance = minion.GetComponent<Klei.AI.Amounts>();
-                        if (amountInstance != null)
-                        {
-                            foreach (var amount in amountInstance.ModifierList)
-                            {
-                                if (amount != null)
-                                    amounts[amount.amount.Name] = amount.value;
-                            }
-                        }
-
-                        minions.Add(new Dictionary<string, object>
-                        {
-                            ["id"] = minion.GetComponent<KPrefabID>()?.InstanceID ?? -1,
-                            ["name"] = name,
-                            ["skillsMastered"] = skills,
-                            ["availableSkillPoints"] = resume?.AvailableSkillpoints ?? 0,
-                            ["amounts"] = amounts,
-                            ["worldId"] = minion.GetMyWorldId()
-                        });
-                    }
-
-                    return CallToolResult.Text(JsonConvert.SerializeObject(minions, McpJsonUtil.Settings));
                 }
             };
         }

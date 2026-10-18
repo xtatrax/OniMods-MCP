@@ -17,5 +17,6 @@
   "chores.urination.incontinence": "Incontinence",
   "chores.urination.toilet": "Moving to / using toilet",
   "chores.urination.using": "Using toilet",
-  "chores.urination.moving": "Moving to toilet"
+  "chores.urination.moving": "Moving to toilet",
+  "errors.game_not_initialized": "Game not initialized"
 }
