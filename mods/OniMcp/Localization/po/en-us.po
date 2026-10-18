@@ -114,3 +114,9 @@ msgstr "{0} [id={1}]: {2}"
 msgctxt "OniMcp.MCP.DUPE_ENVIRONMENT.CONTACT"
 msgid "{0} @({1},{2}), {3:F1}kg"
 msgstr "{0} @({1},{2}), {3:F1}kg"
+
+#. Runtime JSON key: operation_files.result_contract
+#. Runtime zh-Hans msgstr: "- 结果: 通常返回简要摘要；成功的 `search_control` 调用保留完整子结果。`detail=brief|compact|full` 保持原生搜索粒度含义；旧式布尔值 `detail=false` 抑制结果输出。布尔值 `detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小搜索范围；数量和截断信息保持子工具报告的原样。"
+msgctxt "OniMcp.MCP.OPERATION_FILES.RESULT_CONTRACT"
+msgid "- result: compact summaries normally; successful `search_control` calls retain the complete child result. `detail=brief|compact|full` keeps its native search meaning; legacy boolean `detail=false` suppresses result output. Boolean `detail=true` also echoes arguments and retains full results/errors. Narrow searches with `query`/`limit`; counts and truncation remain as reported by the child."
+msgstr "- result: compact summaries normally; successful `search_control` calls retain the complete child result. `detail=brief|compact|full` keeps its native search meaning; legacy boolean `detail=false` suppresses result output. Boolean `detail=true` also echoes arguments and retains full results/errors. Narrow searches with `query`/`limit`; counts and truncation remain as reported by the child."

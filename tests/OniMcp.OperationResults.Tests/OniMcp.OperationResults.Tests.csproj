@@ -20,4 +20,8 @@
     <Compile Include="../../mods/OniMcp/Tools/Impl/Audit/ToolCatalogManifestTools.cs" Link="Source/ToolCatalogManifestTools.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>

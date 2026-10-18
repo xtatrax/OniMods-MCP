@@ -1,0 +1,3 @@
+{
+  "operation_files.result_contract": "- 结果: 通常返回简要摘要；成功的 `search_control` 调用保留完整子结果。`detail=brief|compact|full` 保持原生搜索粒度含义；旧式布尔值 `detail=false` 抑制结果输出。布尔值 `detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小搜索范围；数量和截断信息保持子工具报告的原样。"
+}

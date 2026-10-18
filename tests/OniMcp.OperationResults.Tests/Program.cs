@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using OniMcp.Core;
 using OniMcp.Tools;
 
-internal static class Program
+internal static partial class Program
 {
     private static int checks;
 
@@ -18,6 +18,7 @@ internal static class Program
         ExecutionGatesDoNotCallTheChild();
         CallArgumentsKeepTheirScope();
         Console.WriteLine("Operation result regression checks passed: " + checks);
+        SearchResultsRemainAvailable();
     }
 
     private static void DetailedPayloadsRemainExact()
@@ -140,11 +141,11 @@ internal static class Program
         Require((bool)args["detail"] && Item(response)["result"] != null, "only explicit child detail controls full result inclusion");
     }
 
-    private static CallToolResult Invoke(string raw, bool error, JObject parent, string line, int calls = 1, bool parseBody = true)
+    private static CallToolResult Invoke(string raw, bool error, JObject parent, string line, int calls = 1, bool parseBody = true, string relative = "ops/colony.md")
     {
         string before = parent.ToString(Formatting.None);
         NativeBoundary.Reset(raw, error);
-        var response = WorldEditorTools.ApplyOperationForTest(parent, "ops/colony.md", line);
+        var response = WorldEditorTools.ApplyOperationForTest(parent, relative, line);
         Require(NativeBoundary.Calls == calls, "native tool must be called exactly once for an executed operation, zero times for preview or rejection");
         Require(parent.ToString(Formatting.None) == before, "operation result handling must not mutate parent arguments");
         if (calls != 0)

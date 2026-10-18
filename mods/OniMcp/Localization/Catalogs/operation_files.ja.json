@@ -1,0 +1,3 @@
+{
+  "operation_files.result_contract": "- 結果: 通常は簡易要約です。成功した `search_control` は子の結果を完全に保持します。`detail=brief|compact|full` は検索本来の粒度指定のまま渡します。従来の真偽値 `detail=false` は結果の出力を抑制します。真偽値 `detail=true` は引数と完全な結果・エラーも返します。`query`/`limit` で検索を絞り、件数・打切りは子の報告どおり扱います。"
+}

@@ -346,3 +346,10 @@ calls/itemsの要素型をobjectとして公開し、翻訳ごとの独立コピ
 同じ複製人間の上下占有セルを1項目へ集約し、表示内の各液体・座標・個別質量を保持する。native objectで区別し、同名や未取得IDで別個体を統合しない。既存の可視性・world・液体閾値・compact応答は維持し、危険判定や質量の合算は加えない。
 
 公開側のMapRead610・トークン44・既存JSON43・追加56条件、文言4キーとゲームDLL参照Compile（警告0／エラー0）が成功した。開発ID実機87条件と公開IDの変更後実機未実施を区別する。個別記録・設定は含めない。詳細: [環境観測の個体集約](dupe-environment-observation_JP.md)。
+
+
+## 選択修正: 仮想検索操作の結果保持（2026-10-18）
+
+成功したcanonical search_controlの子結果を既定で全文保持し、native detail=brief/compact/full・領域別件数・打切りを変更せず返す。明示boolean falseは要約、trueは全文＋引数を維持。他ツール・検索エラーの既定要約、確認／予行／単一コマンド制限と未登録alias拒否は変えない。
+
+公開側の既存ホスト197・追加342・metadata12条件、文言1キーとゲームDLL参照Compile（警告0／エラー0）が成功。開発ID実機210条件と公開IDの変更後実機未実施を区別する。個別記録・設定は含めない。詳細: [仮想検索操作の契約](operation-search-results_JP.md)。

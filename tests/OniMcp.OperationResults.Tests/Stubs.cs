@@ -15,6 +15,7 @@ namespace OniMcp.Tools
         internal static int Calls;
         internal static JObject LastArguments;
         internal static CallToolResult LastResult;
+        internal static string LastTool;
 
         internal static void Reset(string text, bool error)
         {
@@ -23,6 +24,7 @@ namespace OniMcp.Tools
             Calls = 0;
             LastArguments = null;
             LastResult = null;
+            LastTool = null;
         }
 
         internal static CallToolResult Call(JObject args)
@@ -65,7 +67,8 @@ namespace OniMcp.Tools
         {
             tool = new McpTool { Name = name, Handler = NativeBoundary.Call };
             return name == "colony_control" || name == "coordinate_control" || name == "dupes_control"
-                || name == "world_editor" || name == "game_control" || name == "server_control";
+                || name == "world_editor" || name == "game_control" || name == "server_control"
+                || name == "search_control";
         }
 
         public static bool HasCoordinateArguments(JObject args)
@@ -75,6 +78,7 @@ namespace OniMcp.Tools
 
         public static CallToolResult CallToolFromWorldEditor(string name, JObject args, bool semanticCoordinates)
         {
+            NativeBoundary.LastTool = name;
             return NativeBoundary.Call(args);
         }
     }
@@ -127,6 +131,7 @@ namespace OniMcp.Tools
     public static partial class WorldEditorTools
     {
         internal static JObject ToolSummaryForTest(McpTool tool) => ToolSummary(tool);
+        internal static CallToolResult ReadOperationForTest(string relative) => ReadOperationMarkdown("/active/" + relative, relative);
         internal static CallToolResult ApplyOperationForTest(JObject parent, string relative, string text)
         {
             return ApplyOperationMarkdownEdit(parent, relative, text);

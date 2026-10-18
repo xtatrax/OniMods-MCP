@@ -63,7 +63,7 @@ namespace OniMcp.Tools
             sb.AppendLine("- mode: edit lines under `## Edit Commands`, then submit SEARCH/REPLACE.");
             sb.AppendLine("- safety limit: one executable command per edit; split additional commands into separate reviewed edits.");
             sb.AppendLine("- edit tip: use an empty SEARCH block to run fresh commands, or copy the current snippet exactly.");
-            sb.AppendLine("- result: each command returns `ok`, exact arguments, and the raw tool result/error text.");
+            sb.AppendLine(McpLocalization.Get("operation_files.result_contract"));
             sb.AppendLine("- syntax: `call tool=<tool_name> key=value ...`; in typed files, `tool=` is optional.");
             sb.AppendLine();
             sb.AppendLine("## Tool");
@@ -200,11 +200,13 @@ namespace OniMcp.Tools
                 resultItem["error"] = TrimOperationText(text, 4000);
             else
                 resultItem["summary"] = SummarizeOperationResult(text);
-            if (ToolUtil.GetBool(arguments, "detail", false))
-            {
+            bool detailed = ToolUtil.GetBool(arguments, "detail", false);
+            bool retainSearchResult = !failed && toolName == "search_control"
+                && !(arguments["detail"]?.Type == JTokenType.Boolean && !arguments.Value<bool>("detail"));
+            if (detailed)
                 resultItem["arguments"] = arguments;
+            if (detailed || retainSearchResult)
                 resultItem["result"] = text;
-            }
             results.Add(resultItem);
             if (failed && stopOnError)
                 break;
@@ -415,7 +417,7 @@ namespace OniMcp.Tools
             else if (relative == "ops/read.md")
                 yield return "call domain=world action=search pattern=\"氧气\" limit=3";
             else if (relative == "ops/search.md")
-                yield return "call domain=buildings query=\"ladder\"";
+                yield return "call domain=buildings query=\"ladder\" limit=3";
             else if (relative == "ops/build.md")
                 yield return "call domain=planning action=parse_plan plan=\"用砂岩造砖块靠近氧气\"";
             else if (relative == "ops/orders.md")
