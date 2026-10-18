@@ -43,13 +43,23 @@ public static class Grid
 {
     public static int WidthInCells = 128, HeightInCells = 128;
     public static int[] WorldIdx = new int[16384]; public static bool[] Visible = Enumerable.Repeat(true, 16384).ToArray();
-    public static GameObject[,] Objects = new GameObject[16384, 1];
+    public static GameObject[,] Objects = new GameObject[16384, 2];
+    public static Element[] Element = new Element[16384];
+    public static float[] Mass = new float[16384], Temperature = new float[16384];
+    public static bool[] Solid = new bool[16384], Foundation = new bool[16384];
+    public static bool[] WorldValid = Enumerable.Repeat(true, 16384).ToArray();
+    public static int CellColumn(int cell) => cell % WidthInCells;
+    public static int CellRow(int cell) => cell / WidthInCells;
+    public static int CellAbove(int cell) => cell + WidthInCells;
+    public static int CellBelow(int cell) => cell - WidthInCells;
+    public static int CellLeft(int cell) => cell - 1;
+    public static int CellRight(int cell) => cell + 1;
     public static int XYToCell(int x, int y) => y * WidthInCells + x;
     public static bool IsValidCell(int cell) => cell >= 0 && cell < 16384;
-    public static bool IsWorldValidCell(int cell) => IsValidCell(cell);
+    public static bool IsWorldValidCell(int cell) => IsValidCell(cell) && WorldValid[cell];
     public static bool IsVisible(int cell) => Visible[cell];
 }
-public enum ObjectLayer { Wire }
+public enum ObjectLayer { Wire, Minion }
 [Flags] public enum UtilityConnections { Right = 1, Left = 2, Down = 4, Up = 8 }
 public sealed class BuildingComplete { }
 public sealed class KAnimGraphTileVisualizer
@@ -63,7 +73,9 @@ public sealed class TestManager
     public UtilityConnections Mask; public bool RequestedPhysical;
     public UtilityConnections GetConnections(int cell, bool is_physical_building) { RequestedPhysical = is_physical_building; return Mask; }
 }
-public enum SimHashes { TestElement, OtherElement }
+public enum SimHashes { TestElement, OtherElement, Oxygen, ContaminatedOxygen, Water, PollutedWater }
+public sealed class Element { public SimHashes id; public string name; public bool IsLiquid, IsGas; }
+public sealed class KPrefabID { public int InstanceID; }
 public sealed class TestBuildingDef { public string PrefabID, Name; }
 public static class Assets { public static List<TestBuildingDef> BuildingDefs = new(); }
 namespace UnityEngine
@@ -77,7 +89,10 @@ namespace UnityEngine
     public sealed class GameObject
     {
         public Dictionary<Type, object> Components = new();
-        public T GetComponent<T>() where T : class => Components.TryGetValue(typeof(T), out var component) ? (T)component : null;
+        public string name;
+        public int ComponentReads, NameReads;
+        public T GetComponent<T>() where T : class { ComponentReads++; return Components.TryGetValue(typeof(T), out var component) ? (T)component : null; }
+        public string GetProperName() { NameReads++; return name; }
     }
 }
 namespace OniMcp.Core

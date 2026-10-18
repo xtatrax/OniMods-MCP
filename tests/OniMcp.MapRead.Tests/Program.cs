@@ -5,6 +5,7 @@ using OniMcp.Tools;
 WorldEditorTools.RunReadRegressions();
 WorldEditorTools.RunMapContractRegressions();
 WorldAnalysisTools.RunTextMapFormattingRegressions();
+WorldEditorTools.RunDupeEnvironmentRegressions();
 
 namespace OniMcp.Tools
 {

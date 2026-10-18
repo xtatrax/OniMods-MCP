@@ -90,3 +90,27 @@ msgstr "生成済みの記号は未登録です。編集可能な地図で完全
 msgctxt "OniMcp.MCP.BURIED_MARKERS.SUMMARY"
 msgid "- Buried spawn markers: availability={0}; markerCount={1}; present={2}; requested={3}; readable={4}; absent={5}; not_solid={6}; unobserved={7}; unavailable={8}; cells={9}; omitted={10}. Source=EntombedItemVisualizer.IsEntombedItem; present/absent count observed cells; unknown totals are not zero; contents unknown; read-only."
 msgstr "- 埋蔵生成マーカー: availability={0}; markerCount={1}; present={2}; requested={3}; readable={4}; absent={5}; not_solid={6}; unobserved={7}; unavailable={8}; cells={9}; omitted={10}。取得元=EntombedItemVisualizer.IsEntombedItem; present/absentは観測済みセルの件数です。未判明の総数を0と扱いません。内容物は不明です。読取専用。"
+
+#. Runtime JSON key: dupe_environment.empty
+#. Runtime zh-Hans msgstr: "- 环境观测: 此视图中没有复制人站在液体中。"
+msgctxt "OniMcp.MCP.DUPE_ENVIRONMENT.EMPTY"
+msgid "- Environment observation: no duplicant is standing in liquid in this view."
+msgstr "- 環境観測: この表示範囲では液体中に立っている複製人間はいません。"
+
+#. Runtime JSON key: dupe_environment.summary
+#. Runtime zh-Hans msgstr: "- 环境观测: {0}。"
+msgctxt "OniMcp.MCP.DUPE_ENVIRONMENT.SUMMARY"
+msgid "- Environment observation: {0}."
+msgstr "- 環境観測: {0}。"
+
+#. Runtime JSON key: dupe_environment.dupe
+#. Runtime zh-Hans msgstr: "{0} [id={1}]: {2}"
+msgctxt "OniMcp.MCP.DUPE_ENVIRONMENT.DUPE"
+msgid "{0} [id={1}]: {2}"
+msgstr "{0} [id={1}]: {2}"
+
+#. Runtime JSON key: dupe_environment.contact
+#. Runtime zh-Hans msgstr: "{0} @({1},{2}), {3:F1}kg"
+msgctxt "OniMcp.MCP.DUPE_ENVIRONMENT.CONTACT"
+msgid "{0} @({1},{2}), {3:F1}kg"
+msgstr "{0} @({1},{2}), {3:F1}kg"

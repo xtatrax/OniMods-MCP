@@ -1,0 +1,6 @@
+{
+  "dupe_environment.empty": "- 环境观测: 此视图中没有复制人站在液体中。",
+  "dupe_environment.summary": "- 环境观测: {0}。",
+  "dupe_environment.dupe": "{0} [id={1}]: {2}",
+  "dupe_environment.contact": "{0} @({1},{2}), {3:F1}kg"
+}

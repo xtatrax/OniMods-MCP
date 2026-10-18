@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -213,17 +214,31 @@ namespace OniMcp.Tools
 
         private static void AppendDupeEnvironmentObservations(StringBuilder sb, int xMin, int xMax, int yMin, int yMax)
         {
-            var observations = new List<string>();
+            var contactsByDupe = new Dictionary<GameObject, List<string>>();
+            var dupes = new List<GameObject>();
             ForEachCoordinate(xMin, xMax, yMin, yMax, (x, y, cell) =>
             {
                 var dupe = Grid.Objects[cell, (int)ObjectLayer.Minion];
                 if (dupe == null || !IsLiquidCell(cell)) return;
-                observations.Add(StripLinkTags(dupe.GetProperName()) + " in " + StripLinkTags(Grid.Element[cell].name)
-                    + " @(" + x + "," + y + "), " + Grid.Mass[cell].ToString("F1") + "kg");
+                if (!contactsByDupe.TryGetValue(dupe, out var contacts))
+                {
+                    contactsByDupe[dupe] = contacts = new List<string>();
+                    dupes.Add(dupe);
+                }
+                contacts.Add(McpLocalization.Format("dupe_environment.contact", null,
+                    StripLinkTags(Grid.Element[cell].name), x, y, Grid.Mass[cell]));
             });
+            var observations = new List<string>();
+            foreach (var dupe in dupes)
+            {
+                var id = dupe.GetComponent<KPrefabID>()?.InstanceID;
+                observations.Add(McpLocalization.Format("dupe_environment.dupe", null,
+                    StripLinkTags(dupe.GetProperName()), id.HasValue ? (object)id.Value : "null",
+                    string.Join(" | ", contactsByDupe[dupe].ToArray())));
+            }
             sb.AppendLine(observations.Count == 0
-                ? "- Environment observation: no duplicant is standing in liquid in this view."
-                : "- Environment observation: " + string.Join("; ", observations.ToArray()) + ".");
+                ? McpLocalization.Get("dupe_environment.empty")
+                : McpLocalization.Format("dupe_environment.summary", null, string.Join("; ", observations.ToArray())));
         }
 
         private static bool IsLiquidCell(int cell)

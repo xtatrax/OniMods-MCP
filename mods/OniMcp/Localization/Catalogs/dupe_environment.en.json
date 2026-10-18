@@ -1,0 +1,6 @@
+{
+  "dupe_environment.empty": "- Environment observation: no duplicant is standing in liquid in this view.",
+  "dupe_environment.summary": "- Environment observation: {0}.",
+  "dupe_environment.dupe": "{0} [id={1}]: {2}",
+  "dupe_environment.contact": "{0} @({1},{2}), {3:F1}kg"
+}

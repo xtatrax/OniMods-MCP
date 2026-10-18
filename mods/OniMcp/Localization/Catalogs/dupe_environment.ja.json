@@ -1,0 +1,6 @@
+{
+  "dupe_environment.empty": "- 環境観測: この表示範囲では液体中に立っている複製人間はいません。",
+  "dupe_environment.summary": "- 環境観測: {0}。",
+  "dupe_environment.dupe": "{0} [id={1}]: {2}",
+  "dupe_environment.contact": "{0} @({1},{2}), {3:F1}kg"
+}
