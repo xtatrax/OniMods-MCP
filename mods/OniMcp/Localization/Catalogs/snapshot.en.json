@@ -1,0 +1,5 @@
+{
+  "snapshot.summary": "{0} dupes, max stress {1}%, known food {2} kcal (available {3} kcal), alert {4}",
+  "snapshot.summary.no_dupes": "{0} dupes, max stress not applicable (no duplicants), known food {1} kcal (available {2} kcal), alert {3}",
+  "snapshot.alert.stress": "Max stress {0}."
+}

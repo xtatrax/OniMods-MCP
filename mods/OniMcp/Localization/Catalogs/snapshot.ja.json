@@ -1,0 +1,5 @@
+{
+  "snapshot.summary": "複製人間{0}人、最大ストレス{1}%、確認済み食料{2} kcal（利用可能{3} kcal）、警告{4}",
+  "snapshot.summary.no_dupes": "複製人間{0}人、最大ストレスは対象外（複製人間なし）、確認済み食料{1} kcal（利用可能{2} kcal）、警告{3}",
+  "snapshot.alert.stress": "最大ストレスは{0}です。"
+}

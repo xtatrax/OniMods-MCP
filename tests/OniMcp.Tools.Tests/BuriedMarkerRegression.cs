@@ -34,6 +34,7 @@ internal static partial class Grid
 {
     internal static byte[] Visible;
     internal static bool[] Solid;
+    internal static bool IsWorldValidCell(int cell) => IsValidCell(cell);
 
 }
 internal sealed partial class Game
@@ -50,6 +51,8 @@ namespace OniMcp.Tools
 {
     public static partial class WorldEditorTools
     {
+        // World/visibility adapter coverage lives in OniMcp.BuriedMarkerRead.Tests.
+        private static bool IsReadableMapCell(int cell) => Grid.IsWorldValidCell(cell) && Grid.Visible[cell] != 0;
         internal static string MarkerTest(int cell)=>ReadBuriedMarker(cell);
         internal static string MarkerSummaryTest(int x1,int x2,int y1,int y2){var sb=new StringBuilder();AppendBuriedMarkerSummary(sb,x1,x2,y1,y2);return sb.ToString();}
     }

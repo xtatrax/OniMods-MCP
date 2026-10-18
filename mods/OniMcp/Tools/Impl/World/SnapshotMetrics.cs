@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -185,12 +186,12 @@ namespace OniMcp.Tools
             bool red = redAlert.ContainsKey("isRedAlert") && Convert.ToBoolean(redAlert["isRedAlert"]);
             bool yellow = redAlert.ContainsKey("isYellowAlert") && Convert.ToBoolean(redAlert["isYellowAlert"]);
             string alertLevel = red || HasSeverity(alerts, "critical") ? "red" : (yellow || HasSeverity(alerts, "warning") ? "yellow" : (alertCount > 0 ? "info" : "green"));
-            float maxStress = dupes.Count == 0 ? 0f : dupes.Max(item => item.Stress);
+            object maxStress = dupes.Count == 0 ? null : (object)Math.Round(dupes.Max(item => item.Stress), 1);
 
             var result = new Dictionary<string, object>
             {
-                ["dupes"] = dupes.Count > 0 ? dupes.Count : Components.LiveMinionIdentities.Count,
-                ["stress"] = Math.Round(maxStress, 1),
+                ["dupes"] = dupes.Count,
+                ["stress"] = maxStress,
                 ["stressed_dupes"] = dupes.Count(item => item.Stress >= 40f),
                 ["low_stamina"] = dupes.Count(item => item.Stamina > 0f && item.Stamina < 30f),
                 ["skill_points"] = dupes.Sum(item => item.SkillPoints),
@@ -255,7 +256,11 @@ namespace OniMcp.Tools
 
         private static string BuildSummary(Dictionary<string, object> metrics)
         {
-            return $"{metrics["dupes"]} dupes, max stress {metrics["stress"]}%, known food {metrics["food_kcal"]} kcal (available {metrics["food_available_kcal"]} kcal), alert {metrics["alertLevel"]}";
+            if (metrics["stress"] == null)
+                return McpLocalization.Format("snapshot.summary.no_dupes", null,
+                    metrics["dupes"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
+            return McpLocalization.Format("snapshot.summary", null,
+                metrics["dupes"], metrics["stress"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
         }
     }
 }

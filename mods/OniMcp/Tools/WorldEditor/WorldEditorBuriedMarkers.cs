@@ -7,8 +7,8 @@ namespace OniMcp.Tools
     {
         private static string ReadBuriedMarker(int cell)
         {
-            if (!Grid.IsValidCell(cell)) return "unavailable";
-            if (Grid.Visible[cell] == 0) return "unobserved";
+            if (!Grid.IsValidCell(cell) || !Grid.IsWorldValidCell(cell)) return "unavailable";
+            if (!IsReadableMapCell(cell)) return "unobserved";
             if (!Grid.Solid[cell]) return "not_solid";
             var visualizer = Game.Instance == null ? null : Game.Instance.GetComponent<EntombedItemVisualizer>();
             if (visualizer == null) return "unavailable";

@@ -36,3 +36,21 @@ msgstr "- 接続端点: 任意の信号端点が未接続 {0}。本体の端点�
 msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.UNKNOWN"
 msgid "- ports: unconnected {0}; connection requirement unavailable; inspect `{1}`."
 msgstr "- 接続端点: 未接続 {0}。接続要否は未取得。`{1}` で確認。"
+
+#. Runtime JSON key: snapshot.summary
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力 {1}%，已知食物 {2} kcal（可用 {3} kcal），警报 {4}"
+msgctxt "OniMcp.MCP.SNAPSHOT.SUMMARY"
+msgid "{0} dupes, max stress {1}%, known food {2} kcal (available {3} kcal), alert {4}"
+msgstr "複製人間{0}人、最大ストレス{1}%、確認済み食料{2} kcal（利用可能{3} kcal）、警告{4}"
+
+#. Runtime JSON key: snapshot.summary.no_dupes
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力不适用（没有复制人），已知食物 {1} kcal（可用 {2} kcal），警报 {3}"
+msgctxt "OniMcp.MCP.SNAPSHOT.SUMMARY.NO_DUPES"
+msgid "{0} dupes, max stress not applicable (no duplicants), known food {1} kcal (available {2} kcal), alert {3}"
+msgstr "複製人間{0}人、最大ストレスは対象外（複製人間なし）、確認済み食料{1} kcal（利用可能{2} kcal）、警告{3}"
+
+#. Runtime JSON key: snapshot.alert.stress
+#. Runtime zh-Hans msgstr: "最高压力 {0}。"
+msgctxt "OniMcp.MCP.SNAPSHOT.ALERT.STRESS"
+msgid "Max stress {0}."
+msgstr "最大ストレスは{0}です。"

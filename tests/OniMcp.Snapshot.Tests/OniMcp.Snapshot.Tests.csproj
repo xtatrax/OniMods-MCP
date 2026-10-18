@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <SnapshotSourceRoot Condition="'$(SnapshotSourceRoot)' == ''">../../mods/OniMcp/Tools/Impl/World</SnapshotSourceRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(SnapshotSourceRoot)/SnapshotMetrics.cs" Link="Source/SnapshotMetrics.cs" />
+    <Compile Include="$(SnapshotSourceRoot)/SnapshotAlertReadTools.cs" Link="Source/SnapshotAlertReadTools.cs" />
+    <Compile Include="$(SnapshotSourceRoot)/SnapshotDupeResult.cs" Link="Source/SnapshotDupeResult.cs" />
+    <Compile Include="$(SnapshotSourceRoot)/SnapshotWatchTools.cs" Link="Source/SnapshotWatchTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Colony/FoodAccessBreakdown.cs" Link="Source/FoodAccessBreakdown.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>
