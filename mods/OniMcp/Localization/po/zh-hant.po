@@ -1,0 +1,45 @@
+# MCP-owned localization source scaffold. Not loaded by the runtime yet.
+# Provisional filename for compatibility with the original code; target locale/script is unconfirmed.
+# The current Traditional Chinese sample/header does not identify the original code as zh-Hant.
+# Check original wording, locale aliases and fallback before finalizing the filename/header/runtime mapping.
+# Preserve existing JSON and legacy translations during the gradual migration.
+msgid ""
+msgstr ""
+"Project-Id-Version: OniMcp\n"
+"POT-Creation-Date: 2026-10-17 00:00+0000\n"
+"PO-Revision-Date: 2026-10-17 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Traditional Chinese\n"
+"Language: zh_Hant\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Runtime JSON key: cell.decision.ports.missing
+#. Runtime zh-Hans msgstr: "- 接口：缺少线路 {0}；请检查 `{1}`。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.MISSING"
+msgid "- ports: missing line(s) {0}; inspect `{1}`."
+msgstr "- 介面：缺少線路 {0}；請檢查 `{1}`。"
+
+#. Runtime JSON key: cell.decision.ports.connected
+#. Runtime zh-Hans msgstr: "- 接口：已连接 {0}。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.CONNECTED"
+msgid "- ports: connected {0}."
+msgstr "- 介面：已連接 {0}。"
+
+#. Runtime JSON key: cell.decision.ports.optional
+#. Runtime zh-Hans msgstr: "- 接口：可选信号接口未连接 {0}；原生接口定义不要求显示缺少线路警告。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.OPTIONAL"
+msgid "- ports: optional signal port(s) unconnected {0}; native port flags do not require a missing-wire warning."
+msgstr "- 介面：選用訊號介面未連接 {0}；原生介面定義不要求顯示缺少線路警告。"
+
+#. Runtime JSON key: cell.decision.ports.unknown
+#. Runtime zh-Hans msgstr: "- 接口：未连接 {0}；连接要求不可用；请检查 `{1}`。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.UNKNOWN"
+msgid "- ports: unconnected {0}; connection requirement unavailable; inspect `{1}`."
+msgstr "- 介面：未連接 {0}；連接要求無法取得；請檢查 `{1}`。"

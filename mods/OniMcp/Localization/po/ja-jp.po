@@ -1,0 +1,38 @@
+# MCP-owned localization source scaffold. Not loaded by the runtime yet.
+# Preserve existing JSON and legacy translations during the gradual migration.
+msgid ""
+msgstr ""
+"Project-Id-Version: OniMcp\n"
+"POT-Creation-Date: 2026-10-17 00:00+0000\n"
+"PO-Revision-Date: 2026-10-17 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Japanese (Japan)\n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Runtime JSON key: cell.decision.ports.missing
+#. Runtime zh-Hans msgstr: "- 接口：缺少线路 {0}；请检查 `{1}`。"
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.MISSING"
+msgid "- ports: missing line(s) {0}; inspect `{1}`."
+msgstr "- 接続端点: 配線・配管がない端点 {0}。`{1}` で確認。"
+
+#. Runtime JSON key: cell.decision.ports.connected
+#. Runtime zh-Hans msgstr: "- 接口：已连接 {0}。"
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.CONNECTED"
+msgid "- ports: connected {0}."
+msgstr "- 接続端点: 接続あり {0}。"
+
+#. Runtime JSON key: cell.decision.ports.optional
+#. Runtime zh-Hans msgstr: "- 接口：可选信号接口未连接 {0}；原生接口定义不要求显示缺少线路警告。"
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.OPTIONAL"
+msgid "- ports: optional signal port(s) unconnected {0}; native port flags do not require a missing-wire warning."
+msgstr "- 接続端点: 任意の信号端点が未接続 {0}。本体の端点定義では配線不足警告の対象外。"
+
+#. Runtime JSON key: cell.decision.ports.unknown
+#. Runtime zh-Hans msgstr: "- 接口：未连接 {0}；连接要求不可用；请检查 `{1}`。"
+msgctxt "OniMcp.MCP.CELL.DECISION.PORTS.UNKNOWN"
+msgid "- ports: unconnected {0}; connection requirement unavailable; inspect `{1}`."
+msgstr "- 接続端点: 未接続 {0}。接続要否は未取得。`{1}` で確認。"

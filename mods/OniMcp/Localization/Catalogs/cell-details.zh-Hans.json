@@ -4,5 +4,9 @@
   "cell.pickups.count": " 件，",
   "cell.pickups.details": "明细",
   "cell.pickups.groups": "汇总",
-  "cell.pickups.element": "元素"
+  "cell.pickups.element": "元素",
+  "cell.decision.ports.missing": "- 接口：缺少线路 {0}；请检查 `{1}`。",
+  "cell.decision.ports.connected": "- 接口：已连接 {0}。",
+  "cell.decision.ports.optional": "- 接口：可选信号接口未连接 {0}；原生接口定义不要求显示缺少线路警告。",
+  "cell.decision.ports.unknown": "- 接口：未连接 {0}；连接要求不可用；请检查 `{1}`。"
 }

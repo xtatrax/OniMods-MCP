@@ -4,5 +4,9 @@
   "cell.pickups.count": " items, ",
   "cell.pickups.details": "Details",
   "cell.pickups.groups": "Groups",
-  "cell.pickups.element": "Element"
+  "cell.pickups.element": "Element",
+  "cell.decision.ports.missing": "- ports: missing line(s) {0}; inspect `{1}`.",
+  "cell.decision.ports.connected": "- ports: connected {0}.",
+  "cell.decision.ports.optional": "- ports: optional signal port(s) unconnected {0}; native port flags do not require a missing-wire warning.",
+  "cell.decision.ports.unknown": "- ports: unconnected {0}; connection requirement unavailable; inspect `{1}`."
 }

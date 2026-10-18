@@ -4,5 +4,9 @@
   "cell.pickups.count": " 件, ",
   "cell.pickups.details": "明細",
   "cell.pickups.groups": "集計",
-  "cell.pickups.element": "元素"
+  "cell.pickups.element": "元素",
+  "cell.decision.ports.missing": "- 接続端点: 配線・配管がない端点 {0}。`{1}` で確認。",
+  "cell.decision.ports.connected": "- 接続端点: 接続あり {0}。",
+  "cell.decision.ports.optional": "- 接続端点: 任意の信号端点が未接続 {0}。本体の端点定義では配線不足警告の対象外。",
+  "cell.decision.ports.unknown": "- 接続端点: 未接続 {0}。接続要否は未取得。`{1}` で確認。"
 }
