@@ -155,7 +155,8 @@ namespace OniMcp.Tools
                             Type = param.Value.Type,
                             Description = param.Value.Description,
                             Enum = param.Value.SchemaEnumValues,
-                            McpHeader = param.Value.McpHeader
+                            McpHeader = param.Value.McpHeader,
+                            Items = param.Value.Items
                         };
                         if (param.Value.Required)
                             required.Add(param.Key);
@@ -356,6 +357,7 @@ namespace OniMcp.Tools
         public bool Required { get; set; }
         public List<string> EnumValues { get; set; }
         public string McpHeader { get; set; }
+        public SchemaProperty Items { get; set; }
 
         public List<object> SchemaEnumValues
         {

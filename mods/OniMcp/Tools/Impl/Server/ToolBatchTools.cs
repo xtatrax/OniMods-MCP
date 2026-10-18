@@ -27,12 +27,14 @@ namespace OniMcp.Tools
                     ["calls"] = new McpToolParameter
                     {
                         Type = "array",
+                        Items = new SchemaProperty { Type = "object" },
                         Description = "呼び出すツールの配列。形式は [{\"name\":\"tool_name\",\"arguments\":{...}}]。短縮フィールド {t,a} にも対応。最大 20 件",
                         Required = false
                     },
                     ["items"] = new McpToolParameter
                     {
                         Type = "array",
+                        Items = new SchemaProperty { Type = "object" },
                         Description = "calls の別名。同じ配列形式に対応。domain batch ツールと形式を揃える場合に適する",
                         Required = false
                     },

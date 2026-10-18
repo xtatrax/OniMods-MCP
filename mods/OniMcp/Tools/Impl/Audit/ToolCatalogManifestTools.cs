@@ -159,12 +159,18 @@ namespace OniMcp.Tools
                     .OrderBy(kv => kv.Key)
                     .ToDictionary(
                         kv => kv.Key,
-                        kv => new Dictionary<string, object>
+                        kv =>
                         {
-                            ["type"] = kv.Value.Type,
-                            ["description"] = McpToolInfoLocalization.ParameterDescription(tool.Name, kv.Key, kv.Value.Description),
-                            ["required"] = kv.Value.Required,
-                            ["enum"] = kv.Value.SchemaEnumValues
+                            var parameter = new Dictionary<string, object>
+                            {
+                                ["type"] = kv.Value.Type,
+                                ["description"] = McpToolInfoLocalization.ParameterDescription(tool.Name, kv.Key, kv.Value.Description),
+                                ["required"] = kv.Value.Required,
+                                ["enum"] = kv.Value.SchemaEnumValues
+                            };
+                            if (kv.Value.Items != null)
+                                parameter["items"] = kv.Value.Items;
+                            return parameter;
                         }),
                 ["exampleArguments"] = ExampleArguments(tool)
             };

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
 
@@ -39,6 +40,10 @@ namespace OniMcp.Tools
         public string Group { get; set; }
         public string Risk { get; set; }
         public string Description { get; set; }
+        public string Mode { get; set; }
+        public bool Hidden { get; set; }
+        public List<string> Aliases { get; set; }
+        public List<string> Tags { get; set; }
         public Dictionary<string, McpToolParameter> Parameters { get; set; }
         public Func<JObject, CallToolResult> Handler { get; set; }
     }
@@ -48,10 +53,14 @@ namespace OniMcp.Tools
         public string Type { get; set; }
         public bool Required { get; set; }
         public string Description { get; set; }
+        public SchemaProperty Items { get; set; }
+        public List<string> EnumValues { get; set; }
+        public List<object> SchemaEnumValues => EnumValues?.Cast<object>().ToList();
     }
 
     public static class OniToolRegistry
     {
+        public static List<McpTool> GetVisibleTools() => throw new NotSupportedException();
         public static bool TryGetOperation(string name, out McpTool tool)
         {
             tool = new McpTool { Name = name, Handler = NativeBoundary.Call };
@@ -72,6 +81,7 @@ namespace OniMcp.Tools
 
     public static class ToolUtil
     {
+        public static int? GetInt(JObject args, string key) => args?[key]?.Value<int?>();
         public static bool GetBool(JObject args, string key, bool fallback)
         {
             bool value;
@@ -89,6 +99,21 @@ namespace OniMcp.Tools
         }
     }
 
+    public static class ToolMetadata
+    {
+        public static bool HasLegacyAliases(McpTool tool) => false;
+        public static string LegacyAliasesDeprecationWarning(McpTool tool) => throw new NotSupportedException();
+    }
+
+    public static partial class ToolCatalogTools
+    {
+        internal static Dictionary<string, object> ManifestForTest(McpTool tool) => ToolToManifest(tool);
+        private static string ExpandQuery(string query) => throw new NotSupportedException();
+        private static string NormalizeDetail(string detail) => throw new NotSupportedException();
+        private static string ExactVisibleToolLookup(string query) => throw new NotSupportedException();
+        private static int Score(McpTool tool, string expandedQuery, string query) => throw new NotSupportedException();
+    }
+
     public static class ManagementTools
     {
         public static McpTool ControlManagement() => throw new NotSupportedException();
@@ -101,6 +126,7 @@ namespace OniMcp.Tools
 
     public static partial class WorldEditorTools
     {
+        internal static JObject ToolSummaryForTest(McpTool tool) => ToolSummary(tool);
         internal static CallToolResult ApplyOperationForTest(JObject parent, string relative, string text)
         {
             return ApplyOperationMarkdownEdit(parent, relative, text);

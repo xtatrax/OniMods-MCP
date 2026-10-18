@@ -387,6 +387,8 @@ namespace OniMcp.Tools
                     ["required"] = item.Value.Required,
                     ["description"] = McpToolInfoLocalization.ParameterDescription(tool.Name, item.Key, item.Value.Description) ?? string.Empty
                 };
+                if (item.Value.Items != null)
+                    parameters[item.Key]["items"] = JToken.FromObject(item.Value.Items, JsonSerializer.Create(McpJsonUtil.Settings));
             }
             return new JObject
             {

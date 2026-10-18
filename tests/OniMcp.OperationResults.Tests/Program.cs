@@ -11,6 +11,7 @@ internal static class Program
 
     private static void Main()
     {
+        MetadataSchemaRegression.Run();
         DetailedPayloadsRemainExact();
         DefaultsRemainCompact();
         ErrorSummaryRemainsBounded();

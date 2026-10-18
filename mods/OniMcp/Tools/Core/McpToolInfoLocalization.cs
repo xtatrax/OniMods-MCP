@@ -56,18 +56,26 @@ namespace OniMcp.Tools
             var copy = new Dictionary<string, SchemaProperty>(properties.Comparer);
             foreach (var entry in properties)
             {
-                var value = entry.Value;
-                copy.Add(entry.Key, value == null ? null : new SchemaProperty
-                {
-                    Type = value.Type,
-                    Description = topLevel
-                        ? ParameterDescription(tool, entry.Key, value.Description, language) : value.Description,
-                    Enum = value.Enum == null ? null : value.Enum.Select(CloneEnumValue).ToList(),
-                    Properties = CloneProperties(value.Properties, tool, language, false),
-                    McpHeader = value.McpHeader
-                });
+                copy.Add(entry.Key, CloneProperty(entry.Value, tool, language, topLevel, entry.Key));
             }
             return copy;
+        }
+
+        private static SchemaProperty CloneProperty(
+            SchemaProperty value, string tool, string language, bool topLevel, string parameter)
+        {
+            if (value == null)
+                return null;
+            return new SchemaProperty
+            {
+                Type = value.Type,
+                Description = topLevel
+                    ? ParameterDescription(tool, parameter, value.Description, language) : value.Description,
+                Enum = value.Enum == null ? null : value.Enum.Select(CloneEnumValue).ToList(),
+                Properties = CloneProperties(value.Properties, tool, language, false),
+                Items = CloneProperty(value.Items, tool, language, false, null),
+                McpHeader = value.McpHeader
+            };
         }
 
         private static object CloneEnumValue(object value)

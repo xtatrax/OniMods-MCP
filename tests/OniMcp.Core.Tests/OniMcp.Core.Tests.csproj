@@ -13,6 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <Compile Include="../../mods/OniMcp/Config/PrintingPodSelectionPolicy.cs" Link="Source/PrintingPodSelectionPolicy.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Include="../../mods/OniMcp/Core/*.cs" Link="Production/Core/%(Filename)%(Extension)" />

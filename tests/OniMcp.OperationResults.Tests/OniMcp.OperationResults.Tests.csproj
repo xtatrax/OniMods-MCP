@@ -14,8 +14,10 @@
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementFiles.cs" Link="Source/WorldEditorManagementFiles.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorExecutionPolicy.cs" Link="Source/WorldEditorExecutionPolicy.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorCommandPayload.cs" Link="Source/WorldEditorCommandPayload.cs" />
+    <Compile Include="../../mods/OniMcp/Core/McpTypes.cs" Link="Source/McpTypes.cs" />
     <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Audit/ToolCatalogManifestTools.cs" Link="Source/ToolCatalogManifestTools.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>
