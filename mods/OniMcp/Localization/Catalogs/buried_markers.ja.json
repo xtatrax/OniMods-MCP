@@ -1,0 +1,3 @@
+{
+  "buried_markers.summary": "- 埋蔵生成マーカー: availability={0}; markerCount={1}; present={2}; requested={3}; readable={4}; absent={5}; not_solid={6}; unobserved={7}; unavailable={8}; cells={9}; omitted={10}。取得元=EntombedItemVisualizer.IsEntombedItem; present/absentは観測済みセルの件数です。未判明の総数を0と扱いません。内容物は不明です。読取専用。"
+}

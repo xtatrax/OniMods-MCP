@@ -1,0 +1,3 @@
+{
+  "buried_markers.summary": "- 埋藏生成标记: availability={0}; markerCount={1}; present={2}; requested={3}; readable={4}; absent={5}; not_solid={6}; unobserved={7}; unavailable={8}; cells={9}; omitted={10}。来源=EntombedItemVisualizer.IsEntombedItem；present/absent仅统计已观测单元；未知总数不代表零；内容物未知；仅供读取。"
+}

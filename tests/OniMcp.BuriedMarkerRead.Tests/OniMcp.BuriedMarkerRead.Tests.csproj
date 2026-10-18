@@ -11,5 +11,8 @@
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorBuriedMarkers.cs" Link="Source/WorldEditorBuriedMarkers.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapReadPolicy.cs" Link="Source/WorldEditorMapReadPolicy.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/MapTextReadPolicy.cs" Link="Source/MapTextReadPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/buried_markers.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>

@@ -23,7 +23,7 @@ internal static class BuriedMarkerRegression
         Game.Instance=new Game { Visualizer=visualizer };
         for(int x=0;x<40;x++){Grid.Visible[x]=255;Grid.Solid[x]=true;visualizer.Cells.Add(x);}
         string summary=WorldEditorTools.MarkerSummaryTest(0,39,0,0);
-        Check(summary.Contains("cells=40")&&summary.Contains("omitted=8")&&!summary.Contains("(32,0)"), "bounded samples retain total count");
+        Check(summary.Contains("markerCount=40;")&&summary.Contains("omitted=8")&&!summary.Contains("(32,0)"), "bounded samples retain total count");
         Grid.Visible[0]=0;
         Check(!WorldEditorTools.MarkerSummaryTest(0,0,0,0).Contains("(0,0)"), "hidden coordinates omitted");
         Console.WriteLine("Buried markers: visibility, terrain, unavailable data and bounded summaries passed");

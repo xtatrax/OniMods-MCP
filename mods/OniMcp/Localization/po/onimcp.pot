@@ -83,3 +83,9 @@ msgstr ""
 msgctxt "OniMcp.MCP.GLYPH_LOOKUP.NATIVE_DEFINITION_GUIDANCE"
 msgid "No generated glyph is registered. Use full Prefab ID {0} as {0}:5 in an editable map; native placement checks still apply."
 msgstr ""
+
+#. Runtime JSON key: buried_markers.summary
+#. Runtime zh-Hans msgstr: "- 埋藏生成标记: availability={0}; markerCount={1}; present={2}; requested={3}; readable={4}; absent={5}; not_solid={6}; unobserved={7}; unavailable={8}; cells={9}; omitted={10}。来源=EntombedItemVisualizer.IsEntombedItem；present/absent仅统计已观测单元；未知总数不代表零；内容物未知；仅供读取。"
+msgctxt "OniMcp.MCP.BURIED_MARKERS.SUMMARY"
+msgid "- Buried spawn markers: availability={0}; markerCount={1}; present={2}; requested={3}; readable={4}; absent={5}; not_solid={6}; unobserved={7}; unavailable={8}; cells={9}; omitted={10}. Source=EntombedItemVisualizer.IsEntombedItem; present/absent count observed cells; unknown totals are not zero; contents unknown; read-only."
+msgstr ""

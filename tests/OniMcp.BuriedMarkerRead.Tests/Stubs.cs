@@ -54,19 +54,32 @@ internal sealed class Game
     internal static Game Instance;
     internal EntombedItemVisualizer Visualizer;
     internal int ComponentReads;
-    internal T GetComponent<T>() where T : class { ComponentReads++; return Visualizer as T; }
+    internal bool ThrowComponent;
+    internal T GetComponent<T>() where T : class { ComponentReads++; if (ThrowComponent) throw new InvalidOperationException(); return Visualizer as T; }
 }
 internal sealed class EntombedItemVisualizer
 {
     internal readonly HashSet<int> Cells = new HashSet<int>();
     internal readonly List<int> Queries = new List<int>();
-    internal bool IsEntombedItem(int cell) { Queries.Add(cell); return Cells.Contains(cell); }
+    internal readonly HashSet<int> ThrowCells = new HashSet<int>();
+    internal bool IsEntombedItem(int cell) { Queries.Add(cell); if (ThrowCells.Contains(cell)) throw new InvalidOperationException(); return Cells.Contains(cell); }
 }
 namespace OniMcp.Tools
 {
     public static partial class WorldEditorTools
     {
         internal static string MarkerTest(int cell) => ReadBuriedMarker(cell);
+        internal static Dictionary<string, object> MarkerCoverageTest(int x1, int x2, int y1, int y2)
+        {
+            var value = ReadBuriedMarkerCoverage(x1, x2, y1, y2);
+            return new Dictionary<string, object>
+            {
+                ["availability"] = value.Availability, ["markerCount"] = value.MarkerCount.HasValue ? (object)value.MarkerCount.Value : null,
+                ["requested"] = value.Requested, ["readable"] = value.Readable, ["present"] = value.Present,
+                ["absent"] = value.Absent, ["not_solid"] = value.NotSolid, ["unobserved"] = value.Unobserved,
+                ["unavailable"] = value.Unavailable, ["samples"] = value.Samples.ToArray(), ["omitted"] = value.Omitted
+            };
+        }
         internal static string MarkerSummaryTest(int x1, int x2, int y1, int y2)
         {
             var text = new StringBuilder();
