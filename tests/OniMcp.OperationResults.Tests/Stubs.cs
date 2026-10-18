@@ -125,7 +125,7 @@ namespace OniMcp.Tools
 
     public static class DuplicantTools
     {
-        public static McpTool ControlDupes() => throw new NotSupportedException();
+        public static McpTool ControlDupes() => new McpTool { Handler = ManagementSkillBoundary.Call };
     }
 
     public static partial class WorldEditorTools
@@ -149,13 +149,6 @@ namespace OniMcp.Tools
             return true;
         }
         private static CallToolResult ReadOperationToolIndexMarkdown(string path) => throw new NotSupportedException();
-        private static string ReadManagementIndexMarkdown(string path) => throw new NotSupportedException();
-        private static CallToolResult ReadScheduleManagementMarkdown(JObject args, string path) => throw new NotSupportedException();
-        private static CallToolResult ReadPrioritiesManagementMarkdown(JObject args, string path) => throw new NotSupportedException();
-        private static CallToolResult ReadDupesManagementMarkdown(JObject args, string path) => throw new NotSupportedException();
-        private static CallToolResult ReadFoodManagementMarkdown(JObject args, string path) => throw new NotSupportedException();
-        private static CallToolResult ReadSkillsManagementMarkdown(JObject args, string path) => throw new NotSupportedException();
-        private static CallToolResult ReadResearchManagementMarkdown(JObject args, string path) => throw new NotSupportedException();
     }
 }
 

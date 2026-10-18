@@ -19,6 +19,7 @@ internal static partial class Program
         CallArgumentsKeepTheirScope();
         Console.WriteLine("Operation result regression checks passed: " + checks);
         SearchResultsRemainAvailable();
+        ManagementSkillReadRegression.Run();
     }
 
     private static void DetailedPayloadsRemainExact()

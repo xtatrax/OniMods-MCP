@@ -277,7 +277,7 @@ namespace OniMcp.Tools
 
         private static bool WantsManagementJson(JObject args)
         {
-            string format = (args["format"]?.ToString() ?? args["query"]?["format"]?.ToString() ?? string.Empty).Trim();
+            string format = (args["format"]?.ToString() ?? (args["query"] as JObject)?["format"]?.ToString() ?? string.Empty).Trim();
             if (string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
                 return true;
             string path = args["path"]?.ToString() ?? string.Empty;

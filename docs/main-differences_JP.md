@@ -360,3 +360,10 @@ calls/itemsの要素型をobjectとして公開し、翻訳ごとの独立コピ
 3 MODでSkipModPackagingを揃え、DistPath／DistModPath／ZipFileの指定と区切り・独立親を尊重する。ソース自身／配下への出力とソースを包含する梱包フォルダは書込前に拒否し、ローカル生成counterをsource tarから除外。公開識別子・設定分離・公開停止ガードは変更しない。
 
 公開側の実ターゲット69ケースと3 MOD×通常／省略6回のゲームDLL参照Release Build（すべて警告0／エラー0）、梱包64条件が成功。開発ID実機48条件と公開IDの変更後実機未実施を区別する。個別記録・設定は含めない。[梱包の契約](mod-packaging_JP.md)を参照。
+
+
+## 選択修正: 技能一覧Markdownの文字列検索条件（2026-10-18）
+
+管理スキル一覧のMarkdown読取で、文字列などオブジェクトでない`query`から`format`を参照して例外になる問題を型ガードで修正した。トップレベルformatの優先、空/nullが入れ子指定を抑止する既存挙動、パスのformat=json判定、id/name/query/limitの引継ぎと元JSONを保持する。ゲーム本来の技能・習得可否・習得規則は変更しない。
+
+公開作業ツリーの実reader/管理dispatch連結ホスト229条件と既存metadata12・ops197・search342、ゲームDLL参照Compile（警告0/エラー0）が成功。オンライン依存監査は今回のみ省略した。開発IDの20ケースによるJSON/Markdown/native比較と、公開IDの変更後実機未実施を区別する。個別セーブ・個体ID・生の実機記録・設定は含めない。モデル別のcanMaster適合性と習得操作は別範囲。
