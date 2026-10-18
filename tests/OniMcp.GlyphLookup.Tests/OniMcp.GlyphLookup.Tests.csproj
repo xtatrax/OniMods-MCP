@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GlyphSourceRoot Condition="'$(GlyphSourceRoot)' == ''">../../mods/OniMcp/Tools/WorldEditor</GlyphSourceRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Generated static data precedes the dependent partial-class symbol cache. -->
+    <Compile Include="$(GlyphSourceRoot)/WorldEditorGeneratedGlyphData.cs" Link="Source/WorldEditorGeneratedGlyphData.cs" />
+    <Compile Include="$(GlyphSourceRoot)/WorldEditorGlyphLookup.cs" Link="Source/WorldEditorGlyphLookup.cs" />
+    <Compile Include="$(GlyphSourceRoot)/WorldEditorNativeGlyphDefinitions.cs" Link="Source/WorldEditorNativeGlyphDefinitions.cs" />
+    <Compile Include="$(GlyphSourceRoot)/WorldEditorSymbols.cs" Link="Source/WorldEditorSymbols.cs" />
+    <Compile Include="$(GlyphSourceRoot)/WorldEditorCommandPayload.cs" Link="Source/WorldEditorCommandPayload.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/glyph_lookup.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>

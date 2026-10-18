@@ -1,0 +1,5 @@
+{
+  "glyph_lookup.source": "生成及视图上下文的符号映射，以及与查询匹配但尚未注册符号的原生建筑定义。",
+  "glyph_lookup.result_rule": "只有带有实际符号的行才是符号映射。glyphAvailable=false、symbol=null的原生定义仅提供身份信息；请使用完整Prefab ID，并另行验证原生放置条件。",
+  "glyph_lookup.native_definition_guidance": "尚未注册生成符号。请在可编辑地图中使用完整Prefab ID {0}，例如{0}:5；仍需通过原生放置检查。"
+}

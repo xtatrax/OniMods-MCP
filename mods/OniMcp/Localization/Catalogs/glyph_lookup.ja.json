@@ -1,0 +1,5 @@
+{
+  "glyph_lookup.source": "生成済み・表示文脈別の記号対応と、検索対象に一致した記号未登録のネイティブ設備定義。",
+  "glyph_lookup.result_rule": "実際の記号を持つ行だけが記号対応です。glyphAvailable=false・symbol=nullのネイティブ定義は識別情報です。完全なPrefab IDを使い、ネイティブの配置可否は別途確認してください。",
+  "glyph_lookup.native_definition_guidance": "生成済みの記号は未登録です。編集可能な地図で完全なPrefab ID {0}を{0}:5として使用してください。ネイティブの配置条件は引き続き適用されます。"
+}

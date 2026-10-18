@@ -1,0 +1,5 @@
+{
+  "glyph_lookup.source": "Generated and contextual glyph mappings, plus query-scoped native building definitions without registered glyphs.",
+  "glyph_lookup.result_rule": "Only rows with an actual symbol are glyph mappings. A native definition with glyphAvailable=false and symbol=null is identity metadata; use its full Prefab ID and verify native placement separately.",
+  "glyph_lookup.native_definition_guidance": "No generated glyph is registered. Use full Prefab ID {0} as {0}:5 in an editable map; native placement checks still apply."
+}

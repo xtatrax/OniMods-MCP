@@ -66,3 +66,21 @@ msgstr "非推奨: 旧ツール名・別名 '{0}' は {1} で削除予定です�
 msgctxt "OniMcp.MCP.COMMON.ERRORS.GAME_NOT_INITIALIZED"
 msgid "Game not initialized"
 msgstr "ゲームは初期化されていません。"
+
+#. Runtime JSON key: glyph_lookup.source
+#. Runtime zh-Hans msgstr: "生成及视图上下文的符号映射，以及与查询匹配但尚未注册符号的原生建筑定义。"
+msgctxt "OniMcp.MCP.GLYPH_LOOKUP.SOURCE"
+msgid "Generated and contextual glyph mappings, plus query-scoped native building definitions without registered glyphs."
+msgstr "生成済み・表示文脈別の記号対応と、検索対象に一致した記号未登録のネイティブ設備定義。"
+
+#. Runtime JSON key: glyph_lookup.result_rule
+#. Runtime zh-Hans msgstr: "只有带有实际符号的行才是符号映射。glyphAvailable=false、symbol=null的原生定义仅提供身份信息；请使用完整Prefab ID，并另行验证原生放置条件。"
+msgctxt "OniMcp.MCP.GLYPH_LOOKUP.RESULT_RULE"
+msgid "Only rows with an actual symbol are glyph mappings. A native definition with glyphAvailable=false and symbol=null is identity metadata; use its full Prefab ID and verify native placement separately."
+msgstr "実際の記号を持つ行だけが記号対応です。glyphAvailable=false・symbol=nullのネイティブ定義は識別情報です。完全なPrefab IDを使い、ネイティブの配置可否は別途確認してください。"
+
+#. Runtime JSON key: glyph_lookup.native_definition_guidance
+#. Runtime zh-Hans msgstr: "尚未注册生成符号。请在可编辑地图中使用完整Prefab ID {0}，例如{0}:5；仍需通过原生放置检查。"
+msgctxt "OniMcp.MCP.GLYPH_LOOKUP.NATIVE_DEFINITION_GUIDANCE"
+msgid "No generated glyph is registered. Use full Prefab ID {0} as {0}:5 in an editable map; native placement checks still apply."
+msgstr "生成済みの記号は未登録です。編集可能な地図で完全なPrefab ID {0}を{0}:5として使用してください。ネイティブの配置条件は引き続き適用されます。"

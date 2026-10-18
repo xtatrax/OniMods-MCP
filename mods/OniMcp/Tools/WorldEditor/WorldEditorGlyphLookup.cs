@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -58,11 +59,11 @@ namespace OniMcp.Tools
                 ["view"] = string.IsNullOrWhiteSpace(view) ? null : view,
                 ["perQueryLimit"] = perQueryLimit,
                 ["results"] = results,
-                ["source"] = "authoritative generated ONI glyph rows plus contextual map glyph rows",
+                ["source"] = McpLocalization.Get("glyph_lookup.source"),
                 ["resultContract"] = new JObject
                 {
                     ["style"] = "authoritative_glyph_mapping",
-                    ["rule"] = "Use returned rows as the authoritative runtime mapping. Do not guess glyph meanings or codes.",
+                    ["rule"] = McpLocalization.Get("glyph_lookup.result_rule"),
                     ["context"] = "A symbol may have multiple meanings; pass view to filter contextual overlay rows."
                 },
                 ["nextActions"] = new JArray(new JObject
@@ -126,13 +127,19 @@ namespace OniMcp.Tools
                     ? "code_to_meaning"
                     : "meaning_to_code"
                 : direction;
+            JObject nativeEvidence = null;
+            if (resolvedDirection == "meaning_to_code" && !string.IsNullOrWhiteSpace(input)
+                && (string.IsNullOrEmpty(view) || view == "default"))
+                candidates = candidates.Concat(ReadNativeGlyphDefinitions(rows, input, out nativeEvidence)).ToList();
             Func<JObject, IEnumerable<string>> values = resolvedDirection == "code_to_meaning"
                 ? (Func<JObject, IEnumerable<string>>)(row => new[] { GlyphText(row, "symbol") })
-                : row => new[]
-                {
-                    GlyphText(row, "id"), GlyphText(row, "name"), GlyphText(row, "kind"),
-                    GlyphText(row, "meaning"), GlyphText(row, "dirs")
-                };
+                : row => GlyphText(row, "source") == "native_building_definition"
+                    ? new[] { GlyphText(row, "id"), GlyphText(row, "name") }
+                    : new[]
+                    {
+                        GlyphText(row, "id"), GlyphText(row, "name"), GlyphText(row, "kind"),
+                        GlyphText(row, "meaning"), GlyphText(row, "dirs")
+                    };
 
             var exactMatches = candidates.Where(row => values(row).Any(value =>
                 value.Equals(input, StringComparison.OrdinalIgnoreCase))).ToList();
@@ -142,7 +149,7 @@ namespace OniMcp.Tools
                 : candidates.Where(row => values(row).Any(value =>
                     value.IndexOf(input ?? string.Empty, StringComparison.OrdinalIgnoreCase) >= 0)).ToList();
 
-            return new JObject
+            var result = new JObject
             {
                 ["input"] = input,
                 ["resolvedDirection"] = resolvedDirection,
@@ -150,6 +157,8 @@ namespace OniMcp.Tools
                 ["count"] = matches.Count,
                 ["matches"] = new JArray(matches.Take(limit))
             };
+            if (nativeEvidence != null) result["nativeDefinitionLookup"] = nativeEvidence;
+            return result;
         }
 
         private static JObject EmptyGlyphQueryResult(string input, string direction)
