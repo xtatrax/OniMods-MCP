@@ -353,3 +353,10 @@ calls/itemsの要素型をobjectとして公開し、翻訳ごとの独立コピ
 成功したcanonical search_controlの子結果を既定で全文保持し、native detail=brief/compact/full・領域別件数・打切りを変更せず返す。明示boolean falseは要約、trueは全文＋引数を維持。他ツール・検索エラーの既定要約、確認／予行／単一コマンド制限と未登録alias拒否は変えない。
 
 公開側の既存ホスト197・追加342・metadata12条件、文言1キーとゲームDLL参照Compile（警告0／エラー0）が成功。開発ID実機210条件と公開IDの変更後実機未実施を区別する。個別記録・設定は含めない。詳細: [仮想検索操作の契約](operation-search-results_JP.md)。
+
+
+## 選択修正: 梱包省略と出力先の保持（2026-10-18）
+
+3 MODでSkipModPackagingを揃え、DistPath／DistModPath／ZipFileの指定と区切り・独立親を尊重する。ソース自身／配下への出力とソースを包含する梱包フォルダは書込前に拒否し、ローカル生成counterをsource tarから除外。公開識別子・設定分離・公開停止ガードは変更しない。
+
+公開側の実ターゲット69ケースと3 MOD×通常／省略6回のゲームDLL参照Release Build（すべて警告0／エラー0）、梱包64条件が成功。開発ID実機48条件と公開IDの変更後実機未実施を区別する。個別記録・設定は含めない。[梱包の契約](mod-packaging_JP.md)を参照。

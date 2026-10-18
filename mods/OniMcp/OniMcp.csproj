@@ -162,17 +162,37 @@
   </Target>
 
   <!-- ビルド後にリポジトリのルートの dist/ へ MOD をパッケージ化する -->
-  <Target Name="PackageMod" AfterTargets="GenerateModFiles">
+  <Target Name="PackageMod" AfterTargets="GenerateModFiles" Condition="'$(SkipModPackaging)' != 'true'">
     <PropertyGroup>
-      <DistPath>$(MSBuildProjectDirectory)/../../dist/</DistPath>
-      <DistModPath>$(DistPath)$(AssemblyName)/</DistModPath>
-      <ZipFile>$(DistPath)$(AssemblyName).zip</ZipFile>
+      <DistPath Condition="'$(DistPath)' == ''">$(MSBuildProjectDirectory)/../../dist/</DistPath>
+      <_PackageDistPath>$([MSBuild]::EnsureTrailingSlash('$(DistPath)'))</_PackageDistPath>
+      <DistModPath Condition="'$(DistModPath)' == ''">$(_PackageDistPath)$(AssemblyName)/</DistModPath>
+      <_PackageDistModPath>$([MSBuild]::EnsureTrailingSlash('$(DistModPath)'))</_PackageDistModPath>
+      <ZipFile Condition="'$(ZipFile)' == ''">$(_PackageDistPath)$(AssemblyName).zip</ZipFile>
+      <_PackageZipDirectory>$([System.IO.Path]::GetDirectoryName('$(ZipFile)'))</_PackageZipDirectory>
+      <_PackageSourceRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)'))</_PackageSourceRoot>
+      <_PackageDistFullPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(_PackageDistPath)'))</_PackageDistFullPath>
+      <_PackageModFullPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(_PackageDistModPath)'))</_PackageModFullPath>
+      <_PackageZipFullPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(ZipFile)'))</_PackageZipFullPath>
+      <_PackageDistRelative>$([MSBuild]::MakeRelative('$(_PackageSourceRoot)', '$(_PackageDistFullPath)'))</_PackageDistRelative>
+      <_PackageModRelative>$([MSBuild]::MakeRelative('$(_PackageSourceRoot)', '$(_PackageModFullPath)'))</_PackageModRelative>
+      <_PackageZipRelative>$([MSBuild]::MakeRelative('$(_PackageSourceRoot)', '$(_PackageZipFullPath)'))</_PackageZipRelative>
+      <_PackageSourceFromMod>$([MSBuild]::MakeRelative('$(_PackageModFullPath)', '$(_PackageSourceRoot)'))</_PackageSourceFromMod>
+      <_PackageParentPrefix>$([MSBuild]::EnsureTrailingSlash('..'))</_PackageParentPrefix>
+      <_PackageUnsafeDestination>false</_PackageUnsafeDestination>
+      <_PackageUnsafeDestination Condition="!$([System.IO.Path]::IsPathRooted('$(_PackageDistRelative)')) And '$(_PackageDistRelative)' != '..' And !$([System.String]::Copy('$(_PackageDistRelative)').StartsWith('$(_PackageParentPrefix)'))">true</_PackageUnsafeDestination>
+      <_PackageUnsafeDestination Condition="!$([System.IO.Path]::IsPathRooted('$(_PackageModRelative)')) And '$(_PackageModRelative)' != '..' And !$([System.String]::Copy('$(_PackageModRelative)').StartsWith('$(_PackageParentPrefix)'))">true</_PackageUnsafeDestination>
+      <_PackageUnsafeDestination Condition="!$([System.IO.Path]::IsPathRooted('$(_PackageZipRelative)')) And '$(_PackageZipRelative)' != '..' And !$([System.String]::Copy('$(_PackageZipRelative)').StartsWith('$(_PackageParentPrefix)'))">true</_PackageUnsafeDestination>
+      <_PackageUnsafeDestination Condition="!$([System.IO.Path]::IsPathRooted('$(_PackageSourceFromMod)')) And '$(_PackageSourceFromMod)' != '..' And !$([System.String]::Copy('$(_PackageSourceFromMod)').StartsWith('$(_PackageParentPrefix)'))">true</_PackageUnsafeDestination>
     </PropertyGroup>
 
+    <Error Condition="'$(_PackageUnsafeDestination)' == 'true'" Code="ONIMODS_PACKAGE_DESTINATION_INSIDE_SOURCE" Text="ONIMODS_PACKAGE_DESTINATION_INSIDE_SOURCE" />
+    <MakeDir Directories="$(_PackageDistPath);$(_PackageZipDirectory)" />
+
     <!-- 古いファイルを削除する -->
-    <RemoveDir Directories="$(DistModPath)" />
+    <RemoveDir Directories="$(_PackageDistModPath)" />
     <Delete Files="$(ZipFile)" />
-    <Delete Files="$(DistPath)$(AssemblyName)-src.tar.gz" />
+    <Delete Files="$(_PackageDistPath)$(AssemblyName)-src.tar.gz" />
 
     <!-- MOD のファイルを dist/ModName/ へコピーする -->
     <ItemGroup>
@@ -186,19 +206,19 @@
       <ModOutputFiles Include="$(OutputPath)docs/steam-description-zh.md" Condition="Exists('$(OutputPath)docs/steam-description-zh.md')" />
       <ModOutputFiles Include="$(OutputPath)docs/steam-description-en.md" Condition="Exists('$(OutputPath)docs/steam-description-en.md')" />
     </ItemGroup>
-    <Copy SourceFiles="@(ModOutputFiles)" DestinationFolder="$(DistModPath)" />
-    <MakeDir Directories="$(DistModPath)assets" />
-    <Copy SourceFiles="$(OutputPath)assets/edit_mark_tool.png" DestinationFolder="$(DistModPath)assets" Condition="Exists('$(OutputPath)assets/edit_mark_tool.png')" />
-    <Copy SourceFiles="$(OutputPath)assets/restart_oni_steam_relay.sh" DestinationFolder="$(DistModPath)assets" Condition="Exists('$(OutputPath)assets/restart_oni_steam_relay.sh')" />
+    <Copy SourceFiles="@(ModOutputFiles)" DestinationFolder="$(_PackageDistModPath)" />
+    <MakeDir Directories="$(_PackageDistModPath)assets" />
+    <Copy SourceFiles="$(OutputPath)assets/edit_mark_tool.png" DestinationFolder="$(_PackageDistModPath)assets" Condition="Exists('$(OutputPath)assets/edit_mark_tool.png')" />
+    <Copy SourceFiles="$(OutputPath)assets/restart_oni_steam_relay.sh" DestinationFolder="$(_PackageDistModPath)assets" Condition="Exists('$(OutputPath)assets/restart_oni_steam_relay.sh')" />
 
     <!-- zip にまとめる（MOD の配布パッケージ） -->
-    <ZipDirectory SourceDirectory="$(DistModPath)" DestinationFile="$(ZipFile)" Overwrite="true" />
+    <ZipDirectory SourceDirectory="$(_PackageDistModPath)" DestinationFile="$(ZipFile)" Overwrite="true" />
 
     <!-- ソースコードを tar.gz にまとめる。Windows の tar ではパスを単一引用符で囲めない。ソースのパッケージ化に失敗するとビルドも失敗する。 -->
-    <Exec Command="tar -czf &quot;$(DistPath)$(AssemblyName)-src.tar.gz&quot; -C &quot;$(MSBuildProjectDirectory)&quot; --exclude=bin --exclude=obj --exclude=dist ." />
+    <Exec Command="tar -czf &quot;$(_PackageDistPath)$(AssemblyName)-src.tar.gz&quot; -C &quot;$(MSBuildProjectDirectory)&quot; --exclude=bin --exclude=obj --exclude=dist --exclude=.build-number --exclude=.build-number.lock --exclude=.build-number.*.tmp ." />
 
     <Message Text="Packaged mod -&gt; $(ZipFile)" Importance="high" />
-    <Message Text="Packaged source -&gt; $(DistPath)$(AssemblyName)-src.tar.gz" Importance="high" />
+    <Message Text="Packaged source -&gt; $(_PackageDistPath)$(AssemblyName)-src.tar.gz" Importance="high" />
   </Target>
 
 </Project>
