@@ -31,3 +31,8 @@ Runtime reports from development are historical evidence, not a runtime test of 
 - Configuration regressions: 17 passed. Rust tests: 17 passed. Map localization tests: English, Japanese and Simplified Chinese passed. Livestream invocation without a room ID is rejected.
 - Source contracts: 45 of 49 passed after rerunning network/loopback checks with the required access. Four failures reproduce in the development source: bridge placement-offset expectation, duplicate game_control localization declaration, disabled-knowledge tool guidance, and the 515-line InventoryTools source limit. They remain unresolved; the full suite is not green.
 - No game runtime test or game-reference build of the new public identity was performed. Retained PNG assets are the existing three Git LFS pointers; Git LFS and their binary contents are unavailable in this checkout. They were not rendered or newly audited.
+
+
+## Later runtime acceptance
+
+The management-skill Markdown query fix was tested under this fork's own identity with its own installed DLL and settings. Twenty read cases passed, and the original development installation and save were restored afterward. Detailed scope and limits are in the [change notes](docs/main-differences_JP.md). This supplements the historical snapshot checks above; it does not establish runtime acceptance for every retained feature or authorize distribution.
