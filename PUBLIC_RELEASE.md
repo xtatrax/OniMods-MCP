@@ -36,3 +36,5 @@ Runtime reports from development are historical evidence, not a runtime test of 
 ## Later runtime acceptance
 
 The management-skill Markdown query fix was tested under this fork's own identity with its own installed DLL and settings. Twenty read cases passed, and the original development installation and save were restored afterward. Detailed scope and limits are in the [change notes](docs/main-differences_JP.md). This supplements the historical snapshot checks above; it does not establish runtime acceptance for every retained feature or authorize distribution.
+
+The virtual action-progress fix was also accepted under the public identity. Mixed outcomes, total refusal, requested-cell/anchor counts, deferred work and explicit detailed batch results were checked against independent cell reads. The original development environment and save were restored afterward. See [the result contract and validation scope](docs/operation-result-progress_JP.md); this acceptance does not cover every retained feature or authorize distribution.
