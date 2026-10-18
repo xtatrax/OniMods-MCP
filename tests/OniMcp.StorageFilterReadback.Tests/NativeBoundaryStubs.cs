@@ -1,0 +1,141 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+
+namespace UnityEngine
+{
+    public struct Vector3
+    {
+        public float x;
+        public float y;
+    }
+    public sealed class Transform
+    {
+        public Vector3 Position;
+        public Vector3 GetPosition() { return Position; }
+    }
+    public sealed class GameObject
+    {
+        public string name;
+        public int Id;
+        public int WorldId;
+        public readonly Transform transform = new Transform();
+        public readonly Dictionary<Type, object> Components = new Dictionary<Type, object>();
+        public T GetComponent<T>() where T : class
+        {
+            object component;
+            return Components.TryGetValue(typeof(T), out component) ? component as T : null;
+        }
+        public int GetInstanceID() { return Id; }
+        public int GetMyWorldId() { return WorldId; }
+        public string GetProperName() { return name; }
+    }
+    public static class Mathf
+    {
+        public static int RoundToInt(float value) { return (int)Math.Round(value); }
+    }
+}
+
+public struct Tag : IEquatable<Tag>
+{
+    public readonly string Name;
+    public Tag(string name) { Name = name; }
+    public bool Equals(Tag other) { return string.Equals(Name, other.Name, StringComparison.Ordinal); }
+    public override bool Equals(object other) { return other is Tag && Equals((Tag)other); }
+    public override int GetHashCode() { return Name == null ? 0 : Name.GetHashCode(); }
+}
+
+public sealed class TreeFilterable
+{
+    private HashSet<Tag> nativeTags = new HashSet<Tag>();
+    public int Updates;
+    public int Reads;
+    public Action<TreeFilterable> OnUpdated;
+    public IEnumerable<Tag> GetTags() { Reads++; return nativeTags.ToArray(); }
+    public void FixtureSet(params string[] tags) { nativeTags = new HashSet<Tag>(tags.Select(tag => new Tag(tag))); }
+    public void UpdateFilters(HashSet<Tag> tags)
+    {
+        Updates++;
+        nativeTags = new HashSet<Tag>(tags);
+        if (OnUpdated != null) OnUpdated(this);
+    }
+}
+
+public sealed class Storage
+{
+    public float capacityKg;
+    public readonly List<UnityEngine.GameObject> items = new List<UnityEngine.GameObject>();
+    private float nativeMass;
+    public int MassReads;
+    public void FixtureMass(float value) { nativeMass = value; }
+    public float MassStored() { MassReads++; return nativeMass; }
+}
+
+public sealed class StorageLocker { public float UserMaxCapacity; }
+public sealed class KPrefabID { public int InstanceID; public Tag PrefabTag; }
+public sealed class PrimaryElement { public float Mass; }
+public sealed class BuildingComplete { public UnityEngine.GameObject gameObject; }
+public sealed class BuildingCollection { public readonly List<BuildingComplete> Items = new List<BuildingComplete>(); }
+public static class Components { public static readonly BuildingCollection BuildingCompletes = new BuildingCollection(); }
+public static class Grid
+{
+    public static int XYToCell(int x, int y) { return x < 0 || y < 0 || x >= 100 || y >= 100 ? -1 : y * 100 + x; }
+    public static int PosToCell(UnityEngine.Vector3 position) { return XYToCell((int)position.x, (int)position.y); }
+    public static bool IsValidCell(int cell) { return cell >= 0 && cell < 10000; }
+    public static int CellColumn(int cell) { return cell % 100; }
+    public static int CellRow(int cell) { return cell / 100; }
+}
+
+namespace OniMcp.Core
+{
+    public sealed class McpToolParameter
+    {
+        public string Type;
+        public string Description;
+        public bool Required;
+        public List<string> EnumValues;
+    }
+    public sealed class McpTool
+    {
+        public string Name;
+        public bool Hidden;
+        public string Group;
+        public string Mode;
+        public string Risk;
+        public List<string> Aliases;
+        public List<string> Tags;
+        public string Description;
+        public Dictionary<string, McpToolParameter> Parameters;
+        public Func<JObject, CallToolResult> Handler;
+    }
+    public sealed class CallToolResult
+    {
+        public bool IsError;
+        public string Value;
+        public static CallToolResult Text(string value) { return new CallToolResult { Value = value }; }
+        public static CallToolResult Error(string value) { return new CallToolResult { Value = value, IsError = true }; }
+    }
+}
+
+namespace OniMcp.Tools
+{
+    // Unrelated sibling routes are not exercised by these storage-handler tests.
+    public static class ReceptacleTools
+    {
+        public static OniMcp.Core.McpTool ControlStorageTileSelection() { throw new NotSupportedException(); }
+        public static OniMcp.Core.McpTool ControlReceptacle() { throw new NotSupportedException(); }
+    }
+    public static class FilterTools
+    {
+        public static OniMcp.Core.McpTool ControlFilter() { throw new NotSupportedException(); }
+    }
+    public static class ToolUtil
+    {
+        public static int? GetInt(JObject args, string key) { return (int?)args[key]; }
+        public static int ResolveWorldId(JObject args) { return GetInt(args, "worldId") ?? 0; }
+        public static int ClampLimit(JObject args, int fallback, int maximum) { return Math.Max(1, Math.Min(maximum, GetInt(args, "limit") ?? fallback)); }
+        public static string CleanName(string value) { return value; }
+        public static float SafeFloat(float value) { return float.IsNaN(value) || float.IsInfinity(value) ? 0f : value; }
+    }
+}
