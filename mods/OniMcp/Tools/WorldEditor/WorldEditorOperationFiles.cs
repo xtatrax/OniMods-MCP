@@ -203,7 +203,7 @@ namespace OniMcp.Tools
             if (ToolUtil.GetBool(arguments, "detail", false))
             {
                 resultItem["arguments"] = arguments;
-                resultItem["result"] = TrimOperationText(text, 12000);
+                resultItem["result"] = text;
             }
             results.Add(resultItem);
             if (failed && stopOnError)

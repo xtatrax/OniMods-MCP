@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <OperationFilesSource Condition="'$(OperationFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationFiles.cs</OperationFilesSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(OperationFilesSource)" Link="Source/WorldEditorOperationFiles.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationSemanticCommands.cs" Link="Source/WorldEditorOperationSemanticCommands.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementFiles.cs" Link="Source/WorldEditorManagementFiles.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorExecutionPolicy.cs" Link="Source/WorldEditorExecutionPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorCommandPayload.cs" Link="Source/WorldEditorCommandPayload.cs" />
+    <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>
