@@ -54,3 +54,5 @@ Technical topics retained from the development backlog. Some are partially imple
 - [ ] **仮想opsの配列引数を、子ツールが受け取る型へ正しく変換する。** `kinds=["items"]` が括弧付き文字列一要素になる経路を、単一値・複数値・空配列・無効値で検査する。検索結果全文の保持と入力型の解決は別に確認し、読取での成功を `critterTags` 等の書込受入へ広げない。
 
 - [ ] **設備に複数あるStorageの読取範囲を区別する。** `storage/detail` と所有設備IDで集計したpickupablesを比較し、単一Storageの内容を設備内の全収納と誤読させない。`storage.id` だけではStorageコンポーネントを区別できない点を明示する。読取範囲の改善を `set_filter` の書込対象拡張に流用しない。
+
+- [ ] **通常のタイル交換を、支持と同居設備を保持して扱う。** `Tile` から `GasPermeableMembrane` への直接置換について、構文予行と実行時の占有判定を通常UIと照合する。別々の解体・再建設が成功しても直接置換の受入とはせず、先行解体や占有ガードの解除を一般的な解決策にしない。
