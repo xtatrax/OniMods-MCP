@@ -56,3 +56,5 @@ Technical topics retained from the development backlog. Some are partially imple
 - [ ] **設備に複数あるStorageの読取範囲を区別する。** `storage/detail` と所有設備IDで集計したpickupablesを比較し、単一Storageの内容を設備内の全収納と誤読させない。`storage.id` だけではStorageコンポーネントを区別できない点を明示する。読取範囲の改善を `set_filter` の書込対象拡張に流用しない。
 
 - [ ] **通常のタイル交換を、支持と同居設備を保持して扱う。** `Tile` から `GasPermeableMembrane` への直接置換について、構文予行と実行時の占有判定を通常UIと照合する。別々の解体・再建設が成功しても直接置換の受入とはせず、先行解体や占有ガードの解除を一般的な解決策にしない。
+
+- [ ] **停止要求の通信失敗と、停止の実適用を区別して追跡する。** `pause` がTransportエラーとなった場合は適用未確認として扱い、独立した `game/time` の `isPaused`・`timeScale` で再確認する。必要な安全停止は別の明示要求として扱い、通信エラーから自動再送しない。`finally` の実行やクライアント側の待機時間は、通信断中の本体自動停止を保証しない。原因と再開主体を切り分け、復旧成功だけで監視全体を受入済みとしない。
