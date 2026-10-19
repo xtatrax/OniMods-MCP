@@ -45,7 +45,7 @@ Technical topics retained from the development backlog. Some are partially imple
 - [ ] **ロード直後の食料到達性未確定を、食料不足と誤読させない。** 停止直後のunknown分類が短時間進行後に解消する事例あり。上記「初期化中か確定状態か」の項目と合わせ、集計値だけでなくassessmentCompleteを操作判断へ反映する。
 
 - [ ] **電力集計の稼働数と定格・実消費・発電実績の意味を揃える。** 回路別generatorOperationalが、停止中設備を含む設置数と一致し、全体値・個別operationalと食い違った。PowerSummaryToolsの回路別GeneratorOperational/ConsumerOperational加算条件を検査する。netActiveWattsとgeneratorStoredJも、実発電収支や燃料在庫と混同しない名称・根拠・単位を示す。
-- [ ] **案内する読取ツールを実際の登録カタログと一致させる。** read_controlを直接案内する一方、実行環境では未登録で、仮想coordinate経由のみ利用できる事例がある。直接経路の有無と現行の代替経路を明示する。
+- [ ] **案内する読取ツールを実際の登録カタログと一致させる。** read_controlを直接案内する一方、実行環境では未登録で、仮想coordinate経由のみ利用できる事例がある。直接経路の有無と現行の代替経路を明示する。 `dupes/direct-commands` が返す `dupes_move_to` 等の推奨名も、現行opsの登録先と照合する。旧別名の再公開を必須にせず、案内から現行の意味操作・子ツール経路へ到達できることを確認する。
 
 - [ ] **信号ポートのconnectedと端点間の信号到達を区別する。** 出力側グリーン・入力側レッドで両端connected=trueとなる事例を確認した。4セルのLogicWireは存在していたが全セルdirs=空で隣接未接続。通常線と同様に、線の存在・辺の接続・信号値の一致を別々に示し、セル単位施工後の未接続を検知する。ポートだけを見て開通とした運用上の誤判定も記録する。
 
@@ -58,3 +58,5 @@ Technical topics retained from the development backlog. Some are partially imple
 - [ ] **通常のタイル交換を、支持と同居設備を保持して扱う。** `Tile` から `GasPermeableMembrane` への直接置換について、構文予行と実行時の占有判定を通常UIと照合する。別々の解体・再建設が成功しても直接置換の受入とはせず、先行解体や占有ガードの解除を一般的な解決策にしない。
 
 - [ ] **停止要求の通信失敗と、停止の実適用を区別して追跡する。** `pause` がTransportエラーとなった場合は適用未確認として扱い、独立した `game/time` の `isPaused`・`timeScale` で再確認する。必要な安全停止は別の明示要求として扱い、通信エラーから自動再送しない。`finally` の実行やクライアント側の待機時間は、通信断中の本体自動停止を保証しない。原因と再開主体を切り分け、復旧成功だけで監視全体を受入済みとしない。 RPC往復所要時間と本体pause処理時間・実適用時刻を分離して記録する。応答成功後の停止確認だけでは、遅延中の安全性や停止期限を保証しない。長い応答遅延をTransport失敗や停止後の再開と同根と決めつけない。
+
+- [ ] **同名・異種のpickupablesを集計で混同しない。** `pickupableSummary.groups` は表示名だけで集約せず、異なる `prefabId` や状態を区別するか混在を明示する。個別id・質量と照合し、代表prefabの量と全群の量を同一視しない。
