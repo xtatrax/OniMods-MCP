@@ -1,0 +1,4 @@
+{
+  "command_parsing.unterminated_quote": "コマンドの引用符が閉じていません。実行前に二重引用符を閉じてください。",
+  "command_parsing.invalid_json": "引数 `{0}` の JSON 配列またはオブジェクトが不正です。有効な JSON を指定するか、文字列として渡す場合は値全体を二重引用符で囲んでください。"
+}

@@ -22,6 +22,7 @@ internal static partial class Program
         ManagementSkillReadRegression.Run();
         MapCountRegression.Run();
         OutcomeRegression.Run();
+        CommandParsingRegression.Run();
     }
 
     private static void DetailedPayloadsRemainExact()

@@ -328,7 +328,8 @@ namespace OniMcp.Tools
             if (!string.IsNullOrWhiteSpace(error))
                 return false;
 
-            arguments = ParseCommandKeyValues(line);
+            if (!TryParseCommandKeyValues(line, out arguments, out error))
+                return false;
             toolName = arguments["tool"]?.ToString();
             if (string.IsNullOrWhiteSpace(toolName))
                 toolName = OperationFileTools[relative];

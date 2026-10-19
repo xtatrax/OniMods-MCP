@@ -8,11 +8,15 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <OperationFilesSource Condition="'$(OperationFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationFiles.cs</OperationFilesSource>
     <ManagementTablesSource Condition="'$(ManagementTablesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementReadableTables.cs</ManagementTablesSource>
+    <ManagementFilesSource Condition="'$(ManagementFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementFiles.cs</ManagementFilesSource>
+    <SemanticCommandsSource Condition="'$(SemanticCommandsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationSemanticCommands.cs</SemanticCommandsSource>
+    <CommandParsingSource Condition="'$(CommandParsingSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorCommandParsing.cs</CommandParsingSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(OperationFilesSource)" Link="Source/WorldEditorOperationFiles.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationSemanticCommands.cs" Link="Source/WorldEditorOperationSemanticCommands.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementFiles.cs" Link="Source/WorldEditorManagementFiles.cs" />
+    <Compile Include="$(CommandParsingSource)" Link="Source/WorldEditorCommandParsing.cs" />
+    <Compile Include="$(SemanticCommandsSource)" Link="Source/WorldEditorOperationSemanticCommands.cs" />
+    <Compile Include="$(ManagementFilesSource)" Link="Source/WorldEditorManagementFiles.cs" />
     <Compile Include="$(ManagementTablesSource)" Link="Source/WorldEditorManagementReadableTables.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/PriorityTableProjection.cs" Link="Source/PriorityTableProjection.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorExecutionPolicy.cs" Link="Source/WorldEditorExecutionPolicy.cs" />
@@ -26,6 +30,7 @@
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorEdits.cs" Link="Source/WorldEditorEdits.cs" />

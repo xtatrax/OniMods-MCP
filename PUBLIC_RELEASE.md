@@ -44,3 +44,6 @@ The existing-edge connection operation was accepted under the public identity us
 
 
 The exact map-placement scope fix was accepted under the public identity using its own build. Single-cell, sparse, multi-row and rotated blueprint cases preserved the requested native footprint and unrelated objects, residents, terrain and dig orders. The original installation, settings and paused save were restored and independently checked. See [the scope contract and acceptance limits](docs/map-build-scope_JP.md); construction completion, physical connections and real flow are separate gates. Private runtime records are excluded.
+
+
+The virtual-operation array parser fix was accepted using the public identity and its own build. Typed arrays, scalar and JSON-payload compatibility, independent storage/critter filter readback, malformed inputs and restoration passed 26 runtime cases. Post-dialog readback and restoration of the original paused environment were checked independently, while preserving an explicit user change to another mod. Native tag eligibility rules are unchanged; retaining an unknown tag does not establish that it is a valid UI choice. See [the argument contract and validation limits](docs/ops-array-arguments_JP.md). Private runtime records and settings are excluded.

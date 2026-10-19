@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
 
@@ -73,7 +72,9 @@ namespace OniMcp.Tools
             foreach (string line in lines)
             {
                 string verb = NormalizeManagementVerb(FirstWord(line));
-                var childArgs = InheritWorldEditorExecutionPolicy(args, ParseCommandKeyValues(line));
+                if (!TryParseCommandKeyValues(line, out JObject parsed, out string parseError))
+                    return CallToolResult.Error(parseError);
+                var childArgs = InheritWorldEditorExecutionPolicy(args, parsed);
                 if (ToolUtil.GetBool(childArgs, "dryRun", false) || !ToolUtil.GetBool(childArgs, "confirm", false))
                 {
                     results.Add(new JObject { ["line"] = line, ["ok"] = true, ["preview"] = true, ["arguments"] = childArgs });
@@ -110,6 +111,8 @@ namespace OniMcp.Tools
                 string verb = NormalizeManagementVerb(FirstWord(line));
                 if (!ManagementCommandSupported(relative, verb))
                     return CallToolResult.Error("Unsupported management command: " + line);
+                if (!TryParseCommandKeyValues(line, out _, out string parseError))
+                    return CallToolResult.Error(parseError);
             }
             return JsonResult(new JObject { ["ok"] = true, ["phase"] = "preflight", ["commands"] = new JArray(lines) });
         }
@@ -279,55 +282,6 @@ namespace OniMcp.Tools
             line = (line ?? string.Empty).Trim();
             int space = line.IndexOfAny(new[] { ' ', '\t' });
             return space < 0 ? line : line.Substring(0, space);
-        }
-
-        private static JObject ParseCommandKeyValues(string line)
-        {
-            var result = new JObject();
-            foreach (var token in TokenizeCommand(line).Skip(1))
-            {
-                int eq = token.IndexOf('=');
-                if (eq <= 0)
-                    continue;
-                string key = token.Substring(0, eq).Trim();
-                string value = token.Substring(eq + 1).Trim().Trim('"');
-                bool boolValue;
-                int intValue;
-                if (bool.TryParse(value, out boolValue))
-                    result[key] = boolValue;
-                else if (int.TryParse(value, out intValue))
-                    result[key] = intValue;
-                else
-                    result[key] = value;
-            }
-            return result;
-        }
-
-        private static IEnumerable<string> TokenizeCommand(string line)
-        {
-            var current = new StringBuilder();
-            bool quoted = false;
-            foreach (char c in line ?? string.Empty)
-            {
-                if (c == '"')
-                {
-                    quoted = !quoted;
-                    current.Append(c);
-                    continue;
-                }
-                if (char.IsWhiteSpace(c) && !quoted)
-                {
-                    if (current.Length > 0)
-                    {
-                        yield return current.ToString();
-                        current.Length = 0;
-                    }
-                    continue;
-                }
-                current.Append(c);
-            }
-            if (current.Length > 0)
-                yield return current.ToString();
         }
     }
 }

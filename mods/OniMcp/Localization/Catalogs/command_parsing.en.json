@@ -1,0 +1,4 @@
+{
+  "command_parsing.unterminated_quote": "Unterminated quoted value in command. Close the double quote before executing.",
+  "command_parsing.invalid_json": "Invalid JSON array or object for `{0}`. Use valid JSON, or enclose the entire value in double quotes to pass a literal string."
+}

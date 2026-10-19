@@ -225,3 +225,15 @@ msgstr ""
 msgctxt "OniMcp.MCP.BUILD_SCOPE.ANCHORS_REQUIRED"
 msgid "Provide a non-empty anchors array of x/y objects or coordinate pairs."
 msgstr ""
+
+#. Runtime JSON key: command_parsing.unterminated_quote
+#. Runtime zh-Hans msgstr: "命令中的引号未闭合。请在执行前闭合双引号。"
+msgctxt "OniMcp.MCP.COMMAND_PARSING.UNTERMINATED_QUOTE"
+msgid "Unterminated quoted value in command. Close the double quote before executing."
+msgstr ""
+
+#. Runtime JSON key: command_parsing.invalid_json
+#. Runtime zh-Hans msgstr: "参数 `{0}` 的 JSON 数组或对象无效。请使用有效的 JSON，或用双引号括住整个值以作为字符串传递。"
+msgctxt "OniMcp.MCP.COMMAND_PARSING.INVALID_JSON"
+msgid "Invalid JSON array or object for `{0}`. Use valid JSON, or enclose the entire value in double quotes to pass a literal string."
+msgstr ""

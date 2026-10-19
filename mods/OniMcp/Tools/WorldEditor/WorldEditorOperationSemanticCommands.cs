@@ -46,8 +46,9 @@ namespace OniMcp.Tools
             arguments = null;
             error = null;
 
-            var kv = ParseCommandKeyValues(line);
-            SplitSemanticArrow(line, out string subject, out string target);
+            if (!TryParseCommandKeyValues(line, out JObject kv, out List<string> tokens, out error))
+                return false;
+            SplitSemanticArrow(tokens, out string subject, out string target);
             subject = CleanSemanticToken(FirstNonEmpty(kv, "subject", "who", "name", "id") ?? subject);
             target = CleanSemanticToken(FirstNonEmpty(kv, "target", "to", "query", "search") ?? target);
 
@@ -105,8 +106,9 @@ namespace OniMcp.Tools
             arguments = null;
             error = null;
 
-            var kv = ParseCommandKeyValues(line);
-            SplitSemanticArrow(line, out string subject, out _);
+            if (!TryParseCommandKeyValues(line, out JObject kv, out List<string> tokens, out error))
+                return false;
+            SplitSemanticArrow(tokens, out string subject, out _);
             subject = CleanSemanticToken(FirstNonEmpty(kv, "target", "subject", "id", "areaId") ?? subject);
 
             arguments = new JObject
@@ -315,9 +317,8 @@ namespace OniMcp.Tools
             return (head ?? string.Empty).Trim().ToLowerInvariant();
         }
 
-        static void SplitSemanticArrow(string line, out string subject, out string target)
+        static void SplitSemanticArrow(List<string> tokens, out string subject, out string target)
         {
-            var tokens = TokenizeCommand(line).ToList();
             int arrow = tokens.FindIndex(t => t == "->" || t == "=>");
             subject = JoinSemanticTokens(tokens.Skip(1).Take(arrow < 0 ? tokens.Count : arrow - 1));
             target = arrow < 0 ? string.Empty : JoinSemanticTokens(tokens.Skip(arrow + 1));

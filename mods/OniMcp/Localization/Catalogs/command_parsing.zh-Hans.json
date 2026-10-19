@@ -1,0 +1,4 @@
+{
+  "command_parsing.unterminated_quote": "命令中的引号未闭合。请在执行前闭合双引号。",
+  "command_parsing.invalid_json": "参数 `{0}` 的 JSON 数组或对象无效。请使用有效的 JSON，或用双引号括住整个值以作为字符串传递。"
+}
