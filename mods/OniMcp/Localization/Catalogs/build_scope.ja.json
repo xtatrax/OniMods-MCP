@@ -1,0 +1,3 @@
+{
+  "build_scope.anchors_required": "anchors を明示する場合は、x/y オブジェクトまたは座標ペアを含む空でない配列を指定してください。"
+}

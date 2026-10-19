@@ -42,6 +42,9 @@ namespace OniMcp.Tools
                 Parameters = parameters,
                 Handler = args =>
                 {
+                    if (args.Property("anchors") != null
+                        && (!(args["anchors"] is JArray explicitAnchors) || explicitAnchors.Count == 0))
+                        return CallToolResult.Error(McpLocalization.Get("build_scope.anchors_required"));
                     if (!ToolUtil.GetBool(args, "confirm", false) && !ToolUtil.GetBool(args, "dryRun", false))
                         return CallToolResult.Error("confirm=true is required unless dryRun=true");
 

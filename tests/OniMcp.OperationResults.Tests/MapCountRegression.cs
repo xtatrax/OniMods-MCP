@@ -55,6 +55,7 @@ internal static partial class MapCountRegression
         Require(((JArray)MapNativeBoundary.BuildingCalls[0]["anchors"]).Count == 1, "actual footprint mask maps two cells to one anchor");
         Require((int)wide["executedCells"] == 2 && !(bool)wide["partial"], "regression: completed two-cell mask remains two request cells");
         Print("wide_mask_complete", wide);
+        AdditionalScopeCases();
         AdditionalProgressCases();
         Console.WriteLine("Map count/partial regression checks passed: " + checks);
     }
@@ -73,6 +74,8 @@ internal static partial class MapCountRegression
     private static void Setup()
     {
         MapNativeBoundary.Snapshot = Snapshot;
+        MapNativeBoundary.WorldResolver = null;
+        MapNativeBoundary.WorldResolutionCalls.Clear();
         MapNativeBoundary.BuildingResults.Clear(); MapNativeBoundary.BuildingCalls.Clear();
         MapNativeBoundary.OrderResults.Clear(); MapNativeBoundary.OrderCalls.Clear();
         Assets.BuildingDefs.Clear(); Assets.BuildingDefs.Add(Def("Tile", 1)); Assets.BuildingDefs.Add(Def("Ladder", 1));

@@ -1,1 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup><ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningUtilityNetworkRefresh.cs" Link="Production.cs" /></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup><ItemGroup>
+  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningUtilityNetworkRefresh.cs" Link="Production.cs" />
+  <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningAutoRouteIntent.cs" Link="AutoRouteIntent.cs" />
+</ItemGroup></Project>

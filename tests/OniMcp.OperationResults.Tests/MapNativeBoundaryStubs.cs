@@ -9,6 +9,8 @@ namespace OniMcp.Tools
     internal static class MapNativeBoundary
     {
         internal static string Snapshot = null;
+        internal static Func<JObject, int> WorldResolver;
+        internal static readonly List<JObject> WorldResolutionCalls = new List<JObject>();
         internal static readonly Queue<CallToolResult> BuildingResults = new Queue<CallToolResult>();
         internal static readonly Queue<CallToolResult> OrderResults = new Queue<CallToolResult>();
         internal static readonly List<JObject> OrderCalls = new List<JObject>();
@@ -25,6 +27,17 @@ namespace OniMcp.Tools
             if (ToolUtil.GetBool(args, "dryRun", false)) throw new NotSupportedException("Unexpected native placement preview.");
             if (BuildingResults.Count == 0) throw new NotSupportedException("No native building result fixture.");
             return BuildingResults.Dequeue();
+        }
+    }
+    public static partial class ToolUtil
+    {
+        // World ownership is a game boundary. Tests supply its resolved value
+        // and observe whether source area selectors still exist at this call.
+        public static int ResolveWorldId(JObject args)
+        {
+            MapNativeBoundary.WorldResolutionCalls.Add((JObject)args.DeepClone());
+            return MapNativeBoundary.WorldResolver == null
+                ? GetInt(args, "worldId") ?? 0 : MapNativeBoundary.WorldResolver(args);
         }
     }
     internal static class GameControlEntryTools { internal static McpTool ControlGame() => throw new NotSupportedException(); }

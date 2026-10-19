@@ -30,6 +30,7 @@ public static class Program
    // A non-adjacent request is rejected, never interpolated by the edge writer.
    writes=mgr.Writes;Check(!BuildPlanningTools.Connect(def,new[]{(2,2),(4,3)}));Check(mgr.Writes==writes);
   }
+  AutoRouteIntentRegression.Run();
   Console.WriteLine("Utility production-source regression passed: " + checks + " checks (native manager substituted)");
  }
 }

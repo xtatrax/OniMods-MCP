@@ -219,3 +219,9 @@ msgstr ""
 msgctxt "OniMcp.MCP.CONNECT_EXISTING.NOT_VERIFIED"
 msgid "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
 msgstr ""
+
+#. Runtime JSON key: build_scope.anchors_required
+#. Runtime zh-Hans msgstr: "显式指定 anchors 时，请提供包含 x/y 对象或坐标对的非空数组。"
+msgctxt "OniMcp.MCP.BUILD_SCOPE.ANCHORS_REQUIRED"
+msgid "Provide a non-empty anchors array of x/y objects or coordinate pairs."
+msgstr ""

@@ -1,0 +1,3 @@
+{
+  "build_scope.anchors_required": "Provide a non-empty anchors array of x/y objects or coordinate pairs."
+}

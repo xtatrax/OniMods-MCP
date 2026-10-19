@@ -241,3 +241,9 @@ msgstr "确认前端点或当前世界/暂停状态已变化；未尝试原生�
 msgctxt "OniMcp.MCP.CONNECT_EXISTING.NOT_VERIFIED"
 msgid "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
 msgstr "原生 UI 结果未达到指定的一条边连接，或端点身份及其他方向连接未保持。"
+
+#. Runtime JSON key: build_scope.anchors_required
+#. Runtime zh-Hans msgstr: "显式指定 anchors 时，请提供包含 x/y 对象或坐标对的非空数组。"
+msgctxt "OniMcp.MCP.BUILD_SCOPE.ANCHORS_REQUIRED"
+msgid "Provide a non-empty anchors array of x/y objects or coordinate pairs."
+msgstr "明確指定 anchors 時，請提供包含 x/y 物件或座標對的非空陣列。"

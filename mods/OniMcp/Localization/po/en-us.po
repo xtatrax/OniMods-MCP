@@ -220,3 +220,9 @@ msgstr "An endpoint or active-world/pause state changed before release; native c
 msgctxt "OniMcp.MCP.CONNECT_EXISTING.NOT_VERIFIED"
 msgid "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
 msgstr "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
+
+#. Runtime JSON key: build_scope.anchors_required
+#. Runtime zh-Hans msgstr: "显式指定 anchors 时，请提供包含 x/y 对象或坐标对的非空数组。"
+msgctxt "OniMcp.MCP.BUILD_SCOPE.ANCHORS_REQUIRED"
+msgid "Provide a non-empty anchors array of x/y objects or coordinate pairs."
+msgstr "Provide a non-empty anchors array of x/y objects or coordinate pairs."

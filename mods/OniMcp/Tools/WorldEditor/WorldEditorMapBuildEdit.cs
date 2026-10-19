@@ -39,6 +39,20 @@ namespace OniMcp.Tools
                     originalGroup, out _, out originalRequests, out _)) originalRequests = null;
 
                 var buildArgs = CopyPayload(parentArgs);
+                // Render bounds and source selectors describe the map read, not the
+                // exact absolute construction anchors resolved from this patch.
+                // Resolve an area's world before removing relative interpretation.
+                int buildWorldId = ToolUtil.ResolveWorldId(buildArgs);
+                foreach (string selector in new[] {
+                    "x", "y", "x1", "y1", "x2", "y2", "cell", "cells", "id",
+                    "points", "fromX", "fromY", "toX", "toY", "fromId", "toId",
+                    "fromQuery", "toQuery", "sourceQuery", "targetQuery",
+                    "query", "target", "search", "name", "nearX", "nearY",
+                    "areaId", "relative", "offsetX", "offsetY", "dx", "dy",
+                    "plan", "blueprint", "sequence", "text", "steps", "items",
+                    "dense", "stepX", "stepY"
+                }) buildArgs.Remove(selector);
+                buildArgs["worldId"] = buildWorldId;
                 buildArgs["domain"] = "planning";
                 buildArgs["action"] = "build_area";
                 buildArgs["prefabId"] = prefabId;

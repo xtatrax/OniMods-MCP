@@ -85,7 +85,7 @@ namespace OniMcp.Tools
         }
     }
 
-    public static class ToolUtil
+    public static partial class ToolUtil
     {
         public static int? GetInt(JObject args, string key) => args?[key]?.Value<int?>();
         public static bool GetBool(JObject args, string key, bool fallback)

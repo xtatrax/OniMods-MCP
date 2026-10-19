@@ -41,3 +41,6 @@ The virtual action-progress fix was also accepted under the public identity. Mix
 
 
 The existing-edge connection operation was accepted under the public identity using its own build and settings. Five basic utility families, endpoint/material/other-layer preservation, repeated no-op requests, actual liquid/gas/solid delivery, lamp consumption recovery and normal save/restart persistence passed 656 runtime checks. Restoration of the original development environment and colony passed 59 checks and a normal-screen inspection. Derived and mixed utilities, exhaustive directions and migration of legacy auto-connect paths remain outside this acceptance. See [the operation contract and runtime scope](docs/native-existing-connection_JP.md); private runtime records and settings are excluded.
+
+
+The exact map-placement scope fix was accepted under the public identity using its own build. Single-cell, sparse, multi-row and rotated blueprint cases preserved the requested native footprint and unrelated objects, residents, terrain and dig orders. The original installation, settings and paused save were restored and independently checked. See [the scope contract and acceptance limits](docs/map-build-scope_JP.md); construction completion, physical connections and real flow are separate gates. Private runtime records are excluded.
