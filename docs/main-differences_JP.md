@@ -409,3 +409,8 @@ survival_watchの終了停止を公開game_controlのpause/timeで独立確認�
 同じ定義・素材の完成した隣接二セルを、通常建設UIのドラッグ経路で接続する `planning/connect_existing` を追加した。明示した一辺と系統だけを扱い、本体が受け付けた経路と両端のID・マスク・他辺保持を照合する。直接のマスク補正や失敗後のfallbackは行わない。既存auto_connect/repair_lineや建設全体の移行ではない。
 
 公開側の接続253・切断69ホスト条件と既存Tools回帰、追加14キーのPO4/JSON3照合、ゲームDLL参照Releaseビルド（警告0・エラー0）が成功した。公開ID実機は後続の受入で区別する。[操作契約と制限](native-existing-connection_JP.md)を参照。個別記録・設定は含めない。
+
+
+### 接続予行と片付けの契約補足
+
+公開coordinateの予行は構文・展開だけを確認し、connect_existingの子ハンドラーを実行しない。親予行とpayload予行を揃え、対象検査・UI受付・接続・流量を別々に確認する。UIの片付け失敗もエラーとして保持し、uiRetargetedを復帰完了の保証にしない。基本5系統の開発実機記録は公開IDの受入へ代用しない。[操作契約](native-existing-connection_JP.md)へ反映した。

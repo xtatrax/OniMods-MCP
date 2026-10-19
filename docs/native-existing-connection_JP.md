@@ -14,7 +14,17 @@ call targetTool=building_control x=20 y=30 payload={"domain":"planning","action"
 
 typeは `liquid/gas/solid/wire/logic`、directionは `up/down/left/right`。矩形・points・steps・id・素材・prefab指定を受け付けず、単一の辺だけを扱う。task/confirm・アクティブワールド・両端の可視性・停止中の規約を維持する。直接building_controlへ座標を渡す制限は変更しない。
 
-プレイヤーのドラッグ中、建設ツール使用中、必要UIの不在やAPI変更では拒否する。UIを切り替えた後は成功・失敗とも本体SelectToolへ戻り、ドラッグとプレビューを残さない。選択ツールや画面表示への影響は `uiRetargeted` で示す。
+プレイヤーのドラッグ中、建設ツール使用中、必要UIの不在やAPI変更では拒否する。UIを切り替えた後は、成功・失敗とも本体SelectToolへの復帰とドラッグ・プレビュー解除を試みる。片付けに失敗した場合は、接続が成立していてもエラーとして残す。選択ツールや画面表示への影響は `uiRetargeted` で示すが、片付け完了の保証ではない。
+
+## 公開coordinate予行の限界
+
+子ハンドラーの読取予行と、公開coordinate opsの構文予行を区別する。公開coordinate opsのdryRunは子ハンドラーを呼ばず、構文・展開だけを確認する。次の架空の書式例では親にも `dryRun=true` を指定する。
+
+```text
+call targetTool=building_control x=20 y=30 payload={"domain":"planning","action":"connect_existing","type":"liquid","direction":"right","dryRun":true} dryRun=true detail=true
+```
+
+親実行とpayload予行の混在は拒否される。上の予行成功は子ハンドラーの対象検査や本体ドラッグ受付の成功を意味しないため、両端の完成状態・素材・接続・可視性を別途読み取る。予行の非変更と、実行後の独立読取も分けて確認する。
 
 ## 受付と観測
 
@@ -27,3 +37,6 @@ typeは `liquid/gas/solid/wire/logic`、directionは `up/down/left/right`。矩�
 公開側の実ハンドラー・アダプターを使うホスト試験は接続253・既存切断69条件に成功。5系統×4方向、予行・繰返し・拒否条件・確定前の対象変化・本体失敗や途中変更・読取不能・他辺保持・UI片付け失敗を含む。既存Tools回帰も成功。追加14キーのPO4本と実行用JSON3言語について構文・重複・翻訳・placeholderを照合した。
 
 公開IDのゲーム同梱DLL参照Releaseビルドは警告0・エラー0。これはUnity実行の保証ではない。公開IDでの配備・実機受入・復元は別に確認して記録する。個別のセーブ・ログ・ID・設定は公開文書へ含めない。
+
+
+開発版の既存実機記録では、基本5系統の同定義・同素材二セルの接続、ID・素材・他辺保持、繰返しのクリックなし成功、搬送・通電、保存再読込後の保持を確認している。派生・混在・全方向の網羅ではなく、公開IDでの実機受入へ代用しない。
