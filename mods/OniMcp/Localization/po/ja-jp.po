@@ -150,3 +150,73 @@ msgstr "地図を再取得し、残りのセルまたは状態が不明なセル
 msgctxt "OniMcp.MCP.RESULT_PROGRESS.OPERATION_COUNT_CONTRACT"
 msgid "Edit blocks, executed commands, native counters and requested map cells use separate units. A successful edit block can contain partial results. Native counters do not establish how many game changes occurred; missing values remain unknown. For world_editor batch, the individual step must set boolean detail=true, and the child must provide progress metadata, to retain the complete raw child result. The parent detail setting and the string \"true\" do not enable this. The default text keeps its 900-character excerpt; request the full result explicitly to inspect successful IDs and remainingAction without that excerpt limit."
 msgstr "編集ブロック数、実行したコマンド数、本体が返した件数、要求した地図セル数は、それぞれ別の単位です。成功扱いの編集ブロックにも部分結果が含まれることがあります。本体の件数からゲームの変更数を推測せず、未取得値は不明のまま扱います。 world_editor batch で子結果の生データ全文を保持するには、対象 step 自身に boolean の detail=true を指定し、その子結果に進捗メタデータがある必要があります。親の detail 設定や文字列の「true」では有効になりません。既定の text は900文字の抜粋を維持します。成功した ID や remainingAction を抜粋制限なしで確認する場合は、全文を明示的に要求してください。"
+
+#. Runtime JSON key: connect_existing.planning_actions
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.PLANNING_ACTIONS"
+msgid "Actions: parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/connect_existing/build_area/room_template. connect_existing joins one existing edge without construction; use x/y, direction, type and dryRun/confirm."
+msgstr "操作: parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/connect_existing/build_area/room_template。connect_existing は建設せず既存の一辺を接続する。x/y、direction、type、dryRun/confirmを使う。"
+
+#. Runtime JSON key: connect_existing.ui_unavailable
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.UI_UNAVAILABLE"
+msgid "Native utility build UI is unavailable or its API changed; no connection fallback will run."
+msgstr "通常の配管・配線建設UIが利用不能、またはAPIが変更されている。接続の代替補正は行わない。"
+
+#. Runtime JSON key: connect_existing.ui_dragging
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.UI_DRAGGING"
+msgid "A player drag is in progress; finish or cancel it before reconnecting."
+msgstr "プレイヤーのドラッグ操作中。完了または取消後に再接続する。"
+
+#. Runtime JSON key: connect_existing.native_path_rejected
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.NATIVE_PATH_REJECTED"
+msgid "Native UI did not accept the exact two-cell path; no release was attempted."
+msgstr "本体UIが指定の二セル経路を受理しなかった。ドラッグ確定は未試行。"
+
+#. Runtime JSON key: connect_existing.target_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.TARGET_REQUIRED"
+msgid "Both endpoints must be completed linear utilities in the requested layer, with no replacement reservation."
+msgstr "両端には指定レイヤーの完成済み直線管・配線が必要。置換予約は不可。"
+
+#. Runtime JSON key: connect_existing.confirm_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.CONFIRM_REQUIRED"
+msgid "connect_existing requires confirm=true unless dryRun=true."
+msgstr "connect_existing の実行にはconfirm=trueが必要（dryRun=trueを除く）。"
+
+#. Runtime JSON key: connect_existing.single_edge_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.SINGLE_EDGE_REQUIRED"
+msgid "connect_existing accepts only x/y and direction for one edge; area, path, id, prefab, material and steps options are not supported."
+msgstr "connect_existing はx/yとdirectionで一辺だけを指定する。領域・経路・id・prefab・素材・steps指定は非対応。"
+
+#. Runtime JSON key: connect_existing.direction_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.DIRECTION_REQUIRED"
+msgid "connect_existing requires direction=up/down/left/right."
+msgstr "connect_existing にはdirection=up/down/left/rightが必要。"
+
+#. Runtime JSON key: connect_existing.type_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.TYPE_REQUIRED"
+msgid "connect_existing requires an explicit type: liquid, gas, solid, wire or logic."
+msgstr "connect_existing にはtype=liquid/gas/solid/wire/logicの明示が必要。"
+
+#. Runtime JSON key: connect_existing.scope_invalid
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.SCOPE_INVALID"
+msgid "The edge must be inside the visible active world; no changes applied."
+msgstr "辺の両端はアクティブワールド内の可視セルである必要がある。変更なし。"
+
+#. Runtime JSON key: connect_existing.pause_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.PAUSE_REQUIRED"
+msgid "Pause the game before reconnecting existing utilities."
+msgstr "既存管・配線の再接続前にゲームを一時停止する。"
+
+#. Runtime JSON key: connect_existing.same_required
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.SAME_REQUIRED"
+msgid "connect_existing currently requires the same prefab, material and network manager at both endpoints; mixed endpoints are not replaced."
+msgstr "connect_existing は現在、両端が同じ設備定義・素材・ネットワーク管理系統の場合に対応。異なる端点を置換しない。"
+
+#. Runtime JSON key: connect_existing.target_changed
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.TARGET_CHANGED"
+msgid "An endpoint or active-world/pause state changed before release; native commit was not attempted."
+msgstr "確定前に端点またはアクティブワールド・停止状態が変化。本体の確定処理は未試行。"
+
+#. Runtime JSON key: connect_existing.not_verified
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.NOT_VERIFIED"
+msgid "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
+msgstr "本体UIの結果が指定の一辺追加と一致しないか、端点ID・他方向の接続が保持されなかった。"

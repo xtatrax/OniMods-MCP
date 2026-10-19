@@ -157,3 +157,87 @@ msgstr "請重新讀取地圖，再針對剩餘或狀態未知的單元提交新
 msgctxt "OniMcp.MCP.RESULT_PROGRESS.OPERATION_COUNT_CONTRACT"
 msgid "Edit blocks, executed commands, native counters and requested map cells use separate units. A successful edit block can contain partial results. Native counters do not establish how many game changes occurred; missing values remain unknown. For world_editor batch, the individual step must set boolean detail=true, and the child must provide progress metadata, to retain the complete raw child result. The parent detail setting and the string \"true\" do not enable this. The default text keeps its 900-character excerpt; request the full result explicitly to inspect successful IDs and remainingAction without that excerpt limit."
 msgstr "編輯區塊、已執行命令、原生計數和請求的地圖單元使用不同單位。成功回傳的編輯區塊也可能包含部分結果。原生計數無法證明發生了多少次遊戲變更；缺失值仍視為未知。 對於 world_editor batch，只有目標 step 自身設定 boolean 類型的 detail=true，且子結果提供進度中繼資料時，才保留完整的原始子結果。父層 detail 設定和字串「true」不會啟用此功能。預設 text 仍保留900字元的摘錄；若要不受該摘錄限制地檢查成功的 ID 和 remainingAction，請明確要求完整結果。"
+
+#. Runtime JSON key: connect_existing.planning_actions
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.PLANNING_ACTIONS"
+msgid "Actions: parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/connect_existing/build_area/room_template. connect_existing joins one existing edge without construction; use x/y, direction, type and dryRun/confirm."
+msgstr "操作：parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/connect_existing/build_area/room_template。connect_existing 不建造设备，仅连接已有的一条边；使用 x/y、direction、type 和 dryRun/confirm。"
+
+#. Runtime JSON key: connect_existing.ui_unavailable
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.UI_UNAVAILABLE"
+msgid "Native utility build UI is unavailable or its API changed; no connection fallback will run."
+msgstr "原生管线建造 UI 不可用或 API 已变更；不会执行备用连接修正。"
+
+#. Runtime JSON key: connect_existing.ui_dragging
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.UI_DRAGGING"
+msgid "A player drag is in progress; finish or cancel it before reconnecting."
+msgstr "玩家正在拖动；请完成或取消后再连接。"
+
+#. Runtime JSON key: connect_existing.native_path_rejected
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.NATIVE_PATH_REJECTED"
+msgid "Native UI did not accept the exact two-cell path; no release was attempted."
+msgstr "原生 UI 未接受指定的两个单元格路径；未尝试松开确认。"
+
+#. Runtime JSON key: connect_existing.target_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.TARGET_REQUIRED"
+msgid "Both endpoints must be completed linear utilities in the requested layer, with no replacement reservation."
+msgstr "两端必须是指定图层上已完成的直线管线，且无替换预约。"
+
+#. Runtime JSON key: connect_existing.confirm_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.CONFIRM_REQUIRED"
+msgid "connect_existing requires confirm=true unless dryRun=true."
+msgstr "connect_existing 执行需要 confirm=true，dryRun=true 除外。"
+
+#. Runtime JSON key: connect_existing.single_edge_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.SINGLE_EDGE_REQUIRED"
+msgid "connect_existing accepts only x/y and direction for one edge; area, path, id, prefab, material and steps options are not supported."
+msgstr "connect_existing 仅通过 x/y 和 direction 指定一条边；不支持区域、路径、id、prefab、材料或 steps 参数。"
+
+#. Runtime JSON key: connect_existing.direction_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.DIRECTION_REQUIRED"
+msgid "connect_existing requires direction=up/down/left/right."
+msgstr "connect_existing 需要 direction=up/down/left/right。"
+
+#. Runtime JSON key: connect_existing.type_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.TYPE_REQUIRED"
+msgid "connect_existing requires an explicit type: liquid, gas, solid, wire or logic."
+msgstr "connect_existing 必须明确指定 type：liquid、gas、solid、wire 或 logic。"
+
+#. Runtime JSON key: connect_existing.scope_invalid
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.SCOPE_INVALID"
+msgid "The edge must be inside the visible active world; no changes applied."
+msgstr "边的两端必须位于当前世界的可见范围内；未更改。"
+
+#. Runtime JSON key: connect_existing.pause_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.PAUSE_REQUIRED"
+msgid "Pause the game before reconnecting existing utilities."
+msgstr "重新连接已有管线前请暂停游戏。"
+
+#. Runtime JSON key: connect_existing.same_required
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.SAME_REQUIRED"
+msgid "connect_existing currently requires the same prefab, material and network manager at both endpoints; mixed endpoints are not replaced."
+msgstr "connect_existing 目前要求两端设备定义、材料及网络管理器相同；不会替换不同的端点。"
+
+#. Runtime JSON key: connect_existing.target_changed
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.TARGET_CHANGED"
+msgid "An endpoint or active-world/pause state changed before release; native commit was not attempted."
+msgstr "确认前端点或当前世界/暂停状态已变化；未尝试原生提交。"
+
+#. Runtime JSON key: connect_existing.not_verified
+#. Runtime target remains zh-Hans; provisional PO filename does not change the locale.
+msgctxt "OniMcp.MCP.CONNECT_EXISTING.NOT_VERIFIED"
+msgid "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
+msgstr "原生 UI 结果未达到指定的一条边连接，或端点身份及其他方向连接未保持。"

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -22,9 +23,9 @@ namespace OniMcp.Tools
                 ["action"] = new McpToolParameter
                 {
                     Type = "string",
-                    Description = "操作: parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/build_area/room_template",
+                    Description = McpLocalization.Get("connect_existing.planning_actions"),
                     Required = true,
-                    EnumValues = new List<string> { "parse_plan", "search_defs", "materials", "preview", "placement_candidates", "auto_connect", "repair_line", "connect_line", "build_area", "room_template" }
+                    EnumValues = new List<string> { "parse_plan", "search_defs", "materials", "preview", "placement_candidates", "auto_connect", "repair_line", "connect_line", "connect_existing", "build_area", "room_template" }
                 }
             };
 
@@ -102,6 +103,8 @@ namespace OniMcp.Tools
                         case "candidates":
                         case "anchors":
                             return FindPlacementCandidates().Handler(forwardArgs);
+                    case "connect_existing":
+                        return ConnectExistingUtility(forwardArgs);
                     case "auto_connect":
                     case "utility_auto_connect":
                     case "connect":

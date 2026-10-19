@@ -8,5 +8,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/OrdersUtilityDisconnect.cs" Link="Source/OrdersUtilityDisconnect.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeUtilityDisconnect.cs" Link="Source/NativeUtilityDisconnect.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/NativeUtilityConnect.cs" Link="Source/NativeUtilityConnect.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningConnectExisting.cs" Link="Source/BuildPlanningConnectExisting.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/connect_existing.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
 </Project>

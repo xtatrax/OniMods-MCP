@@ -1,0 +1,16 @@
+{
+  "connect_existing.planning_actions": "操作：parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/connect_existing/build_area/room_template。connect_existing 不建造设备，仅连接已有的一条边；使用 x/y、direction、type 和 dryRun/confirm。",
+  "connect_existing.ui_unavailable": "原生管线建造 UI 不可用或 API 已变更；不会执行备用连接修正。",
+  "connect_existing.ui_dragging": "玩家正在拖动；请完成或取消后再连接。",
+  "connect_existing.native_path_rejected": "原生 UI 未接受指定的两个单元格路径；未尝试松开确认。",
+  "connect_existing.target_required": "两端必须是指定图层上已完成的直线管线，且无替换预约。",
+  "connect_existing.confirm_required": "connect_existing 执行需要 confirm=true，dryRun=true 除外。",
+  "connect_existing.single_edge_required": "connect_existing 仅通过 x/y 和 direction 指定一条边；不支持区域、路径、id、prefab、材料或 steps 参数。",
+  "connect_existing.direction_required": "connect_existing 需要 direction=up/down/left/right。",
+  "connect_existing.type_required": "connect_existing 必须明确指定 type：liquid、gas、solid、wire 或 logic。",
+  "connect_existing.scope_invalid": "边的两端必须位于当前世界的可见范围内；未更改。",
+  "connect_existing.pause_required": "重新连接已有管线前请暂停游戏。",
+  "connect_existing.same_required": "connect_existing 目前要求两端设备定义、材料及网络管理器相同；不会替换不同的端点。",
+  "connect_existing.target_changed": "确认前端点或当前世界/暂停状态已变化；未尝试原生提交。",
+  "connect_existing.not_verified": "原生 UI 结果未达到指定的一条边连接，或端点身份及其他方向连接未保持。"
+}

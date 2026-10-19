@@ -178,6 +178,7 @@ namespace OniMcp.Tools
                 case "placement_candidates":
                 case "candidates":
                 case "anchors":
+                case "connect_existing":
                 case "auto_connect":
                 case "utility_auto_connect":
                 case "connect":

@@ -1,0 +1,16 @@
+{
+  "connect_existing.planning_actions": "Actions: parse_plan/search_defs/materials/preview/placement_candidates/auto_connect/repair_line/connect_existing/build_area/room_template. connect_existing joins one existing edge without construction; use x/y, direction, type and dryRun/confirm.",
+  "connect_existing.ui_unavailable": "Native utility build UI is unavailable or its API changed; no connection fallback will run.",
+  "connect_existing.ui_dragging": "A player drag is in progress; finish or cancel it before reconnecting.",
+  "connect_existing.native_path_rejected": "Native UI did not accept the exact two-cell path; no release was attempted.",
+  "connect_existing.target_required": "Both endpoints must be completed linear utilities in the requested layer, with no replacement reservation.",
+  "connect_existing.confirm_required": "connect_existing requires confirm=true unless dryRun=true.",
+  "connect_existing.single_edge_required": "connect_existing accepts only x/y and direction for one edge; area, path, id, prefab, material and steps options are not supported.",
+  "connect_existing.direction_required": "connect_existing requires direction=up/down/left/right.",
+  "connect_existing.type_required": "connect_existing requires an explicit type: liquid, gas, solid, wire or logic.",
+  "connect_existing.scope_invalid": "The edge must be inside the visible active world; no changes applied.",
+  "connect_existing.pause_required": "Pause the game before reconnecting existing utilities.",
+  "connect_existing.same_required": "connect_existing currently requires the same prefab, material and network manager at both endpoints; mixed endpoints are not replaced.",
+  "connect_existing.target_changed": "An endpoint or active-world/pause state changed before release; native commit was not attempted.",
+  "connect_existing.not_verified": "Native UI did not produce the exact requested edge while preserving endpoint identities and other connection bits."
+}

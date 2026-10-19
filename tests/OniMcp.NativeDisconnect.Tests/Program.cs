@@ -120,6 +120,7 @@ internal static class Program
             && otherManager.Bits[other.Cell] == UtilityConnections.Right, "Layer selection must constrain native target scope");
 
         Console.WriteLine($"Native disconnect production-boundary tests passed: {checks} checks");
+        NativeConnectRegression.Run();
     }
 }
 
@@ -188,6 +189,7 @@ namespace OniMcp.Tools
     public static class ToolUtil
     {
         public static bool GetBool(JObject args, string key, bool fallback) => (bool?)args[key] ?? fallback;
+        public static int? GetInt(JObject args, string key) => (int?)args[key];
         public static int ResolveWorldId(JObject args) => (int?)args["worldId"] ?? 0;
         public static bool CellMatchesWorld(int cell, int world) => cell >= 0 && cell < 64 && Grid.Worlds[cell] == world;
         public static Dictionary<string, int> GetRect(JObject args)
@@ -223,9 +225,10 @@ namespace UnityEngine
     }
 }
 [Flags] public enum UtilityConnections { Left = 1, Right = 2, Up = 4, Down = 8 }
-public enum ObjectLayer { Wire, GasConduit }
-public sealed class BuildingDef { public GameObject BuildingComplete; }
-public sealed class Building : Component { public BuildingDef Def; }
+public enum ObjectLayer { Wire, GasConduit, LiquidConduit, SolidConduit, LogicWire, WireTile, GasConduitTile, LiquidConduitTile, SolidConduitTile, LogicWireTile, ReplacementWire, ReplacementGasConduit, ReplacementLiquidConduit, ReplacementSolidConduit, ReplacementLogicWire, NumLayers }
+public sealed class BuildingDef { public GameObject BuildingComplete; public ObjectLayer TileLayer, ObjectLayer; public ObjectLayer ReplacementLayer = ObjectLayer.NumLayers; public string PrefabID; public int SceneLayer; }
+public class Building : Component { public BuildingDef Def; }
+public sealed class BuildingComplete : Building { }
 public sealed class KPrefabID : Component { public int InstanceID; }
 public interface IHaveUtilityNetworkMgr { IUtilityNetworkMgr GetNetworkManager(); }
 public sealed class UtilityItem : IHaveUtilityNetworkMgr
@@ -255,6 +258,8 @@ public static class Grid
     public static bool IsVisible(int cell) => Visible[cell];
     public static int XYToCell(int x, int y) => y * 8 + x;
     public static int PosToCell(KAnimGraphTileVisualizer graph) => graph.Cell;
+    public static int PosToCell(GameObject target) => target.GetComponent<KAnimGraphTileVisualizer>().Cell;
+    public static Vector3 CellToPosCBC(int cell, int layer) => new Vector3 { Cell = cell };
 }
 
 // ONI also defines a global Action enum; production delegates must be qualified.
