@@ -52,3 +52,5 @@ Technical topics retained from the development backlog. Some are partially imple
 - [ ] **優先: 仮想地図の経路セルを実行時に勝手に補間しない。** 複数行のWire指定10セルが実行時12セル、LiquidConduit指定26セルが経路57セル・新規42セルへ展開された。予行changedCellsは指定数のみで、実行pathMode=continuous_manhattan_pathにより指定外にも現物が建設された。nativePathPlacement=falseでも発生。指定外には元は固体だったセルも含まれ、停止再読取で気体化を確認した。地図の行順アンカーを連続経路と見なす処理を検査し、プレビューと実行のセル集合・自動採掘を一致させ、差分外は拒否する。暫定運用は単一直線ごとの施工と直後の全施工セル照合。既存完成物への被害・流体漏出は別途確認する。 一セル差分でも、親viewportのboundsが残って自動接続経路へ使われる分岐を検査する。構文予行の `changedCells` と実行時の経路セル集合を照合し、`placementValidated=false`・`ancillaryPathsEvaluated=false` を配置検証済みと扱わない。自然地形ガードによる施工前拒否と、過去の対象外採掘は区別する。
 
 - [ ] **仮想opsの配列引数を、子ツールが受け取る型へ正しく変換する。** `kinds=["items"]` が括弧付き文字列一要素になる経路を、単一値・複数値・空配列・無効値で検査する。検索結果全文の保持と入力型の解決は別に確認し、読取での成功を `critterTags` 等の書込受入へ広げない。
+
+- [ ] **設備に複数あるStorageの読取範囲を区別する。** `storage/detail` と所有設備IDで集計したpickupablesを比較し、単一Storageの内容を設備内の全収納と誤読させない。`storage.id` だけではStorageコンポーネントを区別できない点を明示する。読取範囲の改善を `set_filter` の書込対象拡張に流用しない。
