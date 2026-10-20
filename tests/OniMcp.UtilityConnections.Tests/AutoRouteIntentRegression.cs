@@ -107,7 +107,7 @@ namespace OniMcp.Tools
             => TryBuildAutoConnectArgs(args, prefabId, out converted);
     }
 
-    internal static class ToolUtil
+    internal static partial class ToolUtil
     {
         internal static int? GetInt(JObject args, string key)
             => int.TryParse(args?[key]?.ToString(), out int value) ? value : (int?)null;

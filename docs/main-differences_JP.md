@@ -467,3 +467,12 @@ survival_watchの終了停止を公開game_controlのpause/timeで独立確認�
 公開の実source連結238条件・既存774条件、PO4/runtime3の翻訳12キー、警告0・エラー0の本体参照build.11が成功。公開IDでメニュー43・通常ロード4・通知/二接続/停止112条件を確認し、旧プロセスepoch拒否と、復帰ロードでのGame.Instance参照世代の区別も確認した。元環境25ファイル・原本・未保存分岐・保存先選択と開始時未起動を独立照合し、新規Exception行は0だった。
 
 元の全命令の実行、全UI/他MOD/直接書換え、HTTP受付からのrequest/遅延因果や過去原因の確定は範囲外。ToggleRidiculousSpeedの呼出やnative例外/observer障害はホストの範囲で、深い遅延・通信断の因果追跡は未受入。開発専用のTODO・規則文書・履歴・個別保存先/設定/生応答は取り込まず、実装・翻訳・合成試験と一般説明だけを選択した。[契約と受入範囲](native-speed-trace_JP.md)を参照。
+
+
+## 選択修正: 自動配線の子結果集約
+
+建設のpowerAutoConnectが早期拒否や予行をconnected_or_plannedへ補う不具合を修正した。先頭ContentとIsError、型付きの件数・boolを読み、拒否・予行・部分予約・未知を分ける。欠測はnull、予行の予約/新規採掘主張はunknownとして原本を保持する。経路・source選択・素材・地形許可・設備本体validは変えない。
+
+公開sourceの集約器/親adapter連結562条件、既存auto-route378・utility56条件と警告0・エラー0のbuild.12が成功。公開IDで通常Wireのpreview_valid、異種Wire競合のpreview_rejected、左右OFFの4条件を確認した。観測範囲35セル・既存電線2個の実ID/素材・停止時刻・取得可能なUI状態は不変。元の導入物/設定25ファイル・原本・未保存分岐・保存先選択・開始時未起動を独立照合し、新規Exception行0。
+
+これはMCP配置予行で、native予約・実施工・接続/通電や全予行/全UIの非変更を証明するものではない。公開にもある不具合の実装・合成試験・一般説明だけを選択し、開発履歴・個別保存先/設定/実ID/生応答は含めない。[契約と受入範囲](auto-power-result-summary_JP.md)。

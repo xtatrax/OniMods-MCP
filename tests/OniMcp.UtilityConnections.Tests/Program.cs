@@ -31,21 +31,22 @@ public static class Program
    writes=mgr.Writes;Check(!BuildPlanningTools.Connect(def,new[]{(2,2),(4,3)}));Check(mgr.Writes==writes);
   }
   AutoRouteIntentRegression.Run();
+  AutoPowerResultRegression.Run();
   Console.WriteLine("Utility production-source regression passed: " + checks + " checks (native manager substituted)");
  }
 }
 namespace OniMcp.Tools { public static partial class BuildPlanningTools {
- private struct CellCoord {public int x,y;}
+ private struct CellCoord {public int x,y; public CellCoord(int a,int b){x=a;y=b;}}
  private static bool EqualsIgnoreCase(string a,string b)=>string.Equals(a,b,StringComparison.OrdinalIgnoreCase);
  public static bool Connect(BuildingDef d,(int x,int y)[] p)=>RefreshAndValidateUtilityPathNetwork(d,p.Select(v=>new CellCoord{x=v.x,y=v.y}).ToList(),out _);
 } }
 namespace UnityEngine {public class GameObject {readonly List<object> cs=new();public void Add(object o)=>cs.Add(o);public T GetComponent<T>() where T:class=>cs.OfType<T>().FirstOrDefault();}}
 [Flags] public enum UtilityConnections { Left=1,Right=2,Up=4,Down=8 }
 public class Wire{} public class LogicWire{} public class Conduit{} public class SolidConduit{}
-public class BuildingDef {public string PrefabID;public GameObject BuildingComplete;public int TileLayer=0,ObjectLayer=0;}
+public class BuildingDef {public bool RequiresPowerInput;public CellOffset PowerInputOffset;public string PrefabID;public GameObject BuildingComplete;public int TileLayer=0,ObjectLayer=0;}
 public class Building {public BuildingDef Def;} public class BuildingComplete {public BuildingDef Def;}
 public static class Assets {public static BuildingDef Def;public static BuildingDef GetBuildingDef(string id)=>Def;}
-public static class Grid {public const int InvalidCell=-1;public static GameObject[,] Objects=new GameObject[100,2];public static int XYToCell(int x,int y)=>y*10+x;public static int CellColumn(int c)=>c%10;public static int CellRow(int c)=>c/10;public static bool IsValidCell(int c)=>c>=0&&c<100;}
+public static class Grid {public const int InvalidCell=-1;public static GameObject[,] Objects=new GameObject[100,2];public static int XYToCell(int x,int y)=>y*10+x;public static int OffsetCell(int c,CellOffset offset)=>XYToCell(CellColumn(c)+offset.x,CellRow(c)+offset.y);public static int CellColumn(int c)=>c%10;public static int CellRow(int c)=>c/10;public static bool IsValidCell(int c)=>c>=0&&c<100;}
 public interface IUtilityNetworkMgr {UtilityConnections GetConnections(int c,bool is_physical_building);bool CanAddConnection(UtilityConnections bit,int c,bool physical,out string error);void ForceRebuildNetworks();}
 public class Manager:IUtilityNetworkMgr {public bool Reject;public int Writes;public Dictionary<int,UtilityConnections> Bits=new();public UtilityConnections GetConnections(int c,bool is_physical_building)=>Bits.GetValueOrDefault(c);public bool CanAddConnection(UtilityConnections bit,int c,bool physical,out string error){error=Reject?"rejected":null;return !Reject;}public void ForceRebuildNetworks(){} }
 public class KAnimGraphTileVisualizer {public int Cell;public bool isPhysicalBuilding;public IUtilityNetworkMgr ConnectionManager,connectionManager;public UtilityConnections Connections;public void UpdateConnections(UtilityConnections bits){Connections=bits;((Manager)connectionManager).Bits[Cell]=bits;((Manager)connectionManager).Writes++;}public void Refresh(){} }

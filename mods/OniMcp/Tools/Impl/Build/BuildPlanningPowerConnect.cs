@@ -119,45 +119,15 @@ namespace OniMcp.Tools
             };
 
             var connectResult = AutoConnectUtility().Handler(wireArgs);
-            var connectPayload = ParseToolJsonPayload(connectResult);
-            if (connectPayload == null)
-            {
-                return new Dictionary<string, object>
-                {
-                    ["enabled"] = true,
-                    ["status"] = "connect_result_unparseable",
-                    ["dryRun"] = IsDryRun(args),
-                    ["input"] = CellCoordDictionary(inputCell),
-                    ["source"] = CellCoordDictionary(sourceCell),
-                    ["pathCells"] = path.Count,
-                    ["planned"] = 0,
-                    ["failed"] = 1,
-                    ["path"] = path.Select(p => new { x = p.x, y = p.y }).ToList(),
-                    ["error"] = connectResult.Content.FirstOrDefault()?.Text
-                };
-            }
-
-            return new Dictionary<string, object>
-            {
-                ["enabled"] = true,
-                ["status"] = connectPayload.ContainsKey("failed") && Convert.ToInt32(connectPayload["failed"]) > 0
-                    ? "partially_connected"
-                    : "connected_or_planned",
-                ["dryRun"] = IsDryRun(args),
-                ["input"] = CellCoordDictionary(inputCell),
-                ["source"] = CellCoordDictionary(sourceCell),
-                ["terrainImpact"] = terrainConflict,
-                ["pathMode"] = "continuous_manhattan_path",
-                ["pathCells"] = path.Count,
-                ["planned"] = GetInt(connectPayload, "planned"),
-                ["reused"] = GetInt(connectPayload, "reusedExisting"),
-                ["failed"] = GetInt(connectPayload, "failed"),
-                ["autoDigQueued"] = GetInt(connectPayload, "digNewlyQueued"),
-                ["autoDigAlreadyQueued"] = GetInt(connectPayload, "digAlreadyQueued"),
-                ["path"] = path.Select(p => new { x = p.x, y = p.y }).ToList(),
-                ["segments"] = BuildPathSegments(path),
-                ["connectResult"] = connectPayload
-            };
+            var result = AutoConnectPowerResultProjection.Project(connectResult, IsDryRun(args));
+            result["input"] = CellCoordDictionary(inputCell);
+            result["source"] = CellCoordDictionary(sourceCell);
+            result["terrainImpact"] = terrainConflict;
+            result["pathMode"] = "continuous_manhattan_path";
+            result["pathCells"] = path.Count;
+            result["path"] = path.Select(p => new { x = p.x, y = p.y }).ToList();
+            result["segments"] = BuildPathSegments(path);
+            return result;
         }
 
         private static int PowerInputCell(BuildingDef def, int anchorX, int anchorY, Orientation orientation)
