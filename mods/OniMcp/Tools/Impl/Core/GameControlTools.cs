@@ -27,6 +27,8 @@ namespace OniMcp.Tools
                     ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.action"), Required = true },
                     ["kind"] = new McpToolParameter { Type = "string", Description = "domain=sandbox のサブドメイン: read、area、entity、map_designate。既定は read。domain=ui uiDomain=action action=list では種類の絞り込みに使用", Required = false, EnumValues = new List<string> { "read", "area", "entity", "map_designate", "all", "management", "overlay", "build", "navigation" } },
                     ["uiDomain"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.uiDomain"), Required = false, EnumValues = new List<string> { "action", "feedback", "dialog" } },
+                    ["afterSequence"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("tools.game_control.parameters.afterSequence"), Required = false },
+                    ["traceEpoch"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.traceEpoch"), Required = false },
                     ["speed"] = new McpToolParameter { Type = "integer", Description = "domain=speed action=set_speed の速度段階: 0=一時停止, 1=通常, 2=高速, 3=超高速", Required = false },
                     ["enabled"] = new McpToolParameter { Type = "boolean", Description = "domain=state の書き込み操作: true=有効、false=無効", Required = false },
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "domain=state のワールド ID。既定は現在アクティブなワールド", Required = false },

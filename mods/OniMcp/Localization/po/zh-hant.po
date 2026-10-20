@@ -267,10 +267,10 @@ msgid "Unified game entrypoint for speed, pause/resume, game state, saves, DLC a
 msgstr "統一的遊戲入口，用於速度、暫停/恢復、遊戲狀態、存檔、DLC啟用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 讀取或確認目前的MOD不匹配對話框。使用語意操作和具名目標；此入口不接受座標輸入。"
 
 #. Runtime JSON key: tools.game_control.parameters.action
-#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。UI feedback 支持 notification、popup、speech_bubble、marker；uiDomain=dialog 支持当前MOD不匹配对话框的 status、acknowledge。"
+#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。domain=speed支持time、pause、resume、set_speed和只读trace。UI feedback支持notification、popup、speech_bubble、marker；uiDomain=dialog支持当前MOD不匹配对话框的status、acknowledge。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.ACTION"
-msgid "Game action for the selected subsystem. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog."
-msgstr "所選子系統的遊戲操作。UI feedback 支援 notification、popup、speech_bubble、marker；uiDomain=dialog 支援目前MOD不匹配對話框的 status、acknowledge。"
+msgid "Game action for the selected subsystem. domain=speed supports time, pause, resume, set_speed and read-only trace. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog."
+msgstr "所選子系統的遊戲操作。domain=speed支援time、pause、resume、set_speed和唯讀trace。UI feedback支援notification、popup、speech_bubble、marker；uiDomain=dialog支援目前MOD不符對話框的status、acknowledge。"
 
 #. Runtime JSON key: tools.game_control.parameters.uiDomain
 #. Runtime zh-Hans msgstr: "UI子系统：action、feedback或dialog。"
@@ -415,3 +415,79 @@ msgstr "寫入、危險操作或批次操作所需的確認。"
 msgctxt "OniMcp.MCP.UI_DIALOG.INVALID_BOOLEAN"
 msgid "Parameter `{0}` must be a JSON boolean."
 msgstr "參數 `{0}` 必須是 JSON 布林值。"
+
+
+#. Runtime JSON key: speed_trace.description
+#. Runtime zh-Hans msgstr: "读取游戏时间或控制暂停、恢复和速度。action=trace 限量读取本体速度调用历史，不改变游戏状态。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.DESCRIPTION"
+msgid "Read game time or control pause, resume and speed. action=trace reads bounded native speed-call history without changing game state."
+msgstr "讀取遊戲時間或控制暫停、恢復和速度。action=trace 限量讀取本體速度呼叫歷史，不改變遊戲狀態。"
+
+
+#. Runtime JSON key: speed_trace.action.description
+#. Runtime zh-Hans msgstr: "操作：time、pause、resume、set_speed或只读trace。trace显示观测到的本体调用；unattributed不代表已确定是用户或其他MOD操作。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ACTION.DESCRIPTION"
+msgid "Operation: time, pause, resume, set_speed or read-only trace. Trace shows observed native calls; unattributed does not establish a human or another mod as the actor."
+msgstr "操作：time、pause、resume、set_speed或唯讀trace。trace顯示觀測到的本體呼叫；unattributed不代表已確定是使用者或其他MOD操作。"
+
+
+#. Runtime JSON key: speed_trace.limit.description
+#. Runtime zh-Hans msgstr: "trace最大返回条数，1..32，默认8。没有游标时返回最新记录。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.LIMIT.DESCRIPTION"
+msgid "Maximum trace records, 1..32; default 8. Without a cursor, return the latest records."
+msgstr "trace最大回傳筆數，1..32，預設8。沒有游標時回傳最新紀錄。"
+
+
+#. Runtime JSON key: tools.game_control.parameters.afterSequence
+#. Runtime zh-Hans msgstr: "action=trace时，返回此非负整数sequence之后的记录。必须提供先前trace响应中的traceEpoch。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.AFTERSEQUENCE"
+msgid "For action=trace, return records after this nonnegative integer sequence. Requires the traceEpoch from a prior trace response."
+msgstr "action=trace時，回傳此非負整數sequence之後的紀錄。必須提供先前trace回應中的traceEpoch。"
+
+
+#. Runtime JSON key: tools.game_control.parameters.traceEpoch
+#. Runtime zh-Hans msgstr: "action=trace返回的观测进程不透明标识。与afterSequence一起使用；不同进程的标识会被拒绝。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.TRACEEPOCH"
+msgid "Opaque trace-process epoch returned by action=trace. Required with afterSequence; a different process epoch is rejected."
+msgstr "action=trace回傳的觀測程序不透明識別。與afterSequence一起使用；不同程序的識別會被拒絕。"
+
+
+#. Runtime JSON key: speed_trace.error.invalid_limit
+#. Runtime zh-Hans msgstr: "trace的limit必须是1到32的整数。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.INVALID_LIMIT"
+msgid "Trace limit must be an integer from 1 to 32."
+msgstr "trace的limit必須是1到32的整數。"
+
+
+#. Runtime JSON key: speed_trace.error.invalid_after_sequence
+#. Runtime zh-Hans msgstr: "trace的afterSequence必须是非负整数。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.INVALID_AFTER_SEQUENCE"
+msgid "Trace afterSequence must be a nonnegative integer."
+msgstr "trace的afterSequence必須是非負整數。"
+
+
+#. Runtime JSON key: speed_trace.error.epoch_required
+#. Runtime zh-Hans msgstr: "trace的afterSequence需要先前响应中的traceEpoch。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.EPOCH_REQUIRED"
+msgid "Trace afterSequence requires traceEpoch from a prior response."
+msgstr "trace的afterSequence需要先前回應中的traceEpoch。"
+
+
+#. Runtime JSON key: speed_trace.error.epoch_mismatch
+#. Runtime zh-Hans msgstr: "traceEpoch与当前进程不匹配。请先读取当前trace再继续。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.EPOCH_MISMATCH"
+msgid "Trace epoch does not match this process. Read the current trace before continuing."
+msgstr "traceEpoch與目前程序不符。請先讀取目前trace再繼續。"
+
+
+#. Runtime JSON key: speed_trace.error.cursor_future
+#. Runtime zh-Hans msgstr: "trace游标超出了已记录的历史。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.CURSOR_FUTURE"
+msgid "Trace cursor is newer than the recorded history."
+msgstr "trace游標超出了已記錄的歷史。"
+
+#. Runtime JSON key: speed_trace.error.invalid_action
+#. Runtime zh-Hans msgstr: "速度操作必须是time、pause、resume、set_speed或trace。"
+msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.INVALID_ACTION"
+msgid "Speed action must be time, pause, resume, set_speed or trace."
+msgstr "速度操作必須是time、pause、resume、set_speed或trace。"

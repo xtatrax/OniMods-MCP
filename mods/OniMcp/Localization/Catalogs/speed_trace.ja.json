@@ -1,0 +1,11 @@
+{
+  "speed_trace.description": "ゲーム時刻の取得と一時停止・再開・速度操作。action=trace はゲーム状態を変えず、本体の速度呼出履歴を件数制限付きで読む。",
+  "speed_trace.action.description": "操作: time、pause、resume、set_speed、読取専用trace。traceは観測できた本体呼出を示し、unattributedから人間や他MODの操作と断定しない。",
+  "speed_trace.limit.description": "traceの最大返却件数。1..32、既定8。カーソルなしでは最新側を返す。",
+  "speed_trace.error.invalid_limit": "traceのlimitは1から32の整数で指定する。",
+  "speed_trace.error.invalid_after_sequence": "traceのafterSequenceは非負の整数で指定する。",
+  "speed_trace.error.epoch_required": "traceのafterSequenceには過去の応答のtraceEpochが必要。",
+  "speed_trace.error.epoch_mismatch": "traceEpochが現在のプロセスと一致しない。現在のtraceを取得してから続ける。",
+  "speed_trace.error.cursor_future": "traceのカーソルが記録済み履歴より新しい。",
+  "speed_trace.error.invalid_action": "速度操作はtime、pause、resume、set_speed、traceのいずれかで指定する。"
+}

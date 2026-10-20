@@ -84,10 +84,13 @@ namespace OniMcp.Tools
                 Risk = "low",
                 Aliases = new List<string> { "game_control_speed", "game_pause_resume_speed" },
                 Tags = new List<string> { "game", "speed", "pause", "resume", "time" },
-                Description = "ゲーム時刻の読み取りと一時停止/再開/速度の制御を統合。action=time、pause、resume、set_speed。set_speed では speed=0..3 を渡す。",
+                Description = McpLocalization.Get("speed_trace.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["action"] = new McpToolParameter { Type = "string", Description = "操作: time、pause、resume、set_speed", Required = true, EnumValues = new List<string> { "time", "pause", "resume", "set_speed" } },
+                    ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("speed_trace.action.description"), Required = true, EnumValues = new List<string> { "time", "pause", "resume", "set_speed", "trace" } },
+                    ["limit"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("speed_trace.limit.description"), Required = false },
+                    ["afterSequence"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("tools.game_control.parameters.afterSequence"), Required = false },
+                    ["traceEpoch"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.traceEpoch"), Required = false },
                     ["speed"] = new McpToolParameter
                     {
                         Type = "integer",
@@ -101,6 +104,8 @@ namespace OniMcp.Tools
                     string action = (args["action"]?.ToString() ?? "").Trim().ToLowerInvariant();
                     switch (action)
                     {
+                        case "trace":
+                            return SpeedTransitionTrace.Read(args);
                         case "time":
                         case "get_time":
                             return GetGameTime().Handler(args);
@@ -112,7 +117,7 @@ namespace OniMcp.Tools
                         case "speed":
                             return SetSpeed(args);
                         default:
-                            return CallToolResult.Error("action must be time, pause, resume, or set_speed");
+                            return CallToolResult.Error(McpLocalization.Get("speed_trace.error.invalid_action"));
                     }
                 }
             };

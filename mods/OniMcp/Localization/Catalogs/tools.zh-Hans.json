@@ -50,7 +50,7 @@
   "tools.building_control.parameters.steps": "planning repair_line 沿 direction 连接的单元格数，默认 1。",
   "tools.game_control.description": "统一的游戏入口，用于速度、暂停/恢复、游戏状态、存档、DLC启用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 读取或确认当前的MOD不匹配对话框。使用语义操作和具名目标；此入口不接受坐标输入。",
   "tools.game_control.parameters.domain": "游戏子系统：launch、speed、state、save、dlc、sandbox 或 ui。",
-  "tools.game_control.parameters.action": "所选子系统的游戏操作。UI feedback 支持 notification、popup、speech_bubble、marker；uiDomain=dialog 支持当前MOD不匹配对话框的 status、acknowledge。",
+  "tools.game_control.parameters.action": "所选子系统的游戏操作。domain=speed支持time、pause、resume、set_speed和只读trace。UI feedback支持notification、popup、speech_bubble、marker；uiDomain=dialog支持当前MOD不匹配对话框的status、acknowledge。",
   "tools.game_control.parameters.kind": "sandbox 或 UI 子类型。",
   "tools.game_control.parameters.uiDomain": "UI子系统：action、feedback或dialog。",
   "tools.game_control.parameters.speed": "游戏速度等级。",
@@ -276,5 +276,7 @@
   "tools.building_control.parameters.compact": "建筑几何读取格式：true（默认）返回范围与端口简版；false包含全部占用格、定义偏移及读取依据。",
   "tools.building_control.parameters.capability": "config list按能力筛选，包括threshold、direction、activation_range。实际设置读取路线参见configurationReads。",
   "tools.world_editor.parameters.allowUtilityTerrainDig": "明确允许铺设管线及自动电力连接时挖掘天然地形。默认false；仅confirm不会授权。支撑关系尚未评估。",
-  "tools.world_editor.parameters.autoConnectPower": "自动为耗电建筑布线，默认true。穿过天然地形需allowUtilityTerrainDig=true。设为false时只建造建筑本体。"
+  "tools.world_editor.parameters.autoConnectPower": "自动为耗电建筑布线，默认true。穿过天然地形需allowUtilityTerrainDig=true。设为false时只建造建筑本体。",
+  "tools.game_control.parameters.afterSequence": "action=trace时，返回此非负整数sequence之后的记录。必须提供先前trace响应中的traceEpoch。",
+  "tools.game_control.parameters.traceEpoch": "action=trace返回的观测进程不透明标识。与afterSequence一起使用；不同进程的标识会被拒绝。"
 }

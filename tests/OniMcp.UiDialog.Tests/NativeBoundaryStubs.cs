@@ -161,12 +161,19 @@ internal sealed class ConfirmDialogScreen : KScreen
     public void FixtureSetAction(System.Action action) { confirmAction = action; }
     public bool FixtureHasOtherActions() { return cancelAction != null || configurableAction != null; }
 }
-internal sealed class SpeedControlScreen
+internal sealed class SpeedControlScreen : UnityEngine.Object
 {
     public static SpeedControlScreen Instance;
     public int PauseCount = 1;
     public int PauseCalls;
     public int UnpauseCalls;
+    public int SetSpeedCalls, RidiculousCalls, ChangedCalls, SpeedReads;
+    public int InternalSpeed;
+    public bool ThrowOnSpeedRead;
+    public int GetSpeed() { SpeedReads++; if (ThrowOnSpeedRead) throw new InvalidOperationException("fixture native speed read failed"); return InternalSpeed; }
+    public void SetSpeed(int value) { SetSpeedCalls++; InternalSpeed = value; }
+    public void ToggleRidiculousSpeed() { RidiculousCalls++; }
+    private void OnChanged() { ChangedCalls++; }
     public bool ThrowOnPause;
     public bool ThrowOnPauseRead;
     public bool IsPaused { get { if (ThrowOnPauseRead) throw new InvalidOperationException("native pause read failed"); return PauseCount > 0; } }
@@ -241,6 +248,7 @@ namespace OniMcp.Tools
     public sealed class McpTool
     {
         public string Name, Group, Mode, Risk, Description;
+        public bool Hidden;
         public List<string> Aliases, Tags;
         public Dictionary<string, McpToolParameter> Parameters;
         public Func<JObject, CallToolResult> Handler;
@@ -267,7 +275,7 @@ namespace OniMcp.Tools
     }
     public static partial class GameControlTools
     {
-        public static McpTool ControlGameSpeed() { return UnrelatedDispatchBoundary.Tool(); }
+        private static void UnpauseAll(SpeedControlScreen screen) { throw new InvalidOperationException("Unrelated speed dispatch boundary"); }
         public static McpTool ControlGameState() { return UnrelatedDispatchBoundary.Tool(); }
         public static McpTool ControlGameSave() { return UnrelatedDispatchBoundary.Tool(); }
         public static McpTool ControlDlcActivation() { return UnrelatedDispatchBoundary.Tool(); }

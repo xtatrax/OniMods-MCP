@@ -1,0 +1,11 @@
+{
+  "speed_trace.description": "读取游戏时间或控制暂停、恢复和速度。action=trace 限量读取本体速度调用历史，不改变游戏状态。",
+  "speed_trace.action.description": "操作：time、pause、resume、set_speed或只读trace。trace显示观测到的本体调用；unattributed不代表已确定是用户或其他MOD操作。",
+  "speed_trace.limit.description": "trace最大返回条数，1..32，默认8。没有游标时返回最新记录。",
+  "speed_trace.error.invalid_limit": "trace的limit必须是1到32的整数。",
+  "speed_trace.error.invalid_after_sequence": "trace的afterSequence必须是非负整数。",
+  "speed_trace.error.epoch_required": "trace的afterSequence需要先前响应中的traceEpoch。",
+  "speed_trace.error.epoch_mismatch": "traceEpoch与当前进程不匹配。请先读取当前trace再继续。",
+  "speed_trace.error.cursor_future": "trace游标超出了已记录的历史。",
+  "speed_trace.error.invalid_action": "速度操作必须是time、pause、resume、set_speed或trace。"
+}

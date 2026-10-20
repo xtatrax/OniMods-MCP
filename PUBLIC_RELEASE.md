@@ -53,3 +53,6 @@ The native MOD mismatch acknowledgement path was accepted using the public ident
 
 
 The survival watcher main was repaired and accepted under the public identity using the public checkout’s Python source. Expected-save binding, one paused normal load, safe refusal, zero-target behavior, diagnostic reads, short bounded progression and final pause were checked separately. The original installation, settings, saves and initially stopped game state were restored and independently verified. This does not identify historical resume actors or provide a native timeout watchdog. See [the contract and acceptance limits](docs/watcher-main-safety_JP.md); private runtime records are excluded.
+
+
+Bounded native speed-call tracing was accepted under the public identity. Read-only history, cursor validation across processes, synchronous call nesting, retained modal pause layers and two-session attribution were checked against native state and clocks. The original installation, settings, saves and initially stopped game state were restored and independently verified. Records describe observed call boundaries; they do not identify an unknown actor or guarantee execution of every original instruction. See [the observation contract and validation limits](docs/native-speed-trace_JP.md). Private runtime records are excluded.

@@ -50,7 +50,7 @@
   "tools.building_control.parameters.steps": "planning repair_line で direction の方向へ接続するセル数。既定値は 1。",
   "tools.game_control.description": "速度、一時停止・再開、ゲーム状態、セーブ、DLC有効化、sandbox操作、UI操作の統合入口。現在のMOD不一致ダイアログの読取・確認には domain=ui uiDomain=dialog を使う。意味による操作指定と名前付き対象を使い、ここでは座標入力を受け付けない。",
   "tools.game_control.parameters.domain": "ゲームのサブシステム: launch、speed、state、save、dlc、sandbox、ui。",
-  "tools.game_control.parameters.action": "選択したサブシステムのゲーム操作。UI feedback は notification、popup、speech_bubble、marker、uiDomain=dialog は現在のMOD不一致ダイアログに対する status、acknowledge に対応する。",
+  "tools.game_control.parameters.action": "選択したサブシステムのゲーム操作。domain=speedはtime、pause、resume、set_speed、読取専用traceに対応する。UI feedbackはnotification、popup、speech_bubble、marker、uiDomain=dialogは現在のMOD不一致ダイアログに対するstatus、acknowledgeに対応する。",
   "tools.game_control.parameters.kind": "sandbox または UI の種別。",
   "tools.game_control.parameters.uiDomain": "UIのサブシステム: action、feedback、dialog。",
   "tools.game_control.parameters.speed": "ゲーム速度の段階。",
@@ -276,5 +276,7 @@
   "tools.building_control.parameters.compact": "設備形状の取得形式。true（既定）は範囲と接続点の簡易版、falseは全占有セル・定義オフセット・取得根拠を含む完全版。",
   "tools.building_control.parameters.capability": "config listの機能による絞り込み。threshold、direction、activation_rangeなど。実際の設定読取先はconfigurationReadsを参照。",
   "tools.world_editor.parameters.allowUtilityTerrainDig": "配線・配管と自動電力接続に伴う自然地形の採掘を明示許可。既定false。confirmだけでは許可しない。支持関係は未評価。",
-  "tools.world_editor.parameters.autoConnectPower": "電力を消費する設備を自動配線する。既定true。自然地形を通る経路にはallowUtilityTerrainDig=trueが必要。falseで本体だけ建設する。"
+  "tools.world_editor.parameters.autoConnectPower": "電力を消費する設備を自動配線する。既定true。自然地形を通る経路にはallowUtilityTerrainDig=trueが必要。falseで本体だけ建設する。",
+  "tools.game_control.parameters.afterSequence": "action=traceで、この非負整数sequenceより後を取得する。過去のtrace応答のtraceEpochが必要。",
+  "tools.game_control.parameters.traceEpoch": "action=traceが返す、観測プロセスを区別する不透明な値。afterSequenceと併用し、別プロセスの値は拒否する。"
 }

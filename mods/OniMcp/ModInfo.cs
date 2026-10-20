@@ -43,6 +43,7 @@ namespace OniMcp
 
             // Harmony パッチを登録する
             harmony.PatchAll();
+            SpeedTransitionTracePatch.EnsureInstalled(harmony);
             InputSafetyPatchVerifier.EnsureInstalled(harmony, "OnLoad");
             AutoDisinfectPolicy.EnsureInstalled(harmony, "OnLoad");
             OniMcpLog.Debug($"[OniMcp] Loaded assembly {OniMcpVersion.Display} from {modAssembly.Location}");

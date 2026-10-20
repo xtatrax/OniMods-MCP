@@ -50,7 +50,7 @@
   "tools.building_control.parameters.steps": "For planning repair_line, cells to connect in direction, default 1.",
   "tools.game_control.description": "Unified game entrypoint for speed, pause/resume, game state, saves, DLC activation, sandbox operations, and UI actions. Use domain=ui uiDomain=dialog to inspect or acknowledge the current MOD mismatch dialog. Use semantic actions and named targets; coordinate input is not accepted here.",
   "tools.game_control.parameters.domain": "Game subsystem: launch, speed, state, save, dlc, sandbox, or ui.",
-  "tools.game_control.parameters.action": "Game action for the selected subsystem. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog.",
+  "tools.game_control.parameters.action": "Game action for the selected subsystem. domain=speed supports time, pause, resume, set_speed and read-only trace. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog.",
   "tools.game_control.parameters.kind": "Sandbox or UI subtype.",
   "tools.game_control.parameters.uiDomain": "UI subsystem: action, feedback or dialog.",
   "tools.game_control.parameters.speed": "Game speed level.",
@@ -276,5 +276,7 @@
   "tools.building_control.parameters.compact": "Geometry read profile: true (default) returns compact bounds and ports; false includes all occupied cells, definition offsets and source evidence.",
   "tools.building_control.parameters.capability": "config list capability filter, including threshold, direction and activation_range. Read configurationReads for the actual setting route.",
   "tools.world_editor.parameters.allowUtilityTerrainDig": "Explicitly permit natural terrain digging for utility placement and automatic power routes. Default false; confirm alone does not permit it. Supports are not evaluated.",
-  "tools.world_editor.parameters.autoConnectPower": "Automatically wire powered buildings; default true. Natural terrain routes require allowUtilityTerrainDig=true. Set false to build without automatic wiring."
+  "tools.world_editor.parameters.autoConnectPower": "Automatically wire powered buildings; default true. Natural terrain routes require allowUtilityTerrainDig=true. Set false to build without automatic wiring.",
+  "tools.game_control.parameters.afterSequence": "For action=trace, return records after this nonnegative integer sequence. Requires the traceEpoch from a prior trace response.",
+  "tools.game_control.parameters.traceEpoch": "Opaque trace-process epoch returned by action=trace. Required with afterSequence; a different process epoch is rejected."
 }

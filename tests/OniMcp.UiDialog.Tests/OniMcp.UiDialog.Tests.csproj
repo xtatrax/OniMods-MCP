@@ -8,11 +8,18 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NativeDialogSource Condition="'$(NativeDialogSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/NativeModMismatchDialog.cs</NativeDialogSource>
     <DialogHandlerSource Condition="'$(DialogHandlerSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/UiDialogTools.cs</DialogHandlerSource>
+    <SpeedTraceStoreSource Condition="'$(SpeedTraceStoreSource)' == ''">../../mods/OniMcp/Tools/Impl/Core/SpeedTransitionTraceStore.cs</SpeedTraceStoreSource>
+    <SpeedTraceSource Condition="'$(SpeedTraceSource)' == ''">../../mods/OniMcp/Tools/Impl/Core/SpeedTransitionTrace.cs</SpeedTraceSource>
+    <SpeedTracePatchSource Condition="'$(SpeedTracePatchSource)' == ''">../../mods/OniMcp/Patches/SpeedTransitionTracePatch.cs</SpeedTracePatchSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(NativeDialogSource)" Link="Source/NativeModMismatchDialog.cs" />
     <Compile Include="$(DialogHandlerSource)" Link="Source/UiDialogTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Ui/UiControlTools.cs" Link="Source/UiControlTools.cs" />
+    <Compile Include="$(SpeedTraceStoreSource)" Link="Source/SpeedTransitionTraceStore.cs" />
+    <Compile Include="$(SpeedTraceSource)" Link="Source/SpeedTransitionTrace.cs" />
+    <Compile Include="$(SpeedTracePatchSource)" Link="Source/SpeedTransitionTracePatch.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Core/GameSpeedTools.cs" Link="Source/GameSpeedTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Core/GameControlTools.cs" Link="Source/GameControlTools.cs" />
     <Compile Include="../../mods/OniMcp/Core/McpTypes.cs" Link="Source/McpTypes.cs" />
     <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
@@ -20,6 +27,7 @@
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/tools.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/speed_trace.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/ui_dialog.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
 </Project>

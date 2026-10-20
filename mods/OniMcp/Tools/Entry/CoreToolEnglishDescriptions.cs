@@ -222,6 +222,8 @@ namespace OniMcp.Tools
             d["dialog"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dialog");
             d["dialogToken"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dialogToken");
             d["keepPaused"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.keepPaused");
+            d["afterSequence"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.afterSequence");
+            d["traceEpoch"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.traceEpoch");
             d["dryRun"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dryRun");
             d["confirm"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.confirm");
             d["name"] = "Save name, or duplicant name for ui/feedback speech_bubble.";

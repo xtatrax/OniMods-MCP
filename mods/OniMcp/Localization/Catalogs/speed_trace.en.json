@@ -1,0 +1,11 @@
+{
+  "speed_trace.description": "Read game time or control pause, resume and speed. action=trace reads bounded native speed-call history without changing game state.",
+  "speed_trace.action.description": "Operation: time, pause, resume, set_speed or read-only trace. Trace shows observed native calls; unattributed does not establish a human or another mod as the actor.",
+  "speed_trace.limit.description": "Maximum trace records, 1..32; default 8. Without a cursor, return the latest records.",
+  "speed_trace.error.invalid_limit": "Trace limit must be an integer from 1 to 32.",
+  "speed_trace.error.invalid_after_sequence": "Trace afterSequence must be a nonnegative integer.",
+  "speed_trace.error.epoch_required": "Trace afterSequence requires traceEpoch from a prior response.",
+  "speed_trace.error.epoch_mismatch": "Trace epoch does not match this process. Read the current trace before continuing.",
+  "speed_trace.error.cursor_future": "Trace cursor is newer than the recorded history.",
+  "speed_trace.error.invalid_action": "Speed action must be time, pause, resume, set_speed or trace."
+}
