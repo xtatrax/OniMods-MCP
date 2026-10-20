@@ -50,3 +50,6 @@ The virtual-operation array parser fix was accepted using the public identity an
 
 
 The native MOD mismatch acknowledgement path was accepted using the public identity and its own build. Read-only status, displayed text, invalid-request rejection, native preview, detailed virtual operations, generation tokens and pause preservation were checked on naturally generated notifications. The original installation, settings and saves were restored with the game stopped. See [the operation contract and validation limits](docs/mod-mismatch-dialog_JP.md). Arbitrary dialogs and every third-party mod combination are outside this acceptance; private runtime records are excluded.
+
+
+The survival watcher main was repaired and accepted under the public identity using the public checkout’s Python source. Expected-save binding, one paused normal load, safe refusal, zero-target behavior, diagnostic reads, short bounded progression and final pause were checked separately. The original installation, settings, saves and initially stopped game state were restored and independently verified. This does not identify historical resume actors or provide a native timeout watchdog. See [the contract and acceptance limits](docs/watcher-main-safety_JP.md); private runtime records are excluded.

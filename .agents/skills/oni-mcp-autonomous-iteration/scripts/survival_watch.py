@@ -8,6 +8,8 @@ import urllib.error
 import urllib.request
 
 from loopback_http import open_url
+from survival_watch_runtime import (assert_target, operation_payload, decode_rpc_body, finite_number,
+                                    launch_state, select_target, tool_payload, validate_snapshot)
 
 URL = "http://localhost:8788/mcp/"
 PROTOCOL = "2025-11-25"
@@ -24,30 +26,19 @@ def post(payload, session_id=None, parse=True, timeout=20):
     req = urllib.request.Request(URL, data=json.dumps(payload).encode(), headers=headers)
     with open_url(req, timeout=timeout) as response:
         body = response.read()
-        return response, json.loads(body) if parse and body else None
+        return response, decode_rpc_body(body) if parse and body else None
 
 
 def call_tool(session_id, name, arguments, timeout=30):
+    arguments = dict(arguments)
+    task = "survival_watch." + name + "." + str(arguments.get("domain", "world" if name == "world_editor" else "")) + "." + str(arguments.get("action", arguments.get("command", "")))
+    arguments.setdefault("task", task)
     _, data = post(
-        {
-            "jsonrpc": "2.0",
-            "id": int(time.time() * 1000) % 1_000_000,
-            "method": "tools/call",
-            "params": {"name": name, "arguments": arguments},
-        },
-        session_id=session_id,
-        timeout=timeout,
+        {"jsonrpc": "2.0", "id": int(time.time() * 1000) % 1_000_000,
+         "method": "tools/call", "params": {"name": name, "arguments": arguments}},
+        session_id=session_id, timeout=timeout,
     )
-    if "error" in data:
-        raise RuntimeError(f"{name} rpc error: {data['error']}")
-    content = data.get("result", {}).get("content") or []
-    text = "".join(part.get("text", "") for part in content if part.get("type") == "text")
-    if not text:
-        return {}
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        return {"text": text}
+    return tool_payload(data)
 
 
 def open_session():
@@ -63,45 +54,80 @@ def open_session():
             },
         }
     )
-    if init.get("result", {}).get("protocolVersion") != PROTOCOL:
-        raise RuntimeError(f"protocol mismatch: {init}")
+    if (not isinstance(init, dict) or "error" in init or not isinstance(init.get("result"), dict)
+            or init["result"].get("protocolVersion") != PROTOCOL):
+        raise RuntimeError("watch_protocol_mismatch")
     session_id = response.headers.get("Mcp-Session-Id")
+    if not isinstance(session_id, str) or not session_id.strip():
+        raise RuntimeError("watch_session_unavailable")
     post({"jsonrpc": "2.0", "method": "notifications/initialized"}, session_id, parse=False)
     return session_id
 
 
-def ensure_loaded(session_id, save_index, resume, speed):
-    try:
-        return call_tool(session_id, "colony_control", {"domain": "snapshot", "action": "get", "profile": "minimal"})
-    except Exception:
-        call_tool(
-            session_id,
-            "game_control",
-            {"domain": "launch", "action": "start", "confirm": True, "index": save_index, "resume": resume, "speed": speed},
-            timeout=60,
-        )
-        deadline = time.time() + 180
-        last_error = None
-        while time.time() < deadline:
-            try:
-                return call_tool(session_id, "colony_control", {"domain": "snapshot", "action": "get", "profile": "minimal"})
-            except Exception as exc:
-                last_error = exc
-                time.sleep(2)
-        raise RuntimeError(f"save did not become ready: {last_error}")
+def launch_status(session_id, limit=1):
+    return launch_state(call_tool(session_id, "game_control", {"domain": "launch", "action": "status", "limit": limit}))
+
+
+def prepare_target(session_id, save_index, expected_save, no_load, binding):
+    status = launch_status(session_id, limit=50)
+    if no_load and expected_save is None:
+        raise RuntimeError("watch_expected_save_required")
+    target = select_target(status, save_index, expected_save)
+    binding["target"] = target
+    if status["gameInitialized"]:
+        return assert_target(status, target)
+    if no_load:
+        raise RuntimeError("watch_game_not_loaded")
+    if status.get("canStart") is not True:
+        raise RuntimeError("watch_load_unavailable")
+    binding["loadRequested"] = True
+    accepted = call_tool(session_id, "game_control", {
+        "domain": "launch", "action": "start", "confirm": True, "path": target, "resume": False}, timeout=30)
+    if not isinstance(accepted, dict) or accepted.get("started") is not True or accepted.get("target") != target:
+        raise RuntimeError("watch_load_not_accepted")
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
+        status = launch_status(session_id)
+        if status["gameInitialized"]:
+            return assert_target(status, target)
+        time.sleep(1)
+    raise RuntimeError("watch_load_timeout")
+
+
+def ensure_loaded(session_id, save_index, resume=False, speed=1, expected_save=None):
+    binding = {}
+    prepare_target(session_id, save_index, expected_save, False, binding)
+    return snapshot(session_id)
 
 
 def snapshot(session_id):
-    return call_tool(session_id, "colony_control", {"domain": "snapshot", "action": "get", "profile": "minimal"})
+    value = call_tool(session_id, "world_editor", {
+        "command": "read", "path": "/active/colony/status.oni", "profile": "minimal"})
+    return validate_snapshot(value)
 
 
 def diagnostic_alerts(session_id):
-    alerts = call_tool(session_id, "colony_control", {"domain": "diagnostic", "action": "alerts", "limit": 20})
-    return alerts if isinstance(alerts, list) else []
+    line = "call domain=diagnostic action=alerts limit=20 detail=true"
+    outer = call_tool(session_id, "world_editor", {
+        "command": "edit", "path": "/active/ops/colony.md", "confirm": True, "dryRun": False,
+        "content": "<<<<<<< SEARCH\n\n=======\n" + line + "\n>>>>>>> REPLACE"})
+    alerts = operation_payload(outer)
+    if not isinstance(alerts, list) or any(
+            not isinstance(row, dict) or row.get("severity") not in ("info", "warning", "critical")
+            or not isinstance(row.get("category"), str) or not row["category"].strip()
+            or not isinstance(row.get("message"), str) for row in alerts):
+        raise RuntimeError("watch_diagnostics_unknown")
+    return alerts
 
 
 def set_speed(session_id, speed):
-    return call_tool(session_id, "game_control", {"domain": "speed", "action": "set_speed", "speed": speed})
+    value = call_tool(session_id, "game_control", {"domain": "speed", "action": "set_speed", "speed": speed})
+    if (not isinstance(value, dict)
+            or any(type(value.get(key)) is not int for key in ("requestedSpeed", "speed", "internalSpeed"))
+            or value.get("requestedSpeed") != speed or value.get("speed") != speed
+            or value.get("internalSpeed") != speed - 1 or value.get("isPaused") is not False):
+        raise RuntimeError("watch_speed_unconfirmed")
+    return value
 
 
 def pause(session_id):
@@ -201,7 +227,7 @@ def is_bad_snapshot(snap):
         return "max stress reached 100%"
     if metrics.get("redAlert"):
         return "red alert enabled"
-    if str(snap.get("alertLevel", "")).lower() in {"error", "danger", "critical"}:
+    if str(snap.get("alertLevel", "")).lower() in {"red", "error", "danger", "critical"}:
         return f"alertLevel={snap.get('alertLevel')}"
     return None
 
@@ -224,6 +250,25 @@ def compact_alerts(alerts):
     ]
 
 
+def _require_no_mod_dialog(session_id):
+    value = call_tool(session_id, "game_control", {"domain": "ui", "uiDomain": "dialog", "action": "status"})
+    if not isinstance(value, dict) or value.get("available") is not True or type(value.get("present")) is not bool:
+        raise RuntimeError("watch_dialog_unavailable")
+    if value["present"] or type(value.get("count")) is not int or value.get("count") != 0 or value.get("dialogs") != []:
+        raise RuntimeError("watch_dialog_blocked")
+
+
+def _end_stop(session_id, binding):
+    try:
+        if not binding.get("target"):
+            raise RuntimeError("watch_stop_identity_unknown")
+        assert_target(launch_status(session_id), binding["target"])
+    except (OSError, RuntimeError, ValueError) as error:
+        return {"pausedAtEnd": None, "pauseStatus": "unknown", "pauseAttempts": 0,
+                "pauseIncident": True, "pauseReason": "watch_stop_identity_unconfirmed", "postPause": None}
+    return pause_and_verify(session_id)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Low-token ONI MCP survival watcher.")
     parser.add_argument("--target-cycles", type=float, default=100.0)
@@ -231,40 +276,55 @@ def main():
     parser.add_argument("--poll-seconds", type=float, default=20.0)
     parser.add_argument("--speed", type=int, default=3, choices=[1, 2, 3])
     parser.add_argument("--save-index", type=int, default=0)
+    parser.add_argument("--expected-save")
     parser.add_argument("--allow-partial", action="store_true")
     parser.add_argument("--no-load", action="store_true")
     parser.add_argument("--no-pause-at-end", action="store_true")
     parser.add_argument("--ignore-critical-diagnostics", action="store_true")
     args = parser.parse_args()
+    if (not all(finite_number(value) and value >= 0 for value in (args.target_cycles, args.max_seconds))
+            or not finite_number(args.poll_seconds) or args.poll_seconds <= 0):
+        raise RuntimeError("watch_arguments_invalid")
+    if args.no_load and args.expected_save is None:
+        raise RuntimeError("watch_expected_save_required")
 
-    session_id = open_session()
-    start = snapshot(session_id) if args.no_load else ensure_loaded(session_id, args.save_index, True, args.speed)
-    start_cycle = float(start.get("cycle", 0))
-    target_cycle = start_cycle + max(0.0, args.target_cycles)
-
-    deadline = time.time() + args.max_seconds if args.max_seconds > 0 else None
-    samples = []
-    ok = False
-    failure = None
+    session_id, binding = None, {}
+    start_cycle, target_cycle = None, None
+    samples, ok, failure = [], False, None
+    end_stop_allowed = True
     stop = {"pausedAtEnd": None, "pauseStatus": "not_requested", "pauseAttempts": 0,
             "pauseIncident": False, "pauseReason": None, "postPause": None}
     try:
-        set_speed(session_id, args.speed)
+        session_id = open_session()
+        status = prepare_target(session_id, args.save_index, args.expected_save, args.no_load, binding)
+        if status.get("isPaused") is not True:
+            initial_stop = pause_and_verify(session_id)
+            if initial_stop["pauseStatus"] != "confirmed" or initial_stop["pauseIncident"]:
+                stop = initial_stop
+                end_stop_allowed = False
+                raise RuntimeError("watch_initial_pause_unconfirmed")
+        start = snapshot(session_id)
+        if start["paused"] is not True:
+            raise RuntimeError("watch_initial_snapshot_unpaused")
+        start_cycle = float(start["cycle"])
+        target_cycle = start_cycle + args.target_cycles
+        if not finite_number(target_cycle):
+            raise RuntimeError("watch_target_cycle_invalid")
+        deadline = time.monotonic() + args.max_seconds if args.max_seconds > 0 else None
+        current, advancing = start, False
         while True:
-            current = snapshot(session_id)
+            assert_target(launch_status(session_id), binding["target"])
             alerts = [] if args.ignore_critical_diagnostics else diagnostic_alerts(session_id)
-            cycle = float(current.get("cycle", 0))
-            samples.append(
-                {
-                    "cycle": current.get("cycle"),
-                    "paused": current.get("paused"),
-                    "speed": current.get("speed"),
-                    "alertLevel": current.get("alertLevel"),
-                    "summary": current.get("summary"),
-                    "diagnosticsIgnored": args.ignore_critical_diagnostics,
-                    "alerts": compact_alerts(alerts),
-                }
-            )
+            cycle = float(current["cycle"])
+            samples.append({
+                "cycle": current["cycle"],
+                "paused": current["paused"],
+                "speed": current["speed"],
+                "alertLevel": current.get("alertLevel"),
+                "summary": current.get("summary"),
+                "diagnosticsIgnored": args.ignore_critical_diagnostics,
+                "alerts": compact_alerts(alerts),
+            })
             failure = is_bad_snapshot(current)
             if not failure and not args.ignore_critical_diagnostics:
                 failure = critical_diagnostic_failure(alerts)
@@ -273,13 +333,27 @@ def main():
             if cycle >= target_cycle:
                 ok = True
                 break
-            if deadline and time.time() >= deadline:
+            if deadline and time.monotonic() >= deadline:
                 ok = bool(args.allow_partial)
                 break
-            time.sleep(max(1.0, args.poll_seconds))
+            if not advancing:
+                _require_no_mod_dialog(session_id)
+                assert_target(launch_status(session_id), binding["target"])
+                if deadline and time.monotonic() >= deadline:
+                    ok = bool(args.allow_partial)
+                    break
+                set_speed(session_id, args.speed)
+                advancing = True
+            delay = max(1.0, args.poll_seconds)
+            if deadline:
+                delay = min(delay, max(0.0, deadline - time.monotonic()))
+            time.sleep(delay)
+            current = snapshot(session_id)
+    except (RuntimeError, OSError, ValueError, OverflowError) as error:
+        failure = str(error) if isinstance(error, RuntimeError) else "watch_runtime_unavailable"
     finally:
-        if not args.no_pause_at_end:
-            stop = pause_and_verify(session_id)
+        if not args.no_pause_at_end and session_id is not None and end_stop_allowed:
+            stop = _end_stop(session_id, binding)
 
     final = samples[-1] if samples else {}
     pause_ok = args.no_pause_at_end or (stop["pauseStatus"] == "confirmed" and not stop["pauseIncident"])
@@ -296,7 +370,7 @@ def main():
         "last": final,
     }
     result.update(stop)
-    print(json.dumps(result, ensure_ascii=False))
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
     if not result["ok"]:
         sys.exit(1)
 

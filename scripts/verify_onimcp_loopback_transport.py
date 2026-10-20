@@ -256,7 +256,12 @@ def verify_survival_pause_adapter():
 
     def run_main(observations, extra_args=(), speed_failure=False, bad_snapshot=False):
         trace, pending = [], list(observations)
-        snap = {"cycle": 42, "paused": True, "metrics": {"dupes": 0 if bad_snapshot else 3}}
+        snap = {"cycle": 42, "paused": True, "speed": 1, "alertLevel": "green", "metrics": {"dupes": 0 if bad_snapshot else 3}}
+        status = {"gameInitialized": True, "loaded": True, "activeSaveUsable": True, "activeSaveFile": "/fixture/watch.sav", "isPaused": True}
+
+        def prepared(_session, _index, _expected, _no_load, binding):
+            binding["target"] = status["activeSaveFile"]
+            return status
 
         def native_speed(*_args):
             trace.append("set_speed")
@@ -269,9 +274,11 @@ def verify_survival_pause_adapter():
             return value if isinstance(value, str) else json.dumps(value)
 
         output, caught = io.StringIO(), None
-        argv = ["survival_watch.py", "--no-load", "--target-cycles", "0", "--ignore-critical-diagnostics", *extra_args]
+        argv = ["survival_watch.py", "--no-load", "--expected-save", "/fixture/watch.sav", "--target-cycles", "1" if speed_failure else "0", "--ignore-critical-diagnostics", *extra_args]
         with mock.patch.object(sys, "argv", argv), mock.patch.object(survival_watch, "open_session", return_value="fixture-session"), \
              mock.patch.object(survival_watch, "snapshot", return_value=snap), mock.patch.object(survival_watch, "set_speed", native_speed), \
+             mock.patch.object(survival_watch, "prepare_target", prepared), mock.patch.object(survival_watch, "launch_status", return_value=status), \
+             mock.patch.object(survival_watch, "_require_no_mod_dialog"), \
              mock.patch.object(survival_watch, "_stop_tool_call", native_stop), mock.patch.object(survival_watch.time, "sleep"), redirect_stdout(output):
             try:
                 survival_watch.main()
@@ -285,12 +292,12 @@ def verify_survival_pause_adapter():
         check(result["ok"] is expected_ok, "main success must require an incident-free confirmed stop")
         check((error is None) if expected_ok else isinstance(error, SystemExit) and error.code == 1,
               "failed final stopping must return a nonzero process outcome")
-        check(trace.count("set_speed") == 1 and trace[-1] == "time", "a pause incident must never start another play loop")
+        check(trace.count("set_speed") == 0 and trace[-1] == "time", "a pause incident must never start another play loop")
     result, error, trace = run_main([], ("--no-pause-at-end",))
-    check(result["ok"] is True and error is None and trace == ["set_speed"], "explicit no-pause opt-out must remain effective")
+    check(result["ok"] is True and error is None and trace == [], "explicit no-pause opt-out must remain effective")
     check(result["pausedAtEnd"] is None and result["pauseStatus"] == "not_requested", "opt-out must not claim a stopped game")
     result, error, trace = run_main([state()], speed_failure=True)
-    check(isinstance(error, RuntimeError) and str(error) == "fixture_speed_error" and trace == ["set_speed", "pause", "time"],
+    check(isinstance(error, SystemExit) and error.code == 1 and result["failure"] == "fixture_speed_error" and trace == ["set_speed", "pause", "time"],
           "set_speed failure must still execute final stopping and preserve the original exception")
     result, error, trace = run_main([state()], bad_snapshot=True)
     check(result["ok"] is False and result["failure"] == "no duplicants alive or visible", "final stopping must not erase an earlier gameplay failure")
