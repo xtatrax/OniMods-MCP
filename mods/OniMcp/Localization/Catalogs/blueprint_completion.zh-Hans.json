@@ -1,0 +1,18 @@
+{
+  "blueprint_completion.ui_unavailable": "原生建造工具不可用或尚未就绪，无法完成已有建造蓝图。",
+  "blueprint_completion.ui_busy": "原生建造界面使用中；未提交已有建造蓝图的完成操作。",
+  "blueprint_completion.pause_required": "请先暂停游戏，再完成已有建造蓝图。",
+  "blueprint_completion.preview_unavailable": "无法确认原生预览与要求完全一致；未调用建造操作。",
+  "blueprint_completion.native_failed": "原生完成操作失败；重试前请检查观测结果。",
+  "blueprint_completion.cleanup_failed": "无法确认已从原生建造工具返回选择工具。",
+  "blueprint_completion.target_changed": "确切的建造蓝图或游戏状态已变更；拒绝完成操作。",
+  "blueprint_completion.target_unverifiable": "无法确认已有建造蓝图的确切实体或建造选项。",
+  "blueprint_completion.definition_unavailable": "通过原生界面完成已有建造蓝图，目前仅支持Tile。",
+  "blueprint_completion.material_unverifiable": "需要一种已知建材；多种建材不在本次验证范围。",
+  "blueprint_completion.facade_unverifiable": "无法确认已有建造蓝图的外观；未调用原生完成操作。",
+  "blueprint_completion.safety_blocked": "占用范围、保护地形、植物、背墙或端点不安全或未知；拒绝完成操作。",
+  "blueprint_completion.world_inactive": "请先切换至建造蓝图所在的世界，再进行完成操作。",
+  "blueprint_completion.observation_unavailable": "无法确认完成结果；changed与applied保持未知。",
+  "blueprint_completion.completion_not_observed": "未观测到确切的建造蓝图已完成；原生void入口未提供拒绝原因。",
+  "blueprint_completion.protected_state_changed": "检查范围的占用状态与完成操作后应保持的状态不一致；未尝试自动重试或恢复状态。"
+}

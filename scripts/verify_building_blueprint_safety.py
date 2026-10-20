@@ -111,6 +111,32 @@ def verify_existing_material_reuse_regressions(plan_one: str) -> None:
     print(f"OK: {len(mutations)} material reuse guard mutations were rejected")
 
 
+
+def verify_existing_blueprint_native_retry(source: str, adapter: str) -> None:
+    """Supplemental source contract; executable host tests prove behavior."""
+    retry = extract_block(source, "private static Dictionary<string, object> TryCompleteExistingVirtualFileBlueprint")
+    require_order(retry, ("IsAuthorizedVirtualFileInstantBuild(args)", "FindConstructableAtPlacement",
+        "GetOrientation()", "BuildPlacementDetails", "RevalidateExistingBlueprintTarget",
+        "ExistingBlueprintCompletionSafetyFailure", "NativeBlueprintInstantCompletion.Run",
+        "FindCompletedBuildAtPlacement", "VerifyNativeExistingBlueprintCompletion"),
+        "existing blueprint must bind and revalidate its actual native target before UI invocation and observe completion afterward")
+    for forbidden in ("DeleteObject", "TryBuildVirtualFileInstantBuild", "def.Build(", "FinishConstruction"):
+        if forbidden in source or forbidden in adapter:
+            fail(f"existing blueprint native path must not contain direct fallback: {forbidden}")
+    for required in ('string.Equals(def.PrefabID, "Tile", StringComparison.Ordinal)', "target.Elements.Count != 1",
+        "before != null && completed != null", "protectedPreserved == true", "outcome.UiRestored == true",
+        '["blueprintPlaced"] = false', '["changed"]', '["applied"]', '["partial"]'):
+        if required not in source:
+            fail(f"existing blueprint native observation guard missing: {required}")
+    for required in ("tool.Activate(def, new List<Tag>(expectedElements), facadeId)", "tool.SetToolOrientation(orientation)",
+        "tool.OnMouseMove", "TryBuild.Invoke(tool", "revalidate();", "RequireReady", "RequireIdle", "RequireActive",
+        "FacadeEquivalent", "SelectedElementsMatch(tool, expectedElements)", "typeof(IList<Tag>)", "IsPaused", "IsModal()", "finally", "GameContextLifecycle.CaptureGeneration()",
+        "ReferenceEquals(controller.ActiveTool, tool)", "ReferenceEquals(tool.visualizer, ownedPreview)",
+        "ReferenceEquals(ownedPreviewDef, def)", "controller.ActivateTool(select)"):
+        if required not in adapter:
+            fail(f"native UI exact binding/readiness/cleanup contract missing: {required}")
+
+
 def verify_building_blueprint_safety(
     root: Path, sources: dict[Path, str] | None = None
 ) -> None:
@@ -121,6 +147,8 @@ def verify_building_blueprint_safety(
         "plan_one": build_root / "BuildPlanningPlanOne.cs",
         "materials": build_root / "BuildPlanningMaterials.cs",
         "runtime": build_root / "BuildPlanningRuntimePlacement.cs",
+        "existing_completion": build_root / "BuildPlanningExistingBlueprintCompletion.cs",
+        "completion_ui": build_root / "NativeBlueprintInstantCompletion.cs",
     }
     for path in paths.values():
         if not path.is_file():
@@ -234,6 +262,7 @@ def verify_building_blueprint_safety(
         fail("material success validation must reject empty and invalid primary elements")
 
     verify_existing_material_reuse(plan_one)
+    verify_existing_blueprint_native_retry(selected[paths["existing_completion"]], selected[paths["completion_ui"]])
 
     runtime_existing = extract_block(
         selected[paths["runtime"]],

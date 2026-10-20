@@ -6,9 +6,28 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NativeBlueprintSource Condition="'$(NativeBlueprintSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeBlueprintInstantCompletion.cs</NativeBlueprintSource>
+    <ExistingBlueprintSource Condition="'$(ExistingBlueprintSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingBlueprintCompletion.cs</ExistingBlueprintSource>
+    <BlueprintObstructionsSource Condition="'$(BlueprintObstructionsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningObstructions.cs</BlueprintObstructionsSource>
+    <BlueprintSafetySource Condition="'$(BlueprintSafetySource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlacementSafety.cs</BlueprintSafetySource>
+    <BlueprintGeometrySource Condition="'$(BlueprintGeometrySource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlacementGeometry.cs</BlueprintGeometrySource>
+    <BlueprintRuntimeSource Condition="'$(BlueprintRuntimeSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRuntimePlacement.cs</BlueprintRuntimeSource>
+    <BlueprintInstantSource Condition="'$(BlueprintInstantSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningInstantCompletion.cs</BlueprintInstantSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativePlayerToggleUi.cs" Link="Source/NativePlayerToggleUi.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingMaterialReader.cs" Link="Source/BuildPlanningExistingMaterialReader.cs" />
+    <Compile Include="$(NativeBlueprintSource)" Link="Source/NativeBlueprintInstantCompletion.cs" />
+    <Compile Include="$(ExistingBlueprintSource)" Link="Source/BuildPlanningExistingBlueprintCompletion.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
+  <Target Name="GenerateBlueprintSafetySource" BeforeTargets="BeforeCompile">
+    <PropertyGroup><BlueprintGeneratedSource>$(IntermediateOutputPath)BlueprintSafety.g.cs</BlueprintGeneratedSource></PropertyGroup>
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot;" />
+    <ItemGroup><Compile Include="$(BlueprintGeneratedSource)" /></ItemGroup>
+  </Target>
 </Project>

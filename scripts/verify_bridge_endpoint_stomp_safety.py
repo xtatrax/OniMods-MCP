@@ -2,6 +2,7 @@
 """Static regression contract for fail-closed native bridge endpoint placement."""
 
 from pathlib import Path
+from verify_building_blueprint_safety import verify_existing_blueprint_native_retry
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,9 +35,11 @@ def main() -> None:
     safety = (BUILD / "BuildPlanningPlacementSafety.cs").read_text(encoding="utf-8")
     obstructions = (BUILD / "BuildPlanningObstructions.cs").read_text(encoding="utf-8")
     geometry = (BUILD / "BuildPlanningPlacementGeometry.cs").read_text(encoding="utf-8")
+    native_geometry = (ROOT / "mods/OniMcp/Tools/Shared/NativeBuildingFootprint.cs").read_text(encoding="utf-8")
     models = (BUILD / "BuildPlanningTools.cs").read_text(encoding="utf-8")
     plan_one = (BUILD / "BuildPlanningPlanOne.cs").read_text(encoding="utf-8")
-    completion = (BUILD / "BuildPlanningInstantCompletion.cs").read_text(encoding="utf-8")
+    completion = (BUILD / "BuildPlanningExistingBlueprintCompletion.cs").read_text(encoding="utf-8")
+    native_completion = (BUILD / "NativeBlueprintInstantCompletion.cs").read_text(encoding="utf-8")
 
     classifier = body(safety, "private static bool UsesNativeBridgeEndpointRegistration")
     for rule in ("Conduit", "WireBridge", "LogicBridge"):
@@ -84,8 +87,16 @@ def main() -> None:
     assert "IsUtilityPrefab(def.PrefabID) && !UsesNativeBridgeEndpointRegistration(def)" in building
     assert "PlacementSafetyFootprint(def, placement)" in building
     oriented_footprint = body(safety, "private static IEnumerable<FootprintCell> PlacementSafetyFootprint")
-    assert "def.PlacementOffsets" in oriented_footprint
-    assert "Rotatable.GetRotatedCellOffset(offset, placement.Orientation)" in oriented_footprint
+    assert "return placement.Footprint" in oriented_footprint
+    # Geometry is already centralized in the native footprint reader; keep the
+    # same rotation requirement at its current implementation boundary.
+    native_definition = body(native_geometry, "internal static NativeBuildingFootprint Definition")
+    native_lower_left = body(native_geometry, "internal static NativeBuildingFootprint FromLowerLeft")
+    assert "def.PlacementOffsets" in native_definition
+    assert "Rotatable.GetRotatedCellOffset(o,orientation)" in native_definition
+    assert "Definition(def,orientation)" in native_lower_left
+    footprint_cells = body(geometry, "private static IEnumerable<FootprintCell> FootprintCells")
+    assert "NativeBuildingFootprint.FromLowerLeft(def, x, y, orientation)" in footprint_cells
     footprint = body(obstructions, "private static List<Dictionary<string, object>> FindFootprintObstructions")
     assert "var safetyFootprint = PlacementSafetyFootprint(placementDef, placement).ToList()" in footprint
     assert "bool endpointBridge = UsesNativeBridgeEndpointRegistration(placementDef)" in footprint
@@ -95,6 +106,8 @@ def main() -> None:
     placement_builder = body(geometry, signature)
     assert "Orientation orientation = Orientation.Neutral" in geometry
     assert "Orientation = orientation" in placement_builder
+    assert "NativeBuildingFootprint.FromLowerLeft(def, x, y, orientation)" in placement_builder
+    assert "FootprintCells(def, x, y, worldId, orientation)" in placement_builder
     placement_model = body(models, "private sealed class PlacementDetails")
     assert "public Orientation Orientation" in placement_model
     assert plan_one.count("BuildPlacementDetails(def, x, y, worldId, orientation)") == 2
@@ -106,16 +119,16 @@ def main() -> None:
             "TryBuildVirtualFileInstantBuild", "def.TryPlace(")
 
     retry = body(completion, "private static Dictionary<string, object> TryCompleteExistingVirtualFileBlueprint")
-    ordered(retry, "Orientation orientation = rotatable == null ? Orientation.Neutral : rotatable.GetOrientation()",
-            "var completionPlacement = BuildPlacementDetails(def, placement.AnchorX, placement.AnchorY, placement.WorldId, orientation)",
-            "ExistingBlueprintCompletionSafetyFailure(def, completionPlacement, blueprint)",
-            "if (safetyFailure != null) return safetyFailure", "blueprint.DeleteObject()",
-            "TryBuildVirtualFileInstantBuild(def, completionPlacement", "ComparePlacement(completionPlacement, actual)")
+    ordered(retry, "Orientation orientation = blueprint.GetComponent<Rotatable>()?.GetOrientation() ?? Orientation.Neutral",
+            "Placement = BuildPlacementDetails(def, placement.AnchorX, placement.AnchorY, placement.WorldId, orientation)",
+            "ExistingBlueprintCompletionSafetyFailure(def, target.Placement, target.Blueprint)",
+            "NativeBlueprintInstantCompletion.Run", "FindCompletedBuildAtPlacement", "VerifyNativeExistingBlueprintCompletion")
     assert "ExistingBlueprintCompletionSafetyFailure(def, placement, blueprint)" not in retry
-    assert "TryBuildVirtualFileInstantBuild(def, placement" not in retry
+    assert "TryBuildVirtualFileInstantBuild" not in retry
+    verify_existing_blueprint_native_retry(completion, native_completion)
     retry_guard = body(safety, "private static Dictionary<string, object> ExistingBlueprintCompletionSafetyFailure")
-    ordered(retry_guard, "ValidateFootprint(placement, blueprint)", "HasUnsafeExecutionConflict",
-            '["mutationAttempted"] = false', '"existing_blueprint_pre_completion_recheck"')
+    ordered(retry_guard, "ValidateFootprint(placement, blueprint)", "validation.InvalidCells.Count == 0",
+            "validation.Obstructions.Count == 0", "backwalls.Count == 0", '"existing_blueprint_pre_completion_recheck"')
 
     # Request orientation omitted/Neutral and actual existing blueprint rotated:
     # only the actual orientation reaches the occupied endpoint in this model.
@@ -125,7 +138,7 @@ def main() -> None:
     occupied = {(0, 1)}
     assert endpoints("Neutral").isdisjoint(occupied)
     assert not endpoints("R90").isdisjoint(occupied)
-    assert retry.find("GetOrientation()") < retry.find("ExistingBlueprintCompletionSafetyFailure") < retry.find("blueprint.DeleteObject()")
+    assert retry.find("GetOrientation()") < retry.find("ExistingBlueprintCompletionSafetyFailure") < retry.find("NativeBlueprintInstantCompletion.Run")
     print("bridge endpoint stomp safety contract passed")
 
 

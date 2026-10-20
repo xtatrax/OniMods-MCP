@@ -5,11 +5,19 @@ using System.Linq;
 // Only the game/Unity boundary is substituted. The adapter and guards are production source.
 namespace UnityEngine
 {
-    internal class Component { public GameObject gameObject; }
+    internal class Component { public GameObject gameObject; public T GetComponent<T>() where T:class { return gameObject?.GetComponent<T>(); } }
     internal sealed class GameObject
     {
         private readonly List<object> components = new List<object>();
         public int Cell;
+        public int Id;
+        public string name = "fixture";
+        public bool Destroyed;
+        public bool Active = true;
+        public int DeleteCalls;
+        public int GetInstanceID() { return Id; }
+        public string GetProperName() { return name; }
+        public void DeleteObject() { DeleteCalls++; Destroyed=true; }
         public void Add(object item)
         {
             components.Add(item);
@@ -19,7 +27,7 @@ namespace UnityEngine
         public T GetComponent<T>() where T : class { return components.OfType<T>().FirstOrDefault(); }
     }
 }
-internal sealed class KPrefabID : UnityEngine.Component { public int InstanceID; }
+internal sealed class KPrefabID : UnityEngine.Component { public int InstanceID; public Tag PrefabTag; }
 internal sealed class KSelectable : UnityEngine.Component
 {
     public bool IsSelectable = true;
@@ -86,6 +94,23 @@ internal static class Grid
     public const int HeightInCells = 8;
     public static readonly int[] Visible = new int[64];
     public static readonly int[] WorldIdx = new int[64];
+    public static readonly bool[] Solid = new bool[64];
+    public static readonly bool[] Foundation = new bool[64];
+    public struct ObjectLayerIndexer
+    {
+        public UnityEngine.GameObject this[int cell,int layer]
+        {get{UnityEngine.GameObject value;return ObjectLayers[layer].TryGetValue(cell,out value)?value:null;}set{ObjectLayers[layer][cell]=value;}}
+    }
+    public static Dictionary<int,UnityEngine.GameObject>[] ObjectLayers;
+    public static ObjectLayerIndexer Objects = new ObjectLayerIndexer();
+    public static void ResetObjectLayers()
+    {ObjectLayers=Enumerable.Range(0,(int)ObjectLayer.NumLayers).Select(_=>new Dictionary<int,UnityEngine.GameObject>()).ToArray();}
+    public static bool IsVisible(int cell) { return IsValidCell(cell) && Visible[cell] > 0; }
+    public static UnityEngine.Vector3 CellToPosCBC(int cell,int layer) { return new UnityEngine.Vector3(CellColumn(cell),CellRow(cell),layer); }
+    public static int OffsetCell(int cell,CellOffset offset) { return XYToCell(CellColumn(cell)+offset.x,CellRow(cell)+offset.y); }
+    public static ObjectLayer GetObjectLayerForConduitType(ConduitType type) { return ObjectLayer.GasConduit; }
+    public static int CellColumn(int cell) { return cell % WidthInCells; }
+    public static int CellRow(int cell) { return cell / WidthInCells; }
     public static int PosToCell(UnityEngine.GameObject go) { return go.Cell; }
     public static int XYToCell(int x, int y) { return y * WidthInCells + x; }
     public static bool IsValidCell(int cell) { return cell >= 0 && cell < 64; }
@@ -93,7 +118,7 @@ internal static class Grid
 }
 namespace OniMcp.Tools
 {
-    internal static class ToolUtil
+    internal static partial class ToolUtil
     {
         public static bool GameObjectMatchesWorld(UnityEngine.GameObject go, int world)
         { return Grid.IsValidCell(go.Cell) && Grid.WorldIdx[go.Cell] == world; }

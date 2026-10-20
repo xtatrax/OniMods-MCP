@@ -63,7 +63,7 @@ namespace OniMcp.Tools
                 result.Add(conflict);
 
             var seen = new HashSet<string>();
-            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells))
+            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored))
             {
                 string id = obstruction.ContainsKey("id") ? obstruction["id"]?.ToString() : "";
                 if ((utility && !endpointBridge) || IsUtilityPrefab(id))
@@ -324,11 +324,12 @@ namespace OniMcp.Tools
             };
         }
 
-        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells)
+        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null)
         {
             foreach (var building in Components.BuildingCompletes.Items)
             {
-                if (building == null || building.gameObject == null || !ToolUtil.GameObjectMatchesWorld(building.gameObject, worldId))
+                if (building == null || building.gameObject == null || ReferenceEquals(building.gameObject, ignored)
+                    || !ToolUtil.GameObjectMatchesWorld(building.gameObject, worldId))
                     continue;
                 foreach (var item in ExistingObjectFootprint(building.gameObject, building.Def, "building", footprintCells))
                     yield return item;
@@ -337,7 +338,7 @@ namespace OniMcp.Tools
             foreach (var constructable in FindConstructables(worldId))
             {
                 var go = constructable?.gameObject;
-                if (go == null)
+                if (go == null || ReferenceEquals(go, ignored))
                     continue;
                 var building = go.GetComponent<Building>();
                 foreach (var item in ExistingObjectFootprint(go, building?.Def, "blueprint", footprintCells))

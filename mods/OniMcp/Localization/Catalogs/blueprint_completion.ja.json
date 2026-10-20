@@ -1,0 +1,18 @@
+{
+  "blueprint_completion.ui_unavailable": "既存設計図の完成に必要な本体建築ツールを利用できないか、準備が整っていません。",
+  "blueprint_completion.ui_busy": "本体の建築UIが使用中のため、既存設計図の完成操作は確定していません。",
+  "blueprint_completion.pause_required": "既存設計図の完成操作前にゲームを一時停止してください。",
+  "blueprint_completion.preview_unavailable": "本体のプレビューが要求と一致することを確認できず、建築操作は呼んでいません。",
+  "blueprint_completion.native_failed": "既存設計図に対する本体の完成操作でエラーが発生しました。再試行前に観測結果を確認してください。",
+  "blueprint_completion.cleanup_failed": "本体の建築ツールから選択ツールへ戻ったことを確認できません。",
+  "blueprint_completion.target_changed": "正確な対象設計図またはゲーム状態が変わったため、完成操作を拒否しました。",
+  "blueprint_completion.target_unverifiable": "既存設計図の正確な個体識別または建設時の選択内容を確認できません。",
+  "blueprint_completion.definition_unavailable": "本体UIを使う既存設計図の完成操作は、現在Tile設計図だけに対応しています。",
+  "blueprint_completion.material_unverifiable": "確認できる建材が1種類必要です。複数建材は今回の検証対象外です。",
+  "blueprint_completion.facade_unverifiable": "既存設計図の外観を確認できないため、本体の完成操作は呼んでいません。",
+  "blueprint_completion.safety_blocked": "占有範囲、保護する地形・植物・壁裏、または接続端点が安全でないか未確認のため、完成操作を拒否しました。",
+  "blueprint_completion.world_inactive": "設計図のあるワールドをアクティブにしてから完成操作を行ってください。",
+  "blueprint_completion.observation_unavailable": "完成結果を確認できません。changedとappliedは不明のまま返します。",
+  "blueprint_completion.completion_not_observed": "対象設計図が正確に完成したことを確認できません。本体のvoid入口から拒否理由は得られません。",
+  "blueprint_completion.protected_state_changed": "確認範囲の占有状態が、完成操作後に保持されるべき状態と一致しません。自動再試行や状態の書き戻しは行っていません。"
+}

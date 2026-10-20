@@ -4,6 +4,7 @@
 from pathlib import Path
 import re
 import sys
+from verify_building_blueprint_safety import verify_existing_blueprint_native_retry
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +38,8 @@ def main() -> int:
     build = ROOT / "mods/OniMcp/Tools/Impl/Build"
     plan_one = (build / "BuildPlanningPlanOne.cs").read_text(encoding="utf-8")
     completion = (build / "BuildPlanningInstantCompletion.cs").read_text(encoding="utf-8")
+    existing_completion = (build / "BuildPlanningExistingBlueprintCompletion.cs").read_text(encoding="utf-8")
+    native_completion = (build / "NativeBlueprintInstantCompletion.cs").read_text(encoding="utf-8")
     building_control = (ROOT / "mods/OniMcp/Tools/Entry/BuildingControlTools.cs").read_text(encoding="utf-8")
     sandbox = (ROOT / "mods/OniMcp/Tools/WorldEditor/WorldEditorSandboxPolicy.cs").read_text(encoding="utf-8")
     edits = (ROOT / "mods/OniMcp/Tools/WorldEditor/WorldEditorEdits.cs").read_text(encoding="utf-8")
@@ -108,9 +111,11 @@ def main() -> int:
                      'details["orphanCompletedObject"]'):
         assert required in dirty
     assert planning.count("TryCompleteExistingVirtualFileBlueprint") >= 3
-    retry = method_body(completion, "private static Dictionary<string, object> TryCompleteExistingVirtualFileBlueprint")
-    ordered(retry, '"blueprint"', "FindConstructableAtPlacement", "blueprint.DeleteObject",
-            "TryBuildVirtualFileInstantBuild", '"completedExistingBlueprint"')
+    retry = method_body(existing_completion, "private static Dictionary<string, object> TryCompleteExistingVirtualFileBlueprint")
+    verify_existing_blueprint_native_retry(existing_completion, native_completion)
+    assert "TryCompleteExistingVirtualFileBlueprint" not in completion
+    ordered(retry, '"blueprint"', "FindConstructableAtPlacement", "NativeBlueprintInstantCompletion.Run",
+            "FindCompletedBuildAtPlacement", '"completedExistingBlueprint"')
     failure = method_body(completion, "private static Dictionary<string, object> InstantCompletionFailureResult")
     for closure in ('details["partial"]', 'details["applied"]', 'details["mutation"]',
                     'details["leftoverBlueprint"]', 'details["orphanCompletedObject"]',

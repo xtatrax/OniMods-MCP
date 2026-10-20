@@ -140,17 +140,21 @@ namespace OniMcp.Tools
             BuildingDef def, PlacementDetails placement, GameObject blueprint)
         {
             var validation = ValidateFootprint(placement, blueprint);
-            if (!HasUnsafeExecutionConflict(validation))
+            var backwalls = placement.Footprint.Where(cell => cell.Valid
+                && Grid.Objects[cell.Cell, (int)ObjectLayer.Backwall] != null).Select(cell => cell.Cell).ToList();
+            // The instant native tool can clear terrain or vegetation. This existing-blueprint
+            // scope authorizes neither, including when ordinary auto-dig options are enabled.
+            if (placement.GeometryAvailable && validation.InvalidCells.Count == 0
+                && validation.Obstructions.Count == 0 && backwalls.Count == 0)
                 return null;
-            return InstantCompletionFailureResult(def, placement, blueprint,
-                new Dictionary<string, object>
-                {
-                    ["requested"] = true,
-                    ["mutationAttempted"] = false,
-                    ["error"] = "existing blueprint completion safety changed; refusing to delete the blueprint or overwrite a bridge endpoint",
-                    ["safety"] = "existing_blueprint_pre_completion_recheck",
-                    ["obstructions"] = validation.Obstructions
-                }, placedByThisRequest: false);
+            return new Dictionary<string, object>
+            {
+                ["reasonCode"] = "safety_blocked",
+                ["safety"] = "existing_blueprint_pre_completion_recheck",
+                ["invalidCells"] = validation.InvalidCells,
+                ["obstructions"] = validation.Obstructions,
+                ["backwallCells"] = backwalls
+            };
         }
 
         private static IEnumerable<BridgeEndpointTarget> NativeBridgeEndpointTargets(

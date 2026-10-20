@@ -470,3 +470,115 @@ msgstr "traceのカーソルが記録済み履歴より新しい。"
 msgctxt "OniMcp.MCP.SPEED_TRACE.ERROR.INVALID_ACTION"
 msgid "Speed action must be time, pause, resume, set_speed or trace."
 msgstr "速度操作はtime、pause、resume、set_speed、traceのいずれかで指定する。"
+
+
+#. Runtime JSON key: blueprint_completion.ui_unavailable
+#. Runtime zh-Hans msgstr: "原生建造工具不可用或尚未就绪，无法完成已有建造蓝图。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.UI_UNAVAILABLE"
+msgid "The native build tool is unavailable or is not ready for existing blueprint completion."
+msgstr "既存設計図の完成に必要な本体建築ツールを利用できないか、準備が整っていません。"
+
+
+#. Runtime JSON key: blueprint_completion.ui_busy
+#. Runtime zh-Hans msgstr: "原生建造界面使用中；未提交已有建造蓝图的完成操作。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.UI_BUSY"
+msgid "The native build UI is busy; existing blueprint completion was not committed."
+msgstr "本体の建築UIが使用中のため、既存設計図の完成操作は確定していません。"
+
+
+#. Runtime JSON key: blueprint_completion.pause_required
+#. Runtime zh-Hans msgstr: "请先暂停游戏，再完成已有建造蓝图。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.PAUSE_REQUIRED"
+msgid "Pause the game before completing an existing blueprint."
+msgstr "既存設計図の完成操作前にゲームを一時停止してください。"
+
+
+#. Runtime JSON key: blueprint_completion.preview_unavailable
+#. Runtime zh-Hans msgstr: "无法确认原生预览与要求完全一致；未调用建造操作。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.PREVIEW_UNAVAILABLE"
+msgid "The native build tool did not expose the exact requested preview; no build gesture was issued."
+msgstr "本体のプレビューが要求と一致することを確認できず、建築操作は呼んでいません。"
+
+
+#. Runtime JSON key: blueprint_completion.native_failed
+#. Runtime zh-Hans msgstr: "原生完成操作失败；重试前请检查观测结果。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.NATIVE_FAILED"
+msgid "The native existing blueprint completion entry point failed; inspect the observed result before retrying."
+msgstr "既存設計図に対する本体の完成操作でエラーが発生しました。再試行前に観測結果を確認してください。"
+
+
+#. Runtime JSON key: blueprint_completion.cleanup_failed
+#. Runtime zh-Hans msgstr: "无法确认已从原生建造工具返回选择工具。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.CLEANUP_FAILED"
+msgid "The native build tool could not be verified as restored to the selection tool."
+msgstr "本体の建築ツールから選択ツールへ戻ったことを確認できません。"
+
+
+#. Runtime JSON key: blueprint_completion.target_changed
+#. Runtime zh-Hans msgstr: "确切的建造蓝图或游戏状态已变更；拒绝完成操作。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.TARGET_CHANGED"
+msgid "The exact blueprint or game context changed; existing blueprint completion was refused."
+msgstr "正確な対象設計図またはゲーム状態が変わったため、完成操作を拒否しました。"
+
+
+#. Runtime JSON key: blueprint_completion.target_unverifiable
+#. Runtime zh-Hans msgstr: "无法确认已有建造蓝图的确切实体或建造选项。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.TARGET_UNVERIFIABLE"
+msgid "The exact existing blueprint identity or construction choices could not be verified."
+msgstr "既存設計図の正確な個体識別または建設時の選択内容を確認できません。"
+
+
+#. Runtime JSON key: blueprint_completion.definition_unavailable
+#. Runtime zh-Hans msgstr: "通过原生界面完成已有建造蓝图，目前仅支持Tile。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.DEFINITION_UNAVAILABLE"
+msgid "Native existing blueprint completion is currently available only for Tile blueprints."
+msgstr "本体UIを使う既存設計図の完成操作は、現在Tile設計図だけに対応しています。"
+
+
+#. Runtime JSON key: blueprint_completion.material_unverifiable
+#. Runtime zh-Hans msgstr: "需要一种已知建材；多种建材不在本次验证范围。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.MATERIAL_UNVERIFIABLE"
+msgid "Existing blueprint completion requires one known construction material; multiple materials are outside this verification scope."
+msgstr "確認できる建材が1種類必要です。複数建材は今回の検証対象外です。"
+
+
+#. Runtime JSON key: blueprint_completion.facade_unverifiable
+#. Runtime zh-Hans msgstr: "无法确认已有建造蓝图的外观；未调用原生完成操作。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.FACADE_UNVERIFIABLE"
+msgid "The existing blueprint facade could not be verified; no native completion gesture was issued."
+msgstr "既存設計図の外観を確認できないため、本体の完成操作は呼んでいません。"
+
+
+#. Runtime JSON key: blueprint_completion.safety_blocked
+#. Runtime zh-Hans msgstr: "占用范围、保护地形、植物、背墙或端点不安全或未知；拒绝完成操作。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.SAFETY_BLOCKED"
+msgid "Existing blueprint completion was refused because its footprint, protected terrain, vegetation, backwall or connection endpoints are unsafe or unknown."
+msgstr "占有範囲、保護する地形・植物・壁裏、または接続端点が安全でないか未確認のため、完成操作を拒否しました。"
+
+
+#. Runtime JSON key: blueprint_completion.world_inactive
+#. Runtime zh-Hans msgstr: "请先切换至建造蓝图所在的世界，再进行完成操作。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.WORLD_INACTIVE"
+msgid "Existing blueprint completion requires its world to be the active world."
+msgstr "設計図のあるワールドをアクティブにしてから完成操作を行ってください。"
+
+
+#. Runtime JSON key: blueprint_completion.observation_unavailable
+#. Runtime zh-Hans msgstr: "无法确认完成结果；changed与applied保持未知。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.OBSERVATION_UNAVAILABLE"
+msgid "The result of existing blueprint completion could not be verified; changed and applied values remain unknown."
+msgstr "完成結果を確認できません。changedとappliedは不明のまま返します。"
+
+
+#. Runtime JSON key: blueprint_completion.completion_not_observed
+#. Runtime zh-Hans msgstr: "未观测到确切的建造蓝图已完成；原生void入口未提供拒绝原因。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.COMPLETION_NOT_OBSERVED"
+msgid "No verified completion of the exact existing blueprint was observed; the native void entry point provides no refusal reason."
+msgstr "対象設計図が正確に完成したことを確認できません。本体のvoid入口から拒否理由は得られません。"
+
+
+#. Runtime JSON key: blueprint_completion.protected_state_changed
+#. Runtime zh-Hans msgstr: "检查范围的占用状态与完成操作后应保持的状态不一致；未尝试自动重试或恢复状态。"
+msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.PROTECTED_STATE_CHANGED"
+msgid "The inspected footprint no longer matches the protected occupants expected after native completion; no retry or restoration was attempted."
+msgstr "確認範囲の占有状態が、完成操作後に保持されるべき状態と一致しません。自動再試行や状態の書き戻しは行っていません。"

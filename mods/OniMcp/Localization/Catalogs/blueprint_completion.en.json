@@ -1,0 +1,18 @@
+{
+  "blueprint_completion.ui_unavailable": "The native build tool is unavailable or is not ready for existing blueprint completion.",
+  "blueprint_completion.ui_busy": "The native build UI is busy; existing blueprint completion was not committed.",
+  "blueprint_completion.pause_required": "Pause the game before completing an existing blueprint.",
+  "blueprint_completion.preview_unavailable": "The native build tool did not expose the exact requested preview; no build gesture was issued.",
+  "blueprint_completion.native_failed": "The native existing blueprint completion entry point failed; inspect the observed result before retrying.",
+  "blueprint_completion.cleanup_failed": "The native build tool could not be verified as restored to the selection tool.",
+  "blueprint_completion.target_changed": "The exact blueprint or game context changed; existing blueprint completion was refused.",
+  "blueprint_completion.target_unverifiable": "The exact existing blueprint identity or construction choices could not be verified.",
+  "blueprint_completion.definition_unavailable": "Native existing blueprint completion is currently available only for Tile blueprints.",
+  "blueprint_completion.material_unverifiable": "Existing blueprint completion requires one known construction material; multiple materials are outside this verification scope.",
+  "blueprint_completion.facade_unverifiable": "The existing blueprint facade could not be verified; no native completion gesture was issued.",
+  "blueprint_completion.safety_blocked": "Existing blueprint completion was refused because its footprint, protected terrain, vegetation, backwall or connection endpoints are unsafe or unknown.",
+  "blueprint_completion.world_inactive": "Existing blueprint completion requires its world to be the active world.",
+  "blueprint_completion.observation_unavailable": "The result of existing blueprint completion could not be verified; changed and applied values remain unknown.",
+  "blueprint_completion.completion_not_observed": "No verified completion of the exact existing blueprint was observed; the native void entry point provides no refusal reason.",
+  "blueprint_completion.protected_state_changed": "The inspected footprint no longer matches the protected occupants expected after native completion; no retry or restoration was attempted."
+}

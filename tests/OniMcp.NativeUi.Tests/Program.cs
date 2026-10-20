@@ -10,13 +10,15 @@ internal static class Program
     private static PlayerControlledToggleSideScreen screen;
     private static DetailsScreen details;
 
-    private static void Main()
+    private static void Main(string[] args)
     {
+        if (args.Length == 1 && args[0] == "--completion-no-direct-write") { BlueprintParentRegression.VerifyNoDirectFallbackOnly(); return; }
         TestTargetGuards();
         TestUiReadiness();
         TestNativeButton();
         TestFirstUseInitialization();
         TestFailureObservation();
+        BlueprintCompletionRegression.Run();
         Console.WriteLine("Native UI adapter: " + checks + " host checks passed (Unity/game boundary substituted)");
     }
 
