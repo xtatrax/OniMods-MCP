@@ -476,3 +476,12 @@ survival_watchの終了停止を公開game_controlのpause/timeで独立確認�
 公開sourceの集約器/親adapter連結562条件、既存auto-route378・utility56条件と警告0・エラー0のbuild.12が成功。公開IDで通常Wireのpreview_valid、異種Wire競合のpreview_rejected、左右OFFの4条件を確認した。観測範囲35セル・既存電線2個の実ID/素材・停止時刻・取得可能なUI状態は不変。元の導入物/設定25ファイル・原本・未保存分岐・保存先選択・開始時未起動を独立照合し、新規Exception行0。
 
 これはMCP配置予行で、native予約・実施工・接続/通電や全予行/全UIの非変更を証明するものではない。公開にもある不具合の実装・合成試験・一般説明だけを選択し、開発履歴・個別保存先/設定/実ID/生応答は含めない。[契約と受入範囲](auto-power-result-summary_JP.md)。
+
+
+## 選択修正: 作業一覧の共有失敗snapshot保持
+
+作業一覧todosの読取が、ChoreConsumerの共有failedContextsをsortし、整理フラグをfalseへ書き換える不具合を修正した。失敗候補が必要かつ未整理の時だけ副本を同じ比較順でsortし、元のリスト/フラグを保持する。既存の現在作業・実行可能候補・潜在filter・件数・失敗理由とschemaは変えない。
+
+公開sourceの製品実メソッドを含むファイル全体を連結した197検査と、警告0・エラー0のbuild.13が成功。公開IDでも正式opsdupes経路から非空の失敗候補を使ったON/OFF・潜在filter・1件制限・反復の5条件が通り、現在作業・状態・時刻・取得可能なカメラ等を保持した。元環境25ファイル・原本・未保存分岐・保存先選択・開始時未起動を独立照合し、新規Exception行0。
+
+ホストはshared snapshotの二メンバー保持を示し、実機は可視出力と停止の受入。内部参照やflagを独立観測したものではない。IsPotentialSuccess/失敗理由のGetPreconditionsには別cacheのnative lazy整理が残る。全todos/read経路の純粋性へ一般化せず、非空の実行可能候補はホストの範囲とする。実装・合成試験・一般説明だけを選択し、開発履歴・個別保存先/設定/住民ID/生応答は含めない。[限定契約と残るgetter](minion-todo-cache-read_JP.md)。

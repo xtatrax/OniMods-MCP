@@ -173,10 +173,11 @@ namespace OniMcp.Tools
             }
 
             var snapshot = consumer.GetLastPreconditionSnapshot();
-            if (snapshot.doFailedContextsNeedSorting)
+            var failedContexts = snapshot.failedContexts;
+            if (includeBlocked && snapshot.doFailedContextsNeedSorting)
             {
-                snapshot.failedContexts.Sort();
-                snapshot.doFailedContextsNeedSorting = false;
+                failedContexts = new List<Chore.Precondition.Context>(failedContexts);
+                failedContexts.Sort();
             }
 
             var succeeded = snapshot.succeededContexts
@@ -186,7 +187,7 @@ namespace OniMcp.Tools
                 .Take(taskLimit)
                 .ToList();
             var blocked = includeBlocked
-                ? snapshot.failedContexts
+                ? failedContexts
                     .Where(ctx => ctx.chore != null && (!potentialOnly || ctx.IsPotentialSuccess()))
                     .Select(ctx => ChoreContextInfo(ctx, consumer, success: false))
                     .Take(taskLimit)
