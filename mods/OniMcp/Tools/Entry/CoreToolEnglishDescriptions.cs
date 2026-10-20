@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -28,7 +29,7 @@ namespace OniMcp.Tools
                     Describe(tool, DupesDescriptions());
                     break;
                 case "game_control":
-                    tool.Description = "Unified game entrypoint for speed, pause/resume, game state, saves, DLC activation, sandbox operations, and UI actions. Use semantic actions and named targets; coordinate input is not accepted here.";
+                    tool.Description = McpLocalization.GetForLanguage("en", "tools.game_control.description");
                     Describe(tool, GameDescriptions());
                     break;
                 case "navigation_control":
@@ -215,9 +216,14 @@ namespace OniMcp.Tools
         {
             var d = CommonDescriptions();
             d["domain"] = "Game subsystem: launch, speed, state, save, dlc, sandbox, or ui.";
-            d["action"] = "Game action for the selected subsystem. UI feedback actions include notification, popup, speech_bubble, and marker.";
+            d["action"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.action");
             d["kind"] = "Sandbox or UI subtype.";
-            d["uiDomain"] = "UI subsystem: action, feedback.";
+            d["uiDomain"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.uiDomain");
+            d["dialog"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dialog");
+            d["dialogToken"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dialogToken");
+            d["keepPaused"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.keepPaused");
+            d["dryRun"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dryRun");
+            d["confirm"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.confirm");
             d["name"] = "Save name, or duplicant name for ui/feedback speech_bubble.";
             d["id"] = "Target object id, or duplicant instance id for ui/feedback speech_bubble.";
             d["text"] = "Displayed text for ui/feedback popup or speech_bubble; required for speech_bubble.";

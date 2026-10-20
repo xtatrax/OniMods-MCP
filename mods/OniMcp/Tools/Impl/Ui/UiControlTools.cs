@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -16,12 +17,17 @@ namespace OniMcp.Tools
                 Risk = "low",
                 Aliases = new List<string> { "ui_unified_control", "player_feedback_control" },
                 Tags = new List<string> { "ui", "action", "feedback", "hint", "marker", "management", "overlay" },
-                Description = "UI の統合窓口: domain=action/feedback。action は安全な UI Action の読み取り/実行、feedback は通知/フローティングテキスト/複製人間のチャット吹き出し/マップマーカーの作成。",
+                Description = McpLocalization.Get("ui_dialog.ui_control_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["domain"] = new McpToolParameter { Type = "string", Description = "action または feedback", Required = true, EnumValues = new List<string> { "action", "feedback" } },
-                    ["action"] = new McpToolParameter { Type = "string", Description = "domain=action: list/trigger/open_management；domain=feedback: notification/popup/speech_bubble/marker", Required = true },
+                    ["domain"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_dialog.ui_domain_description"), Required = true, EnumValues = new List<string> { "action", "feedback", "dialog" } },
+                    ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_dialog.ui_action_description"), Required = true },
                     ["kind"] = new McpToolParameter { Type = "string", Description = "domain=action action=list の場合の絞り込みタイプ: all/management/overlay/build/navigation。その他の domain ではサブツールの意味に従って使用", Required = false },
+                    ["dialog"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.dialog"), Required = false, EnumValues = new List<string> { "mod_mismatch" } },
+                    ["dialogToken"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.dialogToken"), Required = false },
+                    ["keepPaused"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.keepPaused"), Required = false },
+                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.confirm"), Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.dryRun"), Required = false },
                     ["uiAction"] = new McpToolParameter { Type = "string", Description = "domain=action action=trigger の場合の Action 列挙型の名前", Required = false },
                     ["screen"] = new McpToolParameter { Type = "string", Description = "domain=action action=open_management の場合のページ名", Required = false },
                     ["title"] = new McpToolParameter { Type = "string", Description = "domain=feedback action=notification の場合の通知タイトル", Required = false },
@@ -50,12 +56,14 @@ namespace OniMcp.Tools
                         case "ui_action":
                         case "actions":
                             return UiTools.ControlUiAction().Handler(args);
+                        case "dialog":
+                            return UiDialogTools.Control(args);
                         case "feedback":
                         case "hint":
                         case "hints":
                             return ForwardFeedback(args, "hint");
                         default:
-                            return CallToolResult.Error("domain must be action or feedback");
+                            return CallToolResult.Error(McpLocalization.Get("ui_dialog.invalid_ui_domain"));
                     }
                 }
             };

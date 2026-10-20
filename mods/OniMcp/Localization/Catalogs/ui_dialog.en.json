@@ -1,0 +1,23 @@
+{
+  "tools.game_control.parameters.dialog": "Dialog kind for uiDomain=dialog. Only mod_mismatch is supported; unrelated dialogs cannot be acknowledged.",
+  "tools.game_control.parameters.dialogToken": "Opaque token returned by status for the current MOD mismatch dialog. Required for acknowledge and checked again before native invocation.",
+  "ui_dialog.ui_control_description": "Unified UI entrypoint: domain=action/feedback/dialog. Supports allowed UI actions, player feedback, and explicit status/acknowledge of the current MOD mismatch dialog.",
+  "ui_dialog.ui_domain_description": "UI subsystem: action, feedback or dialog.",
+  "ui_dialog.ui_action_description": "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge.",
+  "ui_dialog.invalid_ui_domain": "UI domain must be action, feedback or dialog.",
+  "tools.game_control.parameters.keepPaused": "For MOD mismatch acknowledgement, preserve a paused game after native OK; defaults to true. False leaves native pause handling unchanged and never forces resume. Status and dryRun do not change speed.",
+  "ui_dialog.unsupported_action": "Dialog action must be status or acknowledge.",
+  "ui_dialog.unsupported_dialog": "Only the mod_mismatch dialog is supported.",
+  "ui_dialog.token_required": "Read the current dialog status and pass its dialogToken before acknowledging.",
+  "ui_dialog.token_stale": "The dialog token no longer matches the visible MOD mismatch dialog. Read status again.",
+  "ui_dialog.confirm_required": "confirm=true is required to acknowledge the MOD mismatch dialog.",
+  "ui_dialog.unavailable": "The native MOD mismatch dialog UI is unavailable.",
+  "ui_dialog.ambiguous": "More than one current MOD mismatch dialog was found; the target is ambiguous.",
+  "ui_dialog.blocked": "Native UI input is disabled, or another dialog is in front of the MOD mismatch dialog.",
+  "ui_dialog.button_unavailable": "The native OK button is not ready for invocation.",
+  "ui_dialog.unsupported_shape": "The current dialog does not match the supported MOD mismatch confirmation layout.",
+  "ui_dialog.click_failed": "Native MOD mismatch acknowledgement failed: {0}",
+  "ui_dialog.pause_unavailable": "Native pause control is unavailable; a paused result cannot be preserved.",
+  "ui_dialog.not_present": "No MOD mismatch dialog is currently visible.",
+  "ui_dialog.invalid_boolean": "Parameter `{0}` must be a JSON boolean."
+}

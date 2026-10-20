@@ -1,0 +1,23 @@
+{
+  "tools.game_control.parameters.dialog": "uiDomain=dialog 的对话框种类。仅支持 mod_mismatch；不能确认其他对话框。",
+  "tools.game_control.parameters.dialogToken": "status 返回的当前MOD不匹配对话框的不透明令牌。acknowledge 必填，并在原生调用前重新核对。",
+  "ui_dialog.ui_control_description": "UI统一入口：domain=action/feedback/dialog。支持允许的UI Action、玩家反馈，以及当前MOD不匹配对话框的显式读取与确认。",
+  "ui_dialog.ui_domain_description": "UI子系统：action、feedback或dialog。",
+  "ui_dialog.ui_action_description": "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge。",
+  "ui_dialog.invalid_ui_domain": "UI的domain必须为action、feedback或dialog。",
+  "tools.game_control.parameters.keepPaused": "确认MOD不匹配后是否保持暂停，默认为true。false保留原生暂停处理，绝不强制恢复。status和dryRun不改变速度。",
+  "ui_dialog.unsupported_action": "对话框action必须为status或acknowledge。",
+  "ui_dialog.unsupported_dialog": "仅支持mod_mismatch对话框。",
+  "ui_dialog.token_required": "确认前请读取当前对话框的status，并传入其dialogToken。",
+  "ui_dialog.token_stale": "dialogToken已不匹配当前显示的MOD不匹配对话框。请重新读取status。",
+  "ui_dialog.confirm_required": "确认MOD不匹配对话框需要confirm=true。",
+  "ui_dialog.unavailable": "无法使用原生MOD不匹配对话框UI。",
+  "ui_dialog.ambiguous": "找到多个当前MOD不匹配对话框，无法确定目标。",
+  "ui_dialog.blocked": "原生UI输入已被禁用，或MOD不匹配对话框前面还有其他对话框。",
+  "ui_dialog.button_unavailable": "原生OK按钮尚未准备好接受调用。",
+  "ui_dialog.unsupported_shape": "当前对话框不符合支持的MOD不匹配确认布局。",
+  "ui_dialog.click_failed": "原生MOD不匹配确认失败：{0}",
+  "ui_dialog.pause_unavailable": "原生暂停控制不可用，无法保持暂停状态。",
+  "ui_dialog.not_present": "当前未显示MOD不匹配对话框。",
+  "ui_dialog.invalid_boolean": "参数 `{0}` 必须是 JSON 布尔值。"
+}

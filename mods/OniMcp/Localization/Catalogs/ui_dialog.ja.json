@@ -1,0 +1,23 @@
+{
+  "tools.game_control.parameters.dialog": "uiDomain=dialog のダイアログ種別。mod_mismatch のみに対応し、別のダイアログは確認しない。",
+  "tools.game_control.parameters.dialogToken": "status が返す現在のMOD不一致ダイアログの不透明トークン。acknowledge に必須で、ネイティブ呼出し直前に再照合する。",
+  "ui_dialog.ui_control_description": "UIの統合窓口: domain=action/feedback/dialog。許可されたUI Action、プレイヤー向けの通知、現在のMOD不一致ダイアログの明示的な読取・確認に対応する。",
+  "ui_dialog.ui_domain_description": "UIのサブシステム: action、feedback、dialog。",
+  "ui_dialog.ui_action_description": "domain=action: list/trigger/open_management、domain=feedback: notification/popup/speech_bubble/marker、domain=dialog: status/acknowledge。",
+  "ui_dialog.invalid_ui_domain": "UIのdomainには action、feedback、dialog のいずれかを指定してください。",
+  "tools.game_control.parameters.keepPaused": "MOD不一致の確認後に停止状態を保つか。既定は true。false は本来の一時停止処理に任せ、強制的に再開しない。status と dryRun は速度を変更しない。",
+  "ui_dialog.unsupported_action": "ダイアログのactionには status または acknowledge を指定してください。",
+  "ui_dialog.unsupported_dialog": "mod_mismatch ダイアログのみに対応しています。",
+  "ui_dialog.token_required": "確認前に現在のダイアログのstatusを読み、そのdialogTokenを渡してください。",
+  "ui_dialog.token_stale": "dialogTokenが表示中のMOD不一致ダイアログと一致しません。statusを読み直してください。",
+  "ui_dialog.confirm_required": "MOD不一致ダイアログの確認には confirm=true が必要です。",
+  "ui_dialog.unavailable": "本体のMOD不一致ダイアログUIを利用できません。",
+  "ui_dialog.ambiguous": "現在のMOD不一致ダイアログが複数見つかり、対象を特定できません。",
+  "ui_dialog.blocked": "ネイティブUIの入力が無効か、MOD不一致ダイアログの手前に別のダイアログがあります。",
+  "ui_dialog.button_unavailable": "本体のOKボタンをまだ呼び出せません。",
+  "ui_dialog.unsupported_shape": "現在のダイアログは、対応しているMOD不一致確認の構成と一致しません。",
+  "ui_dialog.click_failed": "本体によるMOD不一致の確認に失敗しました: {0}",
+  "ui_dialog.pause_unavailable": "本体の一時停止制御を利用できず、停止状態を保持できません。",
+  "ui_dialog.not_present": "現在、MOD不一致ダイアログは表示されていません。",
+  "ui_dialog.invalid_boolean": "引数 `{0}` は JSON の真偽値で指定してください。"
+}

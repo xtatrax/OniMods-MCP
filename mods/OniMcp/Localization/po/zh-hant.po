@@ -259,3 +259,159 @@ msgstr "命令中的引號未閉合。請在執行前閉合雙引號。"
 msgctxt "OniMcp.MCP.COMMAND_PARSING.INVALID_JSON"
 msgid "Invalid JSON array or object for `{0}`. Use valid JSON, or enclose the entire value in double quotes to pass a literal string."
 msgstr "參數 `{0}` 的 JSON 陣列或物件無效。請使用有效的 JSON，或用雙引號括住整個值以作為字串傳遞。"
+
+#. Runtime JSON key: tools.game_control.description
+#. Runtime zh-Hans msgstr: "统一的游戏入口，用于速度、暂停/恢复、游戏状态、存档、DLC启用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 读取或确认当前的MOD不匹配对话框。使用语义操作和具名目标；此入口不接受坐标输入。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.DESCRIPTION"
+msgid "Unified game entrypoint for speed, pause/resume, game state, saves, DLC activation, sandbox operations, and UI actions. Use domain=ui uiDomain=dialog to inspect or acknowledge the current MOD mismatch dialog. Use semantic actions and named targets; coordinate input is not accepted here."
+msgstr "統一的遊戲入口，用於速度、暫停/恢復、遊戲狀態、存檔、DLC啟用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 讀取或確認目前的MOD不匹配對話框。使用語意操作和具名目標；此入口不接受座標輸入。"
+
+#. Runtime JSON key: tools.game_control.parameters.action
+#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。UI feedback 支持 notification、popup、speech_bubble、marker；uiDomain=dialog 支持当前MOD不匹配对话框的 status、acknowledge。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.ACTION"
+msgid "Game action for the selected subsystem. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog."
+msgstr "所選子系統的遊戲操作。UI feedback 支援 notification、popup、speech_bubble、marker；uiDomain=dialog 支援目前MOD不匹配對話框的 status、acknowledge。"
+
+#. Runtime JSON key: tools.game_control.parameters.uiDomain
+#. Runtime zh-Hans msgstr: "UI子系统：action、feedback或dialog。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.UIDOMAIN"
+msgid "UI subsystem: action, feedback or dialog."
+msgstr "UI子系統：action、feedback或dialog。"
+
+#. Runtime JSON key: tools.game_control.parameters.dryRun
+#. Runtime zh-Hans msgstr: "对于支持的操作，预览而不应用更改。uiDomain=dialog action=acknowledge 为 true 时验证当前目标而不调用按钮。其他操作仍遵守各自的预览约定。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.DRYRUN"
+msgid "For supported actions, preview without applying changes. uiDomain=dialog action=acknowledge validates the current target without invoking its button when true. Other actions retain their own preview contract."
+msgstr "對於支援的操作，預覽而不套用變更。uiDomain=dialog action=acknowledge 為 true 時驗證目前目標而不呼叫按鈕。其他操作仍遵守各自的預覽約定。"
+
+#. Runtime JSON key: tools.game_control.parameters.dialog
+#. Runtime zh-Hans msgstr: "uiDomain=dialog 的对话框种类。仅支持 mod_mismatch；不能确认其他对话框。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.DIALOG"
+msgid "Dialog kind for uiDomain=dialog. Only mod_mismatch is supported; unrelated dialogs cannot be acknowledged."
+msgstr "uiDomain=dialog 的對話框種類。僅支援 mod_mismatch；不能確認其他對話框。"
+
+#. Runtime JSON key: tools.game_control.parameters.dialogToken
+#. Runtime zh-Hans msgstr: "status 返回的当前MOD不匹配对话框的不透明令牌。acknowledge 必填，并在原生调用前重新核对。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.DIALOGTOKEN"
+msgid "Opaque token returned by status for the current MOD mismatch dialog. Required for acknowledge and checked again before native invocation."
+msgstr "status 傳回的目前MOD不匹配對話框的不透明權杖。acknowledge 必填，並在原生呼叫前重新核對。"
+
+#. Runtime JSON key: ui_dialog.ui_control_description
+#. Runtime zh-Hans msgstr: "UI统一入口：domain=action/feedback/dialog。支持允许的UI Action、玩家反馈，以及当前MOD不匹配对话框的显式读取与确认。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UI_CONTROL_DESCRIPTION"
+msgid "Unified UI entrypoint: domain=action/feedback/dialog. Supports allowed UI actions, player feedback, and explicit status/acknowledge of the current MOD mismatch dialog."
+msgstr "UI統一入口：domain=action/feedback/dialog。支援允許的UI Action、玩家回饋，以及目前MOD不匹配對話框的明確讀取與確認。"
+
+#. Runtime JSON key: ui_dialog.ui_domain_description
+#. Runtime zh-Hans msgstr: "UI子系统：action、feedback或dialog。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UI_DOMAIN_DESCRIPTION"
+msgid "UI subsystem: action, feedback or dialog."
+msgstr "UI子系統：action、feedback或dialog。"
+
+#. Runtime JSON key: ui_dialog.ui_action_description
+#. Runtime zh-Hans msgstr: "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UI_ACTION_DESCRIPTION"
+msgid "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge."
+msgstr "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge。"
+
+#. Runtime JSON key: ui_dialog.invalid_ui_domain
+#. Runtime zh-Hans msgstr: "UI的domain必须为action、feedback或dialog。"
+msgctxt "OniMcp.MCP.UI_DIALOG.INVALID_UI_DOMAIN"
+msgid "UI domain must be action, feedback or dialog."
+msgstr "UI的domain必須為action、feedback或dialog。"
+
+#. Runtime JSON key: tools.game_control.parameters.keepPaused
+#. Runtime zh-Hans msgstr: "确认MOD不匹配后是否保持暂停，默认为true。false保留原生暂停处理，绝不强制恢复。status和dryRun不改变速度。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.KEEPPAUSED"
+msgid "For MOD mismatch acknowledgement, preserve a paused game after native OK; defaults to true. False leaves native pause handling unchanged and never forces resume. Status and dryRun do not change speed."
+msgstr "確認MOD不匹配後是否保持暫停，預設為true。false保留原生暫停處理，絕不強制恢復。status和dryRun不改變速度。"
+
+#. Runtime JSON key: ui_dialog.unsupported_action
+#. Runtime zh-Hans msgstr: "对话框action必须为status或acknowledge。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UNSUPPORTED_ACTION"
+msgid "Dialog action must be status or acknowledge."
+msgstr "對話框action必須為status或acknowledge。"
+
+#. Runtime JSON key: ui_dialog.unsupported_dialog
+#. Runtime zh-Hans msgstr: "仅支持mod_mismatch对话框。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UNSUPPORTED_DIALOG"
+msgid "Only the mod_mismatch dialog is supported."
+msgstr "僅支援mod_mismatch對話框。"
+
+#. Runtime JSON key: ui_dialog.token_required
+#. Runtime zh-Hans msgstr: "确认前请读取当前对话框的status，并传入其dialogToken。"
+msgctxt "OniMcp.MCP.UI_DIALOG.TOKEN_REQUIRED"
+msgid "Read the current dialog status and pass its dialogToken before acknowledging."
+msgstr "確認前請讀取目前對話框的status，並傳入其dialogToken。"
+
+#. Runtime JSON key: ui_dialog.token_stale
+#. Runtime zh-Hans msgstr: "dialogToken已不匹配当前显示的MOD不匹配对话框。请重新读取status。"
+msgctxt "OniMcp.MCP.UI_DIALOG.TOKEN_STALE"
+msgid "The dialog token no longer matches the visible MOD mismatch dialog. Read status again."
+msgstr "dialogToken已不符合目前顯示的MOD不匹配對話框。請重新讀取status。"
+
+#. Runtime JSON key: ui_dialog.confirm_required
+#. Runtime zh-Hans msgstr: "确认MOD不匹配对话框需要confirm=true。"
+msgctxt "OniMcp.MCP.UI_DIALOG.CONFIRM_REQUIRED"
+msgid "confirm=true is required to acknowledge the MOD mismatch dialog."
+msgstr "確認MOD不匹配對話框需要confirm=true。"
+
+#. Runtime JSON key: ui_dialog.unavailable
+#. Runtime zh-Hans msgstr: "无法使用原生MOD不匹配对话框UI。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UNAVAILABLE"
+msgid "The native MOD mismatch dialog UI is unavailable."
+msgstr "無法使用原生MOD不匹配對話框UI。"
+
+#. Runtime JSON key: ui_dialog.ambiguous
+#. Runtime zh-Hans msgstr: "找到多个当前MOD不匹配对话框，无法确定目标。"
+msgctxt "OniMcp.MCP.UI_DIALOG.AMBIGUOUS"
+msgid "More than one current MOD mismatch dialog was found; the target is ambiguous."
+msgstr "找到多個目前MOD不匹配對話框，無法確定目標。"
+
+#. Runtime JSON key: ui_dialog.blocked
+#. Runtime zh-Hans msgstr: "原生UI输入已被禁用，或MOD不匹配对话框前面还有其他对话框。"
+msgctxt "OniMcp.MCP.UI_DIALOG.BLOCKED"
+msgid "Native UI input is disabled, or another dialog is in front of the MOD mismatch dialog."
+msgstr "原生UI輸入已被停用，或MOD不匹配對話框前面還有其他對話框。"
+
+#. Runtime JSON key: ui_dialog.button_unavailable
+#. Runtime zh-Hans msgstr: "原生OK按钮尚未准备好接受调用。"
+msgctxt "OniMcp.MCP.UI_DIALOG.BUTTON_UNAVAILABLE"
+msgid "The native OK button is not ready for invocation."
+msgstr "原生OK按鈕尚未準備好接受呼叫。"
+
+#. Runtime JSON key: ui_dialog.unsupported_shape
+#. Runtime zh-Hans msgstr: "当前对话框不符合支持的MOD不匹配确认布局。"
+msgctxt "OniMcp.MCP.UI_DIALOG.UNSUPPORTED_SHAPE"
+msgid "The current dialog does not match the supported MOD mismatch confirmation layout."
+msgstr "目前對話框不符合支援的MOD不匹配確認配置。"
+
+#. Runtime JSON key: ui_dialog.click_failed
+#. Runtime zh-Hans msgstr: "原生MOD不匹配确认失败：{0}"
+msgctxt "OniMcp.MCP.UI_DIALOG.CLICK_FAILED"
+msgid "Native MOD mismatch acknowledgement failed: {0}"
+msgstr "原生MOD不匹配確認失敗：{0}"
+
+#. Runtime JSON key: ui_dialog.pause_unavailable
+#. Runtime zh-Hans msgstr: "原生暂停控制不可用，无法保持暂停状态。"
+msgctxt "OniMcp.MCP.UI_DIALOG.PAUSE_UNAVAILABLE"
+msgid "Native pause control is unavailable; a paused result cannot be preserved."
+msgstr "原生暫停控制不可用，無法保持暫停狀態。"
+
+#. Runtime JSON key: ui_dialog.not_present
+#. Runtime zh-Hans msgstr: "当前未显示MOD不匹配对话框。"
+msgctxt "OniMcp.MCP.UI_DIALOG.NOT_PRESENT"
+msgid "No MOD mismatch dialog is currently visible."
+msgstr "目前未顯示MOD不匹配對話框。"
+
+#. Runtime JSON key: tools.game_control.parameters.confirm
+#. Runtime zh-Hans msgstr: "写入、危险操作或批量操作所需的确认。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.CONFIRM"
+msgid "Required confirmation for write, dangerous, or batch actions."
+msgstr "寫入、危險操作或批次操作所需的確認。"
+
+#. Runtime JSON key: ui_dialog.invalid_boolean
+#. Runtime zh-Hans msgstr: "参数 `{0}` 必须是 JSON 布尔值。"
+msgctxt "OniMcp.MCP.UI_DIALOG.INVALID_BOOLEAN"
+msgid "Parameter `{0}` must be a JSON boolean."
+msgstr "參數 `{0}` 必須是 JSON 布林值。"

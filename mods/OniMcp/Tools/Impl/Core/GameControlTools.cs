@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -19,13 +20,13 @@ namespace OniMcp.Tools
                 Risk = "dangerous",
                 Aliases = new List<string> { "game_system_control" },
                 Tags = new List<string> { "game", "speed", "pause", "save", "launch", "dlc", "red-alert", "sandbox", "debug", "map", "ui", "feedback" },
-                Description = "ゲーム操作の統合入口。domain=launch/speed/state/save/dlc/sandbox/ui。launch は起動、永続化された Steam 再起動・読み込み処理とタスク状態の照会に対応。sandbox は kind=read/area/entity/map_designate、ui は uiDomain=action/feedback。",
+                Description = McpLocalization.Get("tools.game_control.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["domain"] = new McpToolParameter { Type = "string", Description = "ゲームのサブシステム: launch、speed、state、save、dlc、sandbox、ui", Required = true, EnumValues = new List<string> { "launch", "speed", "state", "save", "dlc", "sandbox", "ui" } },
-                    ["action"] = new McpToolParameter { Type = "string", Description = "サブシステムの操作: launch=status/start/restart_load/restart_status、speed=time/pause/resume/set_speed、state=red_alert_status/set_red_alert/set_sandbox_mode、save=list/save/load/quit、dlc=list/activate。sandbox/ui は kind/uiDomain に応じて振り分ける", Required = true },
+                    ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.action"), Required = true },
                     ["kind"] = new McpToolParameter { Type = "string", Description = "domain=sandbox のサブドメイン: read、area、entity、map_designate。既定は read。domain=ui uiDomain=action action=list では種類の絞り込みに使用", Required = false, EnumValues = new List<string> { "read", "area", "entity", "map_designate", "all", "management", "overlay", "build", "navigation" } },
-                    ["uiDomain"] = new McpToolParameter { Type = "string", Description = "domain=ui の UI サブドメイン: action、feedback", Required = false, EnumValues = new List<string> { "action", "feedback" } },
+                    ["uiDomain"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.uiDomain"), Required = false, EnumValues = new List<string> { "action", "feedback", "dialog" } },
                     ["speed"] = new McpToolParameter { Type = "integer", Description = "domain=speed action=set_speed の速度段階: 0=一時停止, 1=通常, 2=高速, 3=超高速", Required = false },
                     ["enabled"] = new McpToolParameter { Type = "boolean", Description = "domain=state の書き込み操作: true=有効、false=無効", Required = false },
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "domain=state のワールド ID。既定は現在アクティブなワールド", Required = false },
@@ -44,6 +45,9 @@ namespace OniMcp.Tools
                     ["saveFirst"] = new McpToolParameter { Type = "boolean", Description = "domain=save action=quit で終了前に保存するか。既定は false", Required = false },
                     ["includeCosmetic"] = new McpToolParameter { Type = "boolean", Description = "domain=dlc action=list で cosmetic/content-only DLC を含めるか。既定は false", Required = false },
                     ["dlcId"] = new McpToolParameter { Type = "string", Description = "domain=dlc action=activate の DLC id。例: DLC2_ID、DLC3_ID、DLC4_ID、DLC5_ID", Required = false },
+                    ["dialog"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.dialog"), Required = false, EnumValues = new List<string> { "mod_mismatch" } },
+                    ["dialogToken"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.dialogToken"), Required = false },
+                    ["keepPaused"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.keepPaused"), Required = false },
                     ["uiAction"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=action action=trigger の Action 列挙名", Required = false },
                     ["screen"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=action action=open_management の画面名", Required = false },
                     ["title"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=feedback action=notification の通知タイトル", Required = false },
@@ -74,10 +78,10 @@ namespace OniMcp.Tools
                     ["matchMode"] = new McpToolParameter { Type = "string", Description = "domain=sandbox kind=map_designate の一致処理: unique/first/all。既定は unique", Required = false, EnumValues = new List<string> { "unique", "first", "all" } },
                     ["matchIndex"] = new McpToolParameter { Type = "integer", Description = "domain=sandbox kind=map_designate で複数一致した場合に選ぶ位置。0 始まり", Required = false },
                     ["maxCells"] = new McpToolParameter { Type = "integer", Description = "domain=sandbox の区域/検索の安全上限", Required = false },
-                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = "domain=launch action=restart_load はプレビューに対応。domain=sandbox では kind=map_designate と kind=area action=flood_fill のみプレビューに対応し、他のサンドボックス書き込み操作に dryRun=true を渡すと実行を拒否する", Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.dryRun"), Required = false },
                     ["visibleOnly"] = new McpToolParameter { Type = "boolean", Description = "domain=sandbox kind=map_designate の検索で未探索セルを unk として扱うか。既定は false", Required = false },
                     ["force"] = new McpToolParameter { Type = "boolean", Description = "domain=sandbox で対応する内部ツールのサンドボックスモードまたは InstantBuild の条件を回避することを許可するか。既定は false", Required = false },
-                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = "内部の書き込み/危険な操作には true が必要", Required = false }
+                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.confirm"), Required = false }
                 },
                 Handler = args =>
                 {
