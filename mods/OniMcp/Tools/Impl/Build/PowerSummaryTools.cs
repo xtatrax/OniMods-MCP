@@ -93,7 +93,8 @@ namespace OniMcp.Tools
 
                         var circuit = GetCircuit(circuits, generator.CircuitID);
                         circuit.GeneratorCount++;
-                        circuit.GeneratorOperational++;
+                        if (operational)
+                            circuit.GeneratorOperational++;
                         circuit.GeneratorWatts += rating;
 
                         if (includeDetails && generators.Count < limit)
@@ -128,7 +129,8 @@ namespace OniMcp.Tools
 
                         var circuit = GetCircuit(circuits, consumer.CircuitID);
                         circuit.ConsumerCount++;
-                        circuit.ConsumerOperational++;
+                        if (operational)
+                            circuit.ConsumerOperational++;
                         circuit.ConsumerBaseWatts += baseWatts;
                         circuit.ConsumerNeededWatts += neededWatts;
                         circuit.ConsumerUsedWatts += usedWatts;

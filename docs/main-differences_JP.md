@@ -624,3 +624,9 @@ snapshotが非ComponentのAmountsをGetComponentで探して0補完していた�
 既存ドア情報へnative doorTypeとisSealedMeaning=native_special_sealだけを追加した。current/requested/isOpen/isSealedの値と取得方法を保ち、特殊sealを通常の閉鎖・施錠・気体遮断と同一視しない。新しい派生boolや操作・getter補完は追加しない。
 
 両版の初回・通常再読込で現存ドアの全legacy情報・ID/位置の保持、既存resourceと公開窓口・件数制限・空結果・特殊sealの絞込み・反復と停止時計を受入れ、元環境の未ロード入口へ復帰した。新hostは作成せず、このDoorInfoを含まない既存suiteの結果を根拠に加算していない。型/モード/遷移の全組合せ、欠測、描画UIと気体遮断実験は未試験。実装と一般説明だけを反映し、私的履歴・個別ID・保存名・保存先・座標・設定値・生応答を含めない。[意味と受入範囲](door-state-semantics_JP.md)。
+
+## 選択修正: 回路別Operational件数を全体・詳細へ揃える
+
+回路別generatorOperational/consumerOperationalが全設備を無条件に数えていた不整合を、各loopで取得済みのnative operational boolへ揃えた。全体/詳細・他の電力/J値・world/limit/回路選別を保ち、新getter・状態更新・独自の電力規則を追加しない。
+
+専用hostの実factory/helper連結と旧caller負試験、両版の初回・通常再読込で完全な現物詳細と件数を受入れた。実機の全falseはロード後停止中のcached観測で、物理的全停止や全cache初期化の保証ではない。跨ロードの回路IDは全現物の所属で正規化し、二次診断wire IDを除く既存内容・簡易/limit1・同runのresource/反復・停止時計を確認し、元環境の未ロード入口へ復帰した。混在true/falseはhost境界であり、netActiveWatts・generatorEmptyの意味、実燃料ゼロ・通常UI等の親課題は残る。実装・合成回帰と一般説明だけを反映し、私的履歴・個別ID・保存名・保存先・座標・設定値・生応答を含めない。[修正契約と受入範囲](power-operational-counts_JP.md)。

@@ -1,0 +1,32 @@
+# 回路別Operational件数と全体集計の整合
+
+既存の電力サマリーでは、全体のgeneratorOperational/consumerOperationalはOperational条件を見て数える一方、回路別の同名fieldは全設備を無条件に加算していました。同じ回路に条件falseの設備があると、回路別件数が全体と詳細のoperational値に一致しませんでした。
+
+今回の修正は、回路別のGeneratorOperational/ConsumerOperational加算にも、そのループで既に取得したoperational boolを使う二つの条件だけです。新しいnative getter・回路計算・設定操作・状態更新・refreshを追加しません。
+
+## 数える値
+
+- 既存helperは対象GameObjectのOperational componentを読み、componentが存在し、native IsOperationalがtrueの場合を数えます。
+- 全体summaryと同じ対象entry・同じ取得値を回路別にも使います。generatorCount/consumerCountは従来どおり条件を問わない対象件数です。
+- 同じresponse内で、回路別generatorOperationalの合計はsummary.generatorOperational、consumerOperationalの合計はsummary.consumerOperationalと整合します。詳細表示が件数上限で切れていても、この集計対象を減らしません。
+- Operational component無しを旧helperがfalseとする扱いは維持します。欠測のnullable化・例外補完やnative ruleの再実装を行ったものではありません。
+
+IsOperationalはIsActive・IsPowered・Generator.IsProducingPower・IsEmptyや燃料在庫とは別の値です。この件数を実発電・現在の電力消費・燃料充足・配線の完成や実流量の証拠にしません。native predicateをMCPの独自条件へ置き換えません。
+
+## 保持する契約
+
+world選別、entryの反復方法と件数、回路IDと未接続の表現、詳細のlimit/includeDetails、診断・並び順は変更しません。summary側の条件と各詳細のoperational値、電力/W・蓄電/J・既存netActiveWatts等の式と丸めも保ちます。未変更のregistry重複を新たにdedupする修正ではありません。
+
+取得には既存のworld_editor読取と電力サマリーresourceを使います。公開toolや返却fieldの追加、通電・接続・切断、稼働や燃料を操作する経路は追加しません。runtime人向け文言は変更せず、今回PO追加はありません。
+
+## 受入範囲と残条件
+
+実sourceから厳密抽出したfactory・必要な実helper/aggregateとactual serializerによる専用hostで、同回路のtrue/false混在、全false・world選別・詳細上限・空集合と既存値の保持を確認しました。旧caller全文を入力したcompile後の負試験で件数不一致を検出しました。native component/registry入力は代替であり、hostの混在状態を実機で再現したとは扱いません。
+
+両版の初回・通常再読込では、停止中の既存現物4generator・30consumer・4batteryの全詳細が揃うことを先に確認し、同じresponseのoperational boolからsummary/各回路の件数を照合しました。取得したgenerator/consumerのcached値は全falseで、修正前に全体0/0へ対して回路合計4/30となっていた不整合が、詳細と同じ0件へ揃うことを確認しました。このロード後停止中のcache観測を、実設備の全停止・全cache初期化完了・通電不可の証拠へ読み替えません。
+
+全summary・詳細・W/J・診断と、修正対象以外の回路値を保持しました。跨ロードでは回路ID/keyの固定を求めず、全現物のroleとprimary IDの所属集合で正規化します。診断portの二次wire.idだけを比較対象から外し、主対象ID・位置・port構造・wire属性は保持しました。同じrunの公開read入口/resource/完全詳細の反復はprimary payloadが一致し、policyの二次blockを主結果へ混ぜません。簡易既定とlimit1でも全体/回路集計が保たれ、打切り詳細を完全な件数証拠には使いません。
+
+停止時計・原本の保持と元環境への復帰を確認しました。元導入物・対象設定・共有保存・保存先選択・他MOD/DLCと元版の未ロード入口へ戻した範囲であり、同じ接続sessionや全preferencesのbyte一致を主張しません。通常UI全体・実発電/実消費・燃料枯渇・全MOD組合せは未試験です。実機のtrue/false混在や他worldの境界は今回の受入に含めません。
+
+netActiveWatts・generatorEmptyの意味注記、native回路cacheとcomponent値、実燃料ゼロ・稼働/停止・通常UIの照合は別の親課題です。この件数修正だけで電力値の意味や全TODOを解消したとは扱いません。
