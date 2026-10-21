@@ -45,7 +45,7 @@ namespace OniMcp.Tools
             int dupes = Components.LiveMinionIdentities.Count;
             var foodAccess = FoodAvailabilityReader.CaptureAccess(visibleOnly);
             float foodKcal = (float)foodAccess.Available;
-            float maxStress = MaxStress();
+            var stress = DupeStressSummary.Read(Components.LiveMinionIdentities.Items);
             var buildings = CountBuildings();
             int oxygenProducers = CountMatching(buildings, "OxygenDiffuser", "MineralDeoxidizer", "Electrolyzer");
             int toilets = CountMatching(buildings, "Outhouse", "FlushToilet");
@@ -94,8 +94,8 @@ namespace OniMcp.Tools
                 AddBlocker(blockers, "warning", "hygiene", "No toilet detected.");
             if (beds < dupes)
                 AddBlocker(blockers, "info", "sleep", $"Beds {beds}/{dupes}.");
-            if (maxStress >= 60f)
-                AddBlocker(blockers, "warning", "stress", $"Max stress {Math.Round(maxStress, 1)}%.");
+            if (stress.ObservedMaximum.HasValue && stress.ObservedMaximum.Value >= 60f)
+                AddBlocker(blockers, "warning", "stress", stress.WarningText());
 
             nextCalls.Add("colony_control domain=diagnostic action=alerts limit=10");
             nextCalls.Add("python .agents/skills/oni-mcp-autonomous-iteration/scripts/survival_watch.py --target-cycles 100 --poll-seconds 20 --speed 3");
@@ -106,8 +106,10 @@ namespace OniMcp.Tools
             return new Dictionary<string, object>
             {
                 ["targetCycles"] = targetCycles,
-                ["canAttemptLongRun"] = !hasCritical,
-                ["decision"] = hasCritical ? "fix_critical_before_100_cycle_run" : "long_run_allowed_with_monitoring",
+                ["canAttemptLongRun"] = hasCritical ? (object)false
+                    : stress.Complete ? (object)true : Newtonsoft.Json.Linq.JValue.CreateNull(),
+                ["decision"] = hasCritical ? "fix_critical_before_100_cycle_run"
+                    : stress.Complete ? "long_run_allowed_with_monitoring" : "assessment_incomplete",
                 ["metrics"] = new Dictionary<string, object>
                 {
                     ["cycle"] = GameUtil.GetCurrentCycle(),
@@ -117,7 +119,8 @@ namespace OniMcp.Tools
                     ["foodPolicy"] = "confirmed unreserved available calories; not visible total or HUD",
                     ["visibleOnly"] = visibleOnly,
                     ["foodNeedKcal"] = Math.Round(foodNeed, 1),
-                    ["maxStress"] = Math.Round(maxStress, 1),
+                    ["maxStress"] = stress.RoundedMaximum,
+                    ["stressCoverage"] = stress.Coverage(),
                     ["oxygenProducers"] = oxygenProducers,
                     ["toilets"] = toilets,
                     ["beds"] = beds,
@@ -469,14 +472,6 @@ namespace OniMcp.Tools
             yield return Grid.XYToCell(x - 1, y);
             yield return Grid.XYToCell(x, y + 1);
             yield return Grid.XYToCell(x, y - 1);
-        }
-
-        private static float MaxStress()
-        {
-            float value = 0f;
-            foreach (var dupe in Components.LiveMinionIdentities.Items)
-                value = Math.Max(value, DupeAmountUtil.StressValue(dupe));
-            return value;
         }
     }
 }

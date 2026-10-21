@@ -274,11 +274,7 @@ namespace OniMcp.Tools
                 .Where(e => e != null && e.gameObject != null && ToolUtil.VisibleCellAllowed(Grid.PosToCell(e), visibleOnly))
                 .Sum(e => ToolUtil.SafeFloat(e.Calories) / 1000f);
             var foodAccess = FoodAvailabilityReader.CaptureAccess(visibleOnly);
-            float stressMax = 0f;
-            foreach (var dupe in Components.LiveMinionIdentities.Items)
-            {
-                stressMax = Math.Max(stressMax, DupeAmountUtil.StressValue(dupe));
-            }
+            var stress = DupeStressSummary.Read(Components.LiveMinionIdentities.Items);
 
             int activeWorldId = ClusterManager.Instance?.activeWorldId ?? 0;
             float oxygenKg = 0f;
@@ -319,7 +315,10 @@ namespace OniMcp.Tools
             AddAlert(alerts, toilets == 0, "warning", "hygiene", "トイレが見つかりません。");
             AddAlert(alerts, researchStations == 0, "info", "research", "研究端末が見つかりません。");
             AddAlert(alerts, batteries == 0, "info", "power", "バッテリーが見つかりません。");
-            AddAlert(alerts, stressMax > 40f, "warning", "stress", $"複製人間の最大ストレス: {Math.Round(stressMax, 1)}。");
+            AddAlert(alerts, stress.ObservedMaximum.HasValue && stress.ObservedMaximum.Value > 40f,
+                "warning", "stress", stress.WarningText());
+            AddAlert(alerts, !stress.Complete, "info", "stress_assessment_incomplete",
+                McpLocalization.Get("diagnostic_stress.assessment_incomplete"));
 
             return new Dictionary<string, object>
             {
@@ -340,7 +339,8 @@ namespace OniMcp.Tools
                     ["researchStations"] = researchStations,
                     ["batteries"] = batteries
                 },
-                ["maxStress"] = Math.Round(stressMax, 1),
+                ["maxStress"] = stress.RoundedMaximum,
+                ["stressCoverage"] = stress.Coverage(),
                 ["alertCount"] = alerts.Count,
                 ["alerts"] = alerts
             };

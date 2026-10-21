@@ -1,0 +1,5 @@
+{
+  "diagnostic_stress.warning.complete": "複製人間の最大ストレス: {0}%。",
+  "diagnostic_stress.warning.partial": "取得できたストレスの最大値: {0}%。一部の複製人間は未取得です。",
+  "diagnostic_stress.assessment_incomplete": "一部の複製人間のストレスを取得できないため、全体のストレス評価は未完了です。"
+}

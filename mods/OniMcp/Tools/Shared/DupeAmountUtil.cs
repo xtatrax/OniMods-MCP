@@ -1,29 +1,42 @@
 using System;
+using System.Reflection;
 using Klei.AI;
 
 namespace OniMcp.Tools
 {
     internal static class DupeAmountUtil
     {
+        private static readonly FieldInfo ExistingDb = BindExistingDb();
+
+        private static FieldInfo BindExistingDb()
+        {
+            try
+            {
+                var field = typeof(Db).GetField("_Instance", BindingFlags.Static | BindingFlags.NonPublic);
+                return field != null && field.DeclaringType == typeof(Db) && field.FieldType == typeof(Db)
+                    && field.IsStatic ? field : null;
+            }
+            catch { return null; }
+        }
+
         public static bool TryGetStressValue(MinionIdentity dupe, out float value)
         {
             value = 0f;
+            if (dupe == null || ExistingDb == null) return false;
             try
             {
-                var amounts = dupe?.GetComponent<Amounts>();
-                var stressAmount = Db.Get()?.Amounts?.Stress;
-                var stress = stressAmount == null ? null : amounts?.Get(stressAmount);
-                if (stress == null)
-                    return false;
-                value = ToolUtil.SafeFloat(stress.value);
+                var db = ExistingDb.GetValue(null) as Db;
+                var stress = db?.Amounts?.Stress?.Lookup(dupe);
+                if (stress == null) return false;
+                float raw = stress.value;
+                if (float.IsNaN(raw) || float.IsInfinity(raw)) return false;
+                value = raw;
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
+        // Retained for historical callers; active diagnostics use the nullable stress summary.
         public static float StressValue(MinionIdentity dupe, float fallback = 0f)
         {
             return TryGetStressValue(dupe, out var value)

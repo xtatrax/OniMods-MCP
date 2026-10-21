@@ -1,0 +1,5 @@
+{
+  "diagnostic_stress.warning.complete": "Maximum duplicant stress: {0}%.",
+  "diagnostic_stress.warning.partial": "Observed duplicant stress maximum: {0}%; some readings are unavailable.",
+  "diagnostic_stress.assessment_incomplete": "Some duplicant stress readings are unavailable; colony-wide stress assessment is incomplete."
+}

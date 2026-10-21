@@ -775,3 +775,21 @@ msgstr "（snapshotの欲求値に未取得あり）"
 msgctxt "OniMcp.MCP.SNAPSHOT_NEEDS.ALERT.OBSERVED_STRESS"
 msgid "Observed stress maximum {0}; some duplicants are unobserved."
 msgstr "取得できたストレスの最大値は{0}です。一部の複製人間は未取得です。"
+
+#. Runtime JSON key: diagnostic_stress.warning.complete
+#. Runtime zh-Hans msgstr: "复制人的最大压力：{0}%。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.WARNING.COMPLETE"
+msgid "Maximum duplicant stress: {0}%."
+msgstr "複製人間の最大ストレス: {0}%。"
+
+#. Runtime JSON key: diagnostic_stress.warning.partial
+#. Runtime zh-Hans msgstr: "已取得压力的最大值：{0}%；部分复制人的读数未取得。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.WARNING.PARTIAL"
+msgid "Observed duplicant stress maximum: {0}%; some readings are unavailable."
+msgstr "取得できたストレスの最大値: {0}%。一部の複製人間は未取得です。"
+
+#. Runtime JSON key: diagnostic_stress.assessment_incomplete
+#. Runtime zh-Hans msgstr: "部分复制人的压力读数未取得，整体压力评估尚未完成。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.ASSESSMENT_INCOMPLETE"
+msgid "Some duplicant stress readings are unavailable; colony-wide stress assessment is incomplete."
+msgstr "一部の複製人間のストレスを取得できないため、全体のストレス評価は未完了です。"

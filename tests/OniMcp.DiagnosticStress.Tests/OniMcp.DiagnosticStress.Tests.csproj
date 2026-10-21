@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ColonySourceRoot Condition="'$(ColonySourceRoot)' == ''">../../mods/OniMcp/Tools/Impl/Colony</ColonySourceRoot>
+    <DupeAmountSource Condition="'$(DupeAmountSource)' == ''">../../mods/OniMcp/Tools/Shared/DupeAmountUtil.cs</DupeAmountSource>
+    <StressReaderSource Condition="'$(StressReaderSource)' == ''">../../mods/OniMcp/Tools/Shared/DupeStressSummary.cs</StressReaderSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ColonySourceRoot)/DiagnosticsTools.cs" Link="Source/DiagnosticsTools.cs" />
+    <Compile Include="$(ColonySourceRoot)/SurvivalPlanTools.cs" Link="Source/SurvivalPlanTools.cs" />
+    <Compile Include="$(ColonySourceRoot)/SurvivalPlanNextActionBuilder.cs" Link="Source/SurvivalPlanNextActionBuilder.cs" />
+    <Compile Include="$(StressReaderSource)" Link="Source/DupeStressSummary.cs" />
+    <Compile Include="$(DupeAmountSource)" Link="Source/DupeAmountUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Colony/FoodAccessBreakdown.cs" Link="Source/FoodAccessBreakdown.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>

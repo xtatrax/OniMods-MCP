@@ -803,3 +803,24 @@ msgstr "。snapshot的部分需求值未取得。"
 msgctxt "OniMcp.MCP.SNAPSHOT_NEEDS.ALERT.OBSERVED_STRESS"
 msgid "Observed stress maximum {0}; some duplicants are unobserved."
 msgstr "已取得壓力的最大值為{0}；部分複製人的讀數未取得。"
+
+#. Runtime JSON key: diagnostic_stress.warning.complete
+#. Runtime zh-Hans msgstr: "复制人的最大压力：{0}%。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.WARNING.COMPLETE"
+msgid "Maximum duplicant stress: {0}%."
+msgstr "複製人的最大壓力：{0}%。"
+
+#. Runtime JSON key: diagnostic_stress.warning.partial
+#. Runtime zh-Hans msgstr: "已取得压力的最大值：{0}%；部分复制人的读数未取得。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.WARNING.PARTIAL"
+msgid "Observed duplicant stress maximum: {0}%; some readings are unavailable."
+msgstr "已取得壓力的最大值：{0}%；部分複製人的讀數未取得。"
+
+#. Runtime JSON key: diagnostic_stress.assessment_incomplete
+#. Runtime zh-Hans msgstr: "部分复制人的压力读数未取得，整体压力评估尚未完成。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.ASSESSMENT_INCOMPLETE"
+msgid "Some duplicant stress readings are unavailable; colony-wide stress assessment is incomplete."
+msgstr "部分複製人的壓力讀數未取得，整體壓力評估尚未完成。"

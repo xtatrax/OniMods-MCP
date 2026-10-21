@@ -1,0 +1,5 @@
+{
+  "diagnostic_stress.warning.complete": "复制人的最大压力：{0}%。",
+  "diagnostic_stress.warning.partial": "已取得压力的最大值：{0}%；部分复制人的读数未取得。",
+  "diagnostic_stress.assessment_incomplete": "部分复制人的压力读数未取得，整体压力评估尚未完成。"
+}

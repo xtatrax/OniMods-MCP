@@ -1,0 +1,15 @@
+# Diagnostic and survival stress host regression
+
+This executable links complete production DiagnosticsTools.cs, SurvivalPlanTools.cs, SurvivalPlanNextActionBuilder.cs and DupeStressSummary.cs, plus the old shared amount utility for complete previous-caller negative checks, food access breakdown, serializer and localization runtime/catalogs. It calls the actual read Handler delegates and inspects their serialized results. No private caller body is extracted or copied into fixtures.
+
+```sh
+rtk proxy dotnet run --project tests/OniMcp.DiagnosticStress.Tests/OniMcp.DiagnosticStress.Tests.csproj
+```
+
+Native/input substitutes provide fixed Amount data, the existing Db cache, small visible oxygen grid, completed buildings, empty harvestable lists and an independently configurable native food-capture result. They do not implement stress aggregation, thresholds, warnings, coverage or survival decisions. Settings refresh, disinfection and unrelated navigation have throwing canaries. Native value setters, lookup and invalid component/lazy database access are counted. Throwing properties model failure boundaries and do not establish that the real native public fields throw.
+
+Cases exercise observed zero/positive/negative finite values, 40/60 threshold boundaries, fixed definitions versus a text-match decoy, missing cache/definition/instance, lookup/value faults and nonfinite values. Global population scope, partial whole-max null, known-high warnings, alerts-only incomplete informational messages, survival incomplete null versus existing critical false, empty population, independent subsequent reads and all three current catalog languages are checked. Existing food/oxygen/toilet/bed findings and food metrics are compared across stress cohorts. Explicit JSON nulls use production serializer settings.
+
+ColonySourceRoot, StressReaderSource and DupeAmountSource may select private complete-source cohorts for negative runs. Such runs must compile and then fail behavior; compilation failure is not detection. Real Unity/Db/Amount lifecycle, actual native food capture, rendering, map/frontier planning, gameplay changes and save/reload are outside this host. The public colony_control router is not linked. The complete diagnostic/survival controls are linked; their unrelated settings write methods compile but are not accepted as native gameplay behavior. The separate existing Snapshot suite is not modified.
+
+The accepted negative cohort compiles the previous complete diagnostics, survival and amount-utility sources before detecting their behavioral failure. Six private source-copy mutations also compile and then fail behavior: missing stress normalized to observed0, lazy database initialization, partial maximum presented as the global maximum, suppressed partial high-stress warning, incomplete survival declared ready and missing alerts-only assessment information. Normal initial/final package restore and audit remain enabled; negative builds reuse those same package assets without policy changes.
