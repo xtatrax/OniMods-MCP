@@ -200,6 +200,8 @@ namespace OniMcp.Tools
         {
             return new Dictionary<string, object>
             {
+                ["doorType"] = door.doorType.ToString(),
+                ["isSealedMeaning"] = "native_special_seal",
                 ["current"] = door.CurrentState.ToString(),
                 ["requested"] = door.RequestedState.ToString(),
                 ["isOpen"] = door.IsOpen(),

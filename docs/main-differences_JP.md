@@ -618,3 +618,9 @@ snapshotが非ComponentのAmountsをGetComponentで探して0補完していた�
 直接指示resourceの旧移動名推奨を、トップ一度だけの小さなmoveGuidanceへ置き換えた。公開world_editorと内部operationを区別し、単一queryとbatch座標の既存経路、外側予行・親子確認のflagsを案内する。各人欄とcanMoveToの意味を保ち、旧API登録や移動処理は変更しない。
 
 実sourceのhost回帰と両版の初回・通常再読込で、resource案内→既存操作ファイル→外側dryRunの構文予行、既存欄・選別・拒否・反復・位置と停止時計を受入れ、元環境の未ロード入口へ復帰した。batch payloadの構文保持をwrapper実行と混同せず、query解決・native到達性・Moveボタン表示/許可・実移動・到着は未試験。他の案内と親項目は残る。実装・翻訳・合成回帰と一般説明だけを反映し、私的履歴・個別ID・保存名・保存先・座標・設定値・生応答を含めない。[案内契約と受入範囲](dupe-move-guidance_JP.md)。
+
+## 選択追加: ドアの特殊sealと通常制御を区別する意味注記
+
+既存ドア情報へnative doorTypeとisSealedMeaning=native_special_sealだけを追加した。current/requested/isOpen/isSealedの値と取得方法を保ち、特殊sealを通常の閉鎖・施錠・気体遮断と同一視しない。新しい派生boolや操作・getter補完は追加しない。
+
+両版の初回・通常再読込で現存ドアの全legacy情報・ID/位置の保持、既存resourceと公開窓口・件数制限・空結果・特殊sealの絞込み・反復と停止時計を受入れ、元環境の未ロード入口へ復帰した。新hostは作成せず、このDoorInfoを含まない既存suiteの結果を根拠に加算していない。型/モード/遷移の全組合せ、欠測、描画UIと気体遮断実験は未試験。実装と一般説明だけを反映し、私的履歴・個別ID・保存名・保存先・座標・設定値・生応答を含めない。[意味と受入範囲](door-state-semantics_JP.md)。
