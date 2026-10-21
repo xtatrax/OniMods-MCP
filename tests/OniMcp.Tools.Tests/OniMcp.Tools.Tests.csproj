@@ -7,11 +7,18 @@
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <StartupObject>BenchmarkMetadataRegressionEntry</StartupObject>
+    <MedicalSicknessSource Condition="'$(MedicalSicknessSource)' == ''">../../mods/OniMcp/Tools/Impl/Management/MedicalSicknessReader.cs</MedicalSicknessSource>
+    <MedicalToolsSource Condition="'$(MedicalToolsSource)' == ''">../../mods/OniMcp/Tools/Impl/Management/MedicalTools.cs</MedicalToolsSource>
+    <MedicalHelpersSource Condition="'$(MedicalHelpersSource)' == ''">../../mods/OniMcp/Tools/Impl/Management/MedicalAssignmentAndHelpers.cs</MedicalHelpersSource>
     <FoodFreshnessSource Condition="'$(FoodFreshnessSource)' == ''">../../mods/OniMcp/Tools/Impl/Colony/EntitySectionFoodFreshness.cs</FoodFreshnessSource>
     <EntitySectionToolsSource Condition="'$(EntitySectionToolsSource)' == ''">../../mods/OniMcp/Tools/Impl/Colony/EntitySectionTools.cs</EntitySectionToolsSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/PriorityTableProjection.cs" Link="Source/PriorityTableProjection.cs" />
+    <Compile Include="$(MedicalSicknessSource)" Link="Source/MedicalSicknessReader.cs" />
+    <Compile Include="$(MedicalToolsSource)" Link="Source/MedicalTools.cs" />
+    <Compile Include="$(MedicalHelpersSource)" Link="Source/MedicalAssignmentAndHelpers.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Management/ManagementTools.cs" Link="Source/ManagementTools.cs" />
     <Compile Include="$(FoodFreshnessSource)" Link="Source/EntitySectionFoodFreshness.cs" />
     <Compile Include="$(EntitySectionToolsSource)" Link="Source/EntitySectionTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Shared/AmbientTemperaturePolicy.cs" Link="Source/AmbientTemperaturePolicy.cs" />

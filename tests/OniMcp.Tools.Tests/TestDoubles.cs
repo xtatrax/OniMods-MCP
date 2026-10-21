@@ -14,6 +14,7 @@ namespace OniMcp.Tools
         public string Group { get; set; }
         public string Mode { get; set; }
         public string Risk { get; set; }
+        public bool Hidden { get; set; }
         public string Description { get; set; }
         public List<string> Aliases { get; set; }
         public List<string> Tags { get; set; }

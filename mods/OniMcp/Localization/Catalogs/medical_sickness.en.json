@@ -1,0 +1,4 @@
+{
+  "medical_sickness.patients_description": "Compatibility reader for medical patients. Missing disease data remains unknown and stays in the default list. Use colony_control domain=management kind=medical action=patients for the same read route.",
+  "medical_sickness.include_healthy": "For patients: also include observed empty disease lists with no other known positive medical indicator. Defaults to false. Unknown disease reads stay listed; other medical fields retain their existing assessment scope."
+}

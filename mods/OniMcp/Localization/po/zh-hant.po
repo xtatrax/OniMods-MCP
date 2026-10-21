@@ -879,3 +879,15 @@ msgstr "- `/active/objects/details.oni`：現物id/query和section=status/proper
 msgctxt "OniMcp.MCP.FOOD_FRESHNESS.RESOURCE.FOOD_DESCRIPTION"
 msgid "Food inventory and access totals. Read an actual item at /active/objects/details.oni with section=freshness for freshness and the current rot rate."
 msgstr "食物庫存及可用性彙總。新鮮度和目前腐敗速度請在/active/objects/details.oni指定現物id與section=freshness讀取。"
+
+#. Runtime JSON key: medical_sickness.patients_description
+#. Runtime zh-Hans msgstr: "医疗患者兼容读取入口。病情未取得时保留未知状态，并继续显示在默认列表中。同一读取路径为colony_control domain=management kind=medical action=patients。"
+msgctxt "OniMcp.MCP.MEDICAL_SICKNESS.PATIENTS_DESCRIPTION"
+msgid "Compatibility reader for medical patients. Missing disease data remains unknown and stays in the default list. Use colony_control domain=management kind=medical action=patients for the same read route."
+msgstr "醫療患者相容讀取入口。病情未取得時保留未知狀態，並繼續顯示在預設清單中。同一讀取路徑為colony_control domain=management kind=medical action=patients。"
+
+#. Runtime JSON key: medical_sickness.include_healthy
+#. Runtime zh-Hans msgstr: "patients中也包含病情列表已取得且为空、并无其他已知阳性医疗指征的对象。默认false。病情未知的对象仍保留，其他医疗项目维持原有评估范围。"
+msgctxt "OniMcp.MCP.MEDICAL_SICKNESS.INCLUDE_HEALTHY"
+msgid "For patients: also include observed empty disease lists with no other known positive medical indicator. Defaults to false. Unknown disease reads stay listed; other medical fields retain their existing assessment scope."
+msgstr "patients中也包含病情清單已取得且為空、並無其他已知陽性醫療指徵的對象。預設false。病情未知的對象仍保留，其他醫療項目維持原有評估範圍。"

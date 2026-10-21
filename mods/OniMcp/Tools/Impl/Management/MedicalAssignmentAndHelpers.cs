@@ -240,52 +240,39 @@ namespace OniMcp.Tools
         private static Dictionary<string, object> PatientInfo(MinionIdentity dupe)
         {
             var health = dupe.GetComponent<Health>();
-            var sicknesses = dupe.gameObject.GetSicknesses();
-            var sicknessItems = SicknessList(sicknesses);
+            var sickness = MedicalSicknessReader.Read(dupe.gameObject);
             var medicalBed = FindAssignedMedicalBed(dupe);
             var amounts = dupe.GetComponent<Amounts>();
             var stress = amounts?.Get(Db.Get().Amounts.Stress);
             var radiation = Game.IsDlcActiveForCurrentSave("EXPANSION1_ID") ? amounts?.Get(Db.Get().Amounts.RadiationBalance) : null;
             bool injured = health != null && health.hitPoints < health.maxHitPoints;
-            bool sick = sicknessItems.Count > 0;
+            bool otherPositive = injured || (radiation != null && radiation.value > 0f);
+            bool? attention = otherPositive || sickness.HasSickness == true ? true
+                : sickness.HasSickness == false ? false : (bool?)null;
             return new Dictionary<string, object>
             {
                 ["id"] = dupe.GetComponent<KPrefabID>()?.InstanceID ?? -1,
                 ["name"] = dupe.GetProperName(),
                 ["worldId"] = dupe.GetMyWorldId(),
-                ["needsMedicalAttention"] = injured || sick || (radiation != null && radiation.value > 0f),
+                ["needsMedicalAttention"] = MedicalSicknessReader.JsonBoolean(attention),
                 ["health"] = health == null ? null : new Dictionary<string, object>
                 {
                     ["hitPoints"] = Math.Round(health.hitPoints, 2),
                     ["maxHitPoints"] = Math.Round(health.maxHitPoints, 2),
                     ["percent"] = Math.Round(health.hitPoints / Math.Max(1f, health.maxHitPoints) * 100f, 1)
                 },
-                ["sicknesses"] = sicknessItems,
+                ["sicknesses"] = sickness.Items == null ? (object)JValue.CreateNull() : sickness.Items,
+                ["hasSickness"] = MedicalSicknessReader.JsonBoolean(sickness.HasSickness),
+                ["sicknessRead"] = sickness.Metadata(),
                 ["stress"] = stress == null ? (object)null : Math.Round(stress.value, 2),
                 ["radiationBalance"] = radiation == null ? (object)null : Math.Round(radiation.value, 2),
                 ["assignedMedicalBed"] = medicalBed == null ? null : AssignableSummary(medicalBed)
             };
         }
 
-        private static List<Dictionary<string, object>> SicknessList(Sicknesses sicknesses)
+        private static int PatientAttentionRank(Dictionary<string, object> patient)
         {
-            var result = new List<Dictionary<string, object>>();
-            if (sicknesses == null)
-                return result;
-
-            foreach (SicknessInstance instance in sicknesses.ModifierList)
-            {
-                if (instance == null)
-                    continue;
-                result.Add(new Dictionary<string, object>
-                {
-                    ["id"] = instance.Sickness.id,
-                    ["name"] = instance.Sickness.Name,
-                    ["descriptiveSymptoms"] = instance.Sickness.DescriptiveSymptoms.ToString(),
-                    ["exposure"] = instance.ExposureInfo.sourceInfo
-                });
-            }
-            return result;
+            return patient["needsMedicalAttention"] is bool attention ? (attention ? 2 : 0) : 1;
         }
 
         private static Dictionary<string, object> DoctorStationInfo(DoctorStation station)
@@ -376,7 +363,7 @@ namespace OniMcp.Tools
             if (patient["name"].ToString().IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0)
                 return true;
             var sicknesses = patient["sicknesses"] as List<Dictionary<string, object>>;
-            return sicknesses != null && sicknesses.Any(item => Contains(item["id"]?.ToString(), q) || Contains(item["name"]?.ToString(), q));
+            return sicknesses != null && sicknesses.Any(item => item != null && (Contains(item["id"]?.ToString(), q) || Contains(item["name"]?.ToString(), q)));
         }
 
         private static bool DoctorStationMatches(Dictionary<string, object> station, string query)

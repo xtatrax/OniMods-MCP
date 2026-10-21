@@ -9,6 +9,7 @@ internal static class BenchmarkMetadataRegressionEntry
 {
     private static void Main()
     {
+        MedicalDiseaseRegression.Run();
         FoodFreshnessRegression.Run();
         BatchInputContractRegression.Run();
         PriorityTableProjectionRegression.Run();

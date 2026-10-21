@@ -20,10 +20,10 @@ namespace OniMcp.Tools
                 Hidden = true,
                 Aliases = new List<string> { "sick_dupes_list", "injured_dupes_list", "patients_list" },
                 Tags = new List<string> { "medical", "patients", "sickness", "health", "dupes" },
-                Description = "互換用の入口。医療上の注意が必要な複製人間を一覧表示する。新しい呼び出しには colony_control domain=management kind=medical action=patients を使う。",
+                Description = McpLocalization.Get("medical_sickness.patients_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["includeHealthy"] = new McpToolParameter { Type = "boolean", Description = "健康な複製人間も含めるか。既定は false", Required = false },
+                    ["includeHealthy"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("medical_sickness.include_healthy"), Required = false },
                     ["query"] = new McpToolParameter { Type = "string", Description = "複製人間の名前または病気 ID で絞り込む", Required = false },
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "ワールド ID。既定では絞り込まない", Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "返す最大件数。既定は 100、最大 500", Required = false }
@@ -38,9 +38,9 @@ namespace OniMcp.Tools
                     var patients = Components.LiveMinionIdentities.Items
                         .Where(dupe => dupe != null && ToolUtil.GameObjectMatchesWorld(dupe.gameObject, worldId))
                         .Select(PatientInfo)
-                        .Where(info => includeHealthy || (bool)info["needsMedicalAttention"])
+                        .Where(info => includeHealthy || PatientAttentionRank(info) > 0)
                         .Where(info => PatientMatches(info, query))
-                        .OrderByDescending(info => (bool)info["needsMedicalAttention"])
+                        .OrderByDescending(PatientAttentionRank)
                         .ThenBy(info => info["name"].ToString())
                         .Take(limit)
                         .ToList();
@@ -70,7 +70,7 @@ namespace OniMcp.Tools
                 Parameters = RectParams(LookupParams(new Dictionary<string, McpToolParameter>
                 {
                     ["action"] = new McpToolParameter { Type = "string", Description = "patients、clinics、doctor_stations、set_threshold、batch_set_threshold、assign_bed。既定は patients", Required = false, EnumValues = new List<string> { "patients", "clinics", "doctor_stations", "set_threshold", "batch_set_threshold", "assign_bed" } },
-                    ["includeHealthy"] = new McpToolParameter { Type = "boolean", Description = "action=patients で健康な複製人間も含めるか。既定は false", Required = false },
+                    ["includeHealthy"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("medical_sickness.include_healthy"), Required = false },
                     ["query"] = new McpToolParameter { Type = "string", Description = "複製人間、病気、設備、prefab、医薬品などで絞り込む", Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "返す、または処理する最大件数。既定は 100、最大 500", Required = false },
                     ["thresholdPercent"] = new McpToolParameter { Type = "number", Description = "action=set_threshold/batch_set_threshold/assign_bed で設定できる治療しきい値の割合 0-100", Required = false },

@@ -70,7 +70,7 @@ namespace UnityEngine
 namespace OniMcp.Tools
 {
     public static partial class ToolUtil
-    { internal static bool GameObjectMatchesWorld(GameObject go, int world) { return go.GetMyWorldId() == world; } }
+    { internal static bool GameObjectMatchesWorld(GameObject go, int world) { return world < 0 || go.GetMyWorldId() == world; } }
     internal static class DuplicantTools
     { internal static object ReadSectionCurrentChore(MinionIdentity dupe) { throw FreshnessBoundary.Forbidden("unrelated chore read"); } }
 }
@@ -165,7 +165,7 @@ internal sealed partial class Db
     private static Db _Instance;
     internal Database.Amounts Amounts { get; set; }
 }
-namespace Database { internal sealed class Amounts { internal Klei.AI.Amount Rot { get; set; } } }
+namespace Database { internal sealed partial class Amounts { internal Klei.AI.Amount Rot { get; set; } } }
 namespace Klei.AI
 {
     internal sealed class Traits { internal List<Trait> TraitList { get; set; } = new List<Trait>(); }
