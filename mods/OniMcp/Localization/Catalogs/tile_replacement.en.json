@@ -1,0 +1,21 @@
+{
+  "tile_replacement.permission_required": "Tile replacement requires a confirmed virtual map edit request.",
+  "tile_replacement.scope_unavailable": "This native replacement route supports one Neutral completed Tile replaced by GasPermeableMembrane in the active world.",
+  "tile_replacement.target_unverifiable": "The exact completed Tile identity, geometry or native registration could not be verified.",
+  "tile_replacement.target_changed": "The original Tile, game context or native replacement candidate changed; no further action was issued.",
+  "tile_replacement.candidate_rejected": "The native replacement candidate or CanReplace result does not match the exact completed Tile.",
+  "tile_replacement.pending_conflict": "The replacement layer already contains a different or unverifiable reservation.",
+  "tile_replacement.marked_work_conflict": "The original Tile has deconstruction, reconstruction or dig work that native replacement could cancel; replacement was refused.",
+  "tile_replacement.instant_mode_enabled": "Native tile replacement requires both debug instant build and sandbox instant build to be off.",
+  "tile_replacement.ui_unavailable": "The normal native building UI is unavailable for tile replacement.",
+  "tile_replacement.ui_busy": "Another tool, drag, modal or UI owner is active; tile replacement was refused.",
+  "tile_replacement.ui_initializing": "The normal material or priority UI has not completed natural initialization; no build gesture was issued.",
+  "tile_replacement.preview_unavailable": "The native preview, ordered material selection or priority does not match the requested replacement.",
+  "tile_replacement.priority_unavailable": "The requested normal building priority could not be read or applied through the native priority UI.",
+  "tile_replacement.native_failed": "The normal native tile replacement entry point failed; inspect the observed state before issuing another request.",
+  "tile_replacement.cleanup_failed": "The native build preview could not be safely verified as returned to the selection tool.",
+  "tile_replacement.priority_restore_failed": "The original native screen priority could not be safely restored without overwriting another UI owner.",
+  "tile_replacement.queue_not_observed": "No verified native tile replacement reservation was observed; the native void entry point does not expose a refusal reason.",
+  "tile_replacement.observation_unavailable": "Tile replacement outcome observation is unavailable; changed and applied values remain unknown.",
+  "tile_replacement.protected_state_changed": "The original Tile or another protected occupant changed unexpectedly; no restoration or retry was attempted."
+}

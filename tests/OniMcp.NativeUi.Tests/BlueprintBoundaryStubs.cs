@@ -12,12 +12,13 @@ namespace UnityEngine
     internal class Object
     {
         public static readonly List<BuildingComplete> DetachedCompletes=new List<BuildingComplete>();
+        public static bool ThrowEnumeration;
         public static T[] FindObjectsByType<T>(FindObjectsSortMode mode) where T:class
-        {return All().Where(value=>value.gameObject.Active).OfType<T>().ToArray();}
+        {if(ThrowEnumeration)throw new InvalidOperationException("fixture enumeration unavailable");return All().Where(value=>value.gameObject.Active).OfType<T>().ToArray();}
         public static T[] FindObjectsByType<T>(FindObjectsInactive inactive,FindObjectsSortMode mode) where T:class
-        {return All().OfType<T>().ToArray();}
-        private static IEnumerable<BuildingComplete> All()
-        {return global::Components.BuildingCompletes.Items.Concat(DetachedCompletes).Distinct().Where(value=>!value.gameObject.Destroyed);}
+        {if(ThrowEnumeration)throw new InvalidOperationException("fixture enumeration unavailable");return All().OfType<T>().ToArray();}
+        private static IEnumerable<Component> All()
+        {return global::Components.BuildingCompletes.Items.Cast<Component>().Concat(DetachedCompletes).Concat(OniMcp.Tools.BuildPlanningTools.FixtureBlueprints).Distinct().Where(value=>!value.gameObject.Destroyed);}
     }
     internal struct Vector3
     {
@@ -30,6 +31,8 @@ internal struct Tag
     public string Name;
     public Tag(string value) { Name=value; }
     public bool IsValid { get { return !string.IsNullOrEmpty(Name); } }
+    public static Tag Invalid {get{return new Tag();}}
+    public string ProperNameStripLink(){return Name;}
     public static bool operator ==(Tag a,Tag b){return a.Name==b.Name;}
     public static bool operator !=(Tag a,Tag b){return a.Name!=b.Name;}
     public override bool Equals(object value){return value is Tag && this==(Tag)value;}
@@ -47,9 +50,9 @@ internal sealed class ConduitBridgeBase : Component {public bool isSpawned;}
 internal class UtilityNetworkLink : Component {public bool isSpawned,visualizeOnly; public void GetCells(int cell,Orientation o,out int a,out int b){a=cell;b=cell+1;}}
 internal sealed class LogicUtilityNetworkLink : UtilityNetworkLink {}
 internal enum Orientation { Neutral, R90, R180, R270 }
-internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, NumLayers=16 }
-internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge }
-internal sealed class BuildingDef
+internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, NumLayers=16 }
+internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge, Tile, Anywhere }
+internal sealed partial class BuildingDef
 {
     public string PrefabID,Name;
     public int SceneLayer;
@@ -63,11 +66,11 @@ internal sealed class BuildingDef
     public GameObject Build(int cell,Orientation orientation,object unused,IList<Tag> elements,float temperature,string facade,bool playsound,float time)
     { DirectBuildCalls++;throw new InvalidOperationException("fixture direct build forbidden"); }
 }
-internal sealed class Building : Component { public BuildingDef Def; }
+internal sealed class Building : Component { public BuildingDef Def; public Orientation Orientation {get{return GetComponent<Rotatable>()?.Orientation??Orientation.Neutral;}} }
 internal sealed class BuildingComplete : Component { public BuildingDef Def; }
-internal sealed class Constructable : Component { public List<Tag> SelectedElementsTags = new List<Tag>(); }
+internal sealed partial class Constructable : Component { public List<Tag> SelectedElementsTags = new List<Tag>(); }
 internal sealed class BuildingFacade : Component { public string CurrentFacade; public bool IsOriginal; }
-internal sealed class PrimaryElement : Component {public string ElementID;}
+internal sealed class PrimaryElement : Component {public string ElementID;public float Mass=100f;}
 internal sealed class Rotatable : Component
 {
     public Orientation Orientation;
@@ -83,8 +86,8 @@ internal static class LogicPortReadSemantics
 { internal static int ActualCell(LogicPorts ports,LogicPorts.Port port) { return port.Cell; }
 internal static bool RegisteredEndpointsMatch(LogicPorts ports,LogicCircuitManager manager){return true;}
 internal static bool TryBridgeRoute(GameObject go,out int first,out int second){first=0;second=1;return true;} }
-internal sealed class Game { public static Game Instance; public LogicCircuitManager logicCircuitManager;public bool Loading; public bool IsLoading(){return Loading;} }
-internal sealed class PlanScreen { public static PlanScreen Instance; }
+internal sealed partial class Game { public static Game Instance; public LogicCircuitManager logicCircuitManager;public bool Loading; public bool IsLoading(){return Loading;} }
+internal sealed partial class PlanScreen { public static PlanScreen Instance; }
 internal sealed class World { public static World Instance; public object blockTileRenderer; }
 internal sealed class GridCompositor { public static GridCompositor Instance; }
 internal sealed class ResourceRemainingDisplayScreen { public static ResourceRemainingDisplayScreen instance; }
@@ -107,10 +110,11 @@ internal sealed class PlayerController
     public object ActiveTool;
     public bool Dragging,RejectRestore;
     public int RestoreCalls;
+    public System.Action OnRestore;
     public bool IsDragging(){return Dragging;}
-    public void ActivateTool(SelectTool tool){RestoreCalls++;if(!RejectRestore)ActiveTool=tool;}
+    public void ActivateTool(SelectTool tool){RestoreCalls++;if(!RejectRestore){ActiveTool=tool;OnRestore?.Invoke();}}
 }
-internal sealed class BuildTool : Component
+internal sealed partial class BuildTool : Component
 {
     public static BuildTool Instance;
     public bool Dragging;
@@ -120,6 +124,7 @@ internal sealed class BuildTool : Component
     public BuildingDef ActivatedDef;
     public IList<Tag> ActivatedElements;
     private IList<Tag> selectedElements;
+    private BuildingDef def;
     public void ReplaceNativeMaterials(IList<Tag> value){selectedElements=value;}
     public void EditNativeMaterial(Tag value){selectedElements[0]=value;}
     public string ActivatedFacade;
@@ -128,7 +133,7 @@ internal sealed class BuildTool : Component
     public System.Action<int> OnBuild;
     public void Activate(BuildingDef def,IList<Tag> elements,string facade)
     {
-        Activations++;ActivatedDef=def;ActivatedElements=elements;selectedElements=elements;ActivatedFacade=facade;
+        Activations++;ActivatedDef=def;this.def=def;ActivatedElements=elements;selectedElements=elements;ActivatedFacade=facade;
         PlayerController.Instance.ActiveTool=this;
         visualizer=new GameObject();visualizer.Add(new Building { Def=def });
         visualizer.Add(new BuildingFacade{CurrentFacade=facade,IsOriginal=facade==null||facade=="DEFAULT_FACADE"});
@@ -201,6 +206,7 @@ namespace OniMcp.Tools
             public bool Valid;
             public string Error;
             public List<Dictionary<string,object>> InvalidCells,Obstructions;
+            public Dictionary<string,object> ToDictionary(PlacementDetails placement){return new Dictionary<string,object>{["valid"]=Valid,["obstructions"]=Obstructions,["invalidCells"]=InvalidCells,["placement"]=placement.ToDictionary()};}
             public static FootprintValidation Success(){return new FootprintValidation{Valid=true,InvalidCells=new List<Dictionary<string,object>>(),Obstructions=new List<Dictionary<string,object>>()};}
             public static FootprintValidation Invalid(string error,List<Dictionary<string,object>> invalid,List<Dictionary<string,object>> obstructions)
             {return new FootprintValidation{Error=error,InvalidCells=invalid,Obstructions=obstructions};}
@@ -228,7 +234,7 @@ namespace OniMcp.Tools
         private static PlacementDetails BuildPlacementDetails(BuildingDef def,int x,int y,int world,Orientation orientation=Orientation.Neutral)
         {return new PlacementDetails{PrefabId=def.PrefabID,AnchorX=x,AnchorY=y,OriginX=x,OriginY=y,OriginCell=Grid.XYToCell(x,y),WorldId=world,Orientation=orientation,
             Footprint=new List<FootprintCell>{new FootprintCell{Cell=Grid.XYToCell(x,y),X=x,Y=y,WorldId=world}}};}
-        private static Dictionary<string,object> ErrorResult(string id,int x,int y,string error,Dictionary<string,object> details)
+        private static Dictionary<string,object> ErrorResult(string id,int x,int y,string error,Dictionary<string,object> details=null)
         {return new Dictionary<string,object>{["valid"]=false,["error"]=error,["details"]=details};}
         private static Dictionary<string,object> AnchorDictionary(int x,int y,int world)
         {return new Dictionary<string,object>{["x"]=x,["y"]=y,["worldId"]=world};}

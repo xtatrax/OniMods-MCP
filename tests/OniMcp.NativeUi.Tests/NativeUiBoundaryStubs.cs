@@ -14,6 +14,8 @@ namespace UnityEngine
         public string name = "fixture";
         public bool Destroyed;
         public bool Active = true;
+        public bool activeSelf {get{return Active;}}
+        public bool activeInHierarchy {get{return Active;}}
         public int DeleteCalls;
         public int GetInstanceID() { return Id; }
         public string GetProperName() { return name; }
@@ -88,7 +90,7 @@ internal sealed class SelectTool
     public bool AcceptSelection = true;
     public void Select(KSelectable item) { selected = AcceptSelection ? item : null; Selects++; }
 }
-internal static class Grid
+internal static partial class Grid
 {
     public const int WidthInCells = 8;
     public const int HeightInCells = 8;

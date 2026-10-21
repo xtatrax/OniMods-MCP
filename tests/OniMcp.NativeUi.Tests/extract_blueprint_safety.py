@@ -23,7 +23,7 @@ methods = {
         "PlacementObjectPrefabId", "PlacementSafetyFootprint", "FindBuildingLayerConflicts", "FindLogicEndpointConflicts", "AddLogicEndpointConflicts",
         "AddLogicPortGroupConflicts", "ExistingBlueprintCompletionSafetyFailure", "HasUnsafeExecutionConflict"],
     "geometry": ["ValidateFootprint", "ActualPlacementDetails", "ComparePlacement"],
-    "runtime": ["ExistingObjectFootprint", "FindConstructableAtPlacement"],
+    "runtime": ["ExistingObjectFootprint", "FindConstructableAtPlacement", "ExistingMatchingBuildAtPlacement", "ExistingMatchingUtilityAtPlacement", "ExistingUtilityAtCell"],
     "instant": ["IsAuthorizedVirtualFileInstantBuild", "FindCompletedBuildAtPlacement", "IsCompletedBuildFullyRegistered",
         "IsCompletedBuildGridRegistered", "IsConduitBridgePortRegistered", "HasRegisteredGateEndpoint", "IsTargetCompletedObject"],
 }

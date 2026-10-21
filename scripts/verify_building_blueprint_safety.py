@@ -32,9 +32,13 @@ def require_order(text: str, markers: tuple[str, ...], label: str) -> None:
 
 def verify_existing_material_reuse(plan_one: str) -> None:
     early_guard = (
-        'if (earlyExistingBuild != null && ExistingMaterialRequestSatisfied('
-        'def, earlyExistingBuild, args["material"]?.ToString()))'
+        'ExistingMaterialRequestSatisfied('
+        'def, earlyExistingBuild, args["material"]?.ToString())'
     )
+    condition_start = plan_one.index("if (earlyExistingBuild != null")
+    condition_end = plan_one.index("{", condition_start)
+    if early_guard not in plan_one[condition_start:condition_end]:
+        fail("early reuse must test explicit material before entering its actual reuse branch")
     require_order(
         plan_one,
         (
@@ -71,10 +75,10 @@ def verify_existing_material_reuse_regressions(plan_one: str) -> None:
     """Mutation checks for the source guard, not ONI runtime acceptance."""
     verify_existing_material_reuse(plan_one)
     early_test = (
-        ' && ExistingMaterialRequestSatisfied('
+        'ExistingMaterialRequestSatisfied('
         'def, earlyExistingBuild, args["material"]?.ToString())'
     )
-    mutations = [("missing early guard", plan_one.replace(early_test, "", 1))]
+    mutations = [("missing early guard", plan_one.replace(early_test, "true", 1))]
     for target in ("existingBuild", "executionExistingBuild", "existingUtility", "executionExistingUtility"):
         branch = extract_block(plan_one, f"if ({target} != null)")
         reuse_marker = (
@@ -137,6 +141,40 @@ def verify_existing_blueprint_native_retry(source: str, adapter: str) -> None:
             fail(f"native UI exact binding/readiness/cleanup contract missing: {required}")
 
 
+def verify_normal_tile_replacement(plan: str, source: str, state: str, adapter: str, native_state: str) -> None:
+    """Supplemental narrow native-route contract; host cases prove execution behavior."""
+    require_order(plan, ("TryReuseNativeTileReplacementQueue(def, earlyPlacement, args)",
+        "var earlyExistingBuild", "SelectElements(def", "ResolveFacade(def",
+        "TryPlanNativeTileReplacement(def, earlyPlacement, args", "ValidateFootprint(placement)"),
+        "normal tile replacement must validate/reuse its dedicated candidate before generic occupancy rejection")
+    if "!IsNativeTileReplacementCandidateScope(def, earlyPlacement)" not in plan:
+        fail("generic early reuse must not bypass dedicated pending replacement checks")
+    process = extract_block(source, "private static Dictionary<string, object> ProcessNativeTileReplacement")
+    branch = extract_block(process, "if (!dryRun && !reused)")
+    if "NativeTileReplacement.Run" not in branch:
+        fail("normal replacement native UI writes must remain inside the execute/non-reuse branch")
+    for token in ("DeleteObject", "def.TryPlace(", "def.TryReplaceTile(", "def.Build(", "FinishConstruction(", "QueueDeconstruction("):
+        if token in source or token in state or token in adapter or token in native_state:
+            fail(f"normal replacement must delegate without direct replacement/deconstruction fallback: {token}")
+    for token in ('"GasPermeableMembrane"', '"Tile"', "ObjectLayer.FoundationTile", "ObjectLayer.ReplacementTile",
+        "placement.Orientation != Orientation.Neutral", "placement.Footprint.Count != 1", "IsReplacementTile",
+        "SelectedElementsTags", "GetMasterPriority()", "OldTilePreserved", "TileReplacementProtectedSame"):
+        if token not in state:
+            fail(f"normal tile identity/material/priority/occupant contract missing: {token}")
+    for token in ("plan.CopyBuildingOrder", "panel.ForceSelectPrimaryTag", "SetScreenPriority", "TryBuild.Invoke",
+        "RequireOwnedPreview", "revalidate();", "finally"):
+        if token not in adapter:
+            fail(f"normal tile native UI preparation/ownership contract missing: {token}")
+    for token in ("RequireNormalMode", "DebugHandler.InstantBuildMode", "settings.InstantBuild", '"materialSelectors"',
+        '"onClick"', "IsInteractable()", "activeInHierarchy", "ActiveRecipe", "def.CraftRecipe"):
+        if token not in native_state:
+            fail(f"normal tile effective-mode/material-UI contract missing: {token}")
+    for token in ('result["planned"] = success && !dryRun && newQueue', 'result["alreadyPresent"] = success && reused',
+        'result["buildingCompleted"]', 'result["partial"]', 'result["changedScope"]', 'details["persistentTargetLinkVerified"] = JValue.CreateNull()'):
+        if token not in process:
+            fail(f"normal tile result must retain queue/completion/unknown distinctions: {token}")
+
+
 def verify_building_blueprint_safety(
     root: Path, sources: dict[Path, str] | None = None
 ) -> None:
@@ -149,6 +187,10 @@ def verify_building_blueprint_safety(
         "runtime": build_root / "BuildPlanningRuntimePlacement.cs",
         "existing_completion": build_root / "BuildPlanningExistingBlueprintCompletion.cs",
         "completion_ui": build_root / "NativeBlueprintInstantCompletion.cs",
+        "replacement": build_root / "BuildPlanningTileReplacement.cs",
+        "replacement_state": build_root / "BuildPlanningTileReplacementState.cs",
+        "replacement_ui": build_root / "NativeTileReplacement.cs",
+        "replacement_ui_state": build_root / "NativeTileReplacementState.cs",
     }
     for path in paths.values():
         if not path.is_file():
@@ -262,6 +304,8 @@ def verify_building_blueprint_safety(
         fail("material success validation must reject empty and invalid primary elements")
 
     verify_existing_material_reuse(plan_one)
+    verify_normal_tile_replacement(plan_one, selected[paths["replacement"]], selected[paths["replacement_state"]],
+        selected[paths["replacement_ui"]], selected[paths["replacement_ui_state"]])
     verify_existing_blueprint_native_retry(selected[paths["existing_completion"]], selected[paths["completion_ui"]])
 
     runtime_existing = extract_block(

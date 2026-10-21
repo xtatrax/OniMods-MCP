@@ -583,6 +583,121 @@ msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.PROTECTED_STATE_CHANGED"
 msgid "The inspected footprint no longer matches the protected occupants expected after native completion; no retry or restoration was attempted."
 msgstr "確認範囲の占有状態が、完成操作後に保持されるべき状態と一致しません。自動再試行や状態の書き戻しは行っていません。"
 
+
+#. Runtime JSON key: tile_replacement.permission_required
+#. Runtime zh-Hans msgstr: "地砖替换需要已确认的虚拟地图编辑请求。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PERMISSION_REQUIRED"
+msgid "Tile replacement requires a confirmed virtual map edit request."
+msgstr "タイル交換には、確認済みの仮想地図編集が必要です。"
+
+#. Runtime JSON key: tile_replacement.scope_unavailable
+#. Runtime zh-Hans msgstr: "此原生UI路径仅支持将当前世界中一个已完成、方向为Neutral的Tile替换为GasPermeableMembrane。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.SCOPE_UNAVAILABLE"
+msgid "This native replacement route supports one Neutral completed Tile replaced by GasPermeableMembrane in the active world."
+msgstr "この本体UI経路は、現在のワールドにある完成済みTile 1個を、向きNeutralのGasPermeableMembraneへ交換する場合だけに対応します。"
+
+#. Runtime JSON key: tile_replacement.target_unverifiable
+#. Runtime zh-Hans msgstr: "无法精确确认原已完成Tile的个体、形状或原生注册。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.TARGET_UNVERIFIABLE"
+msgid "The exact completed Tile identity, geometry or native registration could not be verified."
+msgstr "元の完成済みTileの個体・形状・本体登録を正確に確認できません。"
+
+#. Runtime JSON key: tile_replacement.target_changed
+#. Runtime zh-Hans msgstr: "原Tile、游戏世代或原生替换候选已改变；未执行后续操作。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.TARGET_CHANGED"
+msgid "The original Tile, game context or native replacement candidate changed; no further action was issued."
+msgstr "元のTile、ゲームの世代、または本体の交換候補が変わったため、追加の操作は行っていません。"
+
+#. Runtime JSON key: tile_replacement.candidate_rejected
+#. Runtime zh-Hans msgstr: "原生替换候选或CanReplace结果与指定的已完成Tile不符。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.CANDIDATE_REJECTED"
+msgid "The native replacement candidate or CanReplace result does not match the exact completed Tile."
+msgstr "本体の交換候補またはCanReplaceの結果が、指定した完成済みTileと一致しません。"
+
+#. Runtime JSON key: tile_replacement.pending_conflict
+#. Runtime zh-Hans msgstr: "替换图层已存在不同或无法确认的预约。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PENDING_CONFLICT"
+msgid "The replacement layer already contains a different or unverifiable reservation."
+msgstr "交換用レイヤーには、別の予約または確認できない予約が既に存在します。"
+
+#. Runtime JSON key: tile_replacement.marked_work_conflict
+#. Runtime zh-Hans msgstr: "原Tile有拆除、重建或挖掘工作，原生替换可能取消这些工作；已拒绝替换。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.MARKED_WORK_CONFLICT"
+msgid "The original Tile has deconstruction, reconstruction or dig work that native replacement could cancel; replacement was refused."
+msgstr "元のTileに解体・再建・採掘の指示があり、本体の交換処理が取り消す可能性があるため、交換を拒否しました。"
+
+#. Runtime JSON key: tile_replacement.instant_mode_enabled
+#. Runtime zh-Hans msgstr: "一般地砖替换要求调试即时建造及沙盒有效即时建造均为关闭状态。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.INSTANT_MODE_ENABLED"
+msgid "Native tile replacement requires both debug instant build and sandbox instant build to be off."
+msgstr "通常のタイル交換には、デバッグ即時建設とサンドボックスで有効な即時建設の両方が無効である必要があります。"
+
+#. Runtime JSON key: tile_replacement.ui_unavailable
+#. Runtime zh-Hans msgstr: "无法使用地砖替换所需的原生一般建造UI。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.UI_UNAVAILABLE"
+msgid "The normal native building UI is unavailable for tile replacement."
+msgstr "タイル交換に必要な、本体の通常建築UIを利用できません。"
+
+#. Runtime JSON key: tile_replacement.ui_busy
+#. Runtime zh-Hans msgstr: "其他工具、拖动、模态画面或UI操作正在进行；已拒绝地砖替换。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.UI_BUSY"
+msgid "Another tool, drag, modal or UI owner is active; tile replacement was refused."
+msgstr "別のツール・ドラッグ・モーダル画面・UI操作が進行中のため、タイル交換を拒否しました。"
+
+#. Runtime JSON key: tile_replacement.ui_initializing
+#. Runtime zh-Hans msgstr: "一般材料或优先级UI尚未自然完成初始化；未发出建造操作。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.UI_INITIALIZING"
+msgid "The normal material or priority UI has not completed natural initialization; no build gesture was issued."
+msgstr "通常の素材・優先度UIの自然な初期化がまだ完了していません。建築操作は送っていません。"
+
+#. Runtime JSON key: tile_replacement.preview_unavailable
+#. Runtime zh-Hans msgstr: "原生预览、按序选择的材料或优先级与替换请求不符。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PREVIEW_UNAVAILABLE"
+msgid "The native preview, ordered material selection or priority does not match the requested replacement."
+msgstr "本体のプレビュー、順序付き素材選択、または優先度が、指定した交換内容と一致しません。"
+
+#. Runtime JSON key: tile_replacement.priority_unavailable
+#. Runtime zh-Hans msgstr: "无法通过原生优先级UI读取或应用指定的一般建造优先级。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PRIORITY_UNAVAILABLE"
+msgid "The requested normal building priority could not be read or applied through the native priority UI."
+msgstr "本体の優先度UIを通して、指定した通常建設の優先度を読み取り、適用できません。"
+
+#. Runtime JSON key: tile_replacement.native_failed
+#. Runtime zh-Hans msgstr: "原生一般地砖替换处理失败；再次请求前请先检查观测状态。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.NATIVE_FAILED"
+msgid "The normal native tile replacement entry point failed; inspect the observed state before issuing another request."
+msgstr "本体の通常タイル交換処理で失敗しました。再要求する前に、観測された状態を確認してください。"
+
+#. Runtime JSON key: tile_replacement.cleanup_failed
+#. Runtime zh-Hans msgstr: "无法安全确认原生建造预览已返回选择工具。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.CLEANUP_FAILED"
+msgid "The native build preview could not be safely verified as returned to the selection tool."
+msgstr "本体の建築プレビューから選択ツールへ、安全に戻ったことを確認できません。"
+
+#. Runtime JSON key: tile_replacement.priority_restore_failed
+#. Runtime zh-Hans msgstr: "无法在不覆盖其他UI操作的情况下恢复原画面的优先级。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PRIORITY_RESTORE_FAILED"
+msgid "The original native screen priority could not be safely restored without overwriting another UI owner."
+msgstr "別のUI操作を上書きせずに、元の画面優先度へ戻すことができません。"
+
+#. Runtime JSON key: tile_replacement.queue_not_observed
+#. Runtime zh-Hans msgstr: "未观测到经确认的原生地砖替换预约；原生void入口不提供拒绝原因。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.QUEUE_NOT_OBSERVED"
+msgid "No verified native tile replacement reservation was observed; the native void entry point does not expose a refusal reason."
+msgstr "本体のタイル交換予約を正確に確認できません。本体のvoid入口から拒否理由は得られません。"
+
+#. Runtime JSON key: tile_replacement.observation_unavailable
+#. Runtime zh-Hans msgstr: "无法观测地砖替换结果；changed与applied保持未知。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.OBSERVATION_UNAVAILABLE"
+msgid "Tile replacement outcome observation is unavailable; changed and applied values remain unknown."
+msgstr "タイル交換の結果を観測できません。changedとappliedは不明のまま返します。"
+
+#. Runtime JSON key: tile_replacement.protected_state_changed
+#. Runtime zh-Hans msgstr: "原Tile或其他保护对象意外改变；未尝试恢复状态或重试。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PROTECTED_STATE_CHANGED"
+msgid "The original Tile or another protected occupant changed unexpectedly; no restoration or retry was attempted."
+msgstr "元のTileまたは他の保護対象が予期せず変化しました。状態の書き戻しや再試行は行っていません。"
+
 #. Runtime JSON key: ui_action.binding_unknown
 #. Runtime zh-Hans msgstr: "无法获取原生输入绑定；未发送UI操作。"
 msgctxt "OniMcp.MCP.UI_ACTION.BINDING_UNKNOWN"

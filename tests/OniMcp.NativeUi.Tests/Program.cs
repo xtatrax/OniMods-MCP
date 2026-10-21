@@ -13,12 +13,14 @@ internal static class Program
     private static void Main(string[] args)
     {
         if (args.Length == 1 && args[0] == "--completion-no-direct-write") { BlueprintParentRegression.VerifyNoDirectFallbackOnly(); return; }
+        if (args.Length == 1 && args[0] == "--tile-only") { TileReplacementRegression.Run(); return; }
         TestTargetGuards();
         TestUiReadiness();
         TestNativeButton();
         TestFirstUseInitialization();
         TestFailureObservation();
         BlueprintCompletionRegression.Run();
+        TileReplacementRegression.Run();
         Console.WriteLine("Native UI adapter: " + checks + " host checks passed (Unity/game boundary substituted)");
     }
 

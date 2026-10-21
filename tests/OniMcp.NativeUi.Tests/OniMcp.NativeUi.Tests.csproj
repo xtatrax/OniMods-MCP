@@ -13,6 +13,11 @@
     <BlueprintGeometrySource Condition="'$(BlueprintGeometrySource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlacementGeometry.cs</BlueprintGeometrySource>
     <BlueprintRuntimeSource Condition="'$(BlueprintRuntimeSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRuntimePlacement.cs</BlueprintRuntimeSource>
     <BlueprintInstantSource Condition="'$(BlueprintInstantSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningInstantCompletion.cs</BlueprintInstantSource>
+    <PlanOneSource Condition="'$(PlanOneSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlanOne.cs</PlanOneSource>
+    <TileReplacementSource Condition="'$(TileReplacementSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningTileReplacement.cs</TileReplacementSource>
+    <TileReplacementStateSource Condition="'$(TileReplacementStateSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningTileReplacementState.cs</TileReplacementStateSource>
+    <NativeTileReplacementSource Condition="'$(NativeTileReplacementSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeTileReplacement.cs</NativeTileReplacementSource>
+    <NativeTileReplacementStateSource Condition="'$(NativeTileReplacementStateSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeTileReplacementState.cs</NativeTileReplacementStateSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
@@ -20,6 +25,13 @@
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingMaterialReader.cs" Link="Source/BuildPlanningExistingMaterialReader.cs" />
     <Compile Include="$(NativeBlueprintSource)" Link="Source/NativeBlueprintInstantCompletion.cs" />
     <Compile Include="$(ExistingBlueprintSource)" Link="Source/BuildPlanningExistingBlueprintCompletion.cs" />
+    <Compile Include="$(PlanOneSource)" Link="Source/BuildPlanningPlanOne.cs" />
+    <Compile Include="$(TileReplacementSource)" Link="Source/BuildPlanningTileReplacement.cs" />
+    <Compile Include="$(TileReplacementStateSource)" Link="Source/BuildPlanningTileReplacementState.cs" />
+    <Compile Include="$(NativeTileReplacementSource)" Link="Source/NativeTileReplacement.cs" />
+    <Compile Include="$(NativeTileReplacementStateSource)" Link="Source/NativeTileReplacementState.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingMaterialValidation.cs" Link="Source/BuildPlanningExistingMaterialValidation.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingMaterialPolicy.cs" Link="Source/BuildPlanningExistingMaterialPolicy.cs" />
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
