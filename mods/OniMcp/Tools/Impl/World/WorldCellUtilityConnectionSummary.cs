@@ -21,16 +21,25 @@ namespace OniMcp.Tools
 
         private static Dictionary<string, object> UtilityNetworkSummary(int cell, string kind, ObjectLayer[] layers, bool power)
         {
-            var dirs = UtilityNeighborDirs(cell, layers, power);
-            bool hasLayer = HasAnyUtilityLayer(cell, layers);
+            var observed = WorldUtilityPhysicalConnectionRead.Read(cell, layers);
+            bool known = observed.Mask.HasValue;
+            bool absent = observed.State == "absent";
+            var dirs = known ? UtilityMaskDirs(cell, observed.Mask.Value) : new List<KeyValuePair<string, int>>();
+            string emptyOrUnknown = absent ? "." : "?";
             var result = new Dictionary<string, object>
             {
-                ["hasLayer"] = hasLayer,
-                ["glyph"] = hasLayer ? UtilityGlyph(dirs).ToString() : ".",
-                ["dirs"] = dirs.Count == 0 ? "." : string.Join("", dirs.Select(item => item.Key).ToArray()),
-                ["links"] = UtilityLinkText(dirs),
-                ["open"] = UtilityOpenText(cell, layers, dirs),
-                ["to"] = dirs.Count == 0 ? "." : string.Join(",", dirs.Select(item => CellCoordText(item.Value)).ToArray())
+                ["hasLayer"] = UtilityObservedValue(observed.HasLayer),
+                ["hasPhysical"] = UtilityObservedValue(observed.HasPhysical),
+                ["hasPlanned"] = UtilityObservedValue(observed.HasPlanned),
+                ["connectionState"] = observed.State,
+                ["connectionSource"] = UtilityObservedValue(observed.Source),
+                ["reasonCode"] = UtilityObservedValue(observed.ReasonCode),
+                ["nativePhysicalMask"] = UtilityObservedValue(known ? (object)(int)observed.Mask.Value : null),
+                ["glyph"] = known ? UtilityGlyph(dirs).ToString() : emptyOrUnknown,
+                ["dirs"] = known ? dirs.Count == 0 ? "." : string.Join("", dirs.Select(item => item.Key).ToArray()) : emptyOrUnknown,
+                ["links"] = known ? UtilityLinkText(dirs) : emptyOrUnknown,
+                ["open"] = known ? UtilityOpenText(cell, layers, dirs) : emptyOrUnknown,
+                ["to"] = known ? dirs.Count == 0 ? "." : string.Join(",", dirs.Select(item => CellCoordText(item.Value)).ToArray()) : emptyOrUnknown
             };
 
             if (power)
@@ -39,6 +48,8 @@ namespace OniMcp.Tools
             AddUtilityEndpointSummary(result, cell, kind);
             return result;
         }
+
+        private static object UtilityObservedValue(object value) => value ?? Newtonsoft.Json.Linq.JValue.CreateNull();
 
         private static void AddUtilityEndpointSummary(Dictionary<string, object> result, int cell, string kind)
         {
@@ -160,25 +171,20 @@ namespace OniMcp.Tools
             return Grid.InvalidCell;
         }
 
-        private static List<KeyValuePair<string, int>> UtilityNeighborDirs(int cell, ObjectLayer[] layers, bool power)
+        private static List<KeyValuePair<string, int>> UtilityMaskDirs(int cell, UtilityConnections mask)
         {
-            ushort circuit = power ? UtilityPowerCircuitId(cell) : ushort.MaxValue;
             var result = new List<KeyValuePair<string, int>>();
-            AddUtilityDir(result, cell, "U", 0, 1, layers, power, circuit);
-            AddUtilityDir(result, cell, "D", 0, -1, layers, power, circuit);
-            AddUtilityDir(result, cell, "L", -1, 0, layers, power, circuit);
-            AddUtilityDir(result, cell, "R", 1, 0, layers, power, circuit);
+            AddUtilityMaskDir(result, cell, "U", 0, 1, (mask & UtilityConnections.Up) != 0);
+            AddUtilityMaskDir(result, cell, "D", 0, -1, (mask & UtilityConnections.Down) != 0);
+            AddUtilityMaskDir(result, cell, "L", -1, 0, (mask & UtilityConnections.Left) != 0);
+            AddUtilityMaskDir(result, cell, "R", 1, 0, (mask & UtilityConnections.Right) != 0);
             return result;
         }
 
-        private static void AddUtilityDir(List<KeyValuePair<string, int>> result, int cell, string dir, int dx, int dy, ObjectLayer[] layers, bool power, ushort circuit)
+        private static void AddUtilityMaskDir(List<KeyValuePair<string, int>> result, int cell, string dir, int dx, int dy, bool connected)
         {
-            int neighbor = NeighborCell(cell, dx, dy);
-            if (!Grid.IsValidCell(neighbor) || !HasAnyUtilityLayer(neighbor, layers))
-                return;
-            if (power && circuit != ushort.MaxValue && UtilityPowerCircuitId(neighbor) != circuit)
-                return;
-            result.Add(new KeyValuePair<string, int>(dir, neighbor));
+            if (connected)
+                result.Add(new KeyValuePair<string, int>(dir, NeighborCell(cell, dx, dy)));
         }
 
         private static string UtilityOpenText(int cell, ObjectLayer[] layers, List<KeyValuePair<string, int>> dirs)
@@ -255,7 +261,10 @@ namespace OniMcp.Tools
 
         private static int NeighborCell(int cell, int dx, int dy)
         {
-            return Grid.XYToCell(Grid.CellColumn(cell) + dx, Grid.CellRow(cell) + dy);
+            if (!Grid.IsValidCell(cell)) return Grid.InvalidCell;
+            int x = Grid.CellColumn(cell) + dx, y = Grid.CellRow(cell) + dy;
+            return x >= 0 && x < Grid.WidthInCells && y >= 0 && y < Grid.HeightInCells
+                ? Grid.XYToCell(x, y) : Grid.InvalidCell;
         }
 
         private static string CellCoordText(int cell)

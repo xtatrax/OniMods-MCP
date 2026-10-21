@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using OniMcp.Tools;
 
+WorldAnalysisTools.RunUtilitySummaryRegressions();
 WorldEditorTools.RunReadRegressions();
 WorldEditorTools.RunMapContractRegressions();
 WorldAnalysisTools.RunTextMapFormattingRegressions();

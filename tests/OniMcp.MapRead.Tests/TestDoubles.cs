@@ -32,14 +32,14 @@ public sealed class CameraController
     public static CameraController Instance = new(); public int Moves;
     public void SnapTo(Vector3 point, float zoom) { Moves++; }
 }
-public sealed class Game { public static Game Instance = new(); public void ForceOverlayUpdate(bool value) { } }
+public sealed partial class Game { public static Game Instance = new(); public void ForceOverlayUpdate(bool value) { } }
 public sealed class World { public Vector2Int WorldOffset = new(10, 20), WorldSize = new(64, 64); }
 public sealed class ClusterManager
 {
     public static ClusterManager Instance = new(); public int activeWorldId;
     public World world = new(); public World GetWorld(int id) => id == activeWorldId ? world : null;
 }
-public static class Grid
+public static partial class Grid
 {
     public static int WidthInCells = 128, HeightInCells = 128;
     public static int[] WorldIdx = new int[16384]; public static bool[] Visible = Enumerable.Repeat(true, 16384).ToArray();
@@ -59,19 +59,38 @@ public static class Grid
     public static bool IsWorldValidCell(int cell) => IsValidCell(cell) && WorldValid[cell];
     public static bool IsVisible(int cell) => Visible[cell];
 }
-public enum ObjectLayer { Wire, Minion }
-[Flags] public enum UtilityConnections { Right = 1, Left = 2, Down = 4, Up = 8 }
+public enum ObjectLayer { Wire, Minion, WireTile, ReplacementWire, LiquidConduit, LiquidConduitTile, ReplacementLiquidConduit, GasConduit, GasConduitTile, ReplacementGasConduit, SolidConduit, SolidConduitTile, ReplacementSolidConduit, LogicWire, LogicWireTile, ReplacementLogicWire, Building, LogicGate }
+[Flags] public enum UtilityConnections { Left = 1, Right = 2, Up = 4, Down = 8 }
 public sealed class BuildingComplete { }
 public sealed class KAnimGraphTileVisualizer
 {
-    public bool isPhysicalBuilding; public TestManager ConnectionManager;
+    public bool isPhysicalBuilding; public IUtilityNetworkMgr ConnectionManager;
 }
-public interface IHaveUtilityNetworkMgr { TestManager GetNetworkManager(); }
-public sealed class TestProvider : IHaveUtilityNetworkMgr { public TestManager Manager; public TestManager GetNetworkManager() => Manager; }
-public sealed class TestManager
+public interface IHaveUtilityNetworkMgr { IUtilityNetworkMgr GetNetworkManager(); }
+public interface IUtilityNetworkMgr { UtilityConnections GetConnections(int cell, bool is_physical_building); }
+public sealed class TestProvider : IHaveUtilityNetworkMgr
 {
-    public UtilityConnections Mask; public bool RequestedPhysical;
-    public UtilityConnections GetConnections(int cell, bool is_physical_building) { RequestedPhysical = is_physical_building; return Mask; }
+    public IUtilityNetworkMgr Manager;
+    public Func<IUtilityNetworkMgr> ManagerReader;
+    public int Reads;
+    public IUtilityNetworkMgr GetNetworkManager() { Reads++; return ManagerReader == null ? Manager : ManagerReader(); }
+}
+public sealed class TestManager : IUtilityNetworkMgr
+{
+    public UtilityConnections Mask;
+    public UtilityConnections? PhysicalRead, NonPhysicalRead;
+    public bool RequestedPhysical;
+    public readonly List<(int Cell,bool Physical)> Reads = new();
+    public Func<int,bool,UtilityConnections> Reader;
+    public UtilityConnections GetConnections(int cell,bool is_physical_building)
+    {
+        RequestedPhysical=is_physical_building; Reads.Add((cell,is_physical_building));
+        return Reader != null ? Reader(cell,is_physical_building) : is_physical_building ? PhysicalRead ?? Mask : NonPhysicalRead ?? Mask;
+    }
+    public void GetOrAdd() => throw UtilitySummaryBoundary.Forbidden("GetOrAdd");
+    public void Update() => throw UtilitySummaryBoundary.Forbidden("Update");
+    public void Rebuild() => throw UtilitySummaryBoundary.Forbidden("Rebuild");
+    public void AddToNetworks() => throw UtilitySummaryBoundary.Forbidden("AddToNetworks");
 }
 public enum SimHashes { TestElement, OtherElement, Oxygen, ContaminatedOxygen, Water, PollutedWater }
 public sealed class Element { public SimHashes id; public string name; public bool IsLiquid, IsGas; }
@@ -86,12 +105,13 @@ namespace UnityEngine
     public sealed class Camera { public static Camera main; public Transform transform = new(); public float orthographicSize = 2, aspect = 1; }
     public static class Screen { public static int width = 1920, height = 1080; }
     public static class Mathf { public static int RoundToInt(float x) => (int)Math.Round(x); public static int Clamp(int x, int min, int max) => Math.Clamp(x, min, max); public static float Clamp(float x, float min, float max) => Math.Clamp(x, min, max); }
-    public sealed class GameObject
+    public sealed partial class GameObject
     {
         public Dictionary<Type, object> Components = new();
         public string name;
         public int ComponentReads, NameReads;
-        public T GetComponent<T>() where T : class { ComponentReads++; return Components.TryGetValue(typeof(T), out var component) ? (T)component : null; }
+        public Func<Type,object> ComponentReader;
+        public T GetComponent<T>() where T : class { ComponentReads++; if (ComponentReader != null) return ComponentReader(typeof(T)) as T; return Components.TryGetValue(typeof(T), out var component) ? (T)component : null; }
         public string GetProperName() { NameReads++; return name; }
     }
 }
