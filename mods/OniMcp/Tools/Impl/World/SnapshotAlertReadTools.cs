@@ -22,12 +22,15 @@ namespace OniMcp.Tools
             AddAlert(alerts, buildings != null && buildings.Toilets == 0, "warning", "hygiene", "No toilet detected.");
             AddAlert(alerts, buildings != null && buildings.ResearchStations == 0, "info", "research", "No research station detected.");
             AddAlert(alerts, buildings != null && buildings.Batteries == 0, "info", "power", "No battery detected.");
-            // Do not evaluate a message containing Max before checking the scoped set.
-            if (dupes.Count > 0)
+            // Known high stress remains an alert even when whole-population coverage is incomplete.
+            var observedStress = dupes.Where(item => KnownSnapshotNeed(item.Stress)).ToList();
+            if (observedStress.Count > 0)
             {
-                float maxStress = dupes.Max(item => item.Stress);
-                AddAlert(alerts, maxStress > 40f, "warning", "stress",
-                    McpLocalization.Format("snapshot.alert.stress", null, Math.Round(maxStress, 1)));
+                float maxStress = observedStress.Max(item => item.Stress.Value);
+                string message = observedStress.Count == dupes.Count
+                    ? McpLocalization.Format("snapshot.alert.stress", null, Math.Round(maxStress, 1))
+                    : McpLocalization.Format("snapshot_needs.alert.observed_stress", null, Math.Round(maxStress, 1));
+                AddAlert(alerts, maxStress > 40f, "warning", "stress", message);
             }
 
             if (atmosphere != null)

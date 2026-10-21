@@ -1,0 +1,5 @@
+{
+  "snapshot_needs.summary.stress_unavailable": "複製人間{0}人、最大ストレスは未取得、確認済み食料{1} kcal（利用可能{2} kcal）、警告{3}",
+  "snapshot_needs.summary.incomplete_suffix": "（snapshotの欲求値に未取得あり）",
+  "snapshot_needs.alert.observed_stress": "取得できたストレスの最大値は{0}です。一部の複製人間は未取得です。"
+}

@@ -553,3 +553,12 @@ survival_watchの終了停止を公開game_controlのpause/timeで独立確認�
 公開固有IDのホスト557条件、本体参照build.21の警告・エラー0、初回と通常再読込の計632実機検査が成功した。同一GameObjectに3Storageを持つ現物と単一Storageを含む20種類・23設備で範囲・独立容量・内容・拒否・停止時刻を照合し、開発版との収納結果も一致した。元導入物・設定・原本・共有保存・選択先・DLCへ復帰済み。非空の副Storage、描画済みUI、native移送・フィルター変更の実挙動、全設備の網羅は未受入のまま保持する。
 
 実装・翻訳・合成回帰と一般説明だけを選択し、開発履歴・保存先・実ID・設定・生記録は含めない。[契約と検証範囲](storage-components-scope_JP.md)。
+
+
+## 選択修正: snapshot欲求値と欠測集約を本体Amountに揃える
+
+snapshotが非ComponentのAmountsをGetComponentで探して0補完していた経路を、既存Db cacheの固定Amount定義.Lookupへ切り替えた。Stress/Stamina/Caloriesの有限なnative値だけを観測済みとし、真0と欠測null・理由を分ける。全対象の取得率を表示上限前に計算し、不完全な人数集約や全体最大を0/部分集合の値で埋めない。既知の高stress警告は維持し、fullだけに詳細証拠を返す。kcal変換やモデル対象外判定、既存診断の書換えは行わない。
+
+公開ソースのホスト457条件、本体参照build.22の警告・エラー0、公開固有IDの初回/通常再読込計106検査を受入れた。修正前の0補完を再現した同じ入力で、通常デュプの正数・取得済みstress0・欠測nullを別native読取へ照合し、粒度・取得率・実在無人world・全world・typed watch閾値・反復delta・停止時計を確認した。開発版を含む4段階は計215検査で一致し、元導入物・設定・原本・共有保存・保存先・DLCへ復帰済み。
+
+ホストの故障/非有限値・正stress・stamina0やunknown遷移を実機再現と混同せず、描画UIと息止め時の同時照合・全環境の安全性は未受入。テキストopsのobject string契約は維持し、閾値objectは既存の型付き読取payloadで検証した。実装・翻訳・合成回帰と一般説明だけを反映し、私的履歴・保存先・実ID・設定・生記録は含めない。[契約と受入範囲](snapshot-dupe-needs_JP.md)。

@@ -22,6 +22,7 @@ internal static class Program
         Check((bool)delta["first"]["baseline"], "empty scoped snapshot can establish a delta baseline");
         Check((bool)delta["second"]["unchanged"], "repeated empty scoped snapshot is an unchanged delta");
         Console.WriteLine("Snapshot adapters: " + checks + " host checks passed (native game boundaries substituted)");
+        Console.WriteLine("Native snapshot needs: " + NativeNeedsRegression.Run() + " host checks passed (native game boundaries substituted)");
     }
 
     private static void EmptyWorld()

@@ -9,6 +9,9 @@
     <SnapshotSourceRoot Condition="'$(SnapshotSourceRoot)' == ''">../../mods/OniMcp/Tools/Impl/World</SnapshotSourceRoot>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(SnapshotSourceRoot)/SnapshotColonyMetrics.cs" Link="Source/SnapshotColonyMetrics.cs" />
+    <Compile Include="$(SnapshotSourceRoot)/SnapshotNeedReadings.cs" Link="Source/SnapshotNeedReadings.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Shared/DupeAmountUtil.cs" Link="Source/DupeAmountUtil.cs" />
     <Compile Include="$(SnapshotSourceRoot)/SnapshotMetrics.cs" Link="Source/SnapshotMetrics.cs" />
     <Compile Include="$(SnapshotSourceRoot)/SnapshotAlertReadTools.cs" Link="Source/SnapshotAlertReadTools.cs" />
     <Compile Include="$(SnapshotSourceRoot)/SnapshotDupeResult.cs" Link="Source/SnapshotDupeResult.cs" />

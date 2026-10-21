@@ -1,0 +1,5 @@
+{
+  "snapshot_needs.summary.stress_unavailable": "{0} dupes, max stress unavailable, known food {1} kcal (available {2} kcal), alert {3}",
+  "snapshot_needs.summary.incomplete_suffix": ". Snapshot needs partly unavailable.",
+  "snapshot_needs.alert.observed_stress": "Observed stress maximum {0}; some duplicants are unobserved."
+}

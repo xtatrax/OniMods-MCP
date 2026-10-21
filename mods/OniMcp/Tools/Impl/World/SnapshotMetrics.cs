@@ -15,9 +15,10 @@ namespace OniMcp.Tools
             public int WorldId;
             public int X;
             public int Y;
-            public float Stress;
-            public float Stamina;
-            public float Calories;
+            public float? Stress;
+            public float? Stamina;
+            public float? Calories;
+            public SnapshotNeedReadings Needs;
             public int SkillPoints;
 
             public Dictionary<string, object> ToDictionary(bool full)
@@ -28,13 +29,14 @@ namespace OniMcp.Tools
                     ["name"] = Name,
                     ["worldId"] = WorldId,
                     ["xy"] = new[] { X, Y },
-                    ["stress"] = Math.Round(Stress, 1),
+                    ["stress"] = RoundedSnapshotNeed(Stress),
                     ["skillPoints"] = SkillPoints
                 };
                 if (full)
                 {
-                    result["stamina"] = Math.Round(Stamina, 1);
-                    result["calories"] = Math.Round(Calories, 1);
+                    result["stamina"] = RoundedSnapshotNeed(Stamina);
+                    result["calories"] = RoundedSnapshotNeed(Calories);
+                    result["needsEvidence"] = Needs?.Evidence();
                 }
                 return result;
             }
@@ -148,6 +150,7 @@ namespace OniMcp.Tools
                 {
                     ["dupes"] = metrics["dupes"],
                     ["maxStress"] = metrics["stress"],
+                    ["needsCoverage"] = metrics["needsCoverage"],
                     ["foodKcal"] = metrics["food_kcal"],
                     ["foodScope"] = "known food; not usable reserve",
                     ["foodAvailableKcal"] = metrics["food_available_kcal"],
@@ -176,6 +179,7 @@ namespace OniMcp.Tools
                 ["paused"] = time["isPaused"],
                 ["alertLevel"] = metrics["alertLevel"],
                 ["summary"] = BuildSummary(metrics),
+                ["needsCoverage"] = metrics["needsCoverage"],
                 ["watch"] = watch
             };
         }
@@ -186,14 +190,16 @@ namespace OniMcp.Tools
             bool red = redAlert.ContainsKey("isRedAlert") && Convert.ToBoolean(redAlert["isRedAlert"]);
             bool yellow = redAlert.ContainsKey("isYellowAlert") && Convert.ToBoolean(redAlert["isYellowAlert"]);
             string alertLevel = red || HasSeverity(alerts, "critical") ? "red" : (yellow || HasSeverity(alerts, "warning") ? "yellow" : (alertCount > 0 ? "info" : "green"));
-            object maxStress = dupes.Count == 0 ? null : (object)Math.Round(dupes.Max(item => item.Stress), 1);
+            object maxStress = SnapshotMaxStress(dupes);
 
             var result = new Dictionary<string, object>
             {
                 ["dupes"] = dupes.Count,
                 ["stress"] = maxStress,
-                ["stressed_dupes"] = dupes.Count(item => item.Stress >= 40f),
-                ["low_stamina"] = dupes.Count(item => item.Stamina > 0f && item.Stamina < 30f),
+                ["stressed_dupes"] = SnapshotStressedCount(dupes),
+                ["low_stamina"] = SnapshotLowStaminaCount(dupes),
+                ["needsCoverage"] = SnapshotNeedsCoverage(dupes),
+                ["needsAssessmentComplete"] = SnapshotNeedsComplete(dupes),
                 ["skill_points"] = dupes.Sum(item => item.SkillPoints),
                 ["food_kcal"] = Math.Round(food?.TotalKcal ?? 0f, 1),
                 ["food_available_kcal"] = food?.Access != null ? (object)Math.Round(food.Access.Available, 1) : null,
@@ -256,11 +262,18 @@ namespace OniMcp.Tools
 
         private static string BuildSummary(Dictionary<string, object> metrics)
         {
-            if (metrics["stress"] == null)
-                return McpLocalization.Format("snapshot.summary.no_dupes", null,
+            string summary;
+            if (Convert.ToInt32(metrics["dupes"]) == 0)
+                summary = McpLocalization.Format("snapshot.summary.no_dupes", null,
                     metrics["dupes"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
-            return McpLocalization.Format("snapshot.summary", null,
-                metrics["dupes"], metrics["stress"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
+            else if (metrics["stress"] == null)
+                summary = McpLocalization.Format("snapshot_needs.summary.stress_unavailable", null,
+                    metrics["dupes"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
+            else
+                summary = McpLocalization.Format("snapshot.summary", null,
+                    metrics["dupes"], metrics["stress"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
+            return Convert.ToBoolean(metrics["needsAssessmentComplete"]) ? summary
+                : summary + McpLocalization.Get("snapshot_needs.summary.incomplete_suffix");
         }
     }
 }

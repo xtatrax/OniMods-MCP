@@ -15,7 +15,7 @@ namespace OniMcp.Tools
             {
                 Id = i + 1, Name = "Dupe" + i, WorldId = worldId,
                 X = 10 + i, Y = 20, Stress = stress, Stamina = 50,
-                Calories = 1000000, SkillPoints = i
+                Calories = 1000000, SkillPoints = i, Needs = null
             }).ToList();
             var food = new FoodSnapshot
             {

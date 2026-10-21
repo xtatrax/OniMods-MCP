@@ -135,9 +135,7 @@ namespace OniMcp.Tools
                 if (worldId >= 0 && dupeWorld != worldId)
                     continue;
 
-                float stress = DupeAmountUtil.StressValue(dupe);
-                float stamina = DupeAmountUtil.AmountValueByName(dupe, "Stamina");
-                float calories = DupeAmountUtil.AmountValueByName(dupe, "Calories");
+                var needs = ReadSnapshotNeeds(dupe);
                 var resume = dupe.GetComponent<MinionResume>();
                 int cell = Grid.PosToCell(dupe);
                 result.Add(new DupeSnapshot
@@ -147,9 +145,10 @@ namespace OniMcp.Tools
                     WorldId = dupeWorld,
                     X = Grid.IsValidCell(cell) ? Grid.CellColumn(cell) : -1,
                     Y = Grid.IsValidCell(cell) ? Grid.CellRow(cell) : -1,
-                    Stress = stress,
-                    Stamina = stamina,
-                    Calories = calories,
+                    Stress = needs.Stress.Value,
+                    Stamina = needs.Stamina.Value,
+                    Calories = needs.Calories.Value,
+                    Needs = needs,
                     SkillPoints = resume?.AvailableSkillpoints ?? 0
                 });
             }
