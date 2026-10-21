@@ -136,5 +136,6 @@ internal static class Program
         Check(Components.BuildingCompletes.Items.Count == 3 && target.Storage.items.Count == 1, "adapter preserves world objects and item inventory");
         Console.WriteLine("Storage filter readback adapter: " + assertions + " assertions passed");
         Console.WriteLine("Storage item detail adapter: " + StorageItemDetailsRegression.Run() + " assertions passed");
+        Console.WriteLine("Storage component scope adapter: " + ComponentScopeRegression.Run() + " assertions passed");
     }
 }

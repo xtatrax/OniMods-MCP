@@ -19,10 +19,29 @@ namespace UnityEngine
     {
         public string name;
         public int Id;
+        public bool ThrowProperName;
         public int WorldId;
         public readonly Transform transform = new Transform();
         public readonly Dictionary<Type, object> Components = new Dictionary<Type, object>();
         public readonly HashSet<Type> ThrowGetComponent = new HashSet<Type>();
+        public readonly List<object> ExtraComponents = new List<object>();
+        public readonly List<object> ChildComponents = new List<object>();
+        public int ComponentEnumerationReads, ChildEnumerationReads;
+        public bool ThrowComponentEnumeration, ReturnNullComponentEnumeration;
+        public Func<Type, object[]> ComponentResults;
+        public T[] GetComponents<T>() where T : class
+        {
+            ComponentEnumerationReads++;
+            if (ThrowComponentEnumeration) throw new InvalidOperationException("fixture component enumeration failure");
+            if (ReturnNullComponentEnumeration) return null;
+            if (ComponentResults != null) { var values = ComponentResults(typeof(T)); return values == null ? null : values.Cast<T>().ToArray(); }
+            return Components.Values.Concat(ExtraComponents).OfType<T>().ToArray();
+        }
+        public T[] GetComponentsInChildren<T>() where T : class
+        {
+            ChildEnumerationReads++;
+            return Components.Values.Concat(ExtraComponents).Concat(ChildComponents).OfType<T>().ToArray();
+        }
         public T GetComponent<T>() where T : class
         {
             if (ThrowGetComponent.Contains(typeof(T))) throw new InvalidOperationException("fixture component read failure");
@@ -31,7 +50,7 @@ namespace UnityEngine
         }
         public int GetInstanceID() { return Id; }
         public int GetMyWorldId() { return WorldId; }
-        public string GetProperName() { return name; }
+        public string GetProperName() { if (ThrowProperName) throw new InvalidOperationException("fixture item name failure"); return name; }
     }
     public static class Mathf
     {
@@ -41,11 +60,18 @@ namespace UnityEngine
 
 public struct Tag : IEquatable<Tag>
 {
-    public readonly string Name;
-    public Tag(string name) { Name = name; }
-    public bool Equals(Tag other) { return string.Equals(Name, other.Name, StringComparison.Ordinal); }
+    private readonly string nativeName;
+    private readonly bool initialized;
+    public static readonly Tag Invalid = default(Tag);
+    public static bool ThrowInvalidName;
+    public static int InvalidNameReads;
+    public string Name { get { if (!initialized) { InvalidNameReads++; if (ThrowInvalidName) throw new InvalidOperationException("fixture invalid tag Name read forbidden"); } return nativeName; } }
+    public Tag(string name) { nativeName = name; initialized = true; }
+    public bool Equals(Tag other) { return initialized == other.initialized && string.Equals(nativeName, other.nativeName, StringComparison.Ordinal); }
     public override bool Equals(object other) { return other is Tag && Equals((Tag)other); }
-    public override int GetHashCode() { return Name == null ? 0 : Name.GetHashCode(); }
+    public override int GetHashCode() { return nativeName == null ? (initialized ? 1 : 0) : nativeName.GetHashCode(); }
+    public static bool operator ==(Tag first, Tag second) { return first.Equals(second); }
+    public static bool operator !=(Tag first, Tag second) { return !first.Equals(second); }
 }
 
 public sealed class TreeFilterable
@@ -64,14 +90,30 @@ public sealed class TreeFilterable
     }
 }
 
-public sealed class Storage
+public interface IStorage { }
+public sealed class OtherStorageFixture : IStorage { }
+public sealed class Storage : IStorage
 {
-    public float capacityKg;
-    public readonly List<UnityEngine.GameObject> items = new List<UnityEngine.GameObject>();
-    private float nativeMass;
-    public int MassReads;
+    private float capacity, nativeMass;
+    private bool show = true;
+    private Tag id;
+    private List<Tag> filters;
+    private List<UnityEngine.GameObject> storedItems = new List<UnityEngine.GameObject>();
+    public int MassReads, Writes;
+    public readonly Dictionary<string, int> Reads = new Dictionary<string, int>();
+    public readonly HashSet<string> ThrowOn = new HashSet<string>();
+    private void Read(string field)
+    {
+        Reads[field] = Reads.ContainsKey(field) ? Reads[field] + 1 : 1;
+        if (ThrowOn.Contains(field)) throw new InvalidOperationException("fixture storage field read failure");
+    }
+    public float capacityKg { get { Read("capacityKg"); return capacity; } set { Writes++; capacity = value; } }
+    public bool showInUI { get { Read("showInUI"); return show; } set { Writes++; show = value; } }
+    public Tag storageID { get { Read("storageID"); return id; } set { Writes++; id = value; } }
+    public List<Tag> storageFilters { get { Read("storageFilters"); return filters; } set { Writes++; filters = value; } }
+    public List<UnityEngine.GameObject> items { get { Read("items"); return storedItems; } set { Writes++; storedItems = value; } }
     public void FixtureMass(float value) { nativeMass = value; }
-    public float MassStored() { MassReads++; return nativeMass; }
+    public float MassStored() { MassReads++; Read("MassStored"); return nativeMass; }
 }
 
 public sealed class StorageLocker { public float UserMaxCapacity; }

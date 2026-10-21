@@ -1,0 +1,5 @@
+{
+  "storage_components.scope_description": "仅限storage action=detail：primary（默认）读取第一个Storage；all_components读取同一GameObject上的各个Storage。不包含子对象的Storage和其他IStorage实现。顶层容量和质量始终为primary的摘要；all_components仅在各component内返回物品。",
+  "storage_components.invalid_scope": "storageScope必须为JSON字符串primary或all_components。",
+  "storage_components.detail_only": "storageScope仅支持storage action=detail。列表、过滤器修改和其他操作请勿携带此参数。"
+}

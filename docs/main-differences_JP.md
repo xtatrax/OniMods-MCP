@@ -544,3 +544,12 @@ survival_watchの終了停止を公開game_controlのpause/timeで独立確認�
 公開source連結252と既存1106のホスト検査、警告・エラー0の参照build.20が成功した。公開固有IDの4段階で計104検査を受入れ、必須27＋既知の条件付き同梱1登録が全段階一致・重複0、速度観測成立・不正型拒否・停止時刻を確認した。元導入物・設定・原本・共有保存・選択先とDLCへ復帰済み。MCP全hookの実動作、共有PLibの全選出、全UI描画や他MOD全組合せを受入れたものではない。初期metadataと要求時エラーの言語差は未解決のまま保持する。
 
 実装・翻訳・合成回帰と一般説明だけを選択し、開発履歴・個別の保存先/座標/実ID/設定/生記録は含めない。[契約と検証範囲](harmony-patch-registration_JP.md)。
+
+
+## 選択修正: Storageの主収納と全component取得を区別する
+
+収納詳細のstorageScopeは、既定primaryを保ち、明示all_componentsだけで同じGameObjectの各Storageを返す。primaryの容量・質量を合計へ変えず、全取得の内容物はcomponent行へ一度だけ置く。列挙の欠測と正当な0、正常な未割当Tag・nullフィルターと読取失敗を区別する。同じTagでもcomponentを統合せず、子のStorage・他のIStorage実装・本体UI全体とは範囲が異なる。一覧と既存TreeFilterable書込を拡張せず、このscopeを定義する入口では書込・他操作への指定を拒否する。
+
+公開固有IDのホスト557条件、本体参照build.21の警告・エラー0、初回と通常再読込の計632実機検査が成功した。同一GameObjectに3Storageを持つ現物と単一Storageを含む20種類・23設備で範囲・独立容量・内容・拒否・停止時刻を照合し、開発版との収納結果も一致した。元導入物・設定・原本・共有保存・選択先・DLCへ復帰済み。非空の副Storage、描画済みUI、native移送・フィルター変更の実挙動、全設備の網羅は未受入のまま保持する。
+
+実装・翻訳・合成回帰と一般説明だけを選択し、開発履歴・保存先・実ID・設定・生記録は含めない。[契約と検証範囲](storage-components-scope_JP.md)。

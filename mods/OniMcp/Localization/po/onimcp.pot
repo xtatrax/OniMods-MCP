@@ -738,3 +738,21 @@ msgstr ""
 msgctxt "OniMcp.MCP.PATCH_REGISTRATION.INVALID_INCLUDE_PATCHES"
 msgid "includePatches must be a JSON boolean."
 msgstr ""
+
+#. Runtime JSON key: storage_components.scope_description
+#. Runtime zh-Hans msgstr: "仅限storage action=detail：primary（默认）读取第一个Storage；all_components读取同一GameObject上的各个Storage。不包含子对象的Storage和其他IStorage实现。顶层容量和质量始终为primary的摘要；all_components仅在各component内返回物品。"
+msgctxt "OniMcp.MCP.STORAGE_COMPONENTS.SCOPE_DESCRIPTION"
+msgid "storage action=detail only: primary (default) reads the first Storage; all_components reads each Storage on the same GameObject. Child storages and other IStorage providers are excluded. Top capacity and mass always describe the primary Storage; all_components returns items only inside each component."
+msgstr ""
+
+#. Runtime JSON key: storage_components.invalid_scope
+#. Runtime zh-Hans msgstr: "storageScope必须为JSON字符串primary或all_components。"
+msgctxt "OniMcp.MCP.STORAGE_COMPONENTS.INVALID_SCOPE"
+msgid "storageScope must be the JSON string primary or all_components."
+msgstr ""
+
+#. Runtime JSON key: storage_components.detail_only
+#. Runtime zh-Hans msgstr: "storageScope仅支持storage action=detail。列表、过滤器修改和其他操作请勿携带此参数。"
+msgctxt "OniMcp.MCP.STORAGE_COMPONENTS.DETAIL_ONLY"
+msgid "storageScope is supported only for storage action=detail. Omit it from list, filter writes and other operations."
+msgstr ""

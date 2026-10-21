@@ -1,0 +1,5 @@
+{
+  "storage_components.scope_description": "storage action=detail only: primary (default) reads the first Storage; all_components reads each Storage on the same GameObject. Child storages and other IStorage providers are excluded. Top capacity and mass always describe the primary Storage; all_components returns items only inside each component.",
+  "storage_components.invalid_scope": "storageScope must be the JSON string primary or all_components.",
+  "storage_components.detail_only": "storageScope is supported only for storage action=detail. Omit it from list, filter writes and other operations."
+}

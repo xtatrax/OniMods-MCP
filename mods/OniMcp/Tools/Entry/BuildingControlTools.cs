@@ -51,6 +51,7 @@ namespace OniMcp.Tools
                     ["includeLocked"] = new McpToolParameter { Type = "boolean", Description = "Include technology-locked recipes when listing recipes.", Required = false },
                     ["forbid"] = new McpToolParameter { Type = "boolean", Description = "For production set_mutant_seeds, true forbids mutant seeds.", Required = false },
                     ["resource"] = new McpToolParameter { Type = "string", Description = "Storage filter tag or building name filter for domain=storage action=list.", Required = false },
+                    ["storageScope"] = StorageTools.StorageScopeParameter(),
                     ["tag"] = new McpToolParameter { Type = "string", Description = "Target tag or element for domain=filter action=set kind=single.", Required = false },
                     ["tags"] = new McpToolParameter { Type = "array", Description = "Tag list to write for domain=storage/filter.", Required = false },
                     ["itemTag"] = new McpToolParameter { Type = "string", Description = "Target item tag for domain=tile_selection action=set.", Required = false },
@@ -86,6 +87,8 @@ namespace OniMcp.Tools
                 {
                     string domain = NormalizeDomain(args);
                     string action = (args["action"]?.ToString() ?? string.Empty).Trim().ToLowerInvariant();
+                    if (StorageTools.HasStorageScope(args) && domain != "storage" && domain != "stores")
+                        return StorageTools.StorageScopeDetailOnly();
                     OniMcp.Support.OniMcpLog.Debug($"[OniMcp] building_control: domain={domain}, action={action}");
                     if ((domain == "planning" || domain == "plan" || domain == "build" || domain == "placement")
                         && action == "build_area"

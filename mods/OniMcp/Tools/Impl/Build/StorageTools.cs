@@ -29,6 +29,7 @@ namespace OniMcp.Tools
                 },
                 Handler = args =>
                 {
+                    if (HasStorageScope(args)) return StorageScopeDetailOnly();
                     string filter = args["resource"]?.ToString()?.ToLowerInvariant();
                     int? worldId = ToolUtil.GetInt(args, "worldId");
                     int limit = ToolUtil.ClampLimit(args, 100, 500);
@@ -61,14 +62,20 @@ namespace OniMcp.Tools
                 Risk = "none",
                 Aliases = new List<string> { "storage_detail" },
                 Description = McpLocalization.Get("storage.detail.description"),
-                Parameters = StorageLookupParams(),
+                Parameters = StorageLookupParams(new Dictionary<string, McpToolParameter>
+                {
+                    ["storageScope"] = StorageScopeParameter()
+                }),
                 Handler = args =>
                 {
+                    string scope;
+                    if (!TryReadStorageScope(args, out scope))
+                        return CallToolResult.Error(McpLocalization.Get("storage_components.invalid_scope"));
                     StorageInfo target;
                     string error;
                     if (!TryFindStorage(args, out target, out error))
                         return CallToolResult.Error(error);
-                    return CallToolResult.Text(JsonConvert.SerializeObject(target.ToDictionary(includeItems: true), McpJsonUtil.Settings));
+                    return CallToolResult.Text(JsonConvert.SerializeObject(ReadStorageDetail(target, scope), McpJsonUtil.Settings));
                 }
             };
         }
@@ -90,6 +97,7 @@ namespace OniMcp.Tools
                 }),
                 Handler = args =>
                 {
+                    if (HasStorageScope(args)) return StorageScopeDetailOnly();
                     StorageInfo target;
                     string error;
                     if (!TryFindStorage(args, out target, out error))
@@ -139,6 +147,7 @@ namespace OniMcp.Tools
                 {
                     ["action"] = new McpToolParameter { Type = "string", Description = "list、detail または set_filter", Required = true, EnumValues = new List<string> { "list", "detail", "set_filter" } },
                     ["resource"] = new McpToolParameter { Type = "string", Description = "action=list で収納フィルターのタグまたは設備名による絞り込み", Required = false },
+                    ["storageScope"] = StorageScopeParameter(),
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "対象ワールドの ID。detail/set_filter の query のみの検索では現在アクティブなワールドが既定", Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "action=list で返す件数の上限。既定は 100、最大 500", Required = false },
                     ["id"] = new McpToolParameter { Type = "integer", Description = "action=detail/set_filter の設備の InstanceID", Required = false },
@@ -152,6 +161,7 @@ namespace OniMcp.Tools
                 Handler = args =>
                 {
                     string action = (args["action"]?.ToString() ?? "").Trim().ToLowerInvariant();
+                    if (HasStorageScope(args) && action != "detail") return StorageScopeDetailOnly();
                     if (action == "list")
                         return GetStorageList().Handler(args);
                     if (action == "detail")
@@ -179,6 +189,7 @@ namespace OniMcp.Tools
                     ["domain"] = new McpToolParameter { Type = "string", Description = "storage、tile_selection、filter または receptacle", Required = true, EnumValues = new List<string> { "storage", "tile_selection", "filter", "receptacle" } },
                     ["action"] = new McpToolParameter { Type = "string", Description = "サブツールの操作: storage=list/detail/set_filter、tile_selection=list/set/batch、filter=list/set、receptacle=list/request/cancel_request/remove_occupant/cancel_remove/batch", Required = false },
                     ["resource"] = new McpToolParameter { Type = "string", Description = "domain=storage action=list で収納フィルターのタグまたは設備名による絞り込み", Required = false },
+                    ["storageScope"] = StorageScopeParameter(),
                     ["query"] = new McpToolParameter { Type = "string", Description = "domain=tile_selection/filter/receptacle action=list で名前、prefabId、tag による絞り込み", Required = false },
                     ["includeOptions"] = new McpToolParameter { Type = "boolean", Description = "一覧取得時に選択可能な項目を返すか", Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "一覧取得時に返す件数の上限", Required = false },
@@ -217,6 +228,9 @@ namespace OniMcp.Tools
                             domain = legacyKind;
                         }
                     }
+
+                    if (HasStorageScope(args) && domain != "storage" && domain != "building" && domain != "buildings")
+                        return StorageScopeDetailOnly();
 
                     switch (domain)
                     {

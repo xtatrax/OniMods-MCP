@@ -6,12 +6,15 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CanonicalBuildingSource Condition="'$(CanonicalBuildingSource)' == ''">../../mods/OniMcp/Tools/Entry/BuildingControlTools.cs</CanonicalBuildingSource>
     <StorageSourceRoot Condition="'$(StorageSourceRoot)' == ''">../../mods/OniMcp/Tools/Impl/Build</StorageSourceRoot>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(StorageSourceRoot)/StorageTools.cs" Link="Source/StorageTools.cs" />
     <Compile Include="$(StorageSourceRoot)/StorageTargetResolver.cs" Link="Source/StorageTargetResolver.cs" />
     <Compile Include="$(StorageSourceRoot)/StorageItemDetails.cs" Link="Source/StorageItemDetails.cs" />
+    <Compile Include="$(StorageSourceRoot)/StorageComponentDetails.cs" Link="Source/StorageComponentDetails.cs" />
+    <Compile Include="$(CanonicalBuildingSource)" Link="Source/BuildingControlTools.cs" />
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

@@ -1,0 +1,5 @@
+{
+  "storage_components.scope_description": "storage action=detailのみ。primary（既定）は先頭のStorage、all_componentsは同じGameObject上の各Storageを読み取ります。子のStorageと他のIStorage実装は対象外です。先頭の容量・質量は常にprimaryの要約で、all_componentsの内容物は各component内にだけ返します。",
+  "storage_components.invalid_scope": "storageScopeはJSON文字列のprimaryまたはall_componentsで指定してください。",
+  "storage_components.detail_only": "storageScopeはstorage action=detail専用です。一覧・フィルター変更・その他の操作には付けないでください。"
+}
