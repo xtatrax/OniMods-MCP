@@ -94,7 +94,7 @@ public sealed class TestManager : IUtilityNetworkMgr
 }
 public enum SimHashes { TestElement, OtherElement, Oxygen, ContaminatedOxygen, Water, PollutedWater }
 public sealed class Element { public SimHashes id; public string name; public bool IsLiquid, IsGas; }
-public sealed class KPrefabID { public int InstanceID; }
+public sealed partial class KPrefabID { public int InstanceID; }
 public sealed class TestBuildingDef { public string PrefabID, Name; }
 public static class Assets { public static List<TestBuildingDef> BuildingDefs = new(); }
 namespace UnityEngine
@@ -121,7 +121,7 @@ namespace OniMcp.Core
 }
 namespace OniMcp.Tools
 {
-    public static class ToolUtil
+    public static partial class ToolUtil
     {
         public static int? GetInt(JObject a, string key) => int.TryParse(a?[key]?.ToString(), out int v) ? v : null;
         public static float? GetFloat(JObject a, string key) => float.TryParse(a?[key]?.ToString(), out float v) ? v : null;
