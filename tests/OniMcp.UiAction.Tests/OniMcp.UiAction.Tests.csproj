@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><LangVersion>7.3</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <UiActionSource Condition="'$(UiActionSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/UiTools.cs</UiActionSource>
+    <HotkeySafetySource Condition="'$(HotkeySafetySource)' == ''">../../mods/OniMcp/Patches/HotkeyStringPatches.cs</HotkeySafetySource>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UiActionSource)" Link="Source/UiTools.cs" />
+    <Compile Include="$(HotkeySafetySource)" Link="Source/HotkeyStringPatches.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/ui_action.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>

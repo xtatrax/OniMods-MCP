@@ -1,0 +1,6 @@
+{
+  "ui_action.binding_unknown": "无法获取原生输入绑定；未发送UI操作。",
+  "ui_action.unbound": "指定UI操作目前没有原生输入绑定；未发送UI操作。",
+  "ui_action.readiness_unknown": "无法确定原生UI的就绪状态；未发送UI操作。",
+  "ui_action.not_ready": "此操作所需的原生UI不可用；未发送UI操作。"
+}

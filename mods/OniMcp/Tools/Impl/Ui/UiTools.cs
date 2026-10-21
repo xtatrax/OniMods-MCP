@@ -103,7 +103,10 @@ namespace OniMcp.Tools
                     else if (screen == "database" || screen == "codex")
                         menu.ToggleCodex();
                     else
-                        DispatchUiAction(action);
+                    {
+                        var dispatchFailure = DispatchUiAction(action);
+                        if (dispatchFailure != null) return dispatchFailure;
+                    }
 
                     return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
                     {
@@ -140,8 +143,11 @@ namespace OniMcp.Tools
                     if (!safe.ContainsKey(match))
                         return CallToolResult.Error("Action is not in the safe UI whitelist");
 
-                    DispatchUiAction(match);
-                    return CallToolResult.Text(JsonConvert.SerializeObject(ActionInfo(match, safe[match]), McpJsonUtil.Settings));
+                    var dispatchFailure = DispatchUiAction(match);
+                    if (dispatchFailure != null) return dispatchFailure;
+                    var info = ActionInfo(match, safe[match]);
+                    info["dispatched"] = true;
+                    return CallToolResult.Text(JsonConvert.SerializeObject(info, McpJsonUtil.Settings));
                 }
             };
         }
@@ -227,27 +233,40 @@ namespace OniMcp.Tools
 
         private static Dictionary<string, object> ActionInfo(global::Action action, string kind)
         {
+            string bindingState = ToolMenuHotkeySafety.GetBindingState(action);
+            string readinessState = ReadinessState(action);
+            bool? available = bindingState == "unbound" || bindingState == "invalid" || readinessState == "unavailable"
+                ? false : bindingState == "unknown" || readinessState == "unknown" ? (bool?)null : true;
             return new Dictionary<string, object>
             {
                 ["name"] = action.ToString(),
                 ["kind"] = kind,
                 ["ordinal"] = (int)action,
-                ["available"] = IsAvailable(action)
+                ["available"] = available.HasValue ? (object)available.Value : Newtonsoft.Json.Linq.JValue.CreateNull(),
+                ["bindingState"] = bindingState,
+                ["readinessState"] = readinessState
             };
         }
 
-        private static bool IsAvailable(global::Action action)
+        private static string ReadinessState(global::Action action)
         {
-            var menu = ManagementMenu.Instance;
-            if (menu == null)
-                return false;
-            if (action == global::Action.ManageResearch)
-                return menu.CheckHasResearchCenter();
-            if (action == global::Action.ManageSkills)
-                return Components.RoleStations.Count > 0 || DebugHandler.InstantBuildMode || (Game.Instance != null && Game.Instance.SandboxModeActive);
-            if (action == global::Action.ManageStarmap)
-                return ManagementMenu.StarmapAvailable() || DlcManager.FeatureClusterSpaceEnabled();
-            return true;
+            try
+            {
+                var menu = ManagementMenu.Instance;
+                if (menu == null || KScreenManager.Instance == null) return "unavailable";
+                if (action == global::Action.ManageResearch)
+                    return menu.CheckHasResearchCenter() ? "ready" : "unavailable";
+                if (action == global::Action.ManageSkills)
+                    return Components.RoleStations.Count > 0 || DebugHandler.InstantBuildMode
+                        || (Game.Instance != null && Game.Instance.SandboxModeActive) ? "ready" : "unavailable";
+                if (action == global::Action.ManageStarmap)
+                    return ManagementMenu.StarmapAvailable() || DlcManager.FeatureClusterSpaceEnabled() ? "ready" : "unavailable";
+                return "ready";
+            }
+            catch
+            {
+                return "unknown";
+            }
         }
 
         private static void OpenStarmap(ManagementMenu menu)
@@ -258,15 +277,30 @@ namespace OniMcp.Tools
                 menu.OpenStarmap();
         }
 
-        private static void DispatchUiAction(global::Action action)
+        private static CallToolResult DispatchUiAction(global::Action action)
         {
+            // Re-read current bindings at the shared dispatch boundary, including management fallbacks.
+            var info = ActionInfo(action, SafeActions()[action]);
+            if (!(info["available"] is bool available) || !available)
+            {
+                string bindingState = (string)info["bindingState"];
+                string readinessState = (string)info["readinessState"];
+                string reason = bindingState == "unknown" ? "binding_unknown"
+                    : bindingState != "bound" ? "unbound"
+                    : readinessState == "unknown" ? "readiness_unknown" : "not_ready";
+                info["dispatched"] = false;
+                info["reasonCode"] = reason;
+                info["message"] = McpLocalization.Get("ui_action." + reason);
+                return CallToolResult.Error(JsonConvert.SerializeObject(info, McpJsonUtil.Settings));
+            }
             var manager = KScreenManager.Instance;
             if (manager == null)
-                return;
+                return CallToolResult.Error(McpLocalization.Get("ui_action.not_ready"));
             var down = new KButtonEvent(null, InputEventType.KeyDown, action);
             manager.OnKeyDown(down);
             var up = new KButtonEvent(null, InputEventType.KeyUp, action);
             manager.OnKeyUp(up);
+            return null;
         }
     }
 }

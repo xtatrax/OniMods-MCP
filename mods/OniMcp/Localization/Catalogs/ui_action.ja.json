@@ -1,0 +1,6 @@
+{
+  "ui_action.binding_unknown": "本体の入力割当を取得できないため、UI操作は送信していません。",
+  "ui_action.unbound": "指定したUI操作には現在の本体入力割当がないため、UI操作は送信していません。",
+  "ui_action.readiness_unknown": "本体UIの準備状態を判定できないため、UI操作は送信していません。",
+  "ui_action.not_ready": "指定した操作に必要な本体UIが利用できないため、UI操作は送信していません。"
+}

@@ -57,11 +57,31 @@ namespace OniMcp
 
         public static bool IsBoundAction(Action action)
         {
+            return GetBindingState(action) == "bound";
+        }
+
+        public static string GetBindingState(Action action)
+        {
             var value = (int)action;
-            return action != Action.Invalid
-                && action != Action.NumActions
-                && value >= 0
-                && value < (int)Action.NumActions;
+            if (action == Action.Invalid || action == Action.NumActions
+                || value < 0 || value >= (int)Action.NumActions)
+                return "invalid";
+            try
+            {
+                // FindEntry asserts and substitutes the first binding when the action is absent.
+                // Read the existing array only; never load, reset or manufacture bindings.
+                var entries = GameInputMapping.GetBindingEntries();
+                if (entries == null) return "unknown";
+                foreach (var entry in entries)
+                    if (entry.mAction == action
+                        && (entry.mKeyCode != KKeyCode.None || entry.mButton != GamepadButton.NumButtons))
+                        return "bound";
+                return "unbound";
+            }
+            catch
+            {
+                return "unknown";
+            }
         }
 
         public static bool SafeCompareActionKeyCodes(Action left, Action right)

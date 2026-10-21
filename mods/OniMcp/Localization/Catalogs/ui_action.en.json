@@ -1,0 +1,6 @@
+{
+  "ui_action.binding_unknown": "Native input bindings are unavailable; no UI action was dispatched.",
+  "ui_action.unbound": "The requested UI action has no current native input binding; no UI action was dispatched.",
+  "ui_action.readiness_unknown": "Native UI readiness could not be determined; no UI action was dispatched.",
+  "ui_action.not_ready": "The native UI required for this action is unavailable; no UI action was dispatched."
+}

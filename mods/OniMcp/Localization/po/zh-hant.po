@@ -603,3 +603,31 @@ msgstr "未觀測到確切的建造藍圖已完成；原生void入口未提供�
 msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.PROTECTED_STATE_CHANGED"
 msgid "The inspected footprint no longer matches the protected occupants expected after native completion; no retry or restoration was attempted."
 msgstr "檢查範圍的佔用狀態與完成操作後應保持的狀態不一致；未嘗試自動重試或恢復狀態。"
+
+#. Runtime JSON key: ui_action.binding_unknown
+#. Runtime zh-Hans msgstr: "无法获取原生输入绑定；未发送UI操作。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.UI_ACTION.BINDING_UNKNOWN"
+msgid "Native input bindings are unavailable; no UI action was dispatched."
+msgstr "無法取得原生輸入綁定；未傳送UI操作。"
+
+#. Runtime JSON key: ui_action.unbound
+#. Runtime zh-Hans msgstr: "指定UI操作目前没有原生输入绑定；未发送UI操作。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.UI_ACTION.UNBOUND"
+msgid "The requested UI action has no current native input binding; no UI action was dispatched."
+msgstr "指定UI操作目前沒有原生輸入綁定；未傳送UI操作。"
+
+#. Runtime JSON key: ui_action.readiness_unknown
+#. Runtime zh-Hans msgstr: "无法确定原生UI的就绪状态；未发送UI操作。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.UI_ACTION.READINESS_UNKNOWN"
+msgid "Native UI readiness could not be determined; no UI action was dispatched."
+msgstr "無法確定原生UI的就緒狀態；未傳送UI操作。"
+
+#. Runtime JSON key: ui_action.not_ready
+#. Runtime zh-Hans msgstr: "此操作所需的原生UI不可用；未发送UI操作。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.UI_ACTION.NOT_READY"
+msgid "The native UI required for this action is unavailable; no UI action was dispatched."
+msgstr "此操作所需的原生UI不可用；未傳送UI操作。"

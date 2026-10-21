@@ -581,3 +581,27 @@ msgstr ""
 msgctxt "OniMcp.MCP.BLUEPRINT_COMPLETION.PROTECTED_STATE_CHANGED"
 msgid "The inspected footprint no longer matches the protected occupants expected after native completion; no retry or restoration was attempted."
 msgstr ""
+
+#. Runtime JSON key: ui_action.binding_unknown
+#. Runtime zh-Hans msgstr: "无法获取原生输入绑定；未发送UI操作。"
+msgctxt "OniMcp.MCP.UI_ACTION.BINDING_UNKNOWN"
+msgid "Native input bindings are unavailable; no UI action was dispatched."
+msgstr ""
+
+#. Runtime JSON key: ui_action.unbound
+#. Runtime zh-Hans msgstr: "指定UI操作目前没有原生输入绑定；未发送UI操作。"
+msgctxt "OniMcp.MCP.UI_ACTION.UNBOUND"
+msgid "The requested UI action has no current native input binding; no UI action was dispatched."
+msgstr ""
+
+#. Runtime JSON key: ui_action.readiness_unknown
+#. Runtime zh-Hans msgstr: "无法确定原生UI的就绪状态；未发送UI操作。"
+msgctxt "OniMcp.MCP.UI_ACTION.READINESS_UNKNOWN"
+msgid "Native UI readiness could not be determined; no UI action was dispatched."
+msgstr ""
+
+#. Runtime JSON key: ui_action.not_ready
+#. Runtime zh-Hans msgstr: "此操作所需的原生UI不可用；未发送UI操作。"
+msgctxt "OniMcp.MCP.UI_ACTION.NOT_READY"
+msgid "The native UI required for this action is unavailable; no UI action was dispatched."
+msgstr ""
