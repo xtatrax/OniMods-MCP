@@ -1,0 +1,3 @@
+{
+  "storage.detail.description": "互換用の入口。building_control domain=storage action=detail を優先してください。個別の収納設備のフィルター、容量、在庫アイテムと、本体から得た元素・質量・温度・菌種と菌数を読み取ります。未取得値は不明として示し、浄水・殺菌の判定は行いません。"
+}

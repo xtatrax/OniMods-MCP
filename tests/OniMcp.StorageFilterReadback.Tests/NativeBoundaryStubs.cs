@@ -22,8 +22,10 @@ namespace UnityEngine
         public int WorldId;
         public readonly Transform transform = new Transform();
         public readonly Dictionary<Type, object> Components = new Dictionary<Type, object>();
+        public readonly HashSet<Type> ThrowGetComponent = new HashSet<Type>();
         public T GetComponent<T>() where T : class
         {
+            if (ThrowGetComponent.Contains(typeof(T))) throw new InvalidOperationException("fixture component read failure");
             object component;
             return Components.TryGetValue(typeof(T), out component) ? component as T : null;
         }
@@ -73,8 +75,54 @@ public sealed class Storage
 }
 
 public sealed class StorageLocker { public float UserMaxCapacity; }
-public sealed class KPrefabID { public int InstanceID; public Tag PrefabTag; }
-public sealed class PrimaryElement { public float Mass; }
+public sealed class KPrefabID
+{
+    private int instanceId;
+    public bool ThrowInstanceId;
+    public int InstanceID { get { if (ThrowInstanceId) throw new InvalidOperationException("fixture identity read failure"); return instanceId; } set { instanceId = value; } }
+    public Tag PrefabTag;
+}
+public enum SimHashes { Water, DirtyWater, Dirt, Oxygen }
+public sealed class PrimaryElement
+{
+    private float mass, temperature;
+    private byte diseaseIdx;
+    private int diseaseCount;
+    private SimHashes elementId;
+    public int Writes;
+    public readonly HashSet<string> ThrowOn = new HashSet<string>();
+    public readonly Dictionary<string, int> Reads = new Dictionary<string, int>();
+    private void BeforeRead(string field)
+    {
+        Reads[field] = Reads.ContainsKey(field) ? Reads[field] + 1 : 1;
+        if (ThrowOn.Contains(field)) throw new InvalidOperationException("fixture primary read failure");
+    }
+    public float Mass { get { BeforeRead("Mass"); return mass; } set { Writes++; mass = value; } }
+    public float Temperature { get { BeforeRead("Temperature"); return temperature; } set { Writes++; temperature = value; } }
+    public byte DiseaseIdx { get { BeforeRead("DiseaseIdx"); return diseaseIdx; } set { Writes++; diseaseIdx = value; } }
+    public int DiseaseCount { get { BeforeRead("DiseaseCount"); return diseaseCount; } set { Writes++; diseaseCount = value; } }
+    public SimHashes ElementID { get { BeforeRead("ElementID"); return elementId; } set { Writes++; elementId = value; } }
+}
+namespace Klei.AI
+{
+    public sealed class Disease
+    {
+        private string id, name;
+        public bool ThrowId, ThrowName;
+        public string Id { get { if (ThrowId) throw new InvalidOperationException("fixture disease ID read failure"); return id; } set { id = value; } }
+        public string Name { get { if (ThrowName) throw new InvalidOperationException("fixture disease name read failure"); return name; } set { name = value; } }
+    }
+}
+namespace Database { public sealed class Diseases { public List<Klei.AI.Disease> resources = new List<Klei.AI.Disease>(); } }
+public sealed class Db
+{
+    private static Db _Instance;
+    public static int LazyGetCalls;
+    public Database.Diseases Diseases;
+    public static void FixtureSet(Db value) { _Instance = value; }
+    public static Db FixtureCurrent { get { return _Instance; } }
+    public static Db Get() { LazyGetCalls++; throw new InvalidOperationException("lazy database initialization forbidden in readback"); }
+}
 public sealed class BuildingComplete { public UnityEngine.GameObject gameObject; }
 public sealed class BuildingCollection { public readonly List<BuildingComplete> Items = new List<BuildingComplete>(); }
 public static class Components { public static readonly BuildingCollection BuildingCompletes = new BuildingCollection(); }
@@ -139,3 +187,5 @@ namespace OniMcp.Tools
         public static float SafeFloat(float value) { return float.IsNaN(value) || float.IsInfinity(value) ? 0f : value; }
     }
 }
+
+namespace OniMcp { public static class McpLocalization { public static string Get(string key) { return key; } } }

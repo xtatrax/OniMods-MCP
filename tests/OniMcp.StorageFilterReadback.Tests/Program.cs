@@ -135,5 +135,6 @@ internal static class Program
         Check(target.Filter.Updates == nativeBeforeRead && unrelated.Filter.Updates == 0 && remote.Filter.Updates == 0, "list and independent detail reads never perform filter writes");
         Check(Components.BuildingCompletes.Items.Count == 3 && target.Storage.items.Count == 1, "adapter preserves world objects and item inventory");
         Console.WriteLine("Storage filter readback adapter: " + assertions + " assertions passed");
+        Console.WriteLine("Storage item detail adapter: " + StorageItemDetailsRegression.Run() + " assertions passed");
     }
 }

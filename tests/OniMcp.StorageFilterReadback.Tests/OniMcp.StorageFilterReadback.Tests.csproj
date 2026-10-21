@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(StorageSourceRoot)/StorageTools.cs" Link="Source/StorageTools.cs" />
     <Compile Include="$(StorageSourceRoot)/StorageTargetResolver.cs" Link="Source/StorageTargetResolver.cs" />
+    <Compile Include="$(StorageSourceRoot)/StorageItemDetails.cs" Link="Source/StorageItemDetails.cs" />
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

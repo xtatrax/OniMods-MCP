@@ -1,0 +1,3 @@
+{
+  "storage.detail.description": "Compatibility entry point. Prefer building_control domain=storage action=detail. Read a storage building's filters, capacity and stored items, including their native element, mass, temperature and raw germ readings. Missing readings remain unknown; no purification or disinfection judgment is made."
+}

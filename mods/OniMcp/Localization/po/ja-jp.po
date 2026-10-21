@@ -721,3 +721,9 @@ msgstr "本体UIの準備状態を判定できないため、UI操作は送信�
 msgctxt "OniMcp.MCP.UI_ACTION.NOT_READY"
 msgid "The native UI required for this action is unavailable; no UI action was dispatched."
 msgstr "指定した操作に必要な本体UIが利用できないため、UI操作は送信していません。"
+
+#. Runtime JSON key: storage.detail.description
+#. Runtime zh-Hans msgstr: "兼容入口。请优先使用building_control domain=storage action=detail。读取单个储存建筑的过滤器、容量和储存物品，以及原生元素、质量、温度和病菌原始读数。未取得的读数保持未知，不判断净水或杀菌状态。"
+msgctxt "OniMcp.MCP.STORAGE.DETAIL.DESCRIPTION"
+msgid "Compatibility entry point. Prefer building_control domain=storage action=detail. Read a storage building's filters, capacity and stored items, including their native element, mass, temperature and raw germ readings. Missing readings remain unknown; no purification or disinfection judgment is made."
+msgstr "互換用の入口。building_control domain=storage action=detail を優先してください。個別の収納設備のフィルター、容量、在庫アイテムと、本体から得た元素・質量・温度・菌種と菌数を読み取ります。未取得値は不明として示し、浄水・殺菌の判定は行いません。"

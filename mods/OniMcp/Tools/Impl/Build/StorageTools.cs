@@ -60,7 +60,7 @@ namespace OniMcp.Tools
                 Mode = "read",
                 Risk = "none",
                 Aliases = new List<string> { "storage_detail" },
-                Description = "互換用の入口。building_control domain=storage action=detail を優先してください。個別の収納設備のフィルタータグ、在庫アイテム、容量を読み取ります",
+                Description = McpLocalization.Get("storage.detail.description"),
                 Parameters = StorageLookupParams(),
                 Handler = args =>
                 {
@@ -372,17 +372,7 @@ namespace OniMcp.Tools
                 {
                     data["items"] = Storage.items
                         .Where(item => item != null)
-                        .Select(item =>
-                        {
-                            var primary = item.GetComponent<PrimaryElement>();
-                            var prefab = item.GetComponent<KPrefabID>();
-                            return new Dictionary<string, object>
-                            {
-                                ["name"] = ToolUtil.CleanName(item.GetProperName()),
-                                ["prefabId"] = prefab?.PrefabTag.Name ?? item.name,
-                                ["massKg"] = Math.Round(primary != null ? ToolUtil.SafeFloat(primary.Mass) : 0f, 3)
-                            };
-                        })
+                        .Select(ReadStorageItemDetail)
                         .ToList();
                 }
 
