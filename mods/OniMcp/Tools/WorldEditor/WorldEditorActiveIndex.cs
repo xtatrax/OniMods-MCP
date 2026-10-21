@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using OniMcp.Support;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -84,7 +85,7 @@ namespace OniMcp.Tools
             sb.AppendLine("## Editable Files");
             sb.AppendLine("- `/active/dupes/index.md`");
             sb.AppendLine("- `/active/buildings/index.md`");
-            sb.AppendLine("- `/active/objects/details.oni` : live object sections, id/query, section=status/properties/personality/work");
+            sb.AppendLine(McpLocalization.Get("food_freshness.active_index.details"));
             sb.AppendLine("- `/active/colony/steam_achievements.oni` : Steam account unlocks, independent of colony; achievementDetail=brief/full");
             sb.AppendLine("- `/active/colony/achievements.oni` : cached colony achievements, query, achievementStatus, achievementDetail=brief/full");
             sb.AppendLine("- `/active/buildings/specs.oni` / `/active/resources/specs.oni` : prefab specs, prefabId/query, specDetail=brief/full");

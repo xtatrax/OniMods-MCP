@@ -90,12 +90,12 @@ internal sealed partial class Game
     internal object roomProber { get; set; }
 }
 
-internal sealed class Db
+internal sealed partial class Db
 {
-    internal static Db Current { get; set; }
+    internal static Db Current { get { return _Instance; } set { _Instance = value; } }
     internal static int Reads { get; set; }
     internal RoomTypeDatabase RoomTypes { get; set; }
-    internal static Db Get() { Reads++; return Current; }
+    internal static Db Get() { Reads++; if (FreshnessBoundary.GuardNativeFactory) throw FreshnessBoundary.Forbidden("Db.Get"); return Current; }
 }
 
 internal sealed class RoomTypeDatabase

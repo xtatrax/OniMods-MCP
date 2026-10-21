@@ -1,0 +1,10 @@
+{
+  "tools.world_editor.parameters.section": "objects/details.oni：status、properties、personality、work或freshness。需要现物id或query，默认status。freshness默认读取选中的1件食品现物。",
+  "tools.world_editor.parameters.includeFreshnessModifiers": "仅用于section=freshness。附加既有腐败修正的原始值，保留顺序和UIOnly。默认false；最多16行并返回本体总数。不刷新状态或计算UI提示。",
+  "food_freshness.error.section": "section必须为status、properties、personality、work或freshness。",
+  "food_freshness.error.modifiers_boolean": "section=freshness的includeFreshnessModifiers必须是JSON布尔值。",
+  "food_freshness.listing.objects": "分别读取现物的状态、属性、个性、工作及食品新鲜度。",
+  "food_freshness.listing.details": "以现物id/query和section=status/properties/personality/work/freshness分别读取。includeFreshnessModifiers=true时附加新鲜度原始修正。",
+  "food_freshness.active_index.details": "- `/active/objects/details.oni`：现物id/query和section=status/properties/personality/work/freshness；新鲜度修正仅在明确请求时读取。",
+  "food_freshness.resource.food_description": "食物库存及可用性汇总。新鲜度和当前腐败速度请在/active/objects/details.oni指定现物id与section=freshness读取。"
+}

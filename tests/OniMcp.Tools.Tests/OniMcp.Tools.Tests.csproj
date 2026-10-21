@@ -7,9 +7,13 @@
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <StartupObject>BenchmarkMetadataRegressionEntry</StartupObject>
+    <FoodFreshnessSource Condition="'$(FoodFreshnessSource)' == ''">../../mods/OniMcp/Tools/Impl/Colony/EntitySectionFoodFreshness.cs</FoodFreshnessSource>
+    <EntitySectionToolsSource Condition="'$(EntitySectionToolsSource)' == ''">../../mods/OniMcp/Tools/Impl/Colony/EntitySectionTools.cs</EntitySectionToolsSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/PriorityTableProjection.cs" Link="Source/PriorityTableProjection.cs" />
+    <Compile Include="$(FoodFreshnessSource)" Link="Source/EntitySectionFoodFreshness.cs" />
+    <Compile Include="$(EntitySectionToolsSource)" Link="Source/EntitySectionTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Shared/AmbientTemperaturePolicy.cs" Link="Source/AmbientTemperaturePolicy.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialQuantityDiagnostics.cs" Link="Source/MaterialQuantityDiagnostics.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />

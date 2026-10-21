@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -372,7 +373,8 @@ namespace OniMcp.Tools
                 ["temperatureK"] = new McpToolParameter { Type = "number", Description = "Forwarded sandbox temperature in kelvin.", Required = false },
                 ["disease"] = new McpToolParameter { Type = "string", Description = "Forwarded sandbox disease ID.", Required = false },
                 ["diseaseCount"] = new McpToolParameter { Type = "integer", Description = "Forwarded sandbox disease count.", Required = false },
-                ["section"] = new McpToolParameter { Type = "string", Description = "objects/details.oni: status, properties, personality, work. Requires instance id or query; default status.", Required = false, EnumValues = new List<string> { "status", "properties", "personality", "work" } },
+                ["section"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.world_editor.parameters.section"), Required = false, EnumValues = new List<string> { "status", "properties", "personality", "work", "freshness" } },
+                ["includeFreshnessModifiers"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.world_editor.parameters.includeFreshnessModifiers"), Required = false },
                 ["achievementDetail"] = new McpToolParameter { Type = "string", Description = "Colony/Steam achievements: brief (default) or full with description and requirement types; no progress reevaluation.", Required = false, EnumValues = new List<string> { "brief", "full" } },
                 ["achievementStatus"] = new McpToolParameter { Type = "string", Description = "Filter achievement state; Steam supports all/completed/incomplete/unknown, not failed. Counts cover the full catalog.", Required = false, EnumValues = new List<string> { "all", "completed", "incomplete", "failed", "unknown" } },
                 ["specDetail"] = new McpToolParameter { Type = "string", Description = "Readonly prefab specs: brief (default) or full; requires prefabId or query at buildings/specs.oni or resources/specs.oni.", Required = false, EnumValues = new List<string> { "brief", "full" } },

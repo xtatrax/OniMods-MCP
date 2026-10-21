@@ -33,7 +33,7 @@ namespace OniMcp.Tools
                 add("buildings/", "dir", "Building state and desired build plan file.");
  add("orders/", "dir", "Order intent file.");
  add("resources/", "dir", "Inventory files.");
-                add("objects/", "dir", "Independent live status, properties, personality and work reads.");
+                add("objects/", "dir", McpLocalization.Get("food_freshness.listing.objects"));
                 add("dupes/", "dir", "Duplicant files.");
                 add("symbols/", "dir", "Generated one-character glyph mapping files.");
                 add("management/", "dir", "Editable Markdown tables for schedules, priorities, food, skills, and research.");
@@ -48,7 +48,7 @@ namespace OniMcp.Tools
             {
                 string relative = path.Substring("/active/".Length);
                 if (relative == "objects/")
-                    add("details.oni", "file", "Live sections: id/query and section=status/properties/personality/work.");
+                    add("details.oni", "file", McpLocalization.Get("food_freshness.listing.details"));
                 else if (relative == "colony/")
                 {
                     add("status.oni", "file", "Colony snapshot.");

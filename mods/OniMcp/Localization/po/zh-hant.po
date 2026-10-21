@@ -831,3 +831,51 @@ msgstr "部分複製人的壓力讀數未取得，整體壓力評估尚未完成
 msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.INCLUDE_UNAVAILABLE"
 msgid "Include building definitions that are unavailable or whose definition/research availability is unknown. Defaults to false, which returns only observed available definitions. This does not assess build-menu visibility, placement or materials."
 msgstr "是否包含不可用、或設備定義與研究可用性未知的建築。預設false，僅回傳已確認可用的定義。不判斷建造選單可見性、放置或材料。"
+
+#. Runtime JSON key: tools.world_editor.parameters.section
+#. Runtime zh-Hans msgstr: "objects/details.oni：status、properties、personality、work或freshness。需要现物id或query，默认status。freshness默认读取选中的1件食品现物。"
+msgctxt "OniMcp.MCP.TOOLS.WORLD_EDITOR.PARAMETERS.SECTION"
+msgid "objects/details.oni: status, properties, personality, work, or freshness. Requires instance id or query; default status. Freshness reads one selected live food item at a time by default."
+msgstr "objects/details.oni：status、properties、personality、work或freshness。需要現物id或query，預設status。freshness預設讀取選中的1件食品現物。"
+
+#. Runtime JSON key: tools.world_editor.parameters.includeFreshnessModifiers
+#. Runtime zh-Hans msgstr: "仅用于section=freshness。附加既有腐败修正的原始值，保留顺序和UIOnly。默认false；最多16行并返回本体总数。不刷新状态或计算UI提示。"
+msgctxt "OniMcp.MCP.TOOLS.WORLD_EDITOR.PARAMETERS.INCLUDEFRESHNESSMODIFIERS"
+msgid "For section=freshness only: include existing raw rot modifiers, preserving order and UIOnly flags. Defaults to false; returns at most 16 rows with the native total count. Does not refresh state or evaluate UI tooltips."
+msgstr "僅用於section=freshness。附加既有腐敗修正的原始值，保留順序和UIOnly。預設false；最多16行並回傳本體總數。不刷新狀態或計算UI提示。"
+
+#. Runtime JSON key: food_freshness.error.section
+#. Runtime zh-Hans msgstr: "section必须为status、properties、personality、work或freshness。"
+msgctxt "OniMcp.MCP.FOOD_FRESHNESS.ERROR.SECTION"
+msgid "section must be status, properties, personality, work, or freshness."
+msgstr "section必須為status、properties、personality、work或freshness。"
+
+#. Runtime JSON key: food_freshness.error.modifiers_boolean
+#. Runtime zh-Hans msgstr: "section=freshness的includeFreshnessModifiers必须是JSON布尔值。"
+msgctxt "OniMcp.MCP.FOOD_FRESHNESS.ERROR.MODIFIERS_BOOLEAN"
+msgid "includeFreshnessModifiers must be a JSON boolean for section=freshness."
+msgstr "section=freshness的includeFreshnessModifiers必須是JSON布林值。"
+
+#. Runtime JSON key: food_freshness.listing.objects
+#. Runtime zh-Hans msgstr: "分别读取现物的状态、属性、个性、工作及食品新鲜度。"
+msgctxt "OniMcp.MCP.FOOD_FRESHNESS.LISTING.OBJECTS"
+msgid "Independent live status, properties, personality, work and food freshness reads."
+msgstr "分別讀取現物的狀態、屬性、個性、工作及食品新鮮度。"
+
+#. Runtime JSON key: food_freshness.listing.details
+#. Runtime zh-Hans msgstr: "以现物id/query和section=status/properties/personality/work/freshness分别读取。includeFreshnessModifiers=true时附加新鲜度原始修正。"
+msgctxt "OniMcp.MCP.FOOD_FRESHNESS.LISTING.DETAILS"
+msgid "Live sections: id/query and section=status/properties/personality/work/freshness. Raw freshness modifiers require includeFreshnessModifiers=true."
+msgstr "以現物id/query和section=status/properties/personality/work/freshness分別讀取。includeFreshnessModifiers=true時附加新鮮度原始修正。"
+
+#. Runtime JSON key: food_freshness.active_index.details
+#. Runtime zh-Hans msgstr: "- `/active/objects/details.oni`：现物id/query和section=status/properties/personality/work/freshness；新鲜度修正仅在明确请求时读取。"
+msgctxt "OniMcp.MCP.FOOD_FRESHNESS.ACTIVE_INDEX.DETAILS"
+msgid "- `/active/objects/details.oni`: live object sections, id/query, section=status/properties/personality/work/freshness; freshness modifiers are explicit only."
+msgstr "- `/active/objects/details.oni`：現物id/query和section=status/properties/personality/work/freshness；新鮮度修正僅在明確請求時讀取。"
+
+#. Runtime JSON key: food_freshness.resource.food_description
+#. Runtime zh-Hans msgstr: "食物库存及可用性汇总。新鲜度和当前腐败速度请在/active/objects/details.oni指定现物id与section=freshness读取。"
+msgctxt "OniMcp.MCP.FOOD_FRESHNESS.RESOURCE.FOOD_DESCRIPTION"
+msgid "Food inventory and access totals. Read an actual item at /active/objects/details.oni with section=freshness for freshness and the current rot rate."
+msgstr "食物庫存及可用性彙總。新鮮度和目前腐敗速度請在/active/objects/details.oni指定現物id與section=freshness讀取。"

@@ -17,8 +17,15 @@ namespace OniMcp.Tools
         internal static CallToolResult Read(JObject args)
         {
             string section = (args["section"]?.ToString() ?? "status").Trim().ToLowerInvariant();
-            if (!new[] { "status", "properties", "personality", "work" }.Contains(section))
-                return CallToolResult.Error("section must be status, properties, personality, or work");
+            if (!new[] { "status", "properties", "personality", "work", "freshness" }.Contains(section))
+                return CallToolResult.Error(McpLocalization.Get("food_freshness.error.section"));
+            bool includeModifiers = false;
+            if (section == "freshness" && args.TryGetValue("includeFreshnessModifiers", out JToken modifiers))
+            {
+                if (modifiers.Type != JTokenType.Boolean)
+                    return CallToolResult.Error(McpLocalization.Get("food_freshness.error.modifiers_boolean"));
+                includeModifiers = modifiers.Value<bool>();
+            }
             int? id = ToolUtil.GetInt(args, "id");
             string query = args["query"]?.ToString();
             if (!id.HasValue && string.IsNullOrWhiteSpace(query)) return CallToolResult.Error("id or query is required; use an instance ID from world search");
@@ -32,7 +39,7 @@ namespace OniMcp.Tools
                     || Plain(k.gameObject.GetProperName()).IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                 .OrderBy(k => k.InstanceID).ToList();
             if (id.HasValue && objects.Count == 0) return CallToolResult.Error("Live instance not found: " + id);
-            var items = objects.Take(limit).Select(k => Snapshot(k.gameObject, k, section)).ToList();
+            var items = objects.Take(limit).Select(k => Snapshot(k.gameObject, k, section, includeModifiers)).ToList();
             return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
             {
                 ["scope"] = "live_instance", ["section"] = section, ["matched"] = objects.Count,
@@ -41,7 +48,7 @@ namespace OniMcp.Tools
             }, McpJsonUtil.Settings));
         }
 
-        private static Dictionary<string, object> Snapshot(GameObject go, KPrefabID k, string section)
+        private static Dictionary<string, object> Snapshot(GameObject go, KPrefabID k, string section, bool includeModifiers)
         {
             int cell = Grid.PosToCell(go);
             var errors = new List<string>();
@@ -52,6 +59,12 @@ namespace OniMcp.Tools
                 ["y"] = Grid.IsValidCell(cell) ? (object)Grid.CellRow(cell) : null,
                 ["worldId"] = go.GetMyWorldId()
             };
+            if (section == "freshness")
+            {
+                result["freshness"] = EntitySectionFoodFreshness.Read(go, k, includeModifiers);
+                result["unavailableFields"] = errors;
+                return result;
+            }
             var dupe = go.GetComponent<MinionIdentity>();
             if (section == "status")
             {

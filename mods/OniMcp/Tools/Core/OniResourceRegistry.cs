@@ -314,7 +314,7 @@ namespace OniMcp.Tools
                     Resource("oni://world/elements", "read_control", "ワールド内の元素の概要", "現在のワールドにある元素の質量と温度の概要。", new JObject { ["domain"] = "world", ["action"] = "element_summary" }),
                     Resource("oni://camera/view", "navigation_control", "カメラビュー", "現在のカメラ位置、ズーム、アクティブなワールド、画面サイズ。", new JObject { ["action"] = "get_view" }),
                     Resource("oni://resources/inventory", "read_control", "資源の在庫", "資源の在庫の概要。", new JObject { ["domain"] = "resources", ["action"] = "inventory" }),
-                    Resource("oni://resources/food", "read_control", "食料の在庫", "食料の在庫と鮮度の情報。", new JObject { ["domain"] = "resources", ["action"] = "food" }),
+                    Resource("oni://resources/food", "read_control", "食料の在庫", McpLocalization.Get("food_freshness.resource.food_description"), new JObject { ["domain"] = "resources", ["action"] = "food" }),
                     Resource("oni://resources/pins", "read_control", "資源パネルの固定表示と通知", "AllResourcesScreen の資源行の固定表示と通知のオン・オフ状態。", new JObject { ["domain"] = "resources", ["action"] = "pins" }),
                     Resource("oni://diet/status", "colony_control", "消費の許可", "Consumables 管理画面の、複製人間による食料・薬・電池の消費許可と在庫。", new JObject { ["domain"] = "management", ["kind"] = "diet", ["action"] = "status" }),
                     Resource("oni://storage/list", "building_control", "収納設備一覧", "収納設備とフィルターの一覧。", new JObject { ["domain"] = "storage", ["action"] = "list" }),

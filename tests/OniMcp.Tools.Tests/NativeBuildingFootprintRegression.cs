@@ -159,7 +159,7 @@ internal partial class BuildingDef
     }
 }
 internal class Building {internal BuildingDef Def;internal Orientation Orientation;}
-internal class BuildingComplete {internal GameObject gameObject;}
+internal partial class BuildingComplete {internal GameObject gameObject;}
 internal class Constructable {internal GameObject gameObject;}
 internal static partial class Components
 {
@@ -182,10 +182,10 @@ namespace UnityEngine
         internal static readonly List<Constructable> Constructables=new List<Constructable>();
         internal static T[] FindObjectsByType<T>(FindObjectsSortMode mode)=>Constructables.Cast<T>().ToArray();
     }
-    internal class GameObject : Object
+    internal partial class GameObject : Object
     {
         internal int Cell;internal Building Building;
-        internal T GetComponent<T>() where T:class => Building as T;
+        internal T GetComponent<T>() where T:class => ExistingComponent<T>() ?? Building as T;
     }
     internal static class Time {internal static int frameCount {get;set;}}
 }

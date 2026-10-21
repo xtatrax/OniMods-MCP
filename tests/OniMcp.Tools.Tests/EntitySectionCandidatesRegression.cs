@@ -84,7 +84,7 @@ internal static class EntitySectionCandidatesRegression
     }
 }
 internal class Pickupable { internal GameObject gameObject; }
-internal class MinionIdentity { internal GameObject gameObject; }
+internal partial class MinionIdentity { internal GameObject gameObject; }
 internal class HarvestDesignatable { internal GameObject gameObject; }
 internal class Uprootable { internal GameObject gameObject; }
 internal static partial class Components

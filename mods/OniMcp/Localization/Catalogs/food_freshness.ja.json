@@ -1,0 +1,10 @@
+{
+  "tools.world_editor.parameters.section": "objects/details.oni: status、properties、personality、work、freshness。現物idまたはqueryが必要で、既定はstatusです。freshnessは既定で選択した食品現物1件を読みます。",
+  "tools.world_editor.parameters.includeFreshnessModifiers": "section=freshness専用。既存の腐敗補正の生値を順序とUIOnlyを保って追加します。既定false。最大16件と本体の全件数を返し、状態更新やUIツールチップ評価は行いません。",
+  "food_freshness.error.section": "sectionはstatus、properties、personality、work、freshnessのいずれかを指定してください。",
+  "food_freshness.error.modifiers_boolean": "section=freshnessのincludeFreshnessModifiersにはJSONの真偽値を指定してください。",
+  "food_freshness.listing.objects": "現物のステータス・特性・個性・作業・食品鮮度を個別に読みます。",
+  "food_freshness.listing.details": "現物id/queryとsection=status/properties/personality/work/freshnessで個別取得。鮮度補正の生値はincludeFreshnessModifiers=trueで追加します。",
+  "food_freshness.active_index.details": "- `/active/objects/details.oni`: 現物id/queryとsection=status/properties/personality/work/freshness。鮮度補正は明示指定時のみ取得。",
+  "food_freshness.resource.food_description": "食料在庫と利用可否の集計。鮮度と現在の腐敗速度は/active/objects/details.oniで現物idとsection=freshnessを指定して読みます。"
+}

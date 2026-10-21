@@ -93,7 +93,7 @@ namespace Klei.AI
         }
     }
 
-    internal sealed class AttributeModifier
+    internal sealed partial class AttributeModifier
     {
         internal string AttributeId { get; set; }
         internal float Value { get; set; }

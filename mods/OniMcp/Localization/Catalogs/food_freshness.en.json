@@ -1,0 +1,10 @@
+{
+  "tools.world_editor.parameters.section": "objects/details.oni: status, properties, personality, work, or freshness. Requires instance id or query; default status. Freshness reads one selected live food item at a time by default.",
+  "tools.world_editor.parameters.includeFreshnessModifiers": "For section=freshness only: include existing raw rot modifiers, preserving order and UIOnly flags. Defaults to false; returns at most 16 rows with the native total count. Does not refresh state or evaluate UI tooltips.",
+  "food_freshness.error.section": "section must be status, properties, personality, work, or freshness.",
+  "food_freshness.error.modifiers_boolean": "includeFreshnessModifiers must be a JSON boolean for section=freshness.",
+  "food_freshness.listing.objects": "Independent live status, properties, personality, work and food freshness reads.",
+  "food_freshness.listing.details": "Live sections: id/query and section=status/properties/personality/work/freshness. Raw freshness modifiers require includeFreshnessModifiers=true.",
+  "food_freshness.active_index.details": "- `/active/objects/details.oni`: live object sections, id/query, section=status/properties/personality/work/freshness; freshness modifiers are explicit only.",
+  "food_freshness.resource.food_description": "Food inventory and access totals. Read an actual item at /active/objects/details.oni with section=freshness for freshness and the current rot rate."
+}
