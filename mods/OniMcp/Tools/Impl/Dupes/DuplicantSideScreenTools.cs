@@ -20,12 +20,12 @@ namespace OniMcp.Tools
                 Hidden = true,
                 Aliases = new List<string> { "dupe_actions_list", "duplicant_commands_list" },
                 Tags = new List<string> { "dupes", "commands", "move", "assignables", "skills", "equipment" },
-                Description = "互換用の入口。dupes_control domain=side_screen action=direct_commands を使用すること。複製人間に直接実行/設定できるプレイヤー操作の入口（ここへ移動、スキル、割り当て対象、装備スロット）と関連する MCP ツールを一覧表示する",
+                Description = McpLocalization.Get("dupe_move_guidance.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["id"] = new McpToolParameter { Type = "integer", Description = "複製人間の InstanceID。空欄なら全員を返す", Required = false },
-                    ["name"] = new McpToolParameter { Type = "string", Description = "複製人間の名前。空欄なら全員を返す", Required = false },
-                    ["limit"] = new McpToolParameter { Type = "integer", Description = "返す複製人間の最大人数。既定は 100、最大 500", Required = false }
+                    ["id"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("dupe_move_guidance.id"), Required = false },
+                    ["name"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("dupe_move_guidance.name"), Required = false },
+                    ["limit"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("dupe_move_guidance.limit"), Required = false }
                 },
                 Handler = args =>
                 {
@@ -39,10 +39,11 @@ namespace OniMcp.Tools
                     {
                         ["returned"] = dupes.Count,
                         ["dupes"] = dupes.Select(DirectCommandInfo).ToList(),
+                        ["moveGuidance"] = DirectMoveGuidance(),
                         ["tools"] = new[]
                         {
-                            "dupes_move_to",
-                            "dupes_move_batch_to",
+                            "world_editor command=read path=/active/ops/dupes.md",
+                            "world_editor command=read path=/active/ops/coordinate.md",
                             "dupes_skill_control",
                             "assignable_control",
                             "dupes_control domain=side_screen action=equipment",
@@ -143,6 +144,36 @@ namespace OniMcp.Tools
             };
         }
 
+        private static Dictionary<string, object> DirectMoveGuidance()
+        {
+            return new Dictionary<string, object>
+            {
+                ["tool"] = "world_editor",
+                ["readCommand"] = "read",
+                ["editCommand"] = "edit",
+                ["contentTemplate"] = "<<<<<<< SEARCH\n=======\n<commandLine>\n>>>>>>> REPLACE",
+                ["taskRequired"] = true,
+                ["preview"] = new Dictionary<string, object> { ["dryRun"] = true, ["confirm"] = false },
+                ["execute"] = new Dictionary<string, object> { ["dryRun"] = false, ["confirm"] = true },
+                ["previewScope"] = "syntax_and_capability_only",
+                ["instructions"] = McpLocalization.Get("dupe_move_guidance.instructions"),
+                ["single"] = new Dictionary<string, object>
+                {
+                    ["path"] = "/active/ops/dupes.md",
+                    ["operation"] = "dupes_control",
+                    ["lineTemplate"] = "call domain=command action=move_to id=<dupeId> query=<targetQueryToken> worldId=<worldId> confirm=true"
+                },
+                ["batch"] = new Dictionary<string, object>
+                {
+                    ["path"] = "/active/ops/coordinate.md",
+                    ["operation"] = "coordinate_control",
+                    ["targetTool"] = "dupes_control",
+                    ["lineTemplate"] = "call targetTool=dupes_control payload={\"domain\":\"command\",\"action\":\"move_batch_to\",\"items\":<itemsJson>,\"confirm\":true} confirm=true",
+                    ["itemsTemplate"] = "[{\"id\":<dupeId>,\"x\":<x>,\"y\":<y>,\"worldId\":<worldId>}]"
+                }
+            };
+        }
+
         private static Dictionary<string, object> DirectCommandInfo(MinionIdentity dupe)
         {
             var navigator = dupe.GetComponent<Navigator>();
@@ -157,7 +188,7 @@ namespace OniMcp.Tools
                 ["assignedObjects"] = AssignedObjectsForDupe(dupe),
                 ["recommendedLookup"] = new Dictionary<string, object>
                 {
-                    ["move"] = "dupes_move_to / dupes_move_batch_to",
+                    ["move"] = "#/moveGuidance",
                     ["skills"] = "dupes_control domain=skill action=list/learn",
                     ["assignables"] = "dupes_control domain=assignable action=list/set",
                     ["equipment"] = "dupes_control domain=side_screen action=equipment then dupes_control domain=assignable action=set_slot",

@@ -12,8 +12,14 @@
     <ManagementFilesSource Condition="'$(ManagementFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementFiles.cs</ManagementFilesSource>
     <SemanticCommandsSource Condition="'$(SemanticCommandsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationSemanticCommands.cs</SemanticCommandsSource>
     <CommandParsingSource Condition="'$(CommandParsingSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorCommandParsing.cs</CommandParsingSource>
+    <DirectCommandsSource Condition="'$(DirectCommandsSource)' == ''">../../mods/OniMcp/Tools/Impl/Dupes/DuplicantSideScreenTools.cs</DirectCommandsSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(DirectCommandsSource)" Link="Source/DuplicantSideScreenTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Dupes/DuplicantTools.cs" Link="Source/DuplicantTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateControlTools.cs" Link="Source/CoordinateControlTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateForwardingSafety.cs" Link="Source/CoordinateForwardingSafety.cs" />
+
     <Compile Include="$(OperationFilesSource)" Link="Source/WorldEditorOperationFiles.cs" />
     <Compile Include="$(ColonyReadResultsSource)" Link="Source/WorldEditorColonyReadResults.cs" />
     <Compile Include="$(CommandParsingSource)" Link="Source/WorldEditorCommandParsing.cs" />
@@ -31,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/dupe_move_guidance.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>

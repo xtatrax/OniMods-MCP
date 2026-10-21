@@ -77,9 +77,9 @@ namespace OniMcp.Tools
         internal static readonly bool[] Solid = new bool[WidthInCells * HeightInCells];
         internal static readonly FixtureGameObject[,] Objects = new FixtureGameObject[WidthInCells * HeightInCells, (int)ObjectLayer.NumLayers];
     }
-    internal static class Components
+    internal static partial class Components
     {
-        internal static class LiveMinionIdentities { internal static List<FixtureDupe> Items = new List<FixtureDupe>(); }
+        internal static class LiveMinionIdentities { internal static List<MinionIdentity> Items = new List<MinionIdentity>(); }
     }
     internal sealed class FixtureDupe { internal object gameObject => throw new NotSupportedException(); internal T GetComponent<T>() => throw new NotSupportedException(); }
     internal enum ObjectLayer { Building, NumLayers }

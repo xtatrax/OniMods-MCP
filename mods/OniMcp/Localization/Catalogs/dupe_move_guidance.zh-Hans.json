@@ -1,0 +1,7 @@
+{
+  "dupe_move_guidance.description": "读取复制人的直接指令入口。移动指引使用公开world_editor操作文件；dupes_control是内部操作，并非公开工具调用名。",
+  "dupe_move_guidance.id": "复制人的InstanceID。省略则列出所有复制人。",
+  "dupe_move_guidance.name": "复制人的名称。省略则列出所有复制人。",
+  "dupe_move_guidance.limit": "返回复制人的最大数量。默认100，上限500。",
+  "dupe_move_guidance.instructions": "<targetQueryToken>应为普通ops scalar或简单引号文本；JSON escape不会解码。需要引号/backslash/控制字符escape的名称，或仅为数值/布尔值的名称，不在此指引保证范围内，请使用坐标batch等。<itemsJson>是JSON数组。task与预行flags须用于外层world_editor请求。预行仅检查语法与capability，不解析移动目标、不检查可达性，也不发出移动指令。执行需要外层confirm=true且dryRun=false、指令行confirm=true，batch的payload也须confirm=true。受理不等于到达。"
+}

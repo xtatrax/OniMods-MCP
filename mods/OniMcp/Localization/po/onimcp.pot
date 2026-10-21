@@ -858,3 +858,34 @@ msgstr ""
 msgctxt "OniMcp.MCP.MEDICAL_SICKNESS.INCLUDE_HEALTHY"
 msgid "For patients: also include observed empty disease lists with no other known positive medical indicator. Defaults to false. Unknown disease reads stay listed; other medical fields retain their existing assessment scope."
 msgstr ""
+
+
+#. Runtime JSON key: dupe_move_guidance.description
+#. Runtime zh-Hans msgstr: "读取复制人的直接指令入口。移动指引使用公开world_editor操作文件；dupes_control是内部操作，并非公开工具调用名。"
+msgctxt "OniMcp.MCP.DUPE_MOVE_GUIDANCE.DESCRIPTION"
+msgid "Read duplicant direct-command entrypoints. Movement guidance uses the public world_editor operation files; dupes_control is an internal operation, not a public tool call."
+msgstr ""
+
+#. Runtime JSON key: dupe_move_guidance.id
+#. Runtime zh-Hans msgstr: "复制人的InstanceID。省略则列出所有复制人。"
+msgctxt "OniMcp.MCP.DUPE_MOVE_GUIDANCE.ID"
+msgid "Duplicant InstanceID. Omit to list all duplicants."
+msgstr ""
+
+#. Runtime JSON key: dupe_move_guidance.name
+#. Runtime zh-Hans msgstr: "复制人的名称。省略则列出所有复制人。"
+msgctxt "OniMcp.MCP.DUPE_MOVE_GUIDANCE.NAME"
+msgid "Duplicant name. Omit to list all duplicants."
+msgstr ""
+
+#. Runtime JSON key: dupe_move_guidance.limit
+#. Runtime zh-Hans msgstr: "返回复制人的最大数量。默认100，上限500。"
+msgctxt "OniMcp.MCP.DUPE_MOVE_GUIDANCE.LIMIT"
+msgid "Maximum duplicants returned. Default 100, maximum 500."
+msgstr ""
+
+#. Runtime JSON key: dupe_move_guidance.instructions
+#. Runtime zh-Hans msgstr: "<targetQueryToken>应为普通ops scalar或简单引号文本；JSON escape不会解码。需要引号/backslash/控制字符escape的名称，或仅为数值/布尔值的名称，不在此指引保证范围内，请使用坐标batch等。<itemsJson>是JSON数组。task与预行flags须用于外层world_editor请求。预行仅检查语法与capability，不解析移动目标、不检查可达性，也不发出移动指令。执行需要外层confirm=true且dryRun=false、指令行confirm=true，batch的payload也须confirm=true。受理不等于到达。"
+msgctxt "OniMcp.MCP.DUPE_MOVE_GUIDANCE.INSTRUCTIONS"
+msgid "Use an ordinary ops scalar or simple quoted text for <targetQueryToken>; JSON escapes are not decoded. Names needing quote/backslash/control escapes or consisting only of a number/boolean are outside this guide; use coordinate batch instead. <itemsJson> is a JSON array. Supply task and preview flags on the outer world_editor request: syntax/capability checks only, without target resolution, reachability checks or move dispatch. Execution needs outer confirm=true and dryRun=false, command confirm=true and batch payload confirm=true. Acceptance is not arrival."
+msgstr ""

@@ -11,6 +11,7 @@ internal static partial class Program
 
     private static void Main()
     {
+        MoveGuidanceRegression.Run();
         MetadataSchemaRegression.Run();
         DetailedPayloadsRemainExact();
         DefaultsRemainCompact();

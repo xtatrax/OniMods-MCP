@@ -1,0 +1,7 @@
+{
+  "dupe_move_guidance.description": "Read duplicant direct-command entrypoints. Movement guidance uses the public world_editor operation files; dupes_control is an internal operation, not a public tool call.",
+  "dupe_move_guidance.id": "Duplicant InstanceID. Omit to list all duplicants.",
+  "dupe_move_guidance.name": "Duplicant name. Omit to list all duplicants.",
+  "dupe_move_guidance.limit": "Maximum duplicants returned. Default 100, maximum 500.",
+  "dupe_move_guidance.instructions": "Use an ordinary ops scalar or simple quoted text for <targetQueryToken>; JSON escapes are not decoded. Names needing quote/backslash/control escapes or consisting only of a number/boolean are outside this guide; use coordinate batch instead. <itemsJson> is a JSON array. Supply task and preview flags on the outer world_editor request: syntax/capability checks only, without target resolution, reachability checks or move dispatch. Execution needs outer confirm=true and dryRun=false, command confirm=true and batch payload confirm=true. Acceptance is not arrival."
+}

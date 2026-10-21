@@ -1,0 +1,7 @@
+{
+  "dupe_move_guidance.description": "複製人間の直接指示の窓口を読み取ります。移動案内は公開world_editorの操作ファイルを使います。dupes_controlは内部操作であり、公開ツールの呼出名ではありません。",
+  "dupe_move_guidance.id": "複製人間のInstanceID。省略すると全員を一覧にします。",
+  "dupe_move_guidance.name": "複製人間の名前。省略すると全員を一覧にします。",
+  "dupe_move_guidance.limit": "一覧に返す複製人間の最大人数。既定100、上限500。",
+  "dupe_move_guidance.instructions": "<targetQueryToken>は通常のops scalarまたは単純な引用文字列にしてください。JSON escapeは復号されません。引用符・backslash・制御文字のescapeが必要な名前や、数値/真偽値だけの名前は本案内の保証外なので座標batch等を使います。<itemsJson>はJSON配列です。taskと予行flagsは外側world_editor要求に指定します。予行は構文・capabilityだけで、移動先解決・到達性検証・移動指示は行いません。実行は外側confirm=trueかつdryRun=false、行のconfirm=true、一括ではpayload内もconfirm=trueが必要です。受理は到着ではありません。"
+}

@@ -62,11 +62,12 @@ namespace OniMcp.Tools
         public List<object> SchemaEnumValues => EnumValues?.Cast<object>().ToList();
     }
 
-    public static class OniToolRegistry
+    public static partial class OniToolRegistry
     {
         public static List<McpTool> GetVisibleTools() => throw new NotSupportedException();
         public static bool TryGetOperation(string name, out McpTool tool)
         {
+            if (MoveGuidanceBoundary.Enabled) return MoveGuidanceBoundary.TryGetOperation(name, out tool);
             tool = new McpTool { Name = name, Handler = NativeBoundary.Call };
             return name == "colony_control" || name == "coordinate_control" || name == "dupes_control"
                 || name == "world_editor" || name == "game_control" || name == "server_control"
@@ -80,6 +81,7 @@ namespace OniMcp.Tools
 
         public static CallToolResult CallToolFromWorldEditor(string name, JObject args, bool semanticCoordinates)
         {
+            if (MoveGuidanceBoundary.Enabled) { MoveGuidanceBoundary.OperationDispatches++; throw new NotSupportedException("Preview dispatched an operation"); }
             NativeBoundary.LastTool = name;
             return NativeBoundary.Call(args);
         }
@@ -125,10 +127,7 @@ namespace OniMcp.Tools
         public static McpTool ControlManagement() => throw new NotSupportedException();
     }
 
-    public static class DuplicantTools
-    {
-        public static McpTool ControlDupes() => new McpTool { Handler = ManagementSkillBoundary.Call };
-    }
+    public static partial class DuplicantTools { }
 
     public static partial class WorldEditorTools
     {
