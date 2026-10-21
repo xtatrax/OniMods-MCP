@@ -726,3 +726,15 @@ msgstr ""
 msgctxt "OniMcp.MCP.STORAGE.DETAIL.DESCRIPTION"
 msgid "Compatibility entry point. Prefer building_control domain=storage action=detail. Read a storage building's filters, capacity and stored items, including their native element, mass, temperature and raw germ readings. Missing readings remain unknown; no purification or disinfection judgment is made."
 msgstr ""
+
+#. Runtime JSON key: patch_registration.include_patches_description
+#. Runtime zh-Hans msgstr: "仅diagnostics action=status：增加只读的Harmony注册审计，目标为此MCP程序集的补丁方法。默认为false。返回重复分组及最多128个分组，不改变注册。"
+msgctxt "OniMcp.MCP.PATCH_REGISTRATION.INCLUDE_PATCHES_DESCRIPTION"
+msgid "diagnostics action=status only: include a read-only audit of Harmony registrations whose patch methods belong to this MCP assembly. Defaults to false. Reports duplicate groups and up to 128 groups without changing registrations."
+msgstr ""
+
+#. Runtime JSON key: patch_registration.invalid_include_patches
+#. Runtime zh-Hans msgstr: "includePatches必须为JSON布尔值。"
+msgctxt "OniMcp.MCP.PATCH_REGISTRATION.INVALID_INCLUDE_PATCHES"
+msgid "includePatches must be a JSON boolean."
+msgstr ""

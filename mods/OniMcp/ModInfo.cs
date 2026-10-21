@@ -19,8 +19,6 @@ namespace OniMcp
     {
         public override void OnLoad(Harmony harmony)
         {
-            base.OnLoad(harmony);
-
             var modAssembly = assembly ?? typeof(ModInfo).Assembly;
 
             OniMcpPaths.Initialize(path, modAssembly);
@@ -41,8 +39,8 @@ namespace OniMcp
                 Debug.LogWarning($"[OniMcp] POptions registration skipped: {e}");
             }
 
-            // Harmony パッチを登録する
-            harmony.PatchAll();
+            // The native base entry point performs PatchAll(assembly); install once after setup.
+            base.OnLoad(harmony);
             SpeedTransitionTracePatch.EnsureInstalled(harmony);
             InputSafetyPatchVerifier.EnsureInstalled(harmony, "OnLoad");
             AutoDisinfectPolicy.EnsureInstalled(harmony, "OnLoad");

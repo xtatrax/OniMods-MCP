@@ -1,0 +1,4 @@
+{
+  "patch_registration.include_patches_description": "diagnostics action=statusのみ。このMCP Assembly由来のパッチメソッドを対象に、Harmony登録を読み取る監査を追加します。既定はfalse。登録を変更せず、重複群と最大128群の詳細を返します。",
+  "patch_registration.invalid_include_patches": "includePatchesはJSONの真偽値で指定してください。"
+}

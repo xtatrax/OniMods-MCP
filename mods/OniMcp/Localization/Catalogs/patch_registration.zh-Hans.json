@@ -1,0 +1,4 @@
+{
+  "patch_registration.include_patches_description": "仅diagnostics action=status：增加只读的Harmony注册审计，目标为此MCP程序集的补丁方法。默认为false。返回重复分组及最多128个分组，不改变注册。",
+  "patch_registration.invalid_include_patches": "includePatches必须为JSON布尔值。"
+}

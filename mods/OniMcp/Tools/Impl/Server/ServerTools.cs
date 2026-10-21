@@ -28,6 +28,7 @@ namespace OniMcp.Tools
                 {
                     ["domain"] = new McpToolParameter { Type = "string", Description = "diagnostics、client_request、catalog、batch、program、middleware のいずれか。既定値は diagnostics", Required = false, EnumValues = new List<string> { "diagnostics", "client_request", "catalog", "batch", "program", "middleware" } },
                     ["action"] = new McpToolParameter { Type = "string", Description = "diagnostics: status/capabilities/logs_tail；client_request: create_sampling/create_elicitation；catalog: manifest/search/guide/coverage/static_audit/surface_audit；batch: call_many；program: execute；middleware: queue/status/clear", Required = true },
+                    ["includePatches"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("patch_registration.include_patches_description"), Required = false },
                     ["file"] = new McpToolParameter { Type = "string", Description = "diagnostics logs_tail: current または previous", Required = false },
                     ["lines"] = new McpToolParameter { Type = "integer", Description = "diagnostics logs_tail: 末尾から返す行数。既定値は 120、上限は 1000", Required = false },
                     ["filter"] = new McpToolParameter { Type = "string", Description = "diagnostics logs_tail: 任意のキーワード絞り込み", Required = false },
@@ -163,6 +164,7 @@ namespace OniMcp.Tools
                         Required = true,
                         EnumValues = new List<string> { "status", "capabilities", "logs_tail" }
                     },
+                    ["includePatches"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("patch_registration.include_patches_description"), Required = false },
                     ["file"] = new McpToolParameter { Type = "string", Description = "action=logs_tail で使用: ログファイルは current または previous。既定値は current", Required = false },
                     ["lines"] = new McpToolParameter { Type = "integer", Description = "action=logs_tail で使用: 末尾から返す行数。既定値は 120、上限は 1000", Required = false },
                     ["filter"] = new McpToolParameter { Type = "string", Description = "action=logs_tail で使用: 任意のキーワード絞り込み。大文字と小文字を区別しない", Required = false }

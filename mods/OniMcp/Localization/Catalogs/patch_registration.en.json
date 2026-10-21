@@ -1,0 +1,4 @@
+{
+  "patch_registration.include_patches_description": "diagnostics action=status only: include a read-only audit of Harmony registrations whose patch methods belong to this MCP assembly. Defaults to false. Reports duplicate groups and up to 128 groups without changing registrations.",
+  "patch_registration.invalid_include_patches": "includePatches must be a JSON boolean."
+}

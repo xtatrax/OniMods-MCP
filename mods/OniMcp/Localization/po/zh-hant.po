@@ -753,3 +753,17 @@ msgstr "此操作所需的原生UI不可用；未傳送UI操作。"
 msgctxt "OniMcp.MCP.STORAGE.DETAIL.DESCRIPTION"
 msgid "Compatibility entry point. Prefer building_control domain=storage action=detail. Read a storage building's filters, capacity and stored items, including their native element, mass, temperature and raw germ readings. Missing readings remain unknown; no purification or disinfection judgment is made."
 msgstr "相容性入口。請優先使用building_control domain=storage action=detail。讀取單個儲存建築的篩選器、容量和儲存物品，以及原生元素、質量、溫度和病菌原始讀數。未取得的讀數維持未知，不判斷淨水或殺菌狀態。"
+
+#. Runtime JSON key: patch_registration.include_patches_description
+#. Runtime zh-Hans msgstr: "仅diagnostics action=status：增加只读的Harmony注册审计，目标为此MCP程序集的补丁方法。默认为false。返回重复分组及最多128个分组，不改变注册。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.PATCH_REGISTRATION.INCLUDE_PATCHES_DESCRIPTION"
+msgid "diagnostics action=status only: include a read-only audit of Harmony registrations whose patch methods belong to this MCP assembly. Defaults to false. Reports duplicate groups and up to 128 groups without changing registrations."
+msgstr "僅diagnostics action=status：增加唯讀的Harmony註冊稽核，目標為此MCP組件的修補方法。預設為false。回傳重複分組及最多128個分組，不改變註冊。"
+
+#. Runtime JSON key: patch_registration.invalid_include_patches
+#. Runtime zh-Hans msgstr: "includePatches必须为JSON布尔值。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.PATCH_REGISTRATION.INVALID_INCLUDE_PATCHES"
+msgid "includePatches must be a JSON boolean."
+msgstr "includePatches必須為JSON布林值。"
