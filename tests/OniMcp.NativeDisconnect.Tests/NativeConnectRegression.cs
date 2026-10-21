@@ -129,7 +129,7 @@ internal sealed class ConnectFixture
     internal readonly ObjectLayer Layer;
     internal readonly Tag Material = new Tag(1);
     internal readonly UtilityConnections BeforeA, BeforeB, AddA, AddB;
-    internal ConnectFixture(string type = "liquid", string direction = "right")
+    internal ConnectFixture(string type = "liquid", string direction = "right", string prefabId = null)
     {
         Grid.Objects = new GameObject[64, (int)ObjectLayer.NumLayers]; Grid.Worlds = new int[64]; Grid.Visible = Enumerable.Repeat(true, 64).ToArray();
         ClusterManager.Instance = new ClusterManager(); SpeedControlScreen.Instance = new SpeedControlScreen { IsPaused = true };
@@ -138,7 +138,7 @@ internal sealed class ConnectFixture
         Layer = type switch { "gas" => ObjectLayer.GasConduitTile, "solid" => ObjectLayer.SolidConduitTile, "wire" => ObjectLayer.WireTile, "logic" => ObjectLayer.LogicWireTile, _ => ObjectLayer.LiquidConduitTile };
         Tool = type == "wire" ? WireBuildTool.Instance : UtilityBuildTool.Instance;
         var prefab = new GameObject(); prefab.Add(new UtilityItem(Manager));
-        Def = new BuildingDef { BuildingComplete = prefab, ObjectLayer = (ObjectLayer)((int)Layer - 5), TileLayer = Layer, ReplacementLayer = (ObjectLayer)((int)Layer + 5), PrefabID = type };
+        Def = new BuildingDef { BuildingComplete = prefab, ObjectLayer = (ObjectLayer)((int)Layer - 5), TileLayer = Layer, ReplacementLayer = (ObjectLayer)((int)Layer + 5), PrefabID = prefabId ?? (type switch { "gas" => "GasConduit", "solid" => "SolidConduit", "wire" => "Wire", "logic" => "LogicWire", _ => "LiquidConduit" }) };
         int dx = direction == "right" ? 1 : direction == "left" ? -1 : 0;
         int dy = direction == "up" ? 1 : direction == "down" ? -1 : 0;
         AddA = dx == 1 ? UtilityConnections.Right : dx == -1 ? UtilityConnections.Left : dy == 1 ? UtilityConnections.Up : UtilityConnections.Down;
@@ -163,7 +163,7 @@ namespace OniMcp.Tools
     public static partial class BuildPlanningTools
     {
         public static OniMcp.Core.CallToolResult ConnectForTest(JObject args) => ConnectExistingUtility(args);
-        private static bool IsLinearUtilityPrefab(string id) => new[] { "liquid", "gas", "solid", "wire", "logic" }.Contains(id);
+        internal static bool ExistingLinearClassifierForTest(string id) => IsLinearUtilityPrefab(id);
     }
 }
 namespace UnityEngine { public struct Vector3 { public int Cell; } }

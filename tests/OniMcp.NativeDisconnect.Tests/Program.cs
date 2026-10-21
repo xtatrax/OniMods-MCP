@@ -121,6 +121,7 @@ internal static class Program
 
         Console.WriteLine($"Native disconnect production-boundary tests passed: {checks} checks");
         NativeConnectRegression.Run();
+        RibbonConnectRegression.Run();
     }
 }
 

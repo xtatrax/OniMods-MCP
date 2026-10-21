@@ -6,6 +6,8 @@
 
 本体の `Activate → OnLeftClickDown → OnDragTool → OnLeftClickUp` を呼び、指定二セルのvalidな本体経路を確定前に照合する。MODによる接続マスク変更・ネットワーク再構築・失敗後の補修や自動再試行を行わない。混在する設備定義や素材、空セル、建設中、置換予約、ブリッジ、移動チューブは対象外。各派生設備の実機受入は別途必要。
 
+同一定義・同素材の完成済みLogicRibbonには、接続専用の限定許可と独立した高bit信号の受入を追加した。[リボン線の契約と限定受入](native-existing-logic-ribbon_JP.md)を参照。混在定義・素材や既存自動接続全体の対応を広げたものではない。
+
 座標は `/active/ops/coordinate.md` をfreshに読み、正確なSEARCH/REPLACEで指定する。以下は架空の書式例であり、実際の対象座標ではない。
 
 ```text

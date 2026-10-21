@@ -3,14 +3,22 @@
     <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ConnectExistingSource Condition="'$(ConnectExistingSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningConnectExisting.cs</ConnectExistingSource>
+    <UtilityClassifierSource Condition="'$(UtilityClassifierSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRuntimePlacement.cs</UtilityClassifierSource>
+    <UtilityErrorsSource Condition="'$(UtilityErrorsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningErrors.cs</UtilityErrorsSource>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/OrdersUtilityDisconnect.cs" Link="Source/OrdersUtilityDisconnect.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeUtilityDisconnect.cs" Link="Source/NativeUtilityDisconnect.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/NativeUtilityConnect.cs" Link="Source/NativeUtilityConnect.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningConnectExisting.cs" Link="Source/BuildPlanningConnectExisting.cs" />
+    <Compile Include="$(ConnectExistingSource)" Link="Source/BuildPlanningConnectExisting.cs" />
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/connect_existing.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
+  <Target Name="GenerateUtilityClassifierSource" BeforeTargets="BeforeCompile">
+    <PropertyGroup><UtilityClassifierGeneratedSource>$(IntermediateOutputPath)UtilityClassifier.g.cs</UtilityClassifierGeneratedSource></PropertyGroup>
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_utility_classifiers.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --source &quot;$(UtilityClassifierSource)&quot; --errors &quot;$(UtilityErrorsSource)&quot; --output &quot;$(UtilityClassifierGeneratedSource)&quot;" />
+    <ItemGroup><Compile Include="$(UtilityClassifierGeneratedSource)" /></ItemGroup>
+  </Target>
 </Project>

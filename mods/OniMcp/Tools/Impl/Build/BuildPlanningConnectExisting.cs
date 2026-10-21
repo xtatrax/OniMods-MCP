@@ -22,6 +22,11 @@ namespace OniMcp.Tools
             internal UtilityConnections Before;
         }
 
+        private static bool IsConnectExistingUtilityPrefab(string prefabId)
+        {
+            return IsLinearUtilityPrefab(prefabId) || prefabId == LogicRibbonConfig.ID;
+        }
+
         private static ExistingUtilityEndpoint ReadExistingUtility(int cell, ObjectLayer layer)
         {
             var target = Grid.Objects[cell, (int)layer];
@@ -96,7 +101,7 @@ namespace OniMcp.Tools
                     || !ReferenceEquals(first.Manager, second.Manager))
                     return CallToolResult.Error(McpLocalization.Get("connect_existing.same_required"));
                 // Limit to the linear prefabs whose native tool has been inspected.
-                if (!IsLinearUtilityPrefab(first.Def.PrefabID))
+                if (!IsConnectExistingUtilityPrefab(first.Def.PrefabID))
                     return CallToolResult.Error(McpLocalization.Get("connect_existing.target_required"));
             }
             catch (Exception ex) { return CallToolResult.Error(ex.Message); }
