@@ -209,9 +209,11 @@ namespace OniMcp.Tools
             bool detailed = ToolUtil.GetBool(arguments, "detail", false);
             bool retainSearchResult = !failed && toolName == "search_control"
                 && !(arguments["detail"]?.Type == JTokenType.Boolean && !arguments.Value<bool>("detail"));
+            bool retainColonyReadResult = !failed && ShouldRetainColonyReadResult(toolName, arguments)
+                && !(arguments["detail"]?.Type == JTokenType.Boolean && !arguments.Value<bool>("detail"));
             if (detailed)
                 resultItem["arguments"] = arguments;
-            if (detailed || retainSearchResult)
+            if (detailed || retainSearchResult || retainColonyReadResult)
                 resultItem["result"] = text;
             results.Add(resultItem);
             if (failed && stopOnError)

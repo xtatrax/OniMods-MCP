@@ -1,3 +1,3 @@
 {
-  "operation_files.result_contract": "- 结果: 通常返回简要摘要；成功的 `search_control` 调用保留完整子结果。`detail=brief|compact|full` 保持原生搜索粒度含义；旧式布尔值 `detail=false` 抑制结果输出。布尔值 `detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小搜索范围；数量和截断信息保持子工具报告的原样。"
+  "operation_files.result_contract": "- 结果: 通常返回简要摘要。成功的 `search_control` 调用及 `colony_control` 的 `domain=bio bioDomain=farming action=seed_catalog|list_planting` 或 `domain=management kind=research action=list` 读取（包括现有路由别名）保留完整子结果。其他殖民地读取和写入默认仍返回摘要。`detail=brief|compact|full` 保持原生搜索粒度含义。布尔值 `detail=false` 抑制结果输出；`detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小范围；数量和截断信息保持子工具报告的原样。"
 }

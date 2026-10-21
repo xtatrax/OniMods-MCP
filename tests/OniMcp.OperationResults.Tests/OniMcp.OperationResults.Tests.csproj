@@ -7,6 +7,7 @@
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <OperationFilesSource Condition="'$(OperationFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationFiles.cs</OperationFilesSource>
+    <ColonyReadResultsSource Condition="'$(ColonyReadResultsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorColonyReadResults.cs</ColonyReadResultsSource>
     <ManagementTablesSource Condition="'$(ManagementTablesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementReadableTables.cs</ManagementTablesSource>
     <ManagementFilesSource Condition="'$(ManagementFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementFiles.cs</ManagementFilesSource>
     <SemanticCommandsSource Condition="'$(SemanticCommandsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationSemanticCommands.cs</SemanticCommandsSource>
@@ -14,6 +15,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(OperationFilesSource)" Link="Source/WorldEditorOperationFiles.cs" />
+    <Compile Include="$(ColonyReadResultsSource)" Link="Source/WorldEditorColonyReadResults.cs" />
     <Compile Include="$(CommandParsingSource)" Link="Source/WorldEditorCommandParsing.cs" />
     <Compile Include="$(SemanticCommandsSource)" Link="Source/WorldEditorOperationSemanticCommands.cs" />
     <Compile Include="$(ManagementFilesSource)" Link="Source/WorldEditorManagementFiles.cs" />

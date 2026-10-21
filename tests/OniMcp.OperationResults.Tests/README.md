@@ -39,3 +39,25 @@ active map path used by these tests. The existing Tools.Tests geometry suite
 continues to link NativeBuildingFootprint itself and now verifies the compiled
 original-request mapping for masks, markers, sparse holes and rotations. Native
 reference compilation and development/public runtime acceptance remain separate.
+
+
+The colony-read regression links the complete production selector helper and the
+existing operation adapter. Only successful canonical colony calls for seed
+catalog, planting-list and research-list reads gain default first-result
+retention. The fixture records the exact native argument envelope but does not
+implement native filtering, research, planting or game rules. Tests distinguish
+read selectors and their existing aliases/precedence from non-target reads and
+writes, preserve Boolean compact/full options and bounded failure previews, and
+retain long/scalar/non-JSON content without merging secondary policy content.
+Most cases use the actual DSL/parser/execution path. A few JValue-null selector
+precedence cases call the production predicate by reflection because the DSL
+retains scalar null as a string; these are predicate-boundary tests rather than
+evidence that native routing ran. Both parent/child arguments and native content
+remain unchanged. The existing search and execution-guard regression still runs.
+
+`ColonyReadResultsSource` overrides the linked helper for temporary negative
+fixtures. The former operation source without colony retention must compile and
+then fail the default-result assertion. Known-bad variants must also compile
+before their behavioral failures count. Direct native-read equivalence, actual
+query/limit behavior and live preservation under each mod identity require
+separate deployed-game acceptance.

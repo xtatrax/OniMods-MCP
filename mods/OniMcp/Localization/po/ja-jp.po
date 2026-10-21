@@ -116,10 +116,10 @@ msgid "{0} @({1},{2}), {3:F1}kg"
 msgstr "{0} @({1},{2}), {3:F1}kg"
 
 #. Runtime JSON key: operation_files.result_contract
-#. Runtime zh-Hans msgstr: "- 结果: 通常返回简要摘要；成功的 `search_control` 调用保留完整子结果。`detail=brief|compact|full` 保持原生搜索粒度含义；旧式布尔值 `detail=false` 抑制结果输出。布尔值 `detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小搜索范围；数量和截断信息保持子工具报告的原样。"
+#. Runtime zh-Hans msgstr: "- 结果: 通常返回简要摘要。成功的 `search_control` 调用及 `colony_control` 的 `domain=bio bioDomain=farming action=seed_catalog|list_planting` 或 `domain=management kind=research action=list` 读取（包括现有路由别名）保留完整子结果。其他殖民地读取和写入默认仍返回摘要。`detail=brief|compact|full` 保持原生搜索粒度含义。布尔值 `detail=false` 抑制结果输出；`detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小范围；数量和截断信息保持子工具报告的原样。"
 msgctxt "OniMcp.MCP.OPERATION_FILES.RESULT_CONTRACT"
-msgid "- result: compact summaries normally; successful `search_control` calls retain the complete child result. `detail=brief|compact|full` keeps its native search meaning; legacy boolean `detail=false` suppresses result output. Boolean `detail=true` also echoes arguments and retains full results/errors. Narrow searches with `query`/`limit`; counts and truncation remain as reported by the child."
-msgstr "- 結果: 通常は簡易要約です。成功した `search_control` は子の結果を完全に保持します。`detail=brief|compact|full` は検索本来の粒度指定のまま渡します。従来の真偽値 `detail=false` は結果の出力を抑制します。真偽値 `detail=true` は引数と完全な結果・エラーも返します。`query`/`limit` で検索を絞り、件数・打切りは子の報告どおり扱います。"
+msgid "- result: compact summaries normally. Successful `search_control` calls and `colony_control` reads for `domain=bio bioDomain=farming action=seed_catalog|list_planting` or `domain=management kind=research action=list` retain the complete child result, including existing route aliases. Other colony reads/writes stay compact by default. Search `detail=brief|compact|full` keeps its native meaning. Boolean `detail=false` suppresses result output; `detail=true` also echoes arguments and retains full results/errors. Narrow results with `query`/`limit`; counts and truncation remain as reported by the child."
+msgstr "- 結果: 通常は簡易要約です。成功した `search_control` と、`colony_control` の `domain=bio bioDomain=farming action=seed_catalog|list_planting` または `domain=management kind=research action=list`（既存の経路別名を含む）は、子の結果を完全に保持します。その他のコロニー読取・書込は既定の要約を維持します。`detail=brief|compact|full` は検索本来の粒度指定です。真偽値 `detail=false` は結果を省略し、`detail=true` は引数と完全な結果・エラーも返します。`query`/`limit` で絞り、件数・打切りは子の報告どおり扱います。"
 
 #. Runtime JSON key: result_progress.map_build_invalid_token
 #. Runtime zh-Hans msgstr: "无效的建造令牌“{0}”。请使用 建筑名:优先级 或 建筑名:优先级#材料标记。"
