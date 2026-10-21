@@ -1,0 +1,3 @@
+{
+  "building_availability.include_unavailable": "是否包含不可用、或设备定义与研究可用性未知的建筑。默认false，仅返回已确认可用的定义。不判断建造菜单可见性、放置或材料。"
+}

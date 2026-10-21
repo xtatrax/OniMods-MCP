@@ -46,6 +46,13 @@ namespace OniMcp.Tools
 
         private static Dictionary<string, object> BuildingDefToDictionary(BuildingDef def)
         {
+            return BuildingDefToDictionary(def, BuildingAvailabilityReader.Read(def));
+        }
+
+        private static Dictionary<string, object> BuildingDefToDictionary(BuildingDef def,
+            BuildingAvailabilityReader.Observation availability)
+        {
+            availability = availability ?? BuildingAvailabilityReader.Read(def);
             int worldId = ClusterManager.Instance?.activeWorldId ?? -1;
             var availableMaterials = AvailableMaterials(def, worldId, includeUnavailable: false).ToList();
             var defaultElements = DefaultBuildElements(def);
@@ -75,27 +82,19 @@ namespace OniMcp.Tools
                 ["availableMaterials"] = availableMaterials.Take(20).Select(item => item.ToDictionary()).ToList(),
                 ["recommendedMaterial"] = recommendedMaterial,
                 ["autoMaterial"] = AutoMaterialValue(def, worldId),
-                ["autoMaterialReason"] = AutoMaterialReason(def, worldId),
+                ["autoMaterialReason"] = AutoMaterialReason(def, worldId, availability),
                 ["facades"] = BuildingFacades(def),
                 ["requiresPower"] = def.RequiresPowerInput,
                 ["powerWatts"] = Math.Round(def.EnergyConsumptionWhenActive, 1),
-                ["unlocked"] = IsTechUnlocked(def),
-                ["availableNow"] = IsUnlockedAndAvailable(def)
+                ["unlocked"] = BuildingAvailabilityReader.JsonBoolean(availability.Unlocked),
+                ["availableNow"] = BuildingAvailabilityReader.JsonBoolean(availability.Value),
+                ["availability"] = availability.ToDictionary()
             };
         }
 
 private static bool IsUnlockedAndAvailable(BuildingDef def)
 {
-if (def == null)
-return false;
-try
-{
-return def.IsAvailable() && IsTechUnlocked(def);
-}
-catch
-{
-return false;
-}
+return BuildingAvailabilityReader.Read(def).Value == true;
 }
 
 private static bool IsTechUnlocked(BuildingDef def)
@@ -154,12 +153,15 @@ private static object AutoMaterialValue(BuildingDef def, int worldId)
             return material != null ? (object)material.Tag.Name : "unavailable";
         }
 
-        private static object AutoMaterialReason(BuildingDef def, int worldId)
+        private static object AutoMaterialReason(BuildingDef def, int worldId,
+            BuildingAvailabilityReader.Observation availability)
         {
-            if (!IsTechUnlocked(def))
+            if (availability.Unlocked == false)
                 return "building_locked_by_research";
-            if (!def.IsAvailable())
+            if (availability.DefinitionAvailable == false)
                 return "building_not_available_in_current_context";
+            if (availability.Value != true)
+                return "building_availability_unknown";
             var material = AvailableMaterials(def, worldId, includeUnavailable: false).FirstOrDefault();
             return material != null ? null : "no_currently_available_material";
         }

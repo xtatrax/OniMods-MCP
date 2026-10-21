@@ -23,12 +23,15 @@ prefabId = resolvedPrefabId;
             if (availabilityError != null)
             {
                 // Geometry remains inspectable while research/availability still prevents placement.
+                var availability = BuildingAvailabilityReader.Read(def);
                 var unavailablePlacement = BuildPlacementDetails(def, x, y, ToolUtil.ResolveWorldId(args),
                     ParseOrientation(args["orientation"]?.ToString()));
                 return ErrorResult(prefabId, x, y, availabilityError, new Dictionary<string, object>
                 {
-                    ["prefabId"] = prefabId, ["unlocked"] = IsTechUnlocked(def),
-                    ["availableNow"] = IsUnlockedAndAvailable(def),
+                    ["prefabId"] = prefabId,
+                    ["unlocked"] = BuildingAvailabilityReader.JsonBoolean(availability.Unlocked),
+                    ["availableNow"] = BuildingAvailabilityReader.JsonBoolean(availability.Value),
+                    ["availability"] = availability.ToDictionary(),
                     ["placement"] = unavailablePlacement.ToDictionary(),
                     ["footprint"] = unavailablePlacement.Footprint.Select(c => c.ToDictionary()).ToList()
                 });

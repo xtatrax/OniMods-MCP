@@ -23,7 +23,7 @@ namespace OniMcp.Tools
                 {
                     ["query"] = new McpToolParameter { Type = "string", Description = "設備 ID または名前のキーワード", Required = false },
                     ["category"] = new McpToolParameter { Type = "string", Description = "建築メニューの分類・カテゴリのキーワード。例: oxygen、plumbing、rocketry。大文字・小文字を区別しない", Required = false },
-                    ["includeUnavailable"] = new McpToolParameter { Type = "boolean", Description = "現在利用できない・未解除の設備定義を含めるか。既定は false", Required = false },
+                    ["includeUnavailable"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("building_availability.include_unavailable"), Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "返す件数の上限。既定は 30、最大 100", Required = false }
                 },
                 Handler = args =>
@@ -33,12 +33,14 @@ namespace OniMcp.Tools
                     bool includeUnavailable = ToolUtil.GetBool(args, "includeUnavailable", false);
                     int limit = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "limit") ?? 30, 100));
                     var defs = Assets.BuildingDefs
-                        .Where(def => def != null && (includeUnavailable || IsUnlockedAndAvailable(def)))
+                        .Where(def => def != null)
                         .Where(def => string.IsNullOrWhiteSpace(category) || MatchesCategory(def, category))
                         .Where(def => string.IsNullOrWhiteSpace(query) || Matches(def, query))
                         .OrderBy(def => def.PrefabID)
+                        .Select(def => new { Def = def, Availability = BuildingAvailabilityReader.Read(def) })
+                        .Where(item => includeUnavailable || item.Availability.Value == true)
                         .Take(limit)
-                        .Select(BuildingDefToDictionary)
+                        .Select(item => BuildingDefToDictionary(item.Def, item.Availability))
                         .ToList();
 
                     return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>

@@ -792,3 +792,9 @@ msgstr ""
 msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.ASSESSMENT_INCOMPLETE"
 msgid "Some duplicant stress readings are unavailable; colony-wide stress assessment is incomplete."
 msgstr ""
+
+#. Runtime JSON key: building_availability.include_unavailable
+#. Runtime zh-Hans msgstr: "是否包含不可用、或设备定义与研究可用性未知的建筑。默认false，仅返回已确认可用的定义。不判断建造菜单可见性、放置或材料。"
+msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.INCLUDE_UNAVAILABLE"
+msgid "Include building definitions that are unavailable or whose definition/research availability is unknown. Defaults to false, which returns only observed available definitions. This does not assess build-menu visibility, placement or materials."
+msgstr ""

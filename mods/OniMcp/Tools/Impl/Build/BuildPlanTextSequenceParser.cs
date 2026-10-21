@@ -262,9 +262,8 @@ namespace OniMcp.Tools
                     Name = sequenceBuilding.BuildingName,
                     Score = 10050,
                     Matched = sequenceBuilding.Token,
-                    MatchKind = "sequence",
-                    AvailableNow = IsUnlockedAndAvailable(sequenceDef)
-                };
+                    MatchKind = "sequence"
+                }.WithAvailability(sequenceDef);
                 def = sequenceDef;
                 string sequencePrefabId = bestBuilding.PrefabId;
                 buildingCandidates = new[] { bestBuilding }

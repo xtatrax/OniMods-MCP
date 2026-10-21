@@ -40,9 +40,8 @@ namespace OniMcp.Tools
                     Name = firstBuilding.BuildingName,
                     Score = 10050,
                     Matched = firstBuilding.Token,
-                    MatchKind = "sequence_first",
-                    AvailableNow = firstDef == null || IsUnlockedAndAvailable(firstDef)
-                };
+                    MatchKind = "sequence_first"
+                }.WithAvailability(firstDef);
                 def = Assets.GetBuildingDef(bestBuilding.PrefabId);
                 buildingCandidates = new[] { bestBuilding }
                     .Concat(buildingCandidates.Where(item => !string.Equals(item.PrefabId, bestBuilding.PrefabId, StringComparison.OrdinalIgnoreCase)))
@@ -184,14 +183,16 @@ namespace OniMcp.Tools
                 var exact = Assets.GetBuildingDef(requestedPrefab);
                 if (exact != null)
                 {
-                    yield return new PlanBuildingCandidate
+                    var candidate = new PlanBuildingCandidate
                     {
                         PrefabId = exact.PrefabID,
                         Name = ToolUtil.CleanName(exact.Name),
                         Score = 10000,
                         Matched = requestedPrefab,
                         MatchKind = "prefabId"
-                    };
+                    }.WithAvailability(exact);
+                    if (includeUnavailable || candidate.AvailableNow == true)
+                        yield return candidate;
                     yield break;
                 }
             }
@@ -208,8 +209,7 @@ namespace OniMcp.Tools
             var candidates = new List<PlanBuildingCandidate>();
             foreach (var def in Assets.BuildingDefs)
             {
-                if (def == null || (!includeUnavailable && !IsUnlockedAndAvailable(def)))
-                    continue;
+                if (def == null) continue;
 
                 int bestScore = 0;
                 string bestTerm = null;
@@ -243,6 +243,8 @@ namespace OniMcp.Tools
 
                 if (bestScore > 0)
                 {
+                    var availability = BuildingAvailabilityReader.Read(def);
+                    if (!includeUnavailable && availability.Value != true) continue;
                     candidates.Add(new PlanBuildingCandidate
                     {
                         PrefabId = def.PrefabID,
@@ -250,14 +252,15 @@ namespace OniMcp.Tools
                         Score = bestScore,
                         Matched = bestTerm,
                         MatchKind = bestKind,
-                        AvailableNow = IsUnlockedAndAvailable(def)
+                        AvailableNow = availability.Value,
+                        Availability = availability
                     });
                 }
             }
 
             foreach (var candidate in candidates
                 .OrderByDescending(item => item.Score)
-                .ThenByDescending(item => item.AvailableNow)
+                .ThenByDescending(item => BuildingAvailabilityReader.SortRank(item.AvailableNow))
                 .ThenBy(item => item.PrefabId))
                 yield return candidate;
         }

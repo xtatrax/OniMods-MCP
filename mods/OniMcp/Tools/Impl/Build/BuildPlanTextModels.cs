@@ -279,7 +279,15 @@ namespace OniMcp.Tools
             public int Score;
             public string Matched;
             public string MatchKind;
-            public bool AvailableNow;
+            public bool? AvailableNow;
+            public BuildingAvailabilityReader.Observation Availability;
+
+            public PlanBuildingCandidate WithAvailability(BuildingDef def)
+            {
+                Availability = BuildingAvailabilityReader.Read(def);
+                AvailableNow = Availability.Value;
+                return this;
+            }
 
             public Dictionary<string, object> ToDictionary()
             {
@@ -290,7 +298,8 @@ namespace OniMcp.Tools
                     ["score"] = Score,
                     ["matched"] = Matched,
                     ["matchKind"] = MatchKind,
-                    ["availableNow"] = AvailableNow
+                    ["availableNow"] = BuildingAvailabilityReader.JsonBoolean(AvailableNow),
+                    ["availability"] = Availability?.ToDictionary()
                 };
             }
         }

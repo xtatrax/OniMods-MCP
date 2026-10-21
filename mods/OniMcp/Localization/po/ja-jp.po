@@ -793,3 +793,9 @@ msgstr "取得できたストレスの最大値: {0}%。一部の複製人間は
 msgctxt "OniMcp.MCP.DIAGNOSTIC_STRESS.ASSESSMENT_INCOMPLETE"
 msgid "Some duplicant stress readings are unavailable; colony-wide stress assessment is incomplete."
 msgstr "一部の複製人間のストレスを取得できないため、全体のストレス評価は未完了です。"
+
+#. Runtime JSON key: building_availability.include_unavailable
+#. Runtime zh-Hans msgstr: "是否包含不可用、或设备定义与研究可用性未知的建筑。默认false，仅返回已确认可用的定义。不判断建造菜单可见性、放置或材料。"
+msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.INCLUDE_UNAVAILABLE"
+msgid "Include building definitions that are unavailable or whose definition/research availability is unknown. Defaults to false, which returns only observed available definitions. This does not assess build-menu visibility, placement or materials."
+msgstr "利用不可、または設備定義・研究による利用可否が未取得の設備も含めるか。既定は false で、利用可能と確認できた定義だけを返します。建設メニューへの表示、配置、素材は判定しません。"

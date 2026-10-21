@@ -1,0 +1,3 @@
+{
+  "building_availability.include_unavailable": "Include building definitions that are unavailable or whose definition/research availability is unknown. Defaults to false, which returns only observed available definitions. This does not assess build-menu visibility, placement or materials."
+}
