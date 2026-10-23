@@ -109,27 +109,9 @@ namespace OniMcp.Tools
             return result;
         }
 
-        public static Dictionary<string, object> SaveScreenshot(string fileName)
+        public static Dictionary<string, object> SaveScreenshot(string fileName, int waitFrames = 2)
         {
-            var cleanup = CleanupTemporaryScreenshots(1);
-            string dir = ScreenshotDirectory;
-            Directory.CreateDirectory(dir);
-            if (string.IsNullOrEmpty(fileName))
-                fileName = $"cycle_{GameUtil.GetCurrentCycle()}_{System.DateTime.UtcNow:yyyyMMdd_HHmmss_fff}.png";
-            string path = Path.Combine(dir, Path.GetFileName(fileName));
-            if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                path += ".png";
-
-            ScreenCapture.CaptureScreenshot(path);
-            return new Dictionary<string, object>
-            {
-                ["path"] = path,
-                ["url"] = ScreenshotUrl(path),
-                ["latestUrl"] = OniMcpOptions.Current.ScreenshotLatestUrl,
-                ["cycle"] = GameUtil.GetCurrentCycle(),
-                ["screen"] = new { width = Screen.width, height = Screen.height },
-                ["cleanup"] = cleanup
-            };
+            return CameraTools.QueueScreenshot(fileName, waitFrames);
         }
 
         public static Dictionary<string, object> CleanupTemporaryScreenshots(int reservedSlots = 0)
@@ -153,7 +135,7 @@ namespace OniMcp.Tools
             var errors = (List<string>)result["errors"];
             int deleted = 0;
             System.DateTime cutoff = System.DateTime.UtcNow.AddMinutes(-options.ScreenshotRetentionMinutes);
-            var files = ListScreenshotFiles(dir, errors);
+            var files = ListScreenshotFiles(dir, errors).Where(file => !CameraTools.ScreenshotPathReserved(file.FullName)).ToList();
 
             foreach (var file in files.Where(f => f.LastWriteTimeUtc < cutoff).ToList())
             {
@@ -162,6 +144,7 @@ namespace OniMcp.Tools
             }
 
             files = ListScreenshotFiles(dir, errors)
+                .Where(file => !CameraTools.ScreenshotPathReserved(file.FullName))
                 .OrderByDescending(f => f.LastWriteTimeUtc)
                 .ToList();
 

@@ -18,7 +18,7 @@ namespace OniMcp.Tools
                 Group = "camera",
                 Mode = "execute",
                 Risk = "low",
-                Description = "互換用の入口。優先して使用してください: navigation_control action=switch_view",
+                Description = McpLocalization.Get("screenshot.switch_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["view"] = new McpToolParameter
@@ -33,22 +33,22 @@ namespace OniMcp.Tools
                     ["waitFrames"] = new McpToolParameter { Type = "integer", Description = "撮影前に待つ Unity フレーム数。既定は 2。レイヤーの描画完了を待つために使用", Required = false },
                     ["allowSound"] = new McpToolParameter { Type = "boolean", Description = "ゲームのビュー切り替え効果音を再生するか。既定は false", Required = false }
                 },
-                Handler = args =>
+                Handler = args => TryScreenshot(() =>
                 {
                     if (Game.Instance == null)
-                        return CallToolResult.Error("Game not initialized");
+                        return CallToolResult.Error(McpLocalization.Get("screenshot.error_game_unavailable"));
 
                     var overlay = OverlayScreen.Instance;
                     if (overlay == null)
-                        return CallToolResult.Error("OverlayScreen not available");
+                        return CallToolResult.Error(McpLocalization.Get("screenshot.error_overlay_unavailable"));
 
                     string requestedView = args["view"]?.ToString();
                     if (string.IsNullOrEmpty(requestedView))
-                        return CallToolResult.Error("view is required");
+                        return CallToolResult.Error(McpLocalization.Get("screenshot.view_required"));
 
                     if (!TryResolveOverlayView(requestedView, out var viewName, out var mode))
                     {
-                        return CallToolResult.Error($"Unknown view: {requestedView}. Available views: {string.Join(", ", OverlayViewNames)}");
+                        return CallToolResult.Error(McpLocalization.Format("screenshot.unknown_view", null, requestedView, string.Join(", ", OverlayViewNames)));
                     }
 
                     bool allowSound = ToolUtil.GetBool(args, "allowSound", false);
@@ -69,8 +69,12 @@ namespace OniMcp.Tools
                         ["view"] = viewName,
                         ["requestedOverlay"] = mode.ToString(),
                         ["activeOverlayAtEnqueue"] = overlay.GetMode().ToString(),
+                        ["contextTiming"] = "request",
                         ["queued"] = true,
                         ["queue"] = queued,
+                        ["requestId"] = queued["requestId"],
+                        ["status"] = queued["status"],
+                        ["next"] = McpLocalization.Get("screenshot.next"),
                         ["activeWorldId"] = ClusterManager.Instance?.activeWorldId ?? -1,
                         ["camera"] = new
                         {
@@ -81,7 +85,7 @@ namespace OniMcp.Tools
                     };
 
                     return CallToolResult.Text(JsonConvert.SerializeObject(result, McpJsonUtil.Settings));
-                }
+                })
             };
         }
 
@@ -161,16 +165,18 @@ namespace OniMcp.Tools
                 Group = "game",
                 Mode = "execute",
                 Risk = "low",
-                Description = "互換用の入口。navigation_control action=screenshot を優先してください。セル座標が必要な場合は navigation_control action=coordinate_screenshot を使用してください。",
+                Description = McpLocalization.Get("screenshot.capture_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["filename"] = new McpToolParameter { Type = "string", Description = "任意のファイル名。既定ではサイクルと時刻から自動生成", Required = false }
+                    ["filename"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("screenshot.filename"), Required = false },
+                    ["waitFrames"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("screenshot.wait_frames"), Required = false }
                 },
-                Handler = args =>
+                Handler = args => TryScreenshot(() =>
                 {
-                    var result = WorldEditor.SaveScreenshot(args["filename"]?.ToString());
+                    var result = WorldEditor.SaveScreenshot(args["filename"]?.ToString(), ToolUtil.GetInt(args, "waitFrames") ?? 2);
+                    result["next"] = McpLocalization.Get("screenshot.next");
                     return CallToolResult.Text(JsonConvert.SerializeObject(result, McpJsonUtil.Settings));
-                }
+                })
             };
         }
 
@@ -185,7 +191,7 @@ namespace OniMcp.Tools
                 Risk = "low",
                 Aliases = new List<string> { "world_coordinate_screenshot", "map_coordinate_screenshot", "coordinate_screenshot" },
                 Tags = new List<string> { "camera", "screenshot", "coordinates", "grid", "vision", "map", "截图", "坐标" },
-                Description = "互換用の入口。navigation_control action=coordinate_screenshot を優先してください。視覚モデルには座標付きスクリーンショットを優先します。画像には x/y 座標とグリッド線が直接表示され、HTTP URL も提供されます。",
+                Description = McpLocalization.Get("screenshot.coordinate_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["areaId"] = new McpToolParameter { Type = "string", Description = "任意の区域ハンドル。指定すると x1/y1/x2/y2/worldId を省略可能", Required = false },
@@ -204,32 +210,33 @@ namespace OniMcp.Tools
                     ["waitFrames"] = new McpToolParameter { Type = "integer", Description = "撮影前に待つフレーム数。既定は 3、最大 30", Required = false },
                     ["filename"] = new McpToolParameter { Type = "string", Description = "任意のスクリーンショットのファイル名", Required = false }
                 },
-                Handler = args =>
+                Handler = args => TryScreenshot(() =>
                 {
                     if (Game.Instance == null)
-                        return CallToolResult.Error("Game not initialized");
+                        return CallToolResult.Error(McpLocalization.Get("screenshot.error_game_unavailable"));
                     if (Camera.main == null || CameraController.Instance == null)
-                        return CallToolResult.Error("Camera not available");
+                        return CallToolResult.Error(McpLocalization.Get("screenshot.error_camera_unavailable"));
 
+                    ValidateScreenshotRequest(args["filename"]?.ToString());
                     int maxCells = 3600;
                     var rect = WorldEditor.ResolveRectOrCamera(args, maxCells);
                     int width = rect["x2"] - rect["x1"] + 1;
                     int height = rect["y2"] - rect["y1"] + 1;
                     int cells = width * height;
                     if (cells > maxCells)
-                        return CallToolResult.Error($"Area too large for coordinate screenshot: {width}x{height}={cells}, maxCells={maxCells}");
+                        return CallToolResult.Error(McpLocalization.Format("screenshot.area_too_large", null, width, height, cells, maxCells));
 
                     int worldId = WorldEditor.ResolveWorldId(args);
                     int centerCell = Grid.XYToCell((rect["x1"] + rect["x2"]) / 2, (rect["y1"] + rect["y2"]) / 2);
                     if (Grid.IsValidCell(centerCell) && !ToolUtil.CellMatchesWorld(centerCell, worldId))
-                        return CallToolResult.Error($"Target rectangle center is not in worldId={worldId}");
+                        return CallToolResult.Error(McpLocalization.Format("screenshot.rect_world_mismatch", null, worldId));
 
                     string requestedView = args["view"]?.ToString();
                     string viewName = "current";
                     if (!string.IsNullOrWhiteSpace(requestedView))
                     {
                         if (!TryResolveOverlayView(requestedView, out viewName, out var mode))
-                            return CallToolResult.Error($"Unknown view: {requestedView}. Available views: {string.Join(", ", OverlayViewNames)}");
+                            return CallToolResult.Error(McpLocalization.Format("screenshot.unknown_view", null, requestedView, string.Join(", ", OverlayViewNames)));
                         ApplyOverlayMode(mode, false);
                     }
 
@@ -274,6 +281,9 @@ namespace OniMcp.Tools
                     {
                         ["queued"] = true,
                         ["tool"] = "camera_coordinate_screenshot",
+                        ["requestId"] = screenshot["requestId"],
+                        ["status"] = screenshot["status"],
+                        ["requested"] = screenshot["requested"],
                         ["view"] = viewName,
                         ["worldId"] = worldId,
                         ["rect"] = rect,
@@ -284,14 +294,19 @@ namespace OniMcp.Tools
                             showGrid = ToolUtil.GetBool(args, "showGrid", true),
                             showCoordinates = ToolUtil.GetBool(args, "showCoordinates", true),
                             includeCellLabels,
-                            coordinateSystem = "ONI world absolute x/y; grid lines bound cell edges; labels are world cell coordinates"
+                            coordinateSystem = McpLocalization.Get("screenshot.coordinate_system")
                         },
                         ["screenshot"] = screenshot["screenshot"],
-                        ["next"] = "Open screenshot.url/latestUrl directly; use visible grid labels to infer exact cell x/y, then call read_control domain=world action=cell_info or read /active/map/cell_X_Y.md through world_editor."
+                        ["next"] = McpLocalization.Get("screenshot.coordinate_next")
                     }, McpJsonUtil.Settings));
-                }
+                })
             };
         }
 
+        private static CallToolResult TryScreenshot(Func<CallToolResult> capture)
+        {
+            try { return capture(); }
+            catch (InvalidOperationException error) { return CallToolResult.Error(error.Message); }
+        }
     }
 }

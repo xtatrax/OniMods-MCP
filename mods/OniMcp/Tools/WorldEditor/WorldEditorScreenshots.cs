@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -44,7 +45,7 @@ namespace OniMcp.Tools
                     forwarded["filename"] = captureFileName;
 
                 var result = NavigationControlTools.ControlNavigation().Handler(forwarded);
-                captures.Add(BuildScreenshotCaptureResult(view, current, result));
+                captures.Add(ScreenshotCaptureProjection.Build(view, current, result));
             }
 
             return JsonResult(new JObject
@@ -52,11 +53,12 @@ namespace OniMcp.Tools
                 ["ok"] = captures.All(item => !(bool)item["isError"]),
                 ["mode"] = views.Count > 1 ? "multi_view_viewport_screenshot" : "viewport_screenshot",
                 ["viewport"] = JObject.FromObject(CurrentViewportInfo()),
+                ["viewportTiming"] = "request",
                 ["requestedViews"] = new JArray(views),
                 ["waitFrames"] = waitFrames,
                 ["captures"] = captures,
                 ["latestUrl"] = OniMcp.Config.OniMcpOptions.Current.ScreenshotLatestUrl,
-                ["next"] = "Open the returned screenshot.url after readyAfterFrames has elapsed."
+                ["next"] = McpLocalization.Get("screenshot.next")
             });
         }
 
@@ -135,36 +137,6 @@ namespace OniMcp.Tools
             return new string(chars);
         }
 
-        private static JObject BuildScreenshotCaptureResult(string view, bool current, CallToolResult result)
-        {
-            var item = new JObject
-            {
-                ["view"] = view,
-                ["source"] = current ? "current_overlay" : "switched_overlay",
-                ["isError"] = result == null || result.IsError
-            };
-
-            string text = result?.Content?.FirstOrDefault()?.Text ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(text))
-                return item;
-
-            try
-            {
-                var parsed = JObject.Parse(text);
-                item["result"] = parsed;
-                var screenshot = parsed["screenshot"] ?? parsed;
-                item["screenshot"] = screenshot;
-                item["url"] = screenshot["url"];
-                item["path"] = screenshot["path"];
-                item["readyAfterFrames"] = screenshot["readyAfterFrames"] ?? parsed["readyAfterFrames"];
-            }
-            catch
-            {
-                item["text"] = TrimText(text, 900);
-            }
-            return item;
-        }
-
         private static Dictionary<string, object> CurrentViewportInfo()
         {
             var cam = Camera.main;
@@ -195,6 +167,7 @@ namespace OniMcp.Tools
             sb.AppendLine("# Screenshots");
             sb.AppendLine();
             sb.AppendLine("Use `world_editor` with `command=screenshot` to capture the current camera viewport.");
+            sb.AppendLine(McpLocalization.Get("screenshot.next"));
             sb.AppendLine();
             sb.AppendLine("Examples:");
             sb.AppendLine("- `command=screenshot` captures the current overlay.");

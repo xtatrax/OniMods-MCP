@@ -98,9 +98,9 @@
   "tools.game_control.parameters.visibleOnly": "検索時に未発見セルを不明として扱う。",
   "tools.game_control.parameters.force": "対応する操作で下位処理の強制動作を許可する。",
   "tools.game_control.parameters.confirm": "書き込み、危険な操作、または一括操作に必要な確認。",
-  "tools.navigation_control.description": "カメラ移動、ワールド切り替え、オーバーレイ、フォーカス、スクリーンショットの統合入口。 Y+（Yが増える方向）は上（地表方向）、Y-（Yが減る方向）は下（地下方向）。",
+  "tools.navigation_control.description": "カメラ移動、ワールド切り替え、オーバーレイ、フォーカス、スクリーンショットの統合入口。 Y+（Yが増える方向）は上（地表方向）、Y-（Yが減る方向）は下（地下方向）。 撮影は requestId を返します。完成と撮影フレームの情報は screenshot_status で確認します。",
   "tools.navigation_control.parameters.domain": "カメラの domain。省略時は既知のカメラ action を受け付ける。",
-  "tools.navigation_control.parameters.action": "カメラ操作: get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot。",
+  "tools.navigation_control.parameters.action": "カメラ操作: get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status。",
   "tools.navigation_control.parameters.worldId": "対象のワールド ID。set_active_world では必須。それ以外の既定値はアクティブなワールド。",
   "tools.navigation_control.parameters.requireDiscovered": "切り替え前に対象ワールドが発見済みであることを要求する。",
   "tools.navigation_control.parameters.lookAtSurface": "必要に応じて、切り替え前に対象ワールドの地表を表示する。",
@@ -112,7 +112,7 @@
   "tools.navigation_control.parameters.view": "オーバーレイのビュー名。",
   "tools.navigation_control.parameters.screenshot": "スクリーンショットを撮る。",
   "tools.navigation_control.parameters.filename": "スクリーンショットのファイル名。",
-  "tools.navigation_control.parameters.waitFrames": "スクリーンショット撮影前に待機するフレーム数。",
+  "tools.navigation_control.parameters.waitFrames": "撮影前に待つ描画フレーム数。1～30、既定2（coordinate_screenshot は3）。完了の保証ではないため requestId で screenshot_status を確認する。",
   "tools.navigation_control.parameters.allowSound": "UI の効果音を許可する。",
   "tools.navigation_control.parameters.id": "focus_dupe の複製人間のインスタンス ID。",
   "tools.navigation_control.parameters.name": "focus_dupe の複製人間名。",
@@ -278,5 +278,6 @@
   "tools.world_editor.parameters.allowUtilityTerrainDig": "配線・配管と自動電力接続に伴う自然地形の採掘を明示許可。既定false。confirmだけでは許可しない。支持関係は未評価。",
   "tools.world_editor.parameters.autoConnectPower": "電力を消費する設備を自動配線する。既定true。自然地形を通る経路にはallowUtilityTerrainDig=trueが必要。falseで本体だけ建設する。",
   "tools.game_control.parameters.afterSequence": "action=traceで、この非負整数sequenceより後を取得する。過去のtrace応答のtraceEpochが必要。",
-  "tools.game_control.parameters.traceEpoch": "action=traceが返す、観測プロセスを区別する不透明な値。afterSequenceと併用し、別プロセスの値は拒否する。"
+  "tools.game_control.parameters.traceEpoch": "action=traceが返す、観測プロセスを区別する不透明な値。afterSequenceと併用し、別プロセスの値は拒否する。",
+  "tools.navigation_control.parameters.requestId": "撮影の受理時に返された requestId。screenshot_status で必須。"
 }

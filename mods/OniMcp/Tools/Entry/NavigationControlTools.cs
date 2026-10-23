@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -16,7 +17,7 @@ namespace OniMcp.Tools
                 Risk = "medium",
                 Aliases = new List<string> { "spatial_control", "view_control" },
                 Tags = new List<string> { "camera", "view", "screenshot", "overlay" },
-                Description = "カメラとビューの集約エントリーポイント。domain=camera でカメラ移動、ワールド切り替え、オーバーレイ、スクリーンショットを扱う。domain を省略すると、既知のカメラ action から自動で判断する。",
+                Description = McpLocalization.Get("tools.navigation_control.description"),
                 Parameters = Params(),
                 Handler = args =>
                 {
@@ -41,7 +42,7 @@ namespace OniMcp.Tools
                         case "mouse":
                             return CallToolResult.Error("agent pointer control has been removed. Use regular semantic tools with the required task text; the task text is shown near the player's mouse automatically.");
                         default:
-                            return CallToolResult.Error("domain must be camera and action must be get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, or coordinate_screenshot");
+                            return CallToolResult.Error(McpLocalization.Get("screenshot.navigation_invalid"));
                     }
                 }
             };
@@ -63,6 +64,7 @@ namespace OniMcp.Tools
                 case "focus_dupe":
                 case "screenshot":
                 case "game_screenshot":
+                case "screenshot_status":
                 case "coordinate_screenshot":
                 case "coord_screenshot":
                     return "camera";
@@ -76,7 +78,7 @@ namespace OniMcp.Tools
             return new Dictionary<string, McpToolParameter>
             {
                 ["domain"] = new McpToolParameter { Type = "string", Description = "カメラのドメイン。省略すると、既知のカメラ action から自動で判断する", Required = false, EnumValues = new List<string> { "camera" } },
-                ["action"] = new McpToolParameter { Type = "string", Description = "カメラ操作: get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot", Required = true, EnumValues = new List<string> { "get_view", "set_active_world", "set_view", "move", "switch_view", "focus_cell", "focus_dupe", "screenshot", "coordinate_screenshot" } },
+                ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.navigation_control.parameters.action"), Required = true, EnumValues = new List<string> { "get_view", "set_active_world", "set_view", "move", "switch_view", "focus_cell", "focus_dupe", "screenshot", "coordinate_screenshot", "screenshot_status" } },
                 ["worldId"] = new McpToolParameter { Type = "integer", Description = "対象のワールド ID。set_active_world では必須。その他の action は現在アクティブなワールドが既定値", Required = false },
                 ["requireDiscovered"] = new McpToolParameter { Type = "boolean", Description = "set_active_world: 対象ワールドが発見済みであることを必須とするか。既定値は true", Required = false },
                 ["lookAtSurface"] = new McpToolParameter { Type = "boolean", Description = "set_active_world: 未訪問のワールドで LookAtSurface を行うか。既定値は true", Required = false },
@@ -95,8 +97,9 @@ namespace OniMcp.Tools
                 ["duration"] = new McpToolParameter { Type = "number", Description = "domain=camera action=move: 滑らかに移動する時間（秒）", Required = false },
                 ["view"] = new McpToolParameter { Type = "string", Description = "domain=camera action=switch_view/coordinate_screenshot: オーバーレイのビュー", Required = false },
                 ["screenshot"] = new McpToolParameter { Type = "boolean", Description = "domain=camera action=switch_view: スクリーンショットを取得するか", Required = false },
+                ["requestId"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.navigation_control.parameters.requestId"), Required = false },
                 ["filename"] = new McpToolParameter { Type = "string", Description = "domain=camera: スクリーンショットのファイル名", Required = false },
-                ["waitFrames"] = new McpToolParameter { Type = "integer", Description = "domain=camera: スクリーンショットの取得前に待機するフレーム数", Required = false },
+                ["waitFrames"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("tools.navigation_control.parameters.waitFrames"), Required = false },
                 ["allowSound"] = new McpToolParameter { Type = "boolean", Description = "domain=camera action=switch_view: 切り替え時の効果音を再生するか", Required = false },
                 ["id"] = new McpToolParameter { Type = "integer", Description = "domain=camera action=focus_dupe: 複製人間の InstanceID", Required = false },
                 ["name"] = new McpToolParameter { Type = "string", Description = "domain=camera action=focus_dupe: 複製人間の名前", Required = false },

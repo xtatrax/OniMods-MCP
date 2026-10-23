@@ -96,6 +96,10 @@
       <HintPath>$(OniManagedPath)/UnityEngine.ScreenCaptureModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(OniManagedPath)/UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <!-- Newtonsoft.Json はゲームに同梱されているため、結合しない -->
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(OniManagedPath)/Newtonsoft.Json.dll</HintPath>

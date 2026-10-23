@@ -890,3 +890,195 @@ msgstr "一覧に返す複製人間の最大人数。既定100、上限500。"
 msgctxt "OniMcp.MCP.DUPE_MOVE_GUIDANCE.INSTRUCTIONS"
 msgid "Use an ordinary ops scalar or simple quoted text for <targetQueryToken>; JSON escapes are not decoded. Names needing quote/backslash/control escapes or consisting only of a number/boolean are outside this guide; use coordinate batch instead. <itemsJson> is a JSON array. Supply task and preview flags on the outer world_editor request: syntax/capability checks only, without target resolution, reachability checks or move dispatch. Execution needs outer confirm=true and dryRun=false, command confirm=true and batch payload confirm=true. Acceptance is not arrival."
 msgstr "<targetQueryToken>は通常のops scalarまたは単純な引用文字列にしてください。JSON escapeは復号されません。引用符・backslash・制御文字のescapeが必要な名前や、数値/真偽値だけの名前は本案内の保証外なので座標batch等を使います。<itemsJson>はJSON配列です。taskと予行flagsは外側world_editor要求に指定します。予行は構文・capabilityだけで、移動先解決・到達性検証・移動指示は行いません。実行は外側confirm=trueかつdryRun=false、行のconfirm=true、一括ではpayload内もconfirm=trueが必要です。受理は到着ではありません。"
+
+#. Runtime JSON key: screenshot.camera_description
+#. Runtime zh-Hans msgstr: "相机移动、图层切换和截图排队。使用 action=screenshot_status 与 requestId 取得完成帧信息。"
+msgctxt "OniMcp.MCP.SCREENSHOT.CAMERA_DESCRIPTION"
+msgid "Camera movement, overlays and queued screenshots. Retrieve completed frame metadata with action=screenshot_status and requestId."
+msgstr "カメラ移動・レイヤー切替・撮影予約。撮影後のフレーム情報は action=screenshot_status と requestId で取得する。"
+
+#. Runtime JSON key: screenshot.camera_actions
+#. Runtime zh-Hans msgstr: "相机操作：get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status。"
+msgctxt "OniMcp.MCP.SCREENSHOT.CAMERA_ACTIONS"
+msgid "Camera action: get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, coordinate_screenshot, or screenshot_status."
+msgstr "カメラ操作: get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status。"
+
+#. Runtime JSON key: screenshot.invalid_action
+#. Runtime zh-Hans msgstr: "未知相机操作。使用 get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot 或 screenshot_status。"
+msgctxt "OniMcp.MCP.SCREENSHOT.INVALID_ACTION"
+msgid "Unknown camera action. Use get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, coordinate_screenshot, or screenshot_status."
+msgstr "不明なカメラ操作です。get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status を使用してください。"
+
+#. Runtime JSON key: screenshot.navigation_invalid
+#. Runtime zh-Hans msgstr: "使用 domain=camera 与支持的相机操作；现有 requestId 的结果可用 screenshot_status 查询。"
+msgctxt "OniMcp.MCP.SCREENSHOT.NAVIGATION_INVALID"
+msgid "Use domain=camera and a supported camera action, including screenshot_status for an existing requestId."
+msgstr "domain=camera と対応するカメラ操作を指定してください。既存 requestId の撮影結果は screenshot_status で確認できます。"
+
+#. Runtime JSON key: screenshot.request_id
+#. Runtime zh-Hans msgstr: "截图受理时返回的 requestId；screenshot_status 必填。"
+msgctxt "OniMcp.MCP.SCREENSHOT.REQUEST_ID"
+msgid "Screenshot request ID returned by capture acceptance; required for screenshot_status."
+msgstr "撮影の受理時に返された requestId。screenshot_status で必須。"
+
+#. Runtime JSON key: screenshot.wait_frames
+#. Runtime zh-Hans msgstr: "截图前等待的渲染帧数：1至30，默认2（coordinate_screenshot 为3）。这不保证完成；请用 requestId 查询 screenshot_status。"
+msgctxt "OniMcp.MCP.SCREENSHOT.WAIT_FRAMES"
+msgid "Render frames to wait before capture: 1 to 30, default 2 (coordinate_screenshot: 3). This is not a completion guarantee; poll screenshot_status by requestId."
+msgstr "撮影前に待つ描画フレーム数。1～30、既定2（coordinate_screenshot は3）。完了の保証ではないため requestId で screenshot_status を確認する。"
+
+#. Runtime JSON key: screenshot.capture_description
+#. Runtime zh-Hans msgstr: "兼容入口。优先使用 navigation_control action=screenshot，再以 requestId 查询 screenshot_status。受理不代表PNG已完成。"
+msgctxt "OniMcp.MCP.SCREENSHOT.CAPTURE_DESCRIPTION"
+msgid "Compatibility entrypoint. Prefer navigation_control action=screenshot, then screenshot_status with requestId. Capture acceptance does not mean the PNG is ready."
+msgstr "互換用の入口。navigation_control action=screenshot の後、requestId を指定して screenshot_status を確認してください。受理はPNGの完成を意味しません。"
+
+#. Runtime JSON key: screenshot.filename
+#. Runtime zh-Hans msgstr: "可选PNG文件名。拒绝仍有待处理截图使用的文件名。"
+msgctxt "OniMcp.MCP.SCREENSHOT.FILENAME"
+msgid "Optional PNG filename. A filename in use by a pending screenshot is rejected."
+msgstr "任意のPNGファイル名。撮影待ちで使用中の名前は拒否する。"
+
+#. Runtime JSON key: screenshot.switch_description
+#. Runtime zh-Hans msgstr: "兼容入口。优先使用 navigation_control action=switch_view。截图时用 requestId 与 screenshot_status 取得完成结果及实际帧信息。"
+msgctxt "OniMcp.MCP.SCREENSHOT.SWITCH_DESCRIPTION"
+msgid "Compatibility entrypoint. Prefer navigation_control action=switch_view. For screenshots, retrieve completion and actual frame metadata with screenshot_status and requestId."
+msgstr "互換用の入口。navigation_control action=switch_view を優先してください。撮影時は requestId と screenshot_status で完成と実際のフレーム情報を取得します。"
+
+#. Runtime JSON key: screenshot.coordinate_description
+#. Runtime zh-Hans msgstr: "兼容入口。需要图中世界坐标标签时，优先使用 navigation_control action=coordinate_screenshot。用 requestId 与 screenshot_status 取得完成PNG和实际相机信息。"
+msgctxt "OniMcp.MCP.SCREENSHOT.COORDINATE_DESCRIPTION"
+msgid "Compatibility entrypoint. Prefer navigation_control action=coordinate_screenshot for visible world coordinate labels. Retrieve the finished PNG and actual camera context with screenshot_status and requestId."
+msgstr "互換用の入口。座標ラベルを画像に表示する場合は navigation_control action=coordinate_screenshot を優先してください。完成PNGと実際のカメラ情報は requestId と screenshot_status で取得します。"
+
+#. Runtime JSON key: screenshot.next
+#. Runtime zh-Hans msgstr: "查询 navigation_control action=screenshot_status requestId=<requestId>。仅 status=complete 且 imageState=verified 标识完成PNG。requested 为预约时信息，captured 为截图帧信息。latestUrl 会变化。"
+msgctxt "OniMcp.MCP.SCREENSHOT.NEXT"
+msgid "Poll navigation_control action=screenshot_status requestId=<requestId>. Only status=complete with imageState=verified identifies the finished PNG. requested fields are reservation-time values; captured fields describe its frame. latestUrl can change."
+msgstr "navigation_control action=screenshot_status requestId=<requestId> で確認してください。status=complete かつ imageState=verified のとき完成PNGを識別できます。requested は予約時、captured は撮影フレームの値です。latestUrl は変わります。"
+
+#. Runtime JSON key: screenshot.coordinate_next
+#. Runtime zh-Hans msgstr: "打开PNG前，以 requestId 查询 navigation_control action=screenshot_status。使用图中坐标标签查询格子；请求区域不证明实际渲染范围。"
+msgctxt "OniMcp.MCP.SCREENSHOT.COORDINATE_NEXT"
+msgid "Poll navigation_control action=screenshot_status with requestId before opening the PNG. Use its visible coordinate labels for cell lookup; the requested rectangle is not proof of rendered coverage."
+msgstr "PNGを開く前に requestId を指定して navigation_control action=screenshot_status を確認してください。セル照会には画像上の座標ラベルを使い、指定領域だけで描画範囲を断定しないでください。"
+
+#. Runtime JSON key: screenshot.coordinate_system
+#. Runtime zh-Hans msgstr: "ONI世界绝对坐标x/y；网格线表示格子边界，标签为世界格子坐标。"
+msgctxt "OniMcp.MCP.SCREENSHOT.COORDINATE_SYSTEM"
+msgid "ONI world absolute x/y; grid lines bound cell edges; labels are world cell coordinates."
+msgstr "ONIの絶対ワールド座標x/y。グリッド線はセルの境界、ラベルはワールドのセル座標です。"
+
+#. Runtime JSON key: screenshot.view_required
+#. Runtime zh-Hans msgstr: "需要 view。"
+msgctxt "OniMcp.MCP.SCREENSHOT.VIEW_REQUIRED"
+msgid "view is required."
+msgstr "view が必要です。"
+
+#. Runtime JSON key: screenshot.unknown_view
+#. Runtime zh-Hans msgstr: "未知视图：{0}。可用视图：{1}。"
+msgctxt "OniMcp.MCP.SCREENSHOT.UNKNOWN_VIEW"
+msgid "Unknown view: {0}. Available views: {1}."
+msgstr "不明なビュー: {0}。使用可能: {1}。"
+
+#. Runtime JSON key: screenshot.area_too_large
+#. Runtime zh-Hans msgstr: "坐标截图区域过大：{0}x{1}={2}，maxCells={3}。"
+msgctxt "OniMcp.MCP.SCREENSHOT.AREA_TOO_LARGE"
+msgid "Area too large for a coordinate screenshot: {0}x{1}={2}, maxCells={3}."
+msgstr "座標付き撮影の領域が大きすぎます: {0}x{1}={2}、maxCells={3}。"
+
+#. Runtime JSON key: screenshot.rect_world_mismatch
+#. Runtime zh-Hans msgstr: "请求区域的中心不在 worldId={0} 中。"
+msgctxt "OniMcp.MCP.SCREENSHOT.RECT_WORLD_MISMATCH"
+msgid "The requested rectangle center is not in worldId={0}."
+msgstr "指定領域の中心が worldId={0} にありません。"
+
+#. Runtime JSON key: screenshot.error_game_unavailable
+#. Runtime zh-Hans msgstr: "没有可供截图的已加载游戏。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_GAME_UNAVAILABLE"
+msgid "No loaded game is available for a screenshot."
+msgstr "撮影できるロード済みゲームがありません。"
+
+#. Runtime JSON key: screenshot.error_camera_unavailable
+#. Runtime zh-Hans msgstr: "无法取得渲染相机。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_CAMERA_UNAVAILABLE"
+msgid "The rendering camera is not available."
+msgstr "描画用カメラを取得できません。"
+
+#. Runtime JSON key: screenshot.error_queue_full
+#. Runtime zh-Hans msgstr: "截图队列已满。请等待待处理请求完成。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_QUEUE_FULL"
+msgid "The screenshot queue is full. Wait for a pending request to finish."
+msgstr "撮影キューが満杯です。待機中の撮影が完了するまでお待ちください。"
+
+#. Runtime JSON key: screenshot.error_filename_busy
+#. Runtime zh-Hans msgstr: "待处理截图已使用此文件名。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_FILENAME_BUSY"
+msgid "A pending screenshot already uses this filename."
+msgstr "このファイル名は待機中の撮影が使用しています。"
+
+#. Runtime JSON key: screenshot.error_context_changed
+#. Runtime zh-Hans msgstr: "截图前已加载游戏或活动场景发生变化。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_CONTEXT_CHANGED"
+msgid "The loaded game or active scene changed before capture."
+msgstr "撮影前にロード中のゲームまたはアクティブシーンが変わりました。"
+
+#. Runtime JSON key: screenshot.error_overlay_unavailable
+#. Runtime zh-Hans msgstr: "无法取得图层显示控制器。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_OVERLAY_UNAVAILABLE"
+msgid "The overlay controller is not available."
+msgstr "レイヤー表示の制御窓口を取得できません。"
+
+#. Runtime JSON key: screenshot.error_capture_unavailable
+#. Runtime zh-Hans msgstr: "无法读取截图帧。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_CAPTURE_UNAVAILABLE"
+msgid "The screenshot frame could not be read."
+msgstr "撮影対象フレームを読み取れませんでした。"
+
+#. Runtime JSON key: screenshot.error_capture_failed
+#. Runtime zh-Hans msgstr: "无法完成截图。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_CAPTURE_FAILED"
+msgid "The screenshot could not be completed."
+msgstr "撮影を完了できませんでした。"
+
+#. Runtime JSON key: screenshot.error_request_id
+#. Runtime zh-Hans msgstr: "需要有效的截图 requestId。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_REQUEST_ID"
+msgid "A valid screenshot request ID is required."
+msgstr "有効な撮影 requestId が必要です。"
+
+#. Runtime JSON key: screenshot.error_timeout
+#. Runtime zh-Hans msgstr: "未在期限前到达截图帧。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_TIMEOUT"
+msgid "The screenshot did not reach a capture frame before its deadline."
+msgstr "期限までに撮影フレームへ到達しませんでした。"
+
+#. Runtime JSON key: screenshot.error_host_unavailable
+#. Runtime zh-Hans msgstr: "截图队列不可用。"
+msgctxt "OniMcp.MCP.SCREENSHOT.ERROR_HOST_UNAVAILABLE"
+msgid "The screenshot queue is not available."
+msgstr "撮影キューを利用できません。"
+
+#. Runtime JSON key: tools.navigation_control.description
+#. Runtime zh-Hans msgstr: "统一的相机与视图入口，用于相机移动、世界切换、叠加视图、聚焦和截图。 Y+（Y 增大）是上方（朝向地表）；Y-（Y 减小）是下方（朝向地下）。 截图返回 requestId；使用 screenshot_status 取得完成结果和实际帧信息。"
+msgctxt "OniMcp.MCP.TOOLS.NAVIGATION_CONTROL.DESCRIPTION"
+msgid "Unified camera and view entrypoint for camera movement, world switching, overlays, focus, and screenshots. Y+ (increasing Y) is up (toward the surface); Y- (decreasing Y) is down (toward the underground). Screenshot capture returns a requestId; use screenshot_status for completion and actual frame metadata."
+msgstr "カメラ移動、ワールド切り替え、オーバーレイ、フォーカス、スクリーンショットの統合入口。 Y+（Yが増える方向）は上（地表方向）、Y-（Yが減る方向）は下（地下方向）。 撮影は requestId を返します。完成と撮影フレームの情報は screenshot_status で確認します。"
+
+#. Runtime JSON key: tools.navigation_control.parameters.action
+#. Runtime zh-Hans msgstr: "相机操作：get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status。"
+msgctxt "OniMcp.MCP.TOOLS.NAVIGATION_CONTROL.PARAMETERS.ACTION"
+msgid "Camera action: get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, coordinate_screenshot, or screenshot_status."
+msgstr "カメラ操作: get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status。"
+
+#. Runtime JSON key: tools.navigation_control.parameters.requestId
+#. Runtime zh-Hans msgstr: "截图受理时返回的 requestId；screenshot_status 必填。"
+msgctxt "OniMcp.MCP.TOOLS.NAVIGATION_CONTROL.PARAMETERS.REQUESTID"
+msgid "Screenshot request ID returned by capture acceptance; required for screenshot_status."
+msgstr "撮影の受理時に返された requestId。screenshot_status で必須。"
+
+#. Runtime JSON key: tools.navigation_control.parameters.waitFrames
+#. Runtime zh-Hans msgstr: "截图前等待的渲染帧数：1至30，默认2（coordinate_screenshot 为3）。这不保证完成；请用 requestId 查询 screenshot_status。"
+msgctxt "OniMcp.MCP.TOOLS.NAVIGATION_CONTROL.PARAMETERS.WAITFRAMES"
+msgid "Render frames to wait before capture: 1 to 30, default 2 (coordinate_screenshot: 3). This is not a completion guarantee; poll screenshot_status by requestId."
+msgstr "撮影前に待つ描画フレーム数。1～30、既定2（coordinate_screenshot は3）。完了の保証ではないため requestId で screenshot_status を確認する。"

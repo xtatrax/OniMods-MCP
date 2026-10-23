@@ -98,9 +98,9 @@
   "tools.game_control.parameters.visibleOnly": "搜索时将未揭示的单元格视为未知。",
   "tools.game_control.parameters.force": "在支持的操作中允许底层强制行为。",
   "tools.game_control.parameters.confirm": "写入、危险操作或批量操作所需的确认。",
-  "tools.navigation_control.description": "统一的相机与视图入口，用于相机移动、世界切换、叠加视图、聚焦和截图。 Y+（Y 增大）是上方（朝向地表）；Y-（Y 减小）是下方（朝向地下）。",
+  "tools.navigation_control.description": "统一的相机与视图入口，用于相机移动、世界切换、叠加视图、聚焦和截图。 Y+（Y 增大）是上方（朝向地表）；Y-（Y 减小）是下方（朝向地下）。 截图返回 requestId；使用 screenshot_status 取得完成结果和实际帧信息。",
   "tools.navigation_control.parameters.domain": "相机 domain。省略时接受已知的相机 action。",
-  "tools.navigation_control.parameters.action": "相机操作：get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot 或 coordinate_screenshot。",
+  "tools.navigation_control.parameters.action": "相机操作：get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot、screenshot_status。",
   "tools.navigation_control.parameters.worldId": "目标世界 ID；set_active_world 必填，其他操作默认使用活动世界。",
   "tools.navigation_control.parameters.requireDiscovered": "切换前要求目标世界已被发现。",
   "tools.navigation_control.parameters.lookAtSurface": "需要时，在切换前揭示目标世界的地表。",
@@ -112,7 +112,7 @@
   "tools.navigation_control.parameters.view": "叠加视图名称。",
   "tools.navigation_control.parameters.screenshot": "截取屏幕截图。",
   "tools.navigation_control.parameters.filename": "截图文件名。",
-  "tools.navigation_control.parameters.waitFrames": "截图前等待的帧数。",
+  "tools.navigation_control.parameters.waitFrames": "截图前等待的渲染帧数：1至30，默认2（coordinate_screenshot 为3）。这不保证完成；请用 requestId 查询 screenshot_status。",
   "tools.navigation_control.parameters.allowSound": "允许 UI 音效。",
   "tools.navigation_control.parameters.id": "focus_dupe 的复制人实例 ID。",
   "tools.navigation_control.parameters.name": "focus_dupe 的复制人名称。",
@@ -278,5 +278,6 @@
   "tools.world_editor.parameters.allowUtilityTerrainDig": "明确允许铺设管线及自动电力连接时挖掘天然地形。默认false；仅confirm不会授权。支撑关系尚未评估。",
   "tools.world_editor.parameters.autoConnectPower": "自动为耗电建筑布线，默认true。穿过天然地形需allowUtilityTerrainDig=true。设为false时只建造建筑本体。",
   "tools.game_control.parameters.afterSequence": "action=trace时，返回此非负整数sequence之后的记录。必须提供先前trace响应中的traceEpoch。",
-  "tools.game_control.parameters.traceEpoch": "action=trace返回的观测进程不透明标识。与afterSequence一起使用；不同进程的标识会被拒绝。"
+  "tools.game_control.parameters.traceEpoch": "action=trace返回的观测进程不透明标识。与afterSequence一起使用；不同进程的标识会被拒绝。",
+  "tools.navigation_control.parameters.requestId": "截图受理时返回的 requestId；screenshot_status 必填。"
 }

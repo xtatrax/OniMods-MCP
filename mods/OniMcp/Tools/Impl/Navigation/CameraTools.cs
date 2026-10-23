@@ -44,7 +44,7 @@ namespace OniMcp.Tools
                 Risk = "low",
                 Aliases = new List<string> { "camera", "camera_tools", "screenshot_control" },
                 Tags = new List<string> { "camera", "screenshot", "overlay", "world", "navigation" },
-                Description = "カメラの集約ツール: action=get_view/set_active_world/set_view/move/switch_view/focus_cell/focus_dupe/screenshot/coordinate_screenshot",
+                Description = McpLocalization.Get("screenshot.camera_description"),
                 Parameters = CameraControlParams(),
                 Handler = args =>
                 {
@@ -71,11 +71,13 @@ namespace OniMcp.Tools
                         case "screenshot":
                         case "game_screenshot":
                             return TakeScreenshot().Handler(args);
+                        case "screenshot_status":
+                            return ScreenshotStatus(args["requestId"]?.ToString());
                         case "coordinate_screenshot":
                         case "coord_screenshot":
                             return TakeCoordinateScreenshot().Handler(args);
                         default:
-                            return CallToolResult.Error("action must be get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, or coordinate_screenshot");
+                            return CallToolResult.Error(McpLocalization.Get("screenshot.invalid_action"));
                     }
                 }
             };

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OniMcp.Config;
+using OniMcp.Support;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -12,7 +13,7 @@ namespace OniMcp.Tools
     {
         public static Dictionary<string, object> CleanupTemporaryScreenshots()
         {
-            return WorldEditor.CleanupTemporaryScreenshots();
+            return CleanupTemporaryScreenshots(0);
         }
 
         private static Dictionary<string, McpToolParameter> CameraControlParams()
@@ -22,9 +23,9 @@ namespace OniMcp.Tools
                 ["action"] = new McpToolParameter
                 {
                     Type = "string",
-                    Description = "操作: get_view、set_active_world、set_view、move、switch_view、focus_cell、focus_dupe、screenshot、coordinate_screenshot",
+                    Description = McpLocalization.Get("screenshot.camera_actions"),
                     Required = true,
-                    EnumValues = new List<string> { "get_view", "set_active_world", "set_view", "move", "switch_view", "focus_cell", "focus_dupe", "screenshot", "coordinate_screenshot" }
+                    EnumValues = new List<string> { "get_view", "set_active_world", "set_view", "move", "switch_view", "focus_cell", "focus_dupe", "screenshot", "coordinate_screenshot", "screenshot_status" }
                 },
                 ["worldId"] = new McpToolParameter { Type = "integer", Description = "対象ワールドの ID。set_active_world では必須。その他の action では現在アクティブなワールドが既定", Required = false },
                 ["requireDiscovered"] = new McpToolParameter { Type = "boolean", Description = "set_active_world: 対象ワールドが発見済みであることを要求するか。既定は true", Required = false },
@@ -40,7 +41,8 @@ namespace OniMcp.Tools
                 ["view"] = new McpToolParameter { Type = "string", Description = "switch_view/coordinate_screenshot のレイヤービュー", Required = false, EnumValues = OverlayViewNames },
                 ["screenshot"] = new McpToolParameter { Type = "boolean", Description = "switch_view: 切り替え後のスクリーンショットを保存するか。既定は true", Required = false },
                 ["filename"] = new McpToolParameter { Type = "string", Description = "screenshot/switch_view/coordinate_screenshot: 任意のスクリーンショットのファイル名", Required = false },
-                ["waitFrames"] = new McpToolParameter { Type = "integer", Description = "switch_view/coordinate_screenshot: 撮影前に待つ Unity フレーム数", Required = false },
+                ["waitFrames"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("screenshot.wait_frames"), Required = false },
+                ["requestId"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("screenshot.request_id"), Required = false },
                 ["allowSound"] = new McpToolParameter { Type = "boolean", Description = "switch_view: ビュー切り替え効果音を再生するか。既定は false", Required = false },
                 ["id"] = new McpToolParameter { Type = "integer", Description = "focus_dupe: 複製人間の InstanceID", Required = false },
                 ["name"] = new McpToolParameter { Type = "string", Description = "focus_dupe: 複製人間の名前", Required = false },
@@ -196,90 +198,173 @@ namespace OniMcp.Tools
             public Dictionary<string, object> Cleanup;
             public int WaitFrames;
             public CoordinateGridOverlay.OverlayRequest CoordinateOverlay;
+            public Game Game;
+            public int SceneHandle;
+            public double Deadline;
+            public string Status = "queued";
+            public Dictionary<string, object> Requested;
+            public Dictionary<string, object> Captured;
+            public Dictionary<string, object> Image;
+            public Dictionary<string, object> Error;
         }
 
         private sealed class OverlaySwitchQueue : MonoBehaviour
         {
-            private static OverlaySwitchQueue instance;
+            internal static OverlaySwitchQueue instance;
             private readonly Queue<OverlaySwitchRequest> requests = new Queue<OverlaySwitchRequest>();
             private bool running;
+            private int generation;
+            private Coroutine runner;
+            private OverlaySwitchRequest active;
 
             public static Dictionary<string, object> Enqueue(string viewName, HashedString mode, bool allowSound, bool screenshot, string fileName, int waitFrames, CoordinateGridOverlay.OverlayRequest coordinateOverlay = null)
             {
-                EnsureInstance();
+                ValidateScreenshotRequest(fileName, screenshot);
                 var request = new OverlaySwitchRequest
                 {
-                    Id = Guid.NewGuid().ToString("N"),
-                    ViewName = viewName,
-                    Mode = mode,
-                    AllowSound = allowSound,
-                    Screenshot = screenshot,
-                    WaitFrames = waitFrames,
-                    CoordinateOverlay = coordinateOverlay
+                    Id = Guid.NewGuid().ToString("N"), ViewName = viewName, Mode = mode,
+                    AllowSound = allowSound, Screenshot = screenshot, WaitFrames = Math.Max(1, Math.Min(waitFrames, 30)),
+                    CoordinateOverlay = coordinateOverlay, Game = Game.Instance,
+                    SceneHandle = UnityEngine.SceneManagement.SceneManager.GetActiveScene().handle,
+                    Deadline = Time.realtimeSinceStartupAsDouble + ScreenshotDeadlineSeconds,
+                    Requested = ObserveScreenshotContext("enqueue")
                 };
-                if (screenshot)
-                {
-                    request.Cleanup = CleanupTemporaryScreenshots(1);
-                    request.ScreenshotPath = PrepareScreenshotPath(fileName, viewName);
-                }
-
-                int queuePosition = instance.requests.Count + 1;
-                instance.requests.Enqueue(request);
-                if (!instance.running)
-                    instance.StartCoroutine(instance.ProcessQueue());
-
-                return new Dictionary<string, object>
-                {
-                    ["id"] = request.Id,
-                    ["position"] = queuePosition,
-                    ["running"] = instance.running,
-                    ["screenshot"] = screenshot ? (object)new Dictionary<string, object>
+                request.Requested["view"] = viewName;
+                request.Requested["requestedOverlay"] = viewName == "current"
+                    ? ((Dictionary<string, object>)request.Requested["overlay"])["id"] : mode.ToString();
+                request.Requested["waitFrames"] = request.WaitFrames;
+                if (coordinateOverlay != null)
+                    request.Requested["coordinateOverlay"] = new
                     {
-                        ["path"] = request.ScreenshotPath,
-                        ["url"] = WorldEditor.ScreenshotUrl(request.ScreenshotPath),
-                        ["latestUrl"] = OniMcpOptions.Current.ScreenshotLatestUrl,
-                        ["readyAfterFrames"] = waitFrames + 1,
-                        ["cycle"] = GameUtil.GetCurrentCycle(),
-                        ["screen"] = new { width = Screen.width, height = Screen.height },
-                        ["cleanup"] = request.Cleanup
-                    } : null
-                };
+                        x1 = coordinateOverlay.X1, y1 = coordinateOverlay.Y1, x2 = coordinateOverlay.X2, y2 = coordinateOverlay.Y2,
+                        step = coordinateOverlay.Step, showGrid = coordinateOverlay.ShowGrid,
+                        showCoordinates = coordinateOverlay.ShowCoordinates, includeCellLabels = coordinateOverlay.IncludeCellLabels,
+                        scope = "requested_configuration"
+                    };
+                if (screenshot) request.ScreenshotPath = PrepareScreenshotPath(fileName, viewName);
+                EnsureInstance();
+                ReserveScreenshot(request);
+                try
+                {
+                    if (screenshot)
+                    {
+                        request.Cleanup = CleanupTemporaryScreenshots(1);
+                        Directory.CreateDirectory(ScreenshotDirectory);
+                    }
+                    int queuePosition = instance.requests.Count + 1;
+                    var queued = ScreenshotReceipt(request, "queued");
+                    var result = new Dictionary<string, object>
+                    {
+                        ["id"] = request.Id, ["requestId"] = request.Id, ["status"] = "queued", ["queued"] = true,
+                        ["position"] = queuePosition, ["requested"] = request.Requested,
+                        ["screenshot"] = screenshot ? (object)queued : null
+                    };
+                    instance.requests.Enqueue(request);
+                    instance.StartProcessing();
+                    result["running"] = instance.running;
+                    return ScreenshotClone(result);
+                }
+                catch (Exception error)
+                {
+                    FinishScreenshot(request, failure: error);
+                    throw;
+                }
             }
 
             private static void EnsureInstance()
             {
-                if (instance != null)
-                    return;
-
+                if (instance != null) return;
                 var obj = new GameObject("OniMcp_OverlaySwitchQueue");
                 UnityEngine.Object.DontDestroyOnLoad(obj);
                 instance = obj.AddComponent<OverlaySwitchQueue>();
             }
 
-            private IEnumerator ProcessQueue()
+            private void StartProcessing()
             {
+                if (running || requests.Count == 0 || !isActiveAndEnabled) return;
                 running = true;
-                while (requests.Count > 0)
-                {
-                    var request = requests.Dequeue();
-                    if (request.ViewName != "coordinate_grid")
-                        ApplyOverlayMode(request.Mode, request.AllowSound);
-                    if (request.CoordinateOverlay != null)
-                        CoordinateGridOverlay.Show(request.CoordinateOverlay);
+                int owner = ++generation;
+                runner = StartCoroutine(ProcessQueue(owner));
+            }
 
-                    if (request.Screenshot)
+            private bool Owns(int owner, OverlaySwitchRequest request) => owner == generation && ReferenceEquals(active, request) && !ScreenshotTerminal(request);
+
+            private IEnumerator ProcessQueue(int owner)
+            {
+                try
+                {
+                    while (owner == generation && requests.Count > 0)
                     {
-                        for (int i = 0; i < request.WaitFrames; i++)
+                        var request = requests.Dequeue();
+                        if (ScreenshotTerminal(request)) continue;
+                        active = request;
+                        request.Status = "running";
+                        Exception setupFailure = null;
+                        try
+                        {
+                            RequireScreenshotOwner(request);
+                            if (request.ViewName != "coordinate_grid" && request.ViewName != "current")
+                            {
+                                if (OverlayScreen.Instance == null) throw new ScreenshotCaptureException("overlay_unavailable");
+                                ApplyOverlayMode(request.Mode, request.AllowSound);
+                            }
+                            if (request.CoordinateOverlay != null) CoordinateGridOverlay.Show(request.CoordinateOverlay);
+                        }
+                        catch (Exception error) { setupFailure = error; }
+                        if (setupFailure != null) { FinishScreenshot(request, failure: setupFailure); active = null; continue; }
+                        if (request.Screenshot)
+                        {
+                            for (int i = 0; i < request.WaitFrames; i++) yield return null;
+                            yield return new WaitForEndOfFrame();
+                            if (!Owns(owner, request)) yield break;
+                            try { CaptureScreenshotFrame(request); }
+                            catch (Exception error) { FinishScreenshot(request, failure: error); }
+                        }
+                        else
+                        {
                             yield return null;
-                        ScreenCapture.CaptureScreenshot(request.ScreenshotPath);
-                        yield return null;
-                    }
-                    else
-                    {
-                        yield return null;
+                            if (!Owns(owner, request)) yield break;
+                            try { RequireScreenshotOwner(request); FinishScreenshot(request, ObserveScreenshotContext("overlay_processed")); }
+                            catch (Exception error) { FinishScreenshot(request, failure: error); }
+                        }
+                        active = null;
                     }
                 }
-                running = false;
+                finally
+                {
+                    if (owner == generation) { running = false; runner = null; active = null; }
+                }
+            }
+
+            private void Update()
+            {
+                double now = Time.realtimeSinceStartupAsDouble;
+                foreach (var request in ScreenshotRequests.Values.Where(item => !ScreenshotTerminal(item) && now >= item.Deadline).ToArray())
+                    FinishScreenshot(request, failure: new ScreenshotCaptureException("timeout"));
+                if (active != null && ScreenshotTerminal(active)) StopProcessing();
+                StartProcessing();
+            }
+
+            private void StopProcessing()
+            {
+                ++generation;
+                if (runner != null) StopCoroutine(runner);
+                runner = null; active = null; running = false;
+            }
+
+            private void CancelPending()
+            {
+                StopProcessing();
+                foreach (var request in ScreenshotRequests.Values.Where(item => !ScreenshotTerminal(item)).ToArray())
+                    FinishScreenshot(request, failure: new ScreenshotCaptureException("host_unavailable"));
+                requests.Clear();
+            }
+
+            private void OnDisable() { if (ReferenceEquals(instance, this)) CancelPending(); }
+            private void OnDestroy()
+            {
+                if (!ReferenceEquals(instance, this)) return;
+                CancelPending(); instance = null;
             }
         }
 
@@ -296,14 +381,13 @@ namespace OniMcp.Tools
 
         private static string PrepareScreenshotPath(string fileName, string viewName)
         {
-            string dir = ScreenshotDirectory;
-            Directory.CreateDirectory(dir);
             if (string.IsNullOrEmpty(fileName))
-                fileName = $"cycle_{GameUtil.GetCurrentCycle()}_{NormalizeScreenshotName(viewName)}_{System.DateTime.UtcNow:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString("N").Substring(0, 8)}.png";
-            string path = Path.Combine(dir, Path.GetFileName(fileName));
-            if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                path += ".png";
-            return path;
+            {
+                var clock = ScreenshotClock();
+                string prefix = clock["cycle"] == null ? "capture" : "cycle_" + clock["cycle"];
+                fileName = $"{prefix}_{NormalizeScreenshotName(viewName)}_{System.DateTime.UtcNow:yyyyMMdd_HHmmss_fff}_{Guid.NewGuid().ToString("N").Substring(0, 8)}.png";
+            }
+            return ScreenshotTargetPath(fileName);
         }
 
         private static string NormalizeScreenshotName(string value)
@@ -314,27 +398,6 @@ namespace OniMcp.Tools
                 .Select(c => char.IsLetterOrDigit(c) ? c : '_')
                 .ToArray();
             return new string(chars);
-        }
-
-        private static Dictionary<string, object> SaveScreenshot(string fileName)
-        {
-            var cleanup = CleanupTemporaryScreenshots(1);
-            string dir = ScreenshotDirectory;
-            Directory.CreateDirectory(dir);
-            if (string.IsNullOrEmpty(fileName))
-                fileName = $"cycle_{GameUtil.GetCurrentCycle()}_{System.DateTime.UtcNow:yyyyMMdd_HHmmss_fff}.png";
-            string path = Path.Combine(dir, Path.GetFileName(fileName));
-            if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                path += ".png";
-
-            ScreenCapture.CaptureScreenshot(path);
-            return new Dictionary<string, object>
-            {
-                ["path"] = path,
-                ["cycle"] = GameUtil.GetCurrentCycle(),
-                ["screen"] = new { width = Screen.width, height = Screen.height },
-                ["cleanup"] = cleanup
-            };
         }
 
         private static string ScreenshotDirectory
@@ -369,7 +432,7 @@ namespace OniMcp.Tools
             var errors = (List<string>)result["errors"];
             int deleted = 0;
             System.DateTime cutoff = System.DateTime.UtcNow.AddMinutes(-options.ScreenshotRetentionMinutes);
-            var files = ListScreenshotFiles(dir, errors);
+            var files = ListScreenshotFiles(dir, errors).Where(file => !ScreenshotPathReserved(file.FullName)).ToList();
 
             foreach (var file in files.Where(f => f.LastWriteTimeUtc < cutoff).ToList())
             {
@@ -378,6 +441,7 @@ namespace OniMcp.Tools
             }
 
             files = ListScreenshotFiles(dir, errors)
+                .Where(file => !ScreenshotPathReserved(file.FullName))
                 .OrderByDescending(f => f.LastWriteTimeUtc)
                 .ToList();
 

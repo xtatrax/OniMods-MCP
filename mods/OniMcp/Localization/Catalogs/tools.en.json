@@ -98,9 +98,9 @@
   "tools.game_control.parameters.visibleOnly": "Treat unrevealed cells as unknown while searching.",
   "tools.game_control.parameters.force": "Allow lower-level force behavior where supported.",
   "tools.game_control.parameters.confirm": "Required confirmation for write, dangerous, or batch actions.",
-  "tools.navigation_control.description": "Unified camera and view entrypoint for camera movement, world switching, overlays, focus, and screenshots. Y+ (increasing Y) is up (toward the surface); Y- (decreasing Y) is down (toward the underground).",
+  "tools.navigation_control.description": "Unified camera and view entrypoint for camera movement, world switching, overlays, focus, and screenshots. Y+ (increasing Y) is up (toward the surface); Y- (decreasing Y) is down (toward the underground). Screenshot capture returns a requestId; use screenshot_status for completion and actual frame metadata.",
   "tools.navigation_control.parameters.domain": "Camera domain. If omitted, the tool accepts known camera actions.",
-  "tools.navigation_control.parameters.action": "Camera action: get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, or coordinate_screenshot.",
+  "tools.navigation_control.parameters.action": "Camera action: get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, coordinate_screenshot, or screenshot_status.",
   "tools.navigation_control.parameters.worldId": "Target world id; required by set_active_world and otherwise defaults to the active world.",
   "tools.navigation_control.parameters.requireDiscovered": "Require the target world to be discovered before switching.",
   "tools.navigation_control.parameters.lookAtSurface": "Reveal the target world's surface before switching when needed.",
@@ -112,7 +112,7 @@
   "tools.navigation_control.parameters.view": "Overlay view name.",
   "tools.navigation_control.parameters.screenshot": "Capture a screenshot.",
   "tools.navigation_control.parameters.filename": "Screenshot filename.",
-  "tools.navigation_control.parameters.waitFrames": "Frames to wait before screenshot capture.",
+  "tools.navigation_control.parameters.waitFrames": "Render frames to wait before capture: 1 to 30, default 2 (coordinate_screenshot: 3). This is not a completion guarantee; poll screenshot_status by requestId.",
   "tools.navigation_control.parameters.allowSound": "Allow UI sounds.",
   "tools.navigation_control.parameters.id": "Duplicant instance id for focus_dupe.",
   "tools.navigation_control.parameters.name": "Duplicant name for focus_dupe.",
@@ -278,5 +278,6 @@
   "tools.world_editor.parameters.allowUtilityTerrainDig": "Explicitly permit natural terrain digging for utility placement and automatic power routes. Default false; confirm alone does not permit it. Supports are not evaluated.",
   "tools.world_editor.parameters.autoConnectPower": "Automatically wire powered buildings; default true. Natural terrain routes require allowUtilityTerrainDig=true. Set false to build without automatic wiring.",
   "tools.game_control.parameters.afterSequence": "For action=trace, return records after this nonnegative integer sequence. Requires the traceEpoch from a prior trace response.",
-  "tools.game_control.parameters.traceEpoch": "Opaque trace-process epoch returned by action=trace. Required with afterSequence; a different process epoch is rejected."
+  "tools.game_control.parameters.traceEpoch": "Opaque trace-process epoch returned by action=trace. Required with afterSequence; a different process epoch is rejected.",
+  "tools.navigation_control.parameters.requestId": "Screenshot request ID returned by capture acceptance; required for screenshot_status."
 }

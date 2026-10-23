@@ -33,7 +33,7 @@ namespace OniMcp.Tools
                     Describe(tool, GameDescriptions());
                     break;
                 case "navigation_control":
-                    tool.Description = "Unified camera and view entrypoint for camera movement, world switching, overlays, focus, and screenshots. Y+ (increasing Y) is up (toward the surface); Y- (decreasing Y) is down (toward the underground).";
+                    tool.Description = McpLocalization.GetForLanguage("en", "tools.navigation_control.description");
                     Describe(tool, NavigationDescriptions());
                     break;
                 case "orders_control":
@@ -257,7 +257,7 @@ namespace OniMcp.Tools
         {
             var d = CommonDescriptions();
             d["domain"] = "Camera domain. If omitted, the tool accepts known camera actions.";
-            d["action"] = "Camera action: get_view, set_active_world, set_view, move, switch_view, focus_cell, focus_dupe, screenshot, or coordinate_screenshot.";
+            d["action"] = McpLocalization.GetForLanguage("en", "tools.navigation_control.parameters.action");
             d["worldId"] = "Target world id; required by set_active_world and otherwise defaults to the active world.";
             d["requireDiscovered"] = "Require the target world to be discovered before switching.";
             d["lookAtSurface"] = "Reveal the target world's surface before switching when needed.";
@@ -272,7 +272,7 @@ namespace OniMcp.Tools
             d["view"] = "Overlay view name.";
             d["screenshot"] = "Capture a screenshot.";
             d["filename"] = "Screenshot filename.";
-            d["waitFrames"] = "Frames to wait before screenshot capture.";
+            d["waitFrames"] = McpLocalization.GetForLanguage("en", "tools.navigation_control.parameters.waitFrames");
             d["allowSound"] = "Allow UI sounds.";
             d["id"] = "Duplicant instance id for focus_dupe.";
             d["name"] = "Duplicant name for focus_dupe.";
@@ -283,6 +283,7 @@ namespace OniMcp.Tools
             d["showCoordinates"] = "Show coordinates around the screenshot edge.";
             d["includeCellLabels"] = "Show sparse coordinate labels inside the screenshot.";
             d["step"] = "Coordinate label interval.";
+            d["requestId"] = McpLocalization.GetForLanguage("en", "tools.navigation_control.parameters.requestId");
             return d;
         }
 

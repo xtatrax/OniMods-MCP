@@ -6,6 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ScreenshotProjectionSource Condition="'$(ScreenshotProjectionSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/ScreenshotCaptureProjection.cs</ScreenshotProjectionSource>
     <OperationFilesSource Condition="'$(OperationFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationFiles.cs</OperationFilesSource>
     <ColonyReadResultsSource Condition="'$(ColonyReadResultsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorColonyReadResults.cs</ColonyReadResultsSource>
     <ManagementTablesSource Condition="'$(ManagementTablesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorManagementReadableTables.cs</ManagementTablesSource>
@@ -15,6 +16,7 @@
     <DirectCommandsSource Condition="'$(DirectCommandsSource)' == ''">../../mods/OniMcp/Tools/Impl/Dupes/DuplicantSideScreenTools.cs</DirectCommandsSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(ScreenshotProjectionSource)" Link="Source/ScreenshotCaptureProjection.cs" />
     <Compile Include="$(DirectCommandsSource)" Link="Source/DuplicantSideScreenTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Dupes/DuplicantTools.cs" Link="Source/DuplicantTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateControlTools.cs" Link="Source/CoordinateControlTools.cs" />
