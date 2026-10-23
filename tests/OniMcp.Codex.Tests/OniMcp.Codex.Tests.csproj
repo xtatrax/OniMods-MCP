@@ -5,6 +5,7 @@
 <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 <Compile Include="$(CodexPanelReaderSource)" Link="CodexPanelReader.cs" />
 <Compile Include="../../mods/OniMcp/Tools/Impl/World/CodexCategoryMemberReader.cs" Link="CodexCategoryMemberReader.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/World/CodexSublimationReader.cs" Link="CodexSublimationReader.cs" />
 <Compile Include="../../mods/OniMcp/Tools/Impl/World/CodexReadTools.cs" Link="CodexReadTools.cs" />
 <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="McpContentTypes.cs" />
 <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="McpJsonUtil.cs" />

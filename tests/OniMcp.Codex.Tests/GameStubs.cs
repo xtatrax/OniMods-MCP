@@ -59,8 +59,14 @@ namespace UnityEngine
  public sealed class GameObject : Object
  {
   public KPrefabID Identity;
-  public static int ProperNameCalls;
-  public T GetComponent<T>() where T : class => Identity as T;
+  public Sublimates Sublimation;
+  public bool ThrowSublimationRead;
+  public static int ProperNameCalls, SublimationReads;
+  public T GetComponent<T>() where T : class
+  {
+   if (typeof(T)==typeof(Sublimates)) { SublimationReads++; if(ThrowSublimationRead)throw new Exception("component read unavailable"); }
+   return (Identity as T) ?? (Sublimation as T);
+  }
   public string GetProperName() { ProperNameCalls++; throw new Exception("Do not invoke prefab naming callbacks"); }
  }
 }
@@ -70,6 +76,17 @@ public static class Assets
  public static Dictionary<string,List<UnityEngine.GameObject>> Members = new Dictionary<string,List<UnityEngine.GameObject>>();
  public static List<string> ObservedTags = new List<string>();
  public static bool Throw;
+ public static Dictionary<string,UnityEngine.GameObject> Prefabs = new Dictionary<string,UnityEngine.GameObject>();
+ public static List<string> PrefabRequests = new List<string>();
+ public static bool ThrowPrefabLookup;
+ public static int WarningLookupCalls;
+ public static UnityEngine.GameObject TryGetPrefab(Tag tag)
+ {
+  PrefabRequests.Add(tag.Name);
+  if(ThrowPrefabLookup)throw new Exception("prefab cache unavailable");
+  return Prefabs.TryGetValue(tag.Name,out var value) ? value : null;
+ }
+ public static UnityEngine.GameObject GetPrefab(Tag tag) { WarningLookupCalls++; throw new Exception("Read must use the passive lookup"); }
  public static List<UnityEngine.GameObject> GetPrefabsWithTag(Tag tag)
  {
   ObservedTags.Add(tag.Name);
@@ -116,11 +133,50 @@ public sealed class CodexRecipePanel : ICodexWidget
 {
  public ComplexRecipe complexRecipe; public object recipe; public bool useFabricatorForTitle; public string linkID {get;set;}
 }
+public enum SimHashes { None, Oxygen, TestSource, DirectTarget, FallbackTarget, PrivateTarget, Missing }
 public sealed class Element
 {
- public string id; public Tag tag; public string name {get;set;}
+ public SimHashes id, sublimateId; public Tag tag; public string name {get;set;}
  public float lowTemp, highTemp, highTempTransitionOreMassConversion, lowTempTransitionOreMassConversion;
- public string lowTempTransitionTarget, highTempTransitionTarget, highTempTransitionOreID, lowTempTransitionOreID, sublimateId, convertId;
+ public string lowTempTransitionTarget, highTempTransitionTarget, highTempTransitionOreID, lowTempTransitionOreID, convertId;
  public float sublimateRate, sublimateEfficiency, sublimateProbability, offGasPercentage;
 }
-public sealed class CodexTemperatureTransitionPanel : ICodexWidget { public Element sourceElement; public string transitionType; }
+public sealed class CodexTemperatureTransitionPanel : ICodexWidget
+{
+ public Element sourceElement; public string transitionType;
+ public static int ConfigureCalls;
+ public void Configure() { ConfigureCalls++; throw new Exception("Read must not configure native UI"); }
+}
+public static class ElementLoader
+{
+ public static Dictionary<SimHashes,Element> Elements = new Dictionary<SimHashes,Element>();
+ public static List<SimHashes> Requests = new List<SimHashes>();
+ public static HashSet<SimHashes> ThrowHashes = new HashSet<SimHashes>();
+ public static int LoadCalls;
+ public static Element FindElementByHash(SimHashes hash)
+ {
+  Requests.Add(hash);
+  if(Elements==null || ThrowHashes.Contains(hash))throw new Exception("element table unavailable");
+  return Elements.TryGetValue(hash,out var value) ? value : null;
+ }
+ public static void Load() { LoadCalls++; throw new Exception("Read must not load elements"); }
+}
+public static class TagManager
+{
+ public static int CreateCalls;
+ public static Tag Create(string name) { CreateCalls++; throw new Exception("Read must not register tags"); }
+}
+public static class GameTagExtensions { public static Tag CreateTag(this SimHashes id) => TagManager.Create(id.ToString()); }
+public sealed class Sublimates
+{
+ public struct Info
+ {
+  public float sublimationRate, minSublimationAmount, maxDestinationMass, massPower;
+  public SimHashes sublimatedElement;
+  public Info(float rate,float minimum,float maximum,float power,SimHashes target)
+  { sublimationRate=rate;minSublimationAmount=minimum;maxDestinationMass=maximum;massPower=power;sublimatedElement=target; }
+ }
+ public Info info;
+ public static int SimCalls;
+ public void Sim200ms(float dt) { SimCalls++; throw new Exception("Read must not simulate emission"); }
+}

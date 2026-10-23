@@ -51,12 +51,6 @@ namespace OniMcp.Tools
             object data = null;
             try { data = Value(widget, issues, 0, ref remainingNodes); }
             catch (Exception ex) { issues.Add("field_read_failed:" + ex.GetType().Name); }
-            if (IsKnown(widget, "CodexTemperatureTransitionPanel"))
-            {
-                object transition;
-                if (TryField(widget, "transitionType", out transition) && Convert.ToString(transition) == "SUBLIMATE")
-                    issues.Add("prefab_sublimates_fallback_not_evaluated");
-            }
             var result = new Dictionary<string, object>
             {
                 ["type"] = widget.GetType().Name,
@@ -69,6 +63,11 @@ namespace OniMcp.Tools
             };
             if (IsKnown(widget, "CodexElementCategoryList"))
                 result["categoryMembers"] = CodexCategoryMemberReader.Read(widget, issues, ref remainingNodes);
+            if (IsKnown(widget, "CodexTemperatureTransitionPanel"))
+            {
+                var fallback = CodexSublimationReader.Read(widget, issues, ref remainingNodes);
+                if (fallback != null) result["prefabSublimatesFallback"] = fallback;
+            }
             return result;
         }
 

@@ -99,6 +99,101 @@ internal static class Program
   }
  }
 
+ static void SublimationFallbackRegression()
+ {
+  var oldGame=Game.Instance;var oldEntries=CodexCache.entries;var oldSubs=CodexCache.subEntries;
+  var oldPrefabs=Assets.Prefabs;var oldPrefabRequests=Assets.PrefabRequests;bool oldPrefabThrow=Assets.ThrowPrefabLookup;int oldWarnings=Assets.WarningLookupCalls;
+  var oldElements=ElementLoader.Elements;var oldRequests=ElementLoader.Requests;var oldFaults=ElementLoader.ThrowHashes;
+  int oldLoad=ElementLoader.LoadCalls,oldTags=TagManager.CreateCalls,oldSim=Sublimates.SimCalls,oldConfigure=CodexTemperatureTransitionPanel.ConfigureCalls;
+  int oldComponents=UnityEngine.GameObject.SublimationReads,oldNames=UnityEngine.GameObject.ProperNameCalls;
+  try
+  {
+   Game.Instance=new Game {unlocks=new Unlocks()};CodexCache.entries=new Dictionary<string,CodexEntry>();CodexCache.subEntries=new Dictionary<string,SubEntry>();
+   Assets.Prefabs=new Dictionary<string,UnityEngine.GameObject>();Assets.PrefabRequests=new List<string>();Assets.ThrowPrefabLookup=false;Assets.WarningLookupCalls=0;
+   ElementLoader.Elements=new Dictionary<SimHashes,Element>();ElementLoader.Requests=new List<SimHashes>();ElementLoader.ThrowHashes=new HashSet<SimHashes>();
+   ElementLoader.LoadCalls=TagManager.CreateCalls=Sublimates.SimCalls=CodexTemperatureTransitionPanel.ConfigureCalls=0;UnityEngine.GameObject.SublimationReads=UnityEngine.GameObject.ProperNameCalls=0;
+   var source=new Element {id=SimHashes.TestSource,sublimateId=SimHashes.Missing,sublimateRate=99f,sublimateEfficiency=.8f};
+   var widget=new CodexTemperatureTransitionPanel {sourceElement=source,transitionType="SUBLIMATE"};
+   var holder=new CodexEntry {id="SUBLIMATECASE",StoredContent=new List<ContentContainer>{Box(widget)}};CodexCache.entries[holder.id]=holder;
+   var targetMetadata=new CodexEntry {id="FALLBACKTARGET",name="<link=FALLBACKTARGET>既存の遷移先</link>",StoredContent=new List<ContentContainer>{Box(new DangerousWidget())}};CodexCache.entries[targetMetadata.id]=targetMetadata;
+   ElementLoader.Elements[SimHashes.FallbackTarget]=new Element {id=SimHashes.FallbackTarget};ElementLoader.Elements[SimHashes.DirectTarget]=new Element {id=SimHashes.DirectTarget};
+   var component=new Sublimates {info=new Sublimates.Info(.0002f,.0025f,1.8f,.5f,SimHashes.FallbackTarget)};
+   var prefab=new UnityEngine.GameObject {name="PRIVATE_PREFAB_NAME",Sublimation=component};Assets.Prefabs["TestSource"]=prefab;
+   Func<JToken> readPanel=()=>Read("{id:'SUBLIMATECASE',maxChars:20000}")["results"][0]["content"]["blocks"][0];
+   Action reset=()=>{ElementLoader.Requests.Clear();Assets.PrefabRequests.Clear();UnityEngine.GameObject.SublimationReads=0;};
+   reset();Read("{id:'SUBLIMATECASE',includeContent:false}");Check(ElementLoader.Requests.Count==0 && Assets.PrefabRequests.Count==0,"sublimation metadata does not perform native definition lookups");
+   var panel=readPanel();var fallback=panel["prefabSublimatesFallback"];
+   Check(fallback!=null && (bool)fallback["required"] && (bool)fallback["available"] && (string)fallback["status"]=="resolved","cached Sublimates fallback definition is returned by actual reader");
+   Check((float)fallback["values"]["sublimationRate"]==.0002f && (float)fallback["values"]["massPower"]==.5f && (string)fallback["semantics"]["massPower"]=="mass_exponent" && (string)fallback["semantics"]["sublimationRate"]=="native_mass_dependent_rate_coefficient","raw coefficient and exponent remain distinct from efficiency mass and predicted flow");
+   Check((bool)fallback["targetResolved"] && ((JObject)fallback["target"]).Count==2 && (string)fallback["target"]["entryId"]=="FALLBACKTARGET" && (string)fallback["target"]["name"]==targetMetadata.name && targetMetadata.ContentReads==0,"target uses readable cached Codex metadata without reading its body");
+   Check((float)panel["data"]["sourceElement"]["sublimateRate"]==99f && (float)panel["data"]["sourceElement"]["sublimateEfficiency"]==.8f && !(bool)panel["renderedUiComplete"] && !panel["issues"].ToString().Contains("fallback_not_evaluated"),"legacy raw source fields remain separate and rendered UI remains incomplete");
+   Check(ElementLoader.Requests.Count==2 && ElementLoader.Requests[0]==SimHashes.Missing && ElementLoader.Requests[1]==SimHashes.FallbackTarget && Assets.PrefabRequests.Count==1 && Assets.PrefabRequests[0]=="TestSource" && UnityEngine.GameObject.SublimationReads==1 && !fallback.ToString().Contains("PRIVATE_PREFAB"),"only native direct absence triggers exact cached prefab lookup without raw prefab identity");
+   source.sublimateId=SimHashes.DirectTarget;reset();fallback=readPanel()["prefabSublimatesFallback"];
+   Check(((JObject)fallback).Count==3 && !(bool)fallback["required"] && (string)fallback["status"]=="not_required" && (string)fallback["source"]=="Element.sublimateId" && ElementLoader.Requests.Count==1 && Assets.PrefabRequests.Count==0 && UnityEngine.GameObject.SublimationReads==0,"resolved direct target is compact and does not inspect prefab or its component");
+   source.sublimateId=SimHashes.Missing;
+   foreach(string mode in new[]{"OFFGASS","HEAT","COOL"})
+   {widget.transitionType=mode;reset();Check(readPanel()["prefabSublimatesFallback"]==null && ElementLoader.Requests.Count==0 && Assets.PrefabRequests.Count==0,"non SUBLIMATE panel does not gain fallback observation: "+mode);}
+   widget.transitionType="SUBLIMATE";
+   var savedElements=ElementLoader.Elements;ElementLoader.Elements=null;reset();fallback=readPanel()["prefabSublimatesFallback"];ElementLoader.Elements=savedElements;
+   Check(fallback["required"].Type==JTokenType.Null && !(bool)fallback["available"] && (string)fallback["status"]=="direct_lookup_unavailable" && fallback["values"].Type==JTokenType.Null && Assets.PrefabRequests.Count==0,"unprepared direct lookup remains unknown instead of becoming native absence");
+   ElementLoader.ThrowHashes.Add(SimHashes.Missing);reset();fallback=readPanel()["prefabSublimatesFallback"];ElementLoader.ThrowHashes.Clear();
+   Check(fallback["required"].Type==JTokenType.Null && Assets.PrefabRequests.Count==0,"direct lookup exception does not trigger fallback");
+   widget.sourceElement=null;reset();fallback=readPanel()["prefabSublimatesFallback"];widget.sourceElement=source;
+   Check(fallback["required"].Type==JTokenType.Null && (string)fallback["status"]=="source_unavailable" && ElementLoader.Requests.Count==0,"missing native source remains unknown with no lookup");
+   Assets.Prefabs.Clear();fallback=readPanel()["prefabSublimatesFallback"];Assets.Prefabs["TestSource"]=prefab;
+   Check((bool)fallback["required"] && !(bool)fallback["available"] && (string)fallback["status"]=="prefab_unavailable" && fallback["values"].Type==JTokenType.Null,"missing prefab does not invent a zero Info pair");
+   prefab.Sublimation=null;fallback=readPanel()["prefabSublimatesFallback"];prefab.Sublimation=component;
+   Check(!(bool)fallback["available"] && (string)fallback["status"]=="component_unavailable" && fallback["values"].Type==JTokenType.Null,"missing component differs from an observed default value struct");
+   Assets.ThrowPrefabLookup=true;fallback=readPanel()["prefabSublimatesFallback"];Assets.ThrowPrefabLookup=false;
+   Check((bool)fallback["required"] && (string)fallback["status"]=="prefab_lookup_unavailable" && fallback["values"].Type==JTokenType.Null,"prefab cache exception remains unavailable without a lower level fallback");
+   prefab.ThrowSublimationRead=true;fallback=readPanel()["prefabSublimatesFallback"];prefab.ThrowSublimationRead=false;
+   Check((string)fallback["status"]=="prefab_lookup_unavailable" && fallback["values"].Type==JTokenType.Null,"component lookup fault remains unavailable");
+   ElementLoader.Elements.Remove(SimHashes.FallbackTarget);fallback=readPanel()["prefabSublimatesFallback"];ElementLoader.Elements[SimHashes.FallbackTarget]=new Element {id=SimHashes.FallbackTarget};
+   Check((bool)fallback["available"] && !(bool)fallback["targetResolved"] && fallback["target"].Type==JTokenType.Null && (float)fallback["values"]["massPower"]==.5f && (string)fallback["status"]=="target_unresolved","normal missing target keeps observed Info values and a known false resolution");
+   ElementLoader.ThrowHashes.Add(SimHashes.FallbackTarget);fallback=readPanel()["prefabSublimatesFallback"];ElementLoader.ThrowHashes.Clear();
+   Check((bool)fallback["available"] && fallback["targetResolved"].Type==JTokenType.Null && (float)fallback["values"]["sublimationRate"]==.0002f && (string)fallback["status"]=="target_lookup_unavailable","target lookup exception keeps observed Info values with unknown resolution");
+   CodexCache.entries.Remove("FALLBACKTARGET");fallback=readPanel()["prefabSublimatesFallback"];CodexCache.entries["FALLBACKTARGET"]=targetMetadata;
+   Check((bool)fallback["available"] && (bool)fallback["targetResolved"] && fallback["target"].Type==JTokenType.Null && (string)fallback["status"]=="target_metadata_unavailable","native target resolution differs from missing readable Codex projection");
+   ElementLoader.Elements[SimHashes.PrivateTarget]=new Element {id=SimHashes.PrivateTarget};component.info=new Sublimates.Info(.0002f,.0025f,1.8f,.5f,SimHashes.PrivateTarget);
+   var hidden=new CodexEntry {id="PRIVATETARGET",name="HIDDEN_TARGET_NAME",disabled=true};CodexCache.entries[hidden.id]=hidden;
+   fallback=readPanel()["prefabSublimatesFallback"];
+   Check((bool)fallback["targetResolved"] && (bool)fallback["available"] && fallback["target"].Type==JTokenType.Null && (string)fallback["status"]=="target_filtered" && !fallback.ToString().Contains("PrivateTarget") && !fallback.ToString().Contains("HIDDEN_TARGET_NAME"),"disabled target identity is withheld while finite source definition remains observed");
+   hidden.disabled=false;hidden.ValidDlc=false;fallback=readPanel()["prefabSublimatesFallback"];
+   Check((string)fallback["status"]=="target_filtered" && fallback["target"].Type==JTokenType.Null,"DLC target identity is not leaked");
+   CodexCache.entries.Remove(hidden.id);CodexCache.subEntries[hidden.id]=new SubEntry {id=hidden.id,parentEntryID=holder.id,name="HIDDEN_LOCK_NAME",lockID="unreleased-target"};fallback=readPanel()["prefabSublimatesFallback"];
+   Check((string)fallback["status"]=="target_filtered" && fallback["target"].Type==JTokenType.Null && !fallback.ToString().Contains("HIDDEN_LOCK_NAME"),"locked target identity is not leaked");
+   component.info=new Sublimates.Info(0f,0f,0f,0f,SimHashes.FallbackTarget);fallback=readPanel()["prefabSublimatesFallback"];
+   Check((bool)fallback["available"] && (float)fallback["values"]["sublimationRate"]==0f && (float)fallback["values"]["massPower"]==0f && (bool)fallback["targetResolved"],"observed zero Info fields remain known zero");
+   component.info=new Sublimates.Info(float.NaN,0f,0f,.5f,SimHashes.FallbackTarget);fallback=readPanel()["prefabSublimatesFallback"];
+   Check(!(bool)fallback["available"] && fallback["values"]["sublimationRate"].Type==JTokenType.Null && (float)fallback["values"]["massPower"]==.5f && (string)fallback["status"]=="invalid_numeric" && fallback["targetResolved"].Type==JTokenType.Null && !fallback.ToString().Contains("NaN"),"invalid rate is not zero and finite exponent is retained");
+   component.info=new Sublimates.Info(0f,0f,0f,float.PositiveInfinity,SimHashes.FallbackTarget);fallback=readPanel()["prefabSublimatesFallback"];
+   Check(!(bool)fallback["available"] && (float)fallback["values"]["sublimationRate"]==0f && fallback["values"]["massPower"].Type==JTokenType.Null && !fallback.ToString().Contains("Infinity"),"invalid exponent is null while observed rate zero is retained");
+   component.info=new Sublimates.Info(-1f,0f,0f,-.5f,SimHashes.FallbackTarget);fallback=readPanel()["prefabSublimatesFallback"];
+   Check((bool)fallback["available"] && (float)fallback["values"]["sublimationRate"]==-1f && (float)fallback["values"]["massPower"]==-.5f,"finite definition values are not replaced with MOD predictions or clamps");
+   component.info=new Sublimates.Info(.0002f,.0025f,1.8f,.5f,SimHashes.FallbackTarget);
+   var issues=new List<string>();int budget=23;reset();var limited=CodexSublimationReader.Read(widget,issues,ref budget);
+   Check((string)limited["status"]=="data_limit" && issues.Contains("data_limit") && limited["required"]==null && ElementLoader.Requests.Count==0 && Assets.PrefabRequests.Count==0 && budget==23,"fallback shares the caller budget before native metadata access");
+   holder.StoredContent[0].lockID="unreleased-source";reset();Read("{id:'SUBLIMATECASE'}");Check(ElementLoader.Requests.Count==0 && Assets.PrefabRequests.Count==0,"locked source panel never enters fallback reader");holder.StoredContent[0].lockID=null;
+   holder.ValidDlc=false;reset();Read("{id:'SUBLIMATECASE'}");Check(ElementLoader.Requests.Count==0 && Assets.PrefabRequests.Count==0,"DLC filtered source never enters fallback reader");holder.ValidDlc=true;
+   string joined="",revision=null;int offset=0;bool ended=false;
+   for(int i=0;i<20;i++)
+   {
+    var args=new JObject{{"action","page"},{"id","SUBLIMATECASE"},{"offset",offset},{"pageSize",997}};if(revision!=null)args["revision"]=revision;
+    var page=Read(args.ToString());if(revision==null)revision=(string)page["revision"];Check((string)page["revision"]==revision,"fallback paging revision remains stable");joined+=(string)page["text"];
+    if(page["nextOffset"].Type==JTokenType.Null){ended=true;break;}offset=(int)page["nextOffset"];
+   }
+   Check(ended && (string)JObject.Parse(joined)["content"]["blocks"][0]["prefabSublimatesFallback"]["status"]=="resolved","real Codex page fragments preserve the new fallback projection");
+   Check(ElementLoader.LoadCalls==0 && TagManager.CreateCalls==0 && Assets.WarningLookupCalls==0 && CodexTemperatureTransitionPanel.ConfigureCalls==0 && Sublimates.SimCalls==0 && UnityEngine.GameObject.ProperNameCalls==0,"fallback read performs no initialization tag registration warnings UI naming or simulation");
+  }
+  finally
+  {
+   Game.Instance=oldGame;CodexCache.entries=oldEntries;CodexCache.subEntries=oldSubs;
+   Assets.Prefabs=oldPrefabs;Assets.PrefabRequests=oldPrefabRequests;Assets.ThrowPrefabLookup=oldPrefabThrow;Assets.WarningLookupCalls=oldWarnings;
+   ElementLoader.Elements=oldElements;ElementLoader.Requests=oldRequests;ElementLoader.ThrowHashes=oldFaults;ElementLoader.LoadCalls=oldLoad;TagManager.CreateCalls=oldTags;
+   Sublimates.SimCalls=oldSim;CodexTemperatureTransitionPanel.ConfigureCalls=oldConfigure;UnityEngine.GameObject.SublimationReads=oldComponents;UnityEngine.GameObject.ProperNameCalls=oldNames;
+  }
+ }
+
  static void Main()
  {
   Check(CodexReadTools.Read(null).IsError,"menu blocked without initialization");
@@ -142,7 +237,7 @@ internal static class Program
    new CodexSpacer(), new CodexDividerLine(),
    new CodexConversionPanel { title="変換", ins=new[]{new ElementUsage{tag=new Tag("Water"),amount=1f,continuous=true}}, outs=new[]{new ElementUsage{tag=new Tag("Oxygen"),amount=.888f,continuous=true}}, Converter=new UnityEngine.Object{name="Electrolyzer"}},
    new CodexRecipePanel {complexRecipe=new ComplexRecipe{id="R",time=40,ingredients=new[]{new ComplexRecipe.RecipeElement{material=new Tag("Dirt"),amount=50}},results=new[]{new ComplexRecipe.RecipeElement{material=new Tag("Food"),amount=1}}}},
-   new CodexTemperatureTransitionPanel {transitionType="COOL",sourceElement=new Element{id="Oxygen",lowTemp=90.15f,lowTempTransitionTarget="LiquidOxygen"}},
+   new CodexTemperatureTransitionPanel {transitionType="COOL",sourceElement=new Element{id=SimHashes.Oxygen,lowTemp=90.15f,lowTempTransitionTarget="LiquidOxygen"}},
    new CodexCollapsibleHeader("内側", Box(new CodexText{text="折り畳み本文"})),
    new CodexCollapsibleHeader("未解禁",new ContentContainer{lockID="never",content=new List<ICodexWidget>{new CodexText{text="漏らしてはいけない"}}}))}};
   CodexCache.entries["PANELS"]=panels;
@@ -205,6 +300,7 @@ internal static class Program
   CodexCache.entries=cache;
   Check(!(bool)LoreReadTools.ReadNewUnlocks(null)["available"], "unknown snapshot not treated as empty unlock set");
   CategoryMembersRegression();
+  SublimationFallbackRegression();
   Console.WriteLine("PASS: Codex cache-only reads, metadata limits, locks/DLC, native text and unsupported widgets");
  }
 }
