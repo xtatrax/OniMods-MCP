@@ -12,6 +12,7 @@ public static class CodexCache
  public static string GetEntryForLock(string id) => LockEntries.TryGetValue(id,out var value) ? value : null;
  public static Dictionary<string,CodexEntry> entries;
  public static Dictionary<string,SubEntry> subEntries;
+ public static string FormatLinkID(string id) => id.ToUpper().Replace("_", "");
  public static void CodexCacheInit() { throw new Exception("MCP read must not initialize Codex"); }
 }
 public sealed class CodexEntry : IHasDlcRestrictions
@@ -51,16 +52,46 @@ namespace OniMcp.Tools
  }
 }
 
-public struct Tag { public string Name; public Tag(string name) { Name = name; } }
-namespace UnityEngine { public class Object { public string name; } }
+public struct Tag { public string Name; public bool IsValid => !string.IsNullOrEmpty(Name); public Tag(string name) { Name = name; } }
+namespace UnityEngine
+{
+ public class Object { public string name; }
+ public sealed class GameObject : Object
+ {
+  public KPrefabID Identity;
+  public static int ProperNameCalls;
+  public T GetComponent<T>() where T : class => Identity as T;
+  public string GetProperName() { ProperNameCalls++; throw new Exception("Do not invoke prefab naming callbacks"); }
+ }
+}
+public sealed class KPrefabID { public Tag PrefabTag; }
+public static class Assets
+{
+ public static Dictionary<string,List<UnityEngine.GameObject>> Members = new Dictionary<string,List<UnityEngine.GameObject>>();
+ public static List<string> ObservedTags = new List<string>();
+ public static bool Throw;
+ public static List<UnityEngine.GameObject> GetPrefabsWithTag(Tag tag)
+ {
+  ObservedTags.Add(tag.Name);
+  if (Throw) throw new Exception("native cached lookup unavailable");
+  if (!Members.TryGetValue(tag.Name,out var result)) return new List<UnityEngine.GameObject>();
+  return result == null ? null : new List<UnityEngine.GameObject>(result);
+ }
+}
+
 public sealed class CodexSpacer : ICodexWidget { }
 public sealed class CodexLargeSpacer : ICodexWidget { }
 public sealed class CodexDividerLine : ICodexWidget { }
-public sealed class CodexCollapsibleHeader : ICodexWidget
+public class CodexCollapsibleHeader : ICodexWidget
 {
  private string label; private ContentContainer contents;
  public CodexCollapsibleHeader(string title, ContentContainer child) { label = title; contents = child; }
  public void Configure() { throw new Exception("Do not configure UI"); }
+}
+public sealed class CodexElementCategoryList : CodexCollapsibleHeader
+{
+ public Tag categoryTag {get;set;}
+ public CodexElementCategoryList(Tag category) : base("Elements", null) {categoryTag=category;}
 }
 public sealed class ElementUsage { public Tag tag; public float amount; public bool continuous; public Func<string> customFormating; }
 public sealed class CodexConversionPanel : ICodexWidget

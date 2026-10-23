@@ -37,17 +37,15 @@ namespace OniMcp.Tools
             foreach (var pair in CodexCache.entries)
             {
                 var entry = pair.Value;
-                if (entry == null || entry.disabled || !Game.IsCorrectDlcActiveForCurrentSave(entry)) continue;
+                if (!Available(entry)) continue;
                 rows.Add(new Item(pair.Key, entry));
             }
             if (CodexCache.subEntries != null)
                 foreach (var pair in CodexCache.subEntries)
                 {
                     var sub = pair.Value;
-                    if (sub == null || sub.disabled || !Game.IsCorrectDlcActiveForCurrentSave(sub)) continue;
                     CodexEntry parent;
-                    CodexCache.entries.TryGetValue(sub.parentEntryID ?? "", out parent);
-                    if (parent != null && (parent.disabled || !Game.IsCorrectDlcActiveForCurrentSave(parent))) continue;
+                    if (!Available(sub, out parent)) continue;
                     rows.Add(new Item(pair.Key, sub, parent?.category));
                 }
             var categories = rows.GroupBy(row => row.Category ?? "").OrderBy(group => group.Key)
@@ -103,6 +101,49 @@ namespace OniMcp.Tools
                 ["results"] = results,
                 ["note"] = "Metadata search only. Native game language/rich text is preserved. Text and allowlisted panel fields are read without configuring UI; unsupported widgets and unexecuted formatters are reported. Use action=page to retrieve long content without transport truncation. This is not a live equipment or resource reading."
             }, McpJsonUtil.Settings));
+        }
+
+        private static bool Available(CodexEntry entry) => entry != null && !entry.disabled && Game.IsCorrectDlcActiveForCurrentSave(entry);
+        private static bool Available(SubEntry sub, out CodexEntry parent)
+        {
+            parent = null;
+            if (sub == null || sub.disabled || !Game.IsCorrectDlcActiveForCurrentSave(sub)) return false;
+            CodexCache.entries.TryGetValue(sub.parentEntryID ?? "", out parent);
+            return parent == null || Available(parent);
+        }
+
+        // Do not expose raw prefab aliases: only unambiguous readable cached Codex links.
+        internal static bool TryCategoryMemberMetadata(string prefabId, out Dictionary<string, object> metadata, out bool filtered)
+        {
+            metadata = null;
+            filtered = false;
+            if (string.IsNullOrWhiteSpace(prefabId) || Game.Instance?.unlocks == null || CodexCache.entries == null) return false;
+            string key = CodexCache.FormatLinkID(prefabId);
+            // FormatLinkID removes underscores; that many-to-one association is not identity proof.
+            if (!string.Equals(prefabId, key, StringComparison.OrdinalIgnoreCase)) return false;
+            CodexEntry entry;
+            SubEntry sub = null;
+            bool entryFound = CodexCache.entries.TryGetValue(key, out entry);
+            bool subFound = CodexCache.subEntries != null && CodexCache.subEntries.TryGetValue(key, out sub);
+            if (entryFound && subFound) return false;
+            if (entryFound)
+            {
+                if (entry == null || string.IsNullOrEmpty(entry.id) || !string.Equals(entry.id, key, StringComparison.Ordinal)) return false;
+                if (!Available(entry)) { filtered = true; return false; }
+                metadata = new Dictionary<string, object> { ["entryId"] = entry.id, ["name"] = entry.name };
+                return true;
+            }
+            if (!subFound || sub == null || string.IsNullOrEmpty(sub.id) || !string.Equals(sub.id, key, StringComparison.Ordinal)) return false;
+            CodexEntry parent;
+            if (!Available(sub, out parent)) { filtered = true; return false; }
+            if (parent == null) return false;
+            if (!string.IsNullOrEmpty(sub.lockID) && !Game.Instance.unlocks.IsUnlocked(sub.lockID))
+            {
+                filtered = true;
+                return false;
+            }
+            metadata = new Dictionary<string, object> { ["entryId"] = sub.id, ["name"] = sub.name };
+            return true;
         }
 
         private static bool Equal(string a, string b) => !string.IsNullOrEmpty(b) && string.Equals(a, b, StringComparison.OrdinalIgnoreCase);

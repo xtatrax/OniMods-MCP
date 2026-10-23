@@ -7,6 +7,98 @@ internal static class Program
  static JObject Read(string args="{}") { var r=CodexReadTools.Read(JObject.Parse(args));Check(!r.IsError,"read failed: "+r.Content[0].Text);return JObject.Parse(r.Content[0].Text); }
  static void Check(bool condition,string name) { if(!condition)throw new Exception(name); }
  static ContentContainer Box(params ICodexWidget[] widgets) => new ContentContainer { content=new List<ICodexWidget>(widgets) };
+ static UnityEngine.GameObject Prefab(string id) => new UnityEngine.GameObject {name="PRIVATE_PREFAB_NAME_"+id,Identity=new KPrefabID {PrefabTag=new Tag(id)}};
+ static void CategoryMembersRegression()
+ {
+  var oldGame=Game.Instance;var oldEntries=CodexCache.entries;var oldSubs=CodexCache.subEntries;
+  var oldMembers=Assets.Members;var oldTags=Assets.ObservedTags;bool oldThrow=Assets.Throw;int oldNameCalls=UnityEngine.GameObject.ProperNameCalls;
+  try
+  {
+   Game.Instance=new Game {unlocks=new Unlocks()};
+   CodexCache.entries=new Dictionary<string,CodexEntry>();CodexCache.subEntries=new Dictionary<string,SubEntry>();
+   Assets.Members=new Dictionary<string,List<UnityEngine.GameObject>>();Assets.ObservedTags=new List<string>();Assets.Throw=false;
+   UnityEngine.GameObject.ProperNameCalls=0;
+   var coal=new CodexEntry {id="COAL",name="<link=COAL>石炭</link>",StoredContent=new List<ContentContainer>{Box(new DangerousWidget())}};
+   var ore=new CodexEntry {id="REGOLITH",name="レゴリス",StoredContent=new List<ContentContainer>{Box(new DangerousWidget())}};
+   CodexCache.entries["COAL"]=coal;CodexCache.entries["REGOLITH"]=ore;
+   var widget=new CodexElementCategoryList(new Tag("MetalOre"));
+   var entry=new CodexEntry {id="CATEGORY",StoredContent=new List<ContentContainer>{Box(widget)}};
+   CodexCache.entries["CATEGORY"]=entry;
+   CodexCache.entries["OTHER"]=new CodexEntry {id="OTHER",StoredContent=new List<ContentContainer>{Box(new CodexElementCategoryList(new Tag("NeverRead")))}};
+   Assets.Members["MetalOre"]=new List<UnityEngine.GameObject>{Prefab("Coal"),Prefab("Regolith")};
+   Read("{id:'CATEGORY',includeContent:false}");Read("{action:'search',query:'CATEGORY'}");
+   Check(Assets.ObservedTags.Count==0,"category metadata paths do not enumerate assets");
+   var value=Read("{id:'CATEGORY',maxChars:20000}");var panel=value["results"][0]["content"]["blocks"][0];var members=panel["categoryMembers"];
+   Check(members!=null && (bool)members["available"] && (int)members["returned"]==2,"native category cache members are returned by actual reader");
+   Check((string)panel["data"]["categoryTag"]=="MetalOre" && !(bool)panel["renderedUiComplete"],"raw category and rendered-UI boundary retained");
+   Check((bool)members["complete"] && (int)members["matched"]==2 && (int)members["filteredMembers"]==0 && (int)members["unresolvedMembers"]==0,"observed category is complete without invented omissions");
+   Check(((JObject)members["members"][0]).Count==2 && (string)members["members"][0]["entryId"]=="COAL" && (string)members["members"][0]["name"]=="<link=COAL>石炭</link>","category members expose cached Codex ID and localized name only");
+   Check(coal.ContentReads==0 && ore.ContentReads==0 && !members.ToString().Contains("PRIVATE_PREFAB_NAME") && UnityEngine.GameObject.ProperNameCalls==0,"member content and prefab naming callbacks are not read");
+   Check(Assets.ObservedTags.Count==1 && Assets.ObservedTags[0]=="MetalOre" && Assets.Members["MetalOre"].Count==2,"only selected category is read and cached list remains unchanged");
+   CodexCache.subEntries["NOTEMEMBER"]=new SubEntry {id="NOTEMEMBER",parentEntryID="COAL",name="分類済みサブ項目",lockID="open-member",contentContainers=new List<ContentContainer>{Box(new DangerousWidget())}};
+   Game.Instance.unlocks.unlocked.Add("open-member");widget.categoryTag=new Tag("OpenSub");Assets.Members["OpenSub"]=new List<UnityEngine.GameObject>{Prefab("NoteMember")};
+   members=Read("{id:'CATEGORY'}")["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check((bool)members["complete"] && ((JObject)members["members"][0]).Count==2 && (string)members["members"][0]["entryId"]=="NOTEMEMBER" && (string)members["members"][0]["name"]=="分類済みサブ項目","unlocked canonical subentry exposes cached localized metadata only");
+   widget.categoryTag=new Tag("Aliases");var inaccessibleAlias=Prefab("Co_al");inaccessibleAlias.name="HIDDEN_ALIAS_LABEL";
+   Assets.Members["Aliases"]=new List<UnityEngine.GameObject>{Prefab("Coal"),inaccessibleAlias,Prefab("COAL"),Prefab("coal")};
+   members=Read("{id:'CATEGORY',maxChars:20000}")["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check((int)members["returned"]==1 && ((JArray)members["members"]).Count==1 && (string)members["members"][0]["entryId"]=="COAL","case-only repeated links are deduplicated by cached Codex ID");
+   Check((int)members["unresolvedMembers"]==1 && members["matched"].Type==JTokenType.Null && !(bool)members["complete"],"destructive normalized alias is unresolved and cannot borrow readable entry identity");
+   Check(!members.ToString().Contains("Co_al") && !members.ToString().Contains("HIDDEN_ALIAS_LABEL") && ((JObject)members["members"][0]).Count==2,"inaccessible normalized prefab alias and raw identity fields are never published");
+   Check((string)members["scope"]=="normalized_cached_codex_links_with_readable_metadata" && (string)members["identitySemantics"]=="codex_link_projection_not_raw_prefab_identity" && (bool)members["postCopyMetadataWalkBounded"] && !(bool)members["nativeCacheCopyBounded"] && (bool)members["pageRegeneratesNativeCacheCopy"],"link and post-copy budget limits are explicit without native allocation or UI identity promises");
+   widget.categoryTag=new Tag("Empty");Assets.ObservedTags.Clear();
+   members=Read("{id:'CATEGORY'}")["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check((bool)members["available"] && (bool)members["complete"] && (int)members["matched"]==0 && (int)members["returned"]==0 && ((JArray)members["members"]).Count==0,"observed empty category remains known empty");
+   widget.categoryTag=default(Tag);Assets.ObservedTags.Clear();
+   members=Read("{id:'CATEGORY'}")["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check(!(bool)members["available"] && members["members"].Type==JTokenType.Null && members["returned"].Type==JTokenType.Null && Assets.ObservedTags.Count==0,"invalid category is unknown and does not enumerate assets");
+   widget.categoryTag=new Tag("Missing");Assets.Members["Missing"]=null;
+   members=Read("{id:'CATEGORY'}")["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check(!(bool)members["available"] && members["members"].Type==JTokenType.Null && members["matched"].Type==JTokenType.Null,"unavailable cache result does not become empty");
+   Assets.Throw=true;members=Read("{id:'CATEGORY'}")["results"][0]["content"]["blocks"][0]["categoryMembers"];Assets.Throw=false;
+   Check(!(bool)members["available"] && members["members"].Type==JTokenType.Null,"native cache failure remains unavailable without fallback");
+   CodexCache.entries["PRIVATEDLC"]=new CodexEntry {id="PRIVATEDLC",name="PRIVATE_DLC_NAME",ValidDlc=false};
+   CodexCache.entries["PRIVATEDISABLED"]=new CodexEntry {id="PRIVATEDISABLED",name="PRIVATE_DISABLED_NAME",disabled=true};
+   CodexCache.entries["PRIVATEPARENT"]=new CodexEntry {id="PRIVATEPARENT",name="PRIVATE_PARENT_NAME",ValidDlc=false};
+   CodexCache.subEntries["PRIVATELOCKED"]=new SubEntry {id="PRIVATELOCKED",parentEntryID="COAL",name="PRIVATE_LOCKED_NAME",lockID="not-unlocked"};
+   CodexCache.subEntries["PRIVATESUBDLC"]=new SubEntry {id="PRIVATESUBDLC",parentEntryID="COAL",name="PRIVATE_SUB_DLC_NAME",ValidDlc=false};
+   CodexCache.subEntries["PRIVATECHILD"]=new SubEntry {id="PRIVATECHILD",parentEntryID="PRIVATEPARENT",name="PRIVATE_CHILD_NAME"};
+   CodexCache.subEntries["PRIVATEORPHAN"]=new SubEntry {id="PRIVATEORPHAN",parentEntryID="NO_PARENT",name="PRIVATE_ORPHAN_NAME"};
+   widget.categoryTag=new Tag("Protected");
+   Assets.Members["Protected"]=new List<UnityEngine.GameObject>{Prefab("Coal"),Prefab("PrivateDlc"),Prefab("PrivateDisabled"),Prefab("PrivateLocked"),Prefab("PrivateSubDlc"),Prefab("PrivateChild"),Prefab("PrivateHidden"),Prefab("PrivateOrphan")};
+   value=Read("{id:'CATEGORY',maxChars:20000}");members=value["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check((bool)members["available"] && !(bool)members["complete"] && (int)members["returned"]==1 && (int)members["filteredMembers"]==5 && (int)members["unresolvedMembers"]==2 && members["matched"].Type==JTokenType.Null,"DLC disabled lock parent and unmapped cases are separated from known membership");
+   Check(!members.ToString().Contains("PRIVATE") && !members.ToString().Contains("Private"),"filtered or unresolved raw identities and names never enter output");
+   CodexCache.entries["AMBIGUOUS"]=new CodexEntry {id="AMBIGUOUS",name="PRIVATE_AMBIGUOUS_NAME"};CodexCache.subEntries["AMBIGUOUS"]=new SubEntry {id="AMBIGUOUS",parentEntryID="COAL",name="PRIVATE_SUB_AMBIGUOUS_NAME"};
+   CodexCache.entries["WRONGIDENTITY"]=new CodexEntry {id="PRIVATE_DIFFERENT_ID",name="PRIVATE_DIFFERENT_NAME"};
+   widget.categoryTag=new Tag("Unknown");Assets.Members["Unknown"]=new List<UnityEngine.GameObject>{Prefab("Ambiguous"),Prefab("WrongIdentity"),null,new UnityEngine.GameObject()};
+   members=Read("{id:'CATEGORY'}")["results"][0]["content"]["blocks"][0]["categoryMembers"];
+   Check((int)members["returned"]==0 && (int)members["unresolvedMembers"]==4 && members["matched"].Type==JTokenType.Null && !(bool)members["complete"],"ambiguous mismatched null and missing native identity remain unresolved");
+   Check(!members.ToString().Contains("PRIVATE"),"unresolved cache metadata is not exposed");
+   widget.categoryTag=new Tag("Many");var many=new List<UnityEngine.GameObject>();for(int i=0;i<5000;i++)many.Add(Prefab("Coal"));Assets.Members["Many"]=many;
+   // Use the real page envelope; the native cache copy precedes the bounded metadata walk.
+   string joined="",revision=null;int offset=0;
+   while(true)
+   {
+    var args=new JObject{{"action","page"},{"id","CATEGORY"},{"pageSize",997},{"offset",offset}};if(revision!=null)args["revision"]=revision;
+    var page=Read(args.ToString());revision=(string)page["revision"];joined+=(string)page["text"];
+    if(page["nextOffset"].Type==JTokenType.Null)break;offset=(int)page["nextOffset"];
+   }
+   members=JObject.Parse(joined)["content"]["blocks"][0]["categoryMembers"];
+   Check((bool)members["truncated"] && !(bool)members["complete"] && members["matched"].Type==JTokenType.Null && (int)members["returned"]>0 && (int)members["returned"]<5000 && many.Count==5000,"native category loop shares finite panel budget and leaves source untouched");
+   Check(JObject.Parse(joined)["content"].ToString().Contains("data_limit"),"category node limit remains visible through long-content paging");
+   widget.categoryTag=new Tag("NeverRead");entry.StoredContent[0].lockID="locked-category";Assets.ObservedTags.Clear();
+   Read("{id:'CATEGORY'}");Check(Assets.ObservedTags.Count==0,"locked category container never enumerates members");
+   entry.StoredContent[0].lockID=null;entry.ValidDlc=false;Read("{id:'CATEGORY'}");Check(Assets.ObservedTags.Count==0,"DLC-filtered category entry never enumerates members");
+   entry.ValidDlc=true;entry.StoredContent[0].ValidDlc=false;Read("{id:'CATEGORY'}");Check(Assets.ObservedTags.Count==0,"DLC-filtered category container never enumerates members");
+  }
+  finally
+  {
+   Game.Instance=oldGame;CodexCache.entries=oldEntries;CodexCache.subEntries=oldSubs;
+   Assets.Members=oldMembers;Assets.ObservedTags=oldTags;Assets.Throw=oldThrow;UnityEngine.GameObject.ProperNameCalls=oldNameCalls;
+  }
+ }
+
  static void Main()
  {
   Check(CodexReadTools.Read(null).IsError,"menu blocked without initialization");
@@ -112,6 +204,7 @@ internal static class Program
   Check(JObject.FromObject(LoreReadTools.ReadNewUnlocks(snapshot)).ToString().Contains("codex_cache_not_ready"), "no cache initialization during recovery");
   CodexCache.entries=cache;
   Check(!(bool)LoreReadTools.ReadNewUnlocks(null)["available"], "unknown snapshot not treated as empty unlock set");
+  CategoryMembersRegression();
   Console.WriteLine("PASS: Codex cache-only reads, metadata limits, locks/DLC, native text and unsupported widgets");
  }
 }

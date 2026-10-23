@@ -51,14 +51,13 @@ namespace OniMcp.Tools
             object data = null;
             try { data = Value(widget, issues, 0, ref remainingNodes); }
             catch (Exception ex) { issues.Add("field_read_failed:" + ex.GetType().Name); }
-            if (IsKnown(widget, "CodexElementCategoryList")) issues.Add("category_members_not_expanded");
             if (IsKnown(widget, "CodexTemperatureTransitionPanel"))
             {
                 object transition;
                 if (TryField(widget, "transitionType", out transition) && Convert.ToString(transition) == "SUBLIMATE")
                     issues.Add("prefab_sublimates_fallback_not_evaluated");
             }
-            return new Dictionary<string, object>
+            var result = new Dictionary<string, object>
             {
                 ["type"] = widget.GetType().Name,
                 ["data"] = data,
@@ -68,6 +67,9 @@ namespace OniMcp.Tools
                 // These are definition fields, not a reconstruction of native rendered UI.
                 ["renderedUiComplete"] = false
             };
+            if (IsKnown(widget, "CodexElementCategoryList"))
+                result["categoryMembers"] = CodexCategoryMemberReader.Read(widget, issues, ref remainingNodes);
+            return result;
         }
 
         private static object Value(object value, List<string> issues, int depth, ref int remainingNodes)

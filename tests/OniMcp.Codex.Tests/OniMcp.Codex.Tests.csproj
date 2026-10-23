@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><LangVersion>7.3</LangVersion><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup>
+<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><LangVersion>7.3</LangVersion><TreatWarningsAsErrors>true</TreatWarningsAsErrors><CodexPanelReaderSource Condition="'$(CodexPanelReaderSource)' == ''">../../mods/OniMcp/Tools/Impl/World/CodexPanelReader.cs</CodexPanelReaderSource></PropertyGroup>
 <ItemGroup>
 <Compile Include="../../mods/OniMcp/Tools/Impl/World/LoreReadTools.cs" Link="LoreReadTools.cs" />
 <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-<Compile Include="../../mods/OniMcp/Tools/Impl/World/CodexPanelReader.cs" Link="CodexPanelReader.cs" />
+<Compile Include="$(CodexPanelReaderSource)" Link="CodexPanelReader.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/World/CodexCategoryMemberReader.cs" Link="CodexCategoryMemberReader.cs" />
 <Compile Include="../../mods/OniMcp/Tools/Impl/World/CodexReadTools.cs" Link="CodexReadTools.cs" />
 <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="McpContentTypes.cs" />
 <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="McpJsonUtil.cs" />
