@@ -144,6 +144,14 @@ namespace OniMcp.Tools
                     var result = new Dictionary<string, object>
                     {
                         ["worldId"] = worldId,
+                        ["valueSemantics"] = new Dictionary<string, object>
+                        {
+                            ["netActiveWatts"] = "generator_rating_minus_consumer_active_demand",
+                            ["generatorScope"] = "selected_components_generators_including_transformers",
+                            ["generatorEmpty"] = "native_generator_is_empty_count",
+                            ["generatorDetailEmpty"] = "native_generator_is_empty",
+                            ["consumerUsedWatts"] = "native_energy_consumer_watts_used_sum"
+                        },
                         ["summary"] = new Dictionary<string, object>
                         {
                             ["batteryCount"] = batteryCount,

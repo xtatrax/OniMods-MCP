@@ -630,3 +630,11 @@ snapshotが非ComponentのAmountsをGetComponentで探して0補完していた�
 回路別generatorOperational/consumerOperationalが全設備を無条件に数えていた不整合を、各loopで取得済みのnative operational boolへ揃えた。全体/詳細・他の電力/J値・world/limit/回路選別を保ち、新getter・状態更新・独自の電力規則を追加しない。
 
 専用hostの実factory/helper連結と旧caller負試験、両版の初回・通常再読込で完全な現物詳細と件数を受入れた。実機の全falseはロード後停止中のcached観測で、物理的全停止や全cache初期化の保証ではない。跨ロードの回路IDは全現物の所属で正規化し、二次診断wire IDを除く既存内容・簡易/limit1・同runのresource/反復・停止時計を確認し、元環境の未ロード入口へ復帰した。混在true/falseはhost境界であり、netActiveWatts・generatorEmptyの意味、実燃料ゼロ・通常UI等の親課題は残る。実装・合成回帰と一般説明だけを反映し、私的履歴・個別ID・保存名・保存先・座標・設定値・生応答を含めない。[修正契約と受入範囲](power-operational-counts_JP.md)。
+
+## 選択追加: 電力サマリーの定格差とnative空判定の意味を明示
+
+既存電力サマリーの最上位へ5項目の小さなvalueSemanticsを一度だけ追加した。netActiveWattsが対象発電機定格と消費設備の稼働時要求の差であること、集計対象に変圧器を含むこと、generatorEmptyと発電機詳細emptyがnative IsEmptyであること、consumerUsedWattsがnative component値の和であることを区別する。旧数値・取得順・getter・選別・欠測fallbackや操作を変えず、現在の実配分・燃料質量・充電余力の測定値を追加しない。
+
+両版の実ソースによる既存ホスト65条件、警告・エラー0の本体参照ビルド、公開固有版 `0.2.5+build.32` を含む初回・通常再読込を受入れた。最上位一度の機械ID、完全詳細と件数、既定簡易・limit1・resource・反復、回路所属で正規化した再読込、停止時計と保護セーブを照合し、開始時のゲーム未起動状態と元導入物・設定・保存・他MOD/DLCへ復帰した。変更前native生応答との比較ではなく、追加8行を除いたソース一致・従来host回帰・現行native結果の整合性を区別する。通常UI・実配分/充放電・実燃料条件等は親課題に残る。
+
+実装と一般説明だけを反映し、私的履歴・個別ID・保存名・保存先・座標・設定値・生応答を含めない。[意味と受入範囲](power-value-semantics_JP.md)。
