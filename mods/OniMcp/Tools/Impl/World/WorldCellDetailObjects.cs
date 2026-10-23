@@ -27,7 +27,7 @@ namespace OniMcp.Tools
 
                 if (go == null)
                     continue;
-                result.Add(ObjectInfo(go, layer.ToString(), cell));
+                result.Add(ObjectInfo(go, layer.ToString(), cell, nativeRegistration: true));
             }
             return result;
         }
@@ -129,7 +129,7 @@ namespace OniMcp.Tools
             {
                 var go = Grid.Objects[cell, (int)layer];
                 if (go != null)
-                    result[layer.ToString()] = ObjectInfo(go, layer.ToString(), cell);
+                    result[layer.ToString()] = ObjectInfo(go, layer.ToString(), cell, nativeRegistration: true);
             }
             result["connectionSummary"] = CellUtilityConnectionSummary(cell);
             return result;
@@ -153,7 +153,7 @@ namespace OniMcp.Tools
             };
         }
 
-        private static Dictionary<string, object> ObjectInfo(GameObject go, string kind, int selectedCell)
+        private static Dictionary<string, object> ObjectInfo(GameObject go, string kind, int selectedCell, bool nativeRegistration = false)
         {
             var kpid = go.GetComponent<KPrefabID>();
             int objectCell = Grid.PosToCell(go);
@@ -174,6 +174,9 @@ namespace OniMcp.Tools
             {
                 var shape = NativeBuildingCellIndex.Geometry(go);
                 foreach (var item in shape.Summary()) info[item.Key] = item.Value;
+                if (nativeRegistration)
+                    info["selectedCellRelation"] = !shape.Available ? "geometry_unavailable"
+                        : shape.Contains(selectedCell) ? "occupied" : "registered_only";
                 info["operational"] = go.GetComponent<Operational>()?.IsOperational;
                 info["anchorX"] = shape.Available ? (object)shape.Bounds[0] : null;
                 info["anchorY"] = shape.Available ? (object)shape.Bounds[1] : null;
