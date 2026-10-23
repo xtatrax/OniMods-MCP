@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace OniMcp.Tools
 {
-    // Crops and geysers need their own live registries; they are not necessarily
-    // BuildingCompletes or Pickupables. Geysers follow the visible/uncovered gate
-    // used by the GeoTuner list, so this addition does not reveal hidden vents.
+    // Crops and geysers need live registries beyond ordinary buildings and items.
+    // Every Geyser object requires native visibility and Uncoverable exposure,
+    // including objects reached through another live registry.
     internal static class EntitySectionCandidates
     {
         internal static IEnumerable<GameObject> LiveObjects()
@@ -20,7 +20,15 @@ namespace OniMcp.Tools
                     .SelectMany(worldId => Components.Geysers.GetItems(worldId))
                     .Where(IsVisibleGeyser).Select(g => g.gameObject))
                 .Where(go => go != null)
-                .Distinct();
+                .Distinct()
+                .Where(IsAllowedCandidate);
+        }
+
+        private static bool IsAllowedCandidate(GameObject go)
+        {
+            if (go.GetComponent<Geyser>() is Geyser geyser)
+                return IsVisibleGeyser(geyser);
+            return true;
         }
 
         private static bool IsVisibleGeyser(Geyser geyser)

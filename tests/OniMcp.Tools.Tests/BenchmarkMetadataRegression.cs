@@ -26,6 +26,7 @@ internal static class BenchmarkMetadataRegressionEntry
         EntitySectionTextRegression.Run();
         EntitySectionTraitsRegression.Run();
         EntitySectionCandidatesRegression.Run();
+        EntitySectionStudyableRegression.Run();
         BuriedMarkerRegression.Run();
         NativeAmountRegression.Run();
         BuildPlanningRegression.Run();

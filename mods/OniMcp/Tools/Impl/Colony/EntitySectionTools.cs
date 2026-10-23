@@ -146,6 +146,18 @@ namespace OniMcp.Tools
             AddWorkNumber(result, state, "remainingSeconds", workable.WorkTimeRemaining);
             AddWorkNumber(result, state, "percentComplete", workable.GetPercentComplete());
             result["numericState"] = state;
+            if (workable is Studyable studyable)
+            {
+                result["studied"] = JValue.CreateNull();
+                result["studyStatus"] = "unavailable";
+                result["studySource"] = "Studyable.Studied";
+                try
+                {
+                    result["studied"] = studyable.Studied;
+                    result["studyStatus"] = "observed";
+                }
+                catch { errors.Add("Studyable.Studied"); }
+            }
             return result;
         }
         private static void AddWorkNumber(Dictionary<string, object> result, Dictionary<string, object> state, string name, double value)

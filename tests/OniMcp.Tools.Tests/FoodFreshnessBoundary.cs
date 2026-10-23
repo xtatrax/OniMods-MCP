@@ -95,12 +95,21 @@ internal sealed class Operational
 internal sealed class Battery { internal float JoulesAvailable { get; set; } internal float Capacity { get; set; } }
 internal sealed class GameClock
 { internal static GameClock Instance { get; set; } = new GameClock(); internal double GetTime() { return 0; } }
-internal sealed class Workable
+internal class Workable
 {
     internal GameObject worker { get; set; }
     internal float WorkTimeRemaining { get; set; }
-    internal float GetWorkTime() { return 0; }
-    internal float GetPercentComplete() { return 0; }
+    internal float WorkTimeValue { get; set; }
+    internal float PercentCompleteValue { get; set; }
+    internal float GetWorkTime() { return WorkTimeValue; }
+    internal float GetPercentComplete() { return PercentCompleteValue; }
+}
+internal sealed class Studyable : Workable
+{
+    internal bool StudiedValue;
+    internal Func<bool> StudiedReader;
+    internal int StudiedReads;
+    internal bool Studied { get { StudiedReads++; return StudiedReader == null ? StudiedValue : StudiedReader(); } }
 }
 internal sealed class Descriptor { public string text = null, tooltipText = null; public int type = 0, indent = 0; }
 internal sealed class KSelectable { internal List<StatusEntry> GetStatusItemGroup() { return new List<StatusEntry>(); } }
