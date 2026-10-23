@@ -157,7 +157,7 @@ namespace OniMcp
                     for (int x = request.X1; x <= request.X2 && labelCount < MaxLabelObjects; x += labelStep)
                     {
                         if (TryWorldToTopLeft(x, y, out Vector2 center))
-                            UpdateLabel(labelCount++, x + "," + y, center.x - 28f, center.y - 9f, 56f, 18f);
+                            UpdateLabel(labelCount++, x + "," + y, center.x - 28f, center.y - 10f, 56f, 20f);
                     }
                 }
             }
