@@ -1,3 +1,6 @@
 {
-  "operation_files.result_contract": "- 結果: 通常は簡易要約です。成功した `search_control` と、`colony_control` の `domain=bio bioDomain=farming action=seed_catalog|list_planting` または `domain=management kind=research action=list`（既存の経路別名を含む）は、子の結果を完全に保持します。その他のコロニー読取・書込は既定の要約を維持します。`detail=brief|compact|full` は検索本来の粒度指定です。真偽値 `detail=false` は結果を省略し、`detail=true` は引数と完全な結果・エラーも返します。`query`/`limit` で絞り、件数・打切りは子の報告どおり扱います。"
+  "operation_files.result_contract": "- 結果: 通常は簡易要約です。成功した `search_control` と、`colony_control` の `domain=bio bioDomain=farming action=seed_catalog|list_planting` または `domain=management kind=research action=list`（既存の経路別名を含む）は、子の結果を完全に保持します。その他のコロニー読取・書込は既定の要約を維持します。`detail=brief|compact|full` は検索本来の粒度指定です。真偽値 `detail=false` は結果を省略し、`detail=true` は引数と完全な結果・エラーも返します。`query`/`limit` で絞り、件数・打切りは子の報告どおり扱います。",
+  "operation_files.single_command_error": "この操作replacementには実行コマンドが{0}件あります。上限は{1}件です。このreplacementのコマンドは実行していません。",
+  "operation_files.single_command_guidance": "1件ずつ予行し、確認して実行した後に結果を再取得してください。後の実行が失敗しても先の変更が残る場合があり、自動rollbackは行いません。",
+  "operation_files.single_command_safety": "- 安全制限: 操作replacementごとに実行コマンドは最大1件です。予行→確認実行→結果再取得を1件ずつ行ってください。後の実行が失敗しても先に成功したreplacementの変更は残る場合があり、自動rollbackは行いません。"
 }

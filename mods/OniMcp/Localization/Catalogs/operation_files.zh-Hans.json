@@ -1,3 +1,6 @@
 {
-  "operation_files.result_contract": "- 结果: 通常返回简要摘要。成功的 `search_control` 调用及 `colony_control` 的 `domain=bio bioDomain=farming action=seed_catalog|list_planting` 或 `domain=management kind=research action=list` 读取（包括现有路由别名）保留完整子结果。其他殖民地读取和写入默认仍返回摘要。`detail=brief|compact|full` 保持原生搜索粒度含义。布尔值 `detail=false` 抑制结果输出；`detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小范围；数量和截断信息保持子工具报告的原样。"
+  "operation_files.result_contract": "- 结果: 通常返回简要摘要。成功的 `search_control` 调用及 `colony_control` 的 `domain=bio bioDomain=farming action=seed_catalog|list_planting` 或 `domain=management kind=research action=list` 读取（包括现有路由别名）保留完整子结果。其他殖民地读取和写入默认仍返回摘要。`detail=brief|compact|full` 保持原生搜索粒度含义。布尔值 `detail=false` 抑制结果输出；`detail=true` 还返回参数及完整结果或错误。请用 `query`/`limit` 缩小范围；数量和截断信息保持子工具报告的原样。",
+  "operation_files.single_command_error": "此操作replacement包含{0}条可执行命令，最多允许{1}条。此replacement中的命令均未执行。",
+  "operation_files.single_command_guidance": "请逐条预演，确认后执行，再重新读取结果。后续执行失败时，先前更改可能仍然保留；不会自动rollback。",
+  "operation_files.single_command_safety": "- 安全限制：每个操作replacement最多接受一条可执行命令。请逐条预演、确认执行并重新读取结果。后续执行失败时，先前成功的replacement可能仍有更改保留；不会自动rollback。"
 }

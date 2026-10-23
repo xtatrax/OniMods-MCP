@@ -61,7 +61,7 @@ namespace OniMcp.Tools
             sb.AppendLine();
             sb.AppendLine("- path: `" + path + "`");
             sb.AppendLine("- mode: edit lines under `## Edit Commands`, then submit SEARCH/REPLACE.");
-            sb.AppendLine("- safety limit: one executable command per edit; split additional commands into separate reviewed edits.");
+            sb.AppendLine(McpLocalization.Get("operation_files.single_command_safety"));
             sb.AppendLine("- edit tip: use an empty SEARCH block to run fresh commands, or copy the current snippet exactly.");
             sb.AppendLine(McpLocalization.Get("operation_files.result_contract"));
             sb.AppendLine("- syntax: `call tool=<tool_name> key=value ...`; in typed files, `tool=` is optional.");
@@ -118,7 +118,7 @@ namespace OniMcp.Tools
     {
         var lines = ExtractOperationCommandLines(replacement).ToList();
         if (lines.Count > 1)
-            return CallToolResult.Error("Operation edits support exactly one executable command because child game mutations are not transactional.");
+            return OperationCommandLimitRefusal(relative, lines.Count);
         var compiled = new List<System.Tuple<string, string, JObject, bool>>();
         var preflightErrors = new JArray();
         foreach (string line in lines)
@@ -235,13 +235,32 @@ namespace OniMcp.Tools
         return anyError ? CallToolResult.Error(JsonResultText(summary)) : JsonResult(summary);
     }
 
+    private static CallToolResult OperationCommandLimitRefusal(string relative, int requestedCommands)
+    {
+        return CallToolResult.Error(JsonResultText(new JObject
+        {
+            ["ok"] = false,
+            ["phase"] = "preflight",
+            ["code"] = "operation_replacement_command_limit",
+            ["scope"] = "operation_replacement",
+            ["file"] = relative,
+            ["maxCommands"] = 1,
+            ["requestedCommands"] = requestedCommands,
+            ["executedCommands"] = 0,
+            ["changed"] = false,
+            ["partial"] = false,
+            ["error"] = McpLocalization.Format("operation_files.single_command_error", null, requestedCommands, 1),
+            ["guidance"] = McpLocalization.Get("operation_files.single_command_guidance")
+        }));
+    }
+
     private static CallToolResult PreflightOperationMarkdownEdit(JObject parentArgs, string relative, string replacement)
     {
         var lines = ExtractOperationCommandLines(replacement).ToList();
         if (lines.Count == 0)
             return CallToolResult.Error("No executable operation lines found. Add commands under ## Edit Commands.");
         if (lines.Count > 1)
-            return CallToolResult.Error("Operation edits support exactly one executable command because child game mutations are not transactional.");
+            return OperationCommandLimitRefusal(relative, lines.Count);
         var compiled = new JArray();
         foreach (string line in lines)
         {

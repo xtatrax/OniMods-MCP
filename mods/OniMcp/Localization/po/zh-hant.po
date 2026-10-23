@@ -1150,3 +1150,21 @@ msgstr "現有的原生候選清單仍在產生中。數量未知；本次讀取
 msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.MATERIALIZED"
 msgid "Only care-package choices observed in the current native screen cache are listed. This read does not evaluate requirements or claim eligibility."
 msgstr "僅列出目前原生介面快取中已觀察到的補給品候選。本次讀取不評估要求或領取資格。"
+
+#. Runtime JSON key: operation_files.single_command_error
+#. Runtime zh-Hans msgstr: "此操作replacement包含{0}条可执行命令，最多允许{1}条。此replacement中的命令均未执行。"
+msgctxt "OniMcp.MCP.OPERATION_FILES.SINGLE_COMMAND_ERROR"
+msgid "This operation replacement contains {0} executable commands; at most {1} is allowed. No command in this replacement was executed."
+msgstr "此操作replacement包含{0}條可執行命令，最多允許{1}條。此replacement中的命令均未執行。"
+
+#. Runtime JSON key: operation_files.single_command_guidance
+#. Runtime zh-Hans msgstr: "请逐条预演，确认后执行，再重新读取结果。后续执行失败时，先前更改可能仍然保留；不会自动rollback。"
+msgctxt "OniMcp.MCP.OPERATION_FILES.SINGLE_COMMAND_GUIDANCE"
+msgid "Preview one command at a time, execute it with confirmation, then read the result again. A later execution failure may leave earlier changes; no automatic rollback is performed."
+msgstr "請逐條預演，確認後執行，再重新讀取結果。後續執行失敗時，先前變更可能仍然保留；不會自動rollback。"
+
+#. Runtime JSON key: operation_files.single_command_safety
+#. Runtime zh-Hans msgstr: "- 安全限制：每个操作replacement最多接受一条可执行命令。请逐条预演、确认执行并重新读取结果。后续执行失败时，先前成功的replacement可能仍有更改保留；不会自动rollback。"
+msgctxt "OniMcp.MCP.OPERATION_FILES.SINGLE_COMMAND_SAFETY"
+msgid "- safety: each operation replacement accepts at most one executable command. Preview, confirm execution, then read the result again. Earlier successful replacements can remain after a later execution failure; no automatic rollback is performed."
+msgstr "- 安全限制：每個操作replacement最多接受一條可執行命令。請逐條預演、確認執行並重新讀取結果。後續執行失敗時，先前成功的replacement可能仍有變更保留；不會自動rollback。"

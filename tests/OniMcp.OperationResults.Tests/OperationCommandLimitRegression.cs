@@ -1,0 +1,170 @@
+using System;
+using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OniMcp.Core;
+using OniMcp.Support;
+using OniMcp.Tools;
+
+internal static class OperationCommandLimitRegression
+{
+    private const string Relative = "ops/game.md";
+    private const string OneCommand = "call domain=speed action=time";
+    private static int checks;
+
+    internal static void Run()
+    {
+        MultipleCommandsAreRejectedBeforeAnyChild();
+        CommentsDoNotCountAsCommands();
+        EveryBlockIsPreflightedBeforeExecution();
+        LocalizedRejectionAndGuideRemainAvailable();
+        Console.WriteLine("Operation command-limit contract checks passed: " + checks);
+    }
+
+    private static void MultipleCommandsAreRejectedBeforeAnyChild()
+    {
+        foreach (int count in new[] { 2, 5 })
+        foreach (bool preview in new[] { false, true })
+        foreach (bool preflight in new[] { false, true })
+        {
+            var parent = Parent();
+            parent["dryRun"] = preview;
+            parent["allowPartial"] = true;
+            string before = parent.ToString(Formatting.None);
+            string replacement = "# ignored comment\n## Edit Commands\n```text\n"
+                + string.Join("\n# not an executable command\n", Enumerable.Repeat(OneCommand, count)) + "\n```";
+            NativeBoundary.Reset("{\"changed\":true}", false);
+            var response = preflight
+                ? WorldEditorTools.PreflightCommandLimitForTest(parent, Relative, replacement)
+                : WorldEditorTools.ApplyOperationForTest(parent, Relative, replacement);
+            Require(response.IsError && NativeBoundary.Calls == 0,
+                "A multi-command replacement must reject before dispatch, even with allowPartial or preview.");
+            Require(parent.ToString(Formatting.None) == before, "The rejection must not alter caller policy arguments.");
+            VerifyLimit(StructuredBody(response), count);
+        }
+    }
+
+    private static void CommentsDoNotCountAsCommands()
+    {
+        const string replacement = "# call domain=speed action=pause\n## Edit Commands\n```text\n"
+            + "# another comment\ncall domain=speed action=time\n```\n";
+        NativeBoundary.Reset("{\"changed\":false,\"returned\":1}", false);
+        var preflight = WorldEditorTools.PreflightCommandLimitForTest(Parent(), Relative, replacement);
+        Require(!preflight.IsError && NativeBoundary.Calls == 0
+            && StructuredBody(preflight)["commands"].Count() == 1,
+            "Headings, fences and comments must not turn a single executable command into a refusal.");
+        var previewParent = Parent();
+        previewParent["dryRun"] = true;
+        var preview = WorldEditorTools.ApplyOperationForTest(previewParent, Relative, replacement);
+        Require(!preview.IsError && StructuredBody(preview)["preview"].Value<bool>() && NativeBoundary.Calls == 0,
+            "The existing single-command preview gate must remain nonexecuting.");
+        var executed = WorldEditorTools.ApplyOperationForTest(Parent(), Relative, replacement);
+        Require(!executed.IsError && NativeBoundary.Calls == 1
+            && StructuredBody(executed)["executedCommands"].Value<int>() == 1,
+            "A single command must still dispatch exactly once through the actual adapter.");
+        NativeBoundary.Reset("unused", false);
+        var empty = WorldEditorTools.ApplyOperationForTest(Parent(), Relative, "# comment only\n```text\n```\n");
+        Require(empty.IsError && NativeBoundary.Calls == 0,
+            "A comment-only replacement must keep the existing empty-command refusal.");
+    }
+
+    private static void EveryBlockIsPreflightedBeforeExecution()
+    {
+        var parent = Parent();
+        parent["path"] = "/active/" + Relative;
+        parent["allowPartial"] = true;
+        parent["content"] = Block(OneCommand) + Block(OneCommand + "\n" + OneCommand);
+        string before = parent.ToString(Formatting.None);
+        NativeBoundary.Reset("{\"changed\":true,\"succeeded\":1}", false);
+        var response = WorldEditorTools.EditForCountTest(parent);
+        var body = StructuredBody(response);
+        Require(response.IsError && NativeBoundary.Calls == 0,
+            "A later preflight refusal must leave the earlier valid block unexecuted.");
+        Require(body["phase"].Value<string>() == "preflight" && body["block"].Value<int>() == 1
+            && body["applied"].Value<int>() == 0 && body["appliedUnit"].Value<string>() == "edit_blocks"
+            && !body["changed"].Value<bool>(), "Whole-edit zero is justified only by the outer preflight rejection.");
+        VerifyLimit(JObject.Parse(body["error"].Value<string>()), 2);
+        Require(parent.ToString(Formatting.None) == before, "Whole-edit preflight must retain parent arguments.");
+
+        parent.Remove("allowPartial");
+        parent["content"] = Block(OneCommand) + Block(OneCommand);
+        NativeBoundary.Reset("{\"changed\":true}", false);
+        Require(WorldEditorTools.EditForCountTest(parent).IsError && NativeBoundary.Calls == 0,
+            "The default multi-block opt-in guard must remain intact.");
+        // OutcomeRegression already covers all preflights succeeding, then a later
+        // runtime error with changed=true. Its partial/outcome checks run unchanged.
+    }
+
+    private static void LocalizedRejectionAndGuideRemainAvailable()
+    {
+        var preferred = McpLocalization.LanguageProvider;
+        try
+        {
+            foreach (string language in new[] { "en", "ja", "zh-Hans" })
+            {
+                McpLocalization.LanguageProvider = () => language;
+                NativeBoundary.Reset("unused", false);
+                var response = WorldEditorTools.PreflightCommandLimitForTest(Parent(), Relative,
+                    OneCommand + "\n" + OneCommand);
+                VerifyLimit(StructuredBody(response), 2);
+                Require(NativeBoundary.Calls == 0, "Language selection must not dispatch a child operation.");
+                var read = WorldEditorTools.ReadOperationForTest(Relative);
+                string safety = McpLocalization.Get("operation_files.single_command_safety");
+                Require(!read.IsError && !string.IsNullOrWhiteSpace(safety)
+                    && safety != "operation_files.single_command_safety" && read.Content[0].Text.Contains(safety),
+                    "The actual operation reader must include the selected-language single-replacement safety contract.");
+            }
+        }
+        finally { McpLocalization.LanguageProvider = preferred; }
+    }
+
+    private static void VerifyLimit(JObject body, int requested)
+    {
+        Require(body["ok"]?.Value<bool>() == false && body["phase"]?.Value<string>() == "preflight"
+            && body["code"]?.Value<string>() == "operation_replacement_command_limit",
+            "A command-limit refusal must expose the stable structured preflight reason.");
+        Require(body["scope"]?.Value<string>() == "operation_replacement"
+            && body["file"]?.Value<string>() == Relative && body["requestedCommands"]?.Value<int>() == requested
+            && body["maxCommands"]?.Value<int>() == 1, "The rejection must identify its replacement file, count and limit.");
+        Require(body["executedCommands"]?.Value<int>() == 0 && body["changed"]?.Value<bool>() == false
+            && body["partial"]?.Value<bool>() == false,
+            "Zero-dispatch evidence must be scoped to this rejected replacement, not a rollback promise.");
+        Require(!string.IsNullOrWhiteSpace(body["error"]?.Value<string>())
+            && !string.IsNullOrWhiteSpace(body["guidance"]?.Value<string>())
+            && body["error"].Value<string>() != "operation_files.single_command_error"
+            && body["guidance"].Value<string>() != "operation_files.single_command_guidance",
+            "The machine reason must retain resolved human guidance.");
+    }
+
+    private static JObject StructuredBody(CallToolResult result)
+    {
+        JObject body = null;
+        try { body = JObject.Parse(result.Content[0].Text); }
+        catch (JsonException) { }
+        Require(body != null, "Command-limit rejection must expose a structured body; a plain legacy refusal is insufficient.");
+        return body;
+    }
+
+    private static string Block(string replacement)
+    {
+        return "<<<<<<< SEARCH\n\n=======\n" + replacement + "\n>>>>>>> REPLACE\n";
+    }
+
+    private static JObject Parent() => new JObject { ["task"] = "host command-limit boundary", ["confirm"] = true };
+    private static void Require(bool condition, string message)
+    {
+        checks++;
+        if (!condition) throw new Exception(message);
+    }
+}
+
+namespace OniMcp.Tools
+{
+    public static partial class WorldEditorTools
+    {
+        internal static CallToolResult PreflightCommandLimitForTest(JObject parent, string relative, string replacement)
+        {
+            return PreflightOperationMarkdownEdit(parent, relative, replacement);
+        }
+    }
+}
