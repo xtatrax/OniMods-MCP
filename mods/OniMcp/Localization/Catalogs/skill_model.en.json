@@ -1,0 +1,22 @@
+{
+  "skill_model.list_description": "Read the existing skill catalog or model-scoped target candidates and learned history. canMaster reports native mastery conditions, not complete UI eligibility.",
+  "skill_model.id": "Exact live duplicant InstanceID. A supplied unresolved ID never falls back to another target.",
+  "skill_model.name": "Exact duplicant name. Duplicate names require an explicit ID; an accompanying ID must identify the same duplicant.",
+  "skill_model.query": "Filter skill ID, name, group or description after target model filtering.",
+  "skill_model.limit": "Maximum returned rows: default 100, maximum 300. Model filtering precedes this limit.",
+  "skill_model.include_ui": "List only: include existing exact-target SkillsScreen/widget state. Default false; never opens, selects or refreshes UI.",
+  "skill_model.learn_description": "Learn through the normal exact-target Skills UI. dryRun does not open UI, click or grant. Explicit force=true retains the external GrantSkill path.",
+  "skill_model.skill_id": "Exact native skill ID for learning or a single-skill preview.",
+  "skill_model.force": "Skill learn only: explicitly request legacy external GrantSkill instead of normal UI. Default false; never a fallback, and dryRun still performs no grant.",
+  "skill_model.dry_run": "Skill open/learn only: return a preview without opening UI, clicking, mastering or granting skills.",
+  "skill_model.confirm": "Required true for actual skill UI opening or learning; dryRun is nonmutating.",
+  "skill_model.preview_guidance": "Preview only. Existing widget visibility and native mastery conditions do not guarantee a future learning action.",
+  "skill_model.action_unavailable": "The requested skill data or native UI action is unavailable. Inspect reasonCode; no lower-level fallback is performed.",
+  "skill_model.control_description": "Skill list, exact-target UI open, or learn. Normal learning delegates to an active native widget; explicit force grants remain separate.",
+  "skill_model.action": "list: read candidates; open: explicitly open the target Skills UI; learn: preview or execute one skill.",
+  "skill_model.invalid_action": "Skill action must be list, open or learn.",
+  "skill_model.table_base_header": "| Group | Tier | ID | Name | Morale | Requires | Required model |",
+  "skill_model.table_target_header": " Mastered | Native conditions | Model match | Scope |",
+  "skill_model.unknown": "unknown",
+  "skill_model.entry_action": "Subsystem action: info=detail/attributes/needs/status_check; priority=list/set/batch/settings_get/settings_set/reset; hat=list/set; command=move_to/move_batch_to/force_action/rename/auto_rename; side_screen=direct_commands/equipment/todos/bionic_upgrades; skill=list/open/learn; assignable=list/set/set_slot."
+}

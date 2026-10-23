@@ -1,0 +1,22 @@
+{
+  "skill_model.list_description": "既存の技能定義、または対象モデルの候補と習得履歴を読みます。canMasterは本体の習得条件値で、完全なUI許可ではありません。",
+  "skill_model.id": "生存中の複製人間の正確なInstanceID。指定IDが見つからない場合、別の対象へ補いません。",
+  "skill_model.name": "複製人間の正確な名前。同名が複数ならIDが必要です。ID併記時は同一人物である必要があります。",
+  "skill_model.query": "対象モデルの絞込み後、技能ID・名前・グループ・説明を検索します。",
+  "skill_model.limit": "返却行数。既定100、最大300。モデルの絞込みは件数制限より先に行います。",
+  "skill_model.include_ui": "listのみ: 既存の対象一致SkillsScreen/widget状態を添えます。既定false。画面を開く・選ぶ・更新する操作は行いません。",
+  "skill_model.learn_description": "正確な対象の通常スキルUIから習得します。dryRunでは画面表示・クリック・付与を行いません。明示force=trueは外部GrantSkill経路を維持します。",
+  "skill_model.skill_id": "習得または単一技能の予行に使う、本体の正確な技能ID。",
+  "skill_model.force": "skill learnのみ: 通常UIに代え、従来の外部GrantSkillを明示要求します。既定false。fallbackではなく、dryRun時は付与しません。",
+  "skill_model.dry_run": "skill open/learnのみ: 画面表示・クリック・習得・付与なしで予行を返します。",
+  "skill_model.confirm": "実際の技能画面表示・習得にはtrueが必要です。dryRunは変更しません。",
+  "skill_model.preview_guidance": "予行のみです。既存widgetの表示状態や本体の習得条件は、後の習得成功を保証しません。",
+  "skill_model.action_unavailable": "要求した技能データまたは本体UI操作を利用できません。reasonCodeを確認してください。低レベル処理へのfallbackは行いません。",
+  "skill_model.control_description": "技能一覧・対象を指定したUI表示・習得の入口です。通常習得は有効な本体widgetへ委譲し、明示的なforce付与と分けます。",
+  "skill_model.action": "list: 候補読取、open: 対象のスキルUIを明示表示、learn: 1技能の予行または実行。",
+  "skill_model.invalid_action": "技能actionはlist、open、learnのいずれかです。",
+  "skill_model.table_base_header": "| グループ | 段階 | ID | 名前 | 士気 | 前提 | 必要モデル |",
+  "skill_model.table_target_header": " 習得済み | 本体の習得条件 | モデル一致 | 範囲 |",
+  "skill_model.unknown": "未取得",
+  "skill_model.entry_action": "サブシステムの操作: info=detail/attributes/needs/status_check; priority=list/set/batch/settings_get/settings_set/reset; hat=list/set; command=move_to/move_batch_to/force_action/rename/auto_rename; side_screen=direct_commands/equipment/todos/bionic_upgrades; skill=list/open/learn; assignable=list/set/set_slot."
+}

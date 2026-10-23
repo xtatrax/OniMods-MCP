@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
 using OniMcp.Tools;
+using OniMcp.Support;
 
 internal static class ManagementSkillReadRegression
 {
@@ -11,13 +12,20 @@ internal static class ManagementSkillReadRegression
 
     internal static void Run()
     {
-        StringQueriesRenderNativeSkillRows();
-        ForwardingStaysDetachedAndReadOnly();
-        FormatSelectionPreservesLegacyPrecedence();
-        ScalarAndContainerQueriesDoNotThrow();
-        JsonPayloadsRemainExact();
-        MissingValuesAndEmptyListsStayMissingAndEmpty();
-        Console.WriteLine("Management skill Markdown regression checks passed: " + checks);
+        var previous = McpLocalization.LanguageProvider;
+        try
+        {
+            McpLocalization.LanguageProvider = () => "en";
+            StringQueriesRenderNativeSkillRows();
+            ForwardingStaysDetachedAndReadOnly();
+            FormatSelectionPreservesLegacyPrecedence();
+            ScalarAndContainerQueriesDoNotThrow();
+            JsonPayloadsRemainExact();
+            MissingValuesAndEmptyListsStayMissingAndEmpty();
+            UnavailableProducerResultsAreNotEmptySuccessTables();
+            Console.WriteLine("Management skill Markdown regression checks passed: " + checks);
+        }
+        finally { McpLocalization.LanguageProvider = previous; }
     }
 
     private static void StringQueriesRenderNativeSkillRows()
@@ -28,18 +36,18 @@ internal static class ManagementSkillReadRegression
             if (target) args["id"] = 17;
             string text = Read(args, Fixture(target));
             Require(text.StartsWith("# Duplicant Skill Tree", StringComparison.Ordinal), "a scalar skill query must render Markdown");
-            Require(text.Contains("| Mining | 0 | `Mining1` | Hard\\|Dig Field | 0 |  |"), "native zero, escaped names and empty prerequisites survive");
+            Require(text.Contains("| Mining | 0 | `Mining1` | Hard\\|Dig Field | 0 |  | Minion |"), "native zero, escaped names and empty prerequisites survive");
             Require(text.Contains("| Mining | 1 | `Mining2` | Deep Dig | 2 | Mining1, Mining|Prereq |".Replace("Mining|Prereq", "Mining\\|Prereq")),
                 "prerequisite arrays remain scalar IDs and are escaped");
             Require(text.IndexOf("`Mining1`", StringComparison.Ordinal) < text.IndexOf("`Mining2`", StringComparison.Ordinal),
                 "the native group/tier/ID ordering remains deterministic");
-            Require(text.Contains("Mastered | Can learn |") == target, "target-only columns follow the observed native dupe object");
+            Require(text.Contains("Mastered | Native conditions | Model match | Scope |") == target, "target-only columns follow the observed native dupe object");
             Require(text.Contains("- dupe:") == target, "global lists must not invent a target");
             if (target)
             {
                 Require(text.Contains("Dupe\\|Name Line"), "target display names escape table separators and newlines");
-                Require(text.Contains("| 0 |  | False | True |"), "false mastered and true canMaster remain visible");
-                Require(text.Contains("Mining\\|Prereq | True | False |"), "true mastered and false canMaster remain visible");
+                Require(text.Contains("| 0 |  | Minion | False | True | True | model_match |"), "false mastered and true canMaster remain visible");
+                Require(text.Contains("Mining\\|Prereq | BionicMinion | True | False | False | mastered_history_model_mismatch |"), "true mastered, false native conditions and model-mismatched history remain separate projection values");
             }
             Require(text.Contains("## Edit Commands") && text.Contains("# learn_skill"), "existing commented write examples remain comments");
         }
@@ -57,14 +65,15 @@ internal static class ManagementSkillReadRegression
         {
             scope["query"] = "Research";
             scope["limit"] = 1;
+            scope["includeUi"] = true;
             scope["confirm"] = true;
             scope["force"] = true;
             scope["skillId"] = "MustNotLearn";
             Read(scope, Fixture(scope["id"] != null || scope["name"] != null));
             var expected = new JObject { ["domain"] = "skill", ["action"] = "list" };
-            foreach (string key in new[] { "id", "name", "query", "limit" })
+            foreach (string key in new[] { "id", "name", "query", "limit", "includeUi" })
                 if (scope[key] != null) expected[key] = scope[key].DeepClone();
-            Require(JToken.DeepEquals(ManagementSkillBoundary.Arguments, expected), "only id/name/query/limit are forwarded to the native list");
+            Require(JToken.DeepEquals(ManagementSkillBoundary.Arguments, expected), "only id/name/query/limit/includeUi are forwarded to the native list");
         }
 
         var nested = new JObject { ["id"] = 17, ["query"] = new JObject { ["format"] = "json" }, ["limit"] = new JArray(1) };
@@ -128,8 +137,11 @@ internal static class ManagementSkillReadRegression
         var first = (JObject)root["skills"][1];
         first.Remove("mastered");
         first["canMaster"] = JValue.CreateNull();
+        first.Remove("requiredDuplicantModel");
+        first["modelMatch"] = JValue.CreateNull();
+        first["candidateScope"] = "model_unknown";
         string text = Read(new JObject { ["query"] = "Mining" }, root.ToString(Formatting.None));
-        Require(text.Contains("| 0 |  |  |  |"), "missing mastery values remain blank, not false, zero or true");
+        Require(text.Contains("| 0 |  | unknown |  |  | unknown | model_unknown |"), "missing native mastery remains blank and missing model remains explicit unknown, not compatible");
         foreach (bool target in new[] { false, true })
         {
             root = JObject.Parse(Fixture(target));
@@ -137,7 +149,22 @@ internal static class ManagementSkillReadRegression
             root["returned"] = 0;
             text = Read(new JObject { ["query"] = "NoSuchNativeSkill", ["limit"] = 1 }, root.ToString(Formatting.None));
             Require(!text.Contains("`Mining1`") && !text.Contains("`Mining2`"), "zero-result native arrays must not manufacture rows");
-            Require(text.Contains("Mastered | Can learn |") == target, "empty target and global lists retain their own column contract");
+            Require(text.Contains("Mastered | Native conditions | Model match | Scope |") == target, "empty target and global lists retain their own column contract");
+        }
+    }
+
+    private static void UnavailableProducerResultsAreNotEmptySuccessTables()
+    {
+        const string unavailable = "{\"ok\":false,\"status\":\"unavailable\",\"skills\":null,\"returned\":null}";
+        foreach (string format in new[] { "json", "markdown" })
+        {
+            ManagementSkillBoundary.Reset(unavailable);
+            ManagementSkillBoundary.Error = true;
+            var result = WorldEditorTools.ReadManagementForTest(new JObject { ["id"] = 17, ["format"] = format });
+            Require(result.IsError && ReferenceEquals(result, ManagementSkillBoundary.LastResult),
+                "unavailable producer result retains its error identity in JSON and Markdown");
+            Require(result.Content.Single().Text == unavailable && ManagementSkillBoundary.Calls == 1,
+                "unavailable native producer text is not rewritten into an empty successful catalog");
         }
     }
 
@@ -149,16 +176,20 @@ internal static class ManagementSkillReadRegression
             ["returned"] = 2,
             ["skills"] = new JArray(
                 new JObject { ["id"] = "Mining2", ["name"] = "Deep Dig", ["skillGroup"] = "Mining", ["tier"] = 1,
-                    ["moraleExpectation"] = 2, ["priorSkills"] = new JArray("Mining1", "Mining|Prereq") },
+                    ["moraleExpectation"] = 2, ["requiredDuplicantModel"] = "BionicMinion", ["priorSkills"] = new JArray("Mining1", "Mining|Prereq") },
                 new JObject { ["id"] = "Mining1", ["name"] = "Hard|Dig\nField", ["skillGroup"] = "Mining", ["tier"] = 0,
-                    ["moraleExpectation"] = 0, ["priorSkills"] = new JArray() })
+                    ["moraleExpectation"] = 0, ["requiredDuplicantModel"] = "Minion", ["priorSkills"] = new JArray() })
         };
         if (target)
         {
             root["skills"][0]["mastered"] = true;
             root["skills"][0]["canMaster"] = false;
+            root["skills"][0]["modelMatch"] = false;
+            root["skills"][0]["candidateScope"] = "mastered_history_model_mismatch";
             root["skills"][1]["mastered"] = false;
             root["skills"][1]["canMaster"] = true;
+            root["skills"][1]["modelMatch"] = true;
+            root["skills"][1]["candidateScope"] = "model_match";
         }
         return root.ToString(Formatting.None);
     }

@@ -13,10 +13,14 @@ namespace OniMcp.Tools
         internal static JObject Arguments;
         internal static JObject ReceivedReference;
         internal static bool MutateArguments;
+        internal static bool Error;
+        internal static CallToolResult LastResult;
 
         internal static void Reset(string text, bool mutateArguments = false)
         {
             Text = text;
+            Error = false;
+            LastResult = null;
             Calls = 0;
             Arguments = null;
             ReceivedReference = null;
@@ -38,7 +42,8 @@ namespace OniMcp.Tools
                 var limit = args["limit"] as JArray;
                 if (limit != null) limit.Add("changed by native fixture");
             }
-            return CallToolResult.Text(Text);
+            LastResult = Error ? CallToolResult.Error(Text) : CallToolResult.Text(Text);
+            return LastResult;
         }
     }
 

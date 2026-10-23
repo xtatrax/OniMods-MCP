@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -56,10 +57,11 @@ namespace OniMcp.Tools
         {
             var readArgs = new JObject { ["domain"] = "skill", ["action"] = "list" };
             // Keep this reader read-only while preserving the requested dupe and skill scope.
-            foreach (string key in new[] { "id", "name", "query", "limit" })
+            foreach (string key in new[] { "id", "name", "query", "limit", "includeUi" })
                 if (args?[key] != null)
                     readArgs[key] = args[key].DeepClone();
             var state = DuplicantTools.ControlDupes().Handler(readArgs);
+            if (state?.IsError == true) return state;
             if (WantsManagementJson(args))
                 return StateJsonResult(state);
             var root = ParseManagementState(state);
@@ -69,14 +71,19 @@ namespace OniMcp.Tools
                 sb.AppendLine("- dupe: `" + Esc(Str(dupe, "name")) + "` (ID " + Esc(Str(dupe, "id")) + ")");
             sb.AppendLine();
             sb.AppendLine("## Skills");
-            sb.AppendLine("| Group | Tier | ID | Name | Morale | Requires |" + (dupe == null ? "" : " Mastered | Can learn |"));
-            sb.AppendLine("| --- | ---: | --- | --- | ---: | --- |" + (dupe == null ? "" : " --- | --- |"));
+            sb.AppendLine(McpLocalization.Get("skill_model.table_base_header") + (dupe == null ? "" : McpLocalization.Get("skill_model.table_target_header")));
+            sb.AppendLine("| --- | ---: | --- | --- | ---: | --- | --- |" + (dupe == null ? "" : " --- | --- | --- | --- |"));
             foreach (var skill in Arr(root, "skills").OfType<JObject>().OrderBy(s => Str(s, "skillGroup")).ThenBy(s => Int(s, "tier", 0)).ThenBy(s => Str(s, "id")))
             {
                 sb.AppendLine("| " + Esc(Str(skill, "skillGroup")) + " | " + Int(skill, "tier", 0)
                     + " | `" + Esc(Str(skill, "id")) + "` | " + Esc(Str(skill, "name"))
-                    + " | " + Int(skill, "moraleExpectation", 0) + " | " + Esc(JoinStrings(skill["priorSkills"])) + " |"
-                    + (dupe == null ? "" : " " + Esc(Str(skill, "mastered")) + " | " + Esc(Str(skill, "canMaster")) + " |"));
+                    + " | " + Int(skill, "moraleExpectation", 0) + " | " + Esc(JoinStrings(skill["priorSkills"])) + " | "
+                    + Esc(skill["requiredDuplicantModel"] == null || skill["requiredDuplicantModel"].Type == JTokenType.Null
+                        ? McpLocalization.Get("skill_model.unknown") : Str(skill, "requiredDuplicantModel")) + " |"
+                    + (dupe == null ? "" : " " + Esc(Str(skill, "mastered")) + " | " + Esc(Str(skill, "canMaster"))
+                        + " | " + Esc(skill["modelMatch"] == null || skill["modelMatch"].Type == JTokenType.Null
+                            ? McpLocalization.Get("skill_model.unknown") : Str(skill, "modelMatch"))
+                        + " | " + Esc(Str(skill, "candidateScope")) + " |"));
             }
             AppendEditCommands(sb, new[]
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -33,7 +34,7 @@ namespace OniMcp.Tools
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["domain"] = new McpToolParameter { Type = "string", Description = "複製人間のサブシステム: info、priority、hat、command、side_screen、skill、assignable", Required = true, EnumValues = new List<string> { "info", "priority", "hat", "command", "side_screen", "skill", "assignable" } },
-                    ["action"] = new McpToolParameter { Type = "string", Description = "サブシステムの操作。info=detail/attributes/needs/status_check、priority=list/set/batch/settings_get/settings_set/reset、hat=list/set、command=move_to/move_batch_to/force_action/rename/auto_rename、side_screen=direct_commands/equipment/todos/bionic_upgrades、skill=list/learn、assignable=list/set/set_slot", Required = true },
+                    ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("skill_model.entry_action"), Required = true },
                     ["id"] = new McpToolParameter { Type = "integer", Description = "複製人間、対象オブジェクト、または割り当て可能なオブジェクトの InstanceID", Required = false },
                     ["name"] = new McpToolParameter { Type = "string", Description = "複製人間または対象オブジェクトの名前", Required = false },
                     ["dupeId"] = new McpToolParameter { Type = "integer", Description = "複製人間の InstanceID。一部の書き込み操作で使用", Required = false },
@@ -47,6 +48,9 @@ namespace OniMcp.Tools
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "返す、または処理する最大件数", Required = false },
                     ["priority"] = new McpToolParameter { Type = "integer", Description = "domain=priority の書き込み操作の優先度", Required = false },
                     ["skillId"] = new McpToolParameter { Type = "string", Description = "domain=skill action=learn のスキル ID", Required = false },
+                    ["includeUi"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("skill_model.include_ui"), Required = false },
+                    ["force"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("skill_model.force"), Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("skill_model.dry_run"), Required = false },
                     ["hatId"] = new McpToolParameter { Type = "string", Description = "domain=hat action=set の帽子 ID", Required = false },
                     ["newName"] = new McpToolParameter { Type = "string", Description = "domain=command action=rename の新しい名前", Required = false },
                     ["style"] = new McpToolParameter { Type = "string", Description = "domain=command action=auto_rename の命名形式", Required = false },

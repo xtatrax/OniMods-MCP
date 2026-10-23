@@ -1135,3 +1135,123 @@ msgstr ""
 msgctxt "OniMcp.MCP.OPERATION_FILES.SINGLE_COMMAND_SAFETY"
 msgid "- safety: each operation replacement accepts at most one executable command. Preview, confirm execution, then read the result again. Earlier successful replacements can remain after a later execution failure; no automatic rollback is performed."
 msgstr ""
+
+#. Runtime JSON key: skill_model.list_description
+#. Runtime zh-Hans msgstr: "读取现有技能目录，或目标模型的候选与已学历史。canMaster表示原生掌握条件，并非完整UI许可。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.LIST_DESCRIPTION"
+msgid "Read the existing skill catalog or model-scoped target candidates and learned history. canMaster reports native mastery conditions, not complete UI eligibility."
+msgstr ""
+
+#. Runtime JSON key: skill_model.id
+#. Runtime zh-Hans msgstr: "存活复制人的精确InstanceID。指定ID未找到时不会改选其他目标。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.ID"
+msgid "Exact live duplicant InstanceID. A supplied unresolved ID never falls back to another target."
+msgstr ""
+
+#. Runtime JSON key: skill_model.name
+#. Runtime zh-Hans msgstr: "复制人的精确名称。同名重复时须指定ID；同时提供ID时必须指向同一人。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.NAME"
+msgid "Exact duplicant name. Duplicate names require an explicit ID; an accompanying ID must identify the same duplicant."
+msgstr ""
+
+#. Runtime JSON key: skill_model.query
+#. Runtime zh-Hans msgstr: "先按目标模型筛选，再搜索技能ID、名称、组或说明。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.QUERY"
+msgid "Filter skill ID, name, group or description after target model filtering."
+msgstr ""
+
+#. Runtime JSON key: skill_model.limit
+#. Runtime zh-Hans msgstr: "返回行数上限：默认100、最大300。模型筛选先于数量限制。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.LIMIT"
+msgid "Maximum returned rows: default 100, maximum 300. Model filtering precedes this limit."
+msgstr ""
+
+#. Runtime JSON key: skill_model.include_ui
+#. Runtime zh-Hans msgstr: "仅list：附加现有且目标一致的SkillsScreen/widget状态。默认false，不打开、选择或刷新UI。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.INCLUDE_UI"
+msgid "List only: include existing exact-target SkillsScreen/widget state. Default false; never opens, selects or refreshes UI."
+msgstr ""
+
+#. Runtime JSON key: skill_model.learn_description
+#. Runtime zh-Hans msgstr: "通过精确目标的普通技能UI学习。dryRun不打开UI、不点击或授予。明确force=true保留外部GrantSkill路径。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.LEARN_DESCRIPTION"
+msgid "Learn through the normal exact-target Skills UI. dryRun does not open UI, click or grant. Explicit force=true retains the external GrantSkill path."
+msgstr ""
+
+#. Runtime JSON key: skill_model.skill_id
+#. Runtime zh-Hans msgstr: "用于学习或单技能预览的精确原生技能ID。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.SKILL_ID"
+msgid "Exact native skill ID for learning or a single-skill preview."
+msgstr ""
+
+#. Runtime JSON key: skill_model.force
+#. Runtime zh-Hans msgstr: "仅skill learn：明确请求旧外部GrantSkill，替代普通UI。默认false，绝非失败后备路径，dryRun仍不授予。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.FORCE"
+msgid "Skill learn only: explicitly request legacy external GrantSkill instead of normal UI. Default false; never a fallback, and dryRun still performs no grant."
+msgstr ""
+
+#. Runtime JSON key: skill_model.dry_run
+#. Runtime zh-Hans msgstr: "仅skill open/learn：返回预览，不打开UI、点击、掌握或授予技能。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.DRY_RUN"
+msgid "Skill open/learn only: return a preview without opening UI, clicking, mastering or granting skills."
+msgstr ""
+
+#. Runtime JSON key: skill_model.confirm
+#. Runtime zh-Hans msgstr: "实际打开技能UI或学习时必须为true；dryRun不更改状态。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.CONFIRM"
+msgid "Required true for actual skill UI opening or learning; dryRun is nonmutating."
+msgstr ""
+
+#. Runtime JSON key: skill_model.preview_guidance
+#. Runtime zh-Hans msgstr: "仅为预览。现有widget可见性和原生掌握条件不保证之后学习成功。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.PREVIEW_GUIDANCE"
+msgid "Preview only. Existing widget visibility and native mastery conditions do not guarantee a future learning action."
+msgstr ""
+
+#. Runtime JSON key: skill_model.action_unavailable
+#. Runtime zh-Hans msgstr: "请求的技能数据或原生UI操作不可用。请查看reasonCode，不会转用低层后备路径。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.ACTION_UNAVAILABLE"
+msgid "The requested skill data or native UI action is unavailable. Inspect reasonCode; no lower-level fallback is performed."
+msgstr ""
+
+#. Runtime JSON key: skill_model.control_description
+#. Runtime zh-Hans msgstr: "技能列表、精确目标UI打开或学习入口。普通学习委托给活动原生widget，明确force授予保持独立。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.CONTROL_DESCRIPTION"
+msgid "Skill list, exact-target UI open, or learn. Normal learning delegates to an active native widget; explicit force grants remain separate."
+msgstr ""
+
+#. Runtime JSON key: skill_model.action
+#. Runtime zh-Hans msgstr: "list：读取候选；open：明确打开目标技能UI；learn：预览或执行一项技能。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.ACTION"
+msgid "list: read candidates; open: explicitly open the target Skills UI; learn: preview or execute one skill."
+msgstr ""
+
+#. Runtime JSON key: skill_model.invalid_action
+#. Runtime zh-Hans msgstr: "技能action必须是list、open或learn。"
+msgctxt "OniMcp.MCP.SKILL_MODEL.INVALID_ACTION"
+msgid "Skill action must be list, open or learn."
+msgstr ""
+
+#. Runtime JSON key: skill_model.table_base_header
+#. Runtime zh-Hans msgstr: "| 组 | 阶级 | ID | 名称 | 士气 | 前置 | 所需模型 |"
+msgctxt "OniMcp.MCP.SKILL_MODEL.TABLE_BASE_HEADER"
+msgid "| Group | Tier | ID | Name | Morale | Requires | Required model |"
+msgstr ""
+
+#. Runtime JSON key: skill_model.table_target_header
+#. Runtime zh-Hans msgstr: " 已掌握 | 原生掌握条件 | 模型匹配 | 范围 |"
+msgctxt "OniMcp.MCP.SKILL_MODEL.TABLE_TARGET_HEADER"
+msgid " Mastered | Native conditions | Model match | Scope |"
+msgstr ""
+
+#. Runtime JSON key: skill_model.unknown
+#. Runtime zh-Hans msgstr: "未知"
+msgctxt "OniMcp.MCP.SKILL_MODEL.UNKNOWN"
+msgid "unknown"
+msgstr ""
+
+#. Runtime JSON key: skill_model.entry_action
+#. Runtime zh-Hans msgstr: "子系统操作：info=detail/attributes/needs/status_check; priority=list/set/batch/settings_get/settings_set/reset; hat=list/set; command=move_to/move_batch_to/force_action/rename/auto_rename; side_screen=direct_commands/equipment/todos/bionic_upgrades; skill=list/open/learn; assignable=list/set/set_slot."
+msgctxt "OniMcp.MCP.SKILL_MODEL.ENTRY_ACTION"
+msgid "Subsystem action: info=detail/attributes/needs/status_check; priority=list/set/batch/settings_get/settings_set/reset; hat=list/set; command=move_to/move_batch_to/force_action/rename/auto_rename; side_screen=direct_commands/equipment/todos/bionic_upgrades; skill=list/open/learn; assignable=list/set/set_slot."
+msgstr ""
