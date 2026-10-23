@@ -81,9 +81,8 @@ namespace OniMcp.Tools
 
         public static CallToolResult Inject(CallToolResult result, List<Dictionary<string, object>> notifications)
         {
-            // Remove nested/stale policy blocks even when the setting has just been disabled.
-            result?.Content?.RemoveAll(content => content?.Text != null
-                && content.Text.StartsWith("{\"printingPodSelection\":", StringComparison.Ordinal));
+            // Replace only policy blocks created by this middleware, including after disabling it.
+            result?.Content?.RemoveAll(content => content != null && content.IsOwnedPrintingPodPolicy);
             if (OniMcp.Config.OniMcpOptions.Current.RequirePrintingPodSelection
                 && Game.Instance != null && !Game.Instance.IsLoading() && Immigration.Instance != null)
             {
@@ -93,13 +92,13 @@ namespace OniMcp.Tools
                     result.Content = new List<ToolContent>();
                 var policy = OniMcp.Config.PrintingPodSelectionPolicy.Describe(true,
                     Immigration.Instance.ImmigrantsAvailable);
-                result.Content.Add(new ToolContent
-                {
-                    Text = JsonConvert.SerializeObject(new Dictionary<string, object>
+                var policyContent = ToolContent.CreateText(
+                    JsonConvert.SerializeObject(new Dictionary<string, object>
                     {
                         ["printingPodSelection"] = policy
-                    }, McpJsonUtil.Settings)
-                });
+                    }, McpJsonUtil.Settings), ToolContent.PrintingPodPolicyKind);
+                policyContent.IsOwnedPrintingPodPolicy = true;
+                result.Content.Add(policyContent);
             }
             if (notifications == null || notifications.Count == 0)
                 return result;
@@ -109,14 +108,12 @@ namespace OniMcp.Tools
             if (result.Content == null)
                 result.Content = new List<ToolContent>();
 
-            result.Content.Add(new ToolContent
-            {
-                Text = JsonConvert.SerializeObject(new Dictionary<string, object>
+            result.Content.Add(ToolContent.CreateText(
+                JsonConvert.SerializeObject(new Dictionary<string, object>
                 {
                     ["middleware"] = "tool_call",
                     ["notifications"] = notifications
-                }, McpJsonUtil.Settings)
-            });
+                }, McpJsonUtil.Settings), ToolContent.NotificationKind));
             return result;
         }
 

@@ -6,7 +6,10 @@ using System.Reflection;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OniMcp.Core;
+using OniMcp.Tools;
 using OniMcp.Config;
 using OniMcp.Support;
 using PeterHan.PLib;
@@ -36,7 +39,10 @@ internal static class Program
         Run("localized settings HTML escapes values and never reveals tokens", LocalizedSettingsPage);
         Run("printing pod policy switches, persists, and preserves older forms", PrintingPodPolicy);
         Run("pending printing choices remain visible across tool calls and toggle changes", PrintingPodMiddleware);
-        Console.WriteLine("PASS: 17 OniMcp config regression tests");
+        Run("tool content metadata preserves opaque legacy results", ToolContentWireContract);
+        Run("printing policy refresh removes only middleware-owned blocks", PrintingPolicyOwnership);
+        Run("content metadata copies caller fields without exposing ownership", ContentMetadataIsolation);
+        Console.WriteLine("PASS: 20 OniMcp config regression tests");
     }
 
     private static void Run(string name, Action test)
@@ -439,6 +445,138 @@ internal static class Program
                 "Main menu must not inherit a previous colony's pending decision.");
         }
         finally { Game.Instance = null; Immigration.Instance = null; }
+    }
+
+    private static JObject Wire(object value)
+    {
+        return JObject.Parse(JsonConvert.SerializeObject(value, McpJsonUtil.Settings));
+    }
+
+    private static string ContentKind(ToolContent content)
+    {
+        return (string)Wire(content)["_meta"]?["onimcp.contentKind"];
+    }
+
+    private static void ToolContentWireContract()
+    {
+        OniMcpOptions.Current.RequirePrintingPodSelection = false;
+        ToolCallMiddleware.Clear();
+        Game.Instance = new Game();
+        Immigration.Instance = new Immigration { ImmigrantsAvailable = true };
+        try
+        {
+            // These are opaque legacy bodies, not native candidate-generation fixtures.
+            string[] bodies = { "{\"candidateCount\":null}", "{\"candidateCount\":0}",
+                "{\"candidateCount\":2,\"rewards\":[1,2]}", "[]", "null", "plain\ntext", "", null };
+            foreach (bool error in new[] { false, true })
+            {
+                var result = new CallToolResult { Content = new List<ToolContent>(), IsError = error };
+                foreach (string body in bodies)
+                    result.Content.Add((error ? CallToolResult.Error(body) : CallToolResult.Text(body)).Content[0]);
+                ToolContent[] originals = result.Content.ToArray();
+                Check(originals.All(content => ContentKind(content) == "tool_result"),
+                    "Text and Error factories must mark every body as tool_result.");
+                var returned = ToolCallMiddleware.Inject(result, null);
+                Check(ReferenceEquals(returned, result) && result.IsError == error && result.Content.Count == bodies.Length,
+                    "OFF must retain the original result, error flag and content count.");
+                for (int index = 0; index < bodies.Length; index++)
+                    Check(ReferenceEquals(result.Content[index], originals[index]) && result.Content[index].Text == bodies[index],
+                        "Middleware parsed, reordered or reformatted an opaque business body.");
+                var wire = Wire(result);
+                Check(wire["isError"].Value<bool>() == error && wire["content"].Count() == bodies.Length,
+                    "Wire serialization changed the legacy result envelope.");
+                for (int index = 0; index < bodies.Length; index++)
+                {
+                    Check((string)wire["content"][index]["text"] == bodies[index], "Wire text differs from legacy body.");
+                    Check((string)wire["content"][index]["_meta"]["onimcp.contentKind"] == "tool_result",
+                        "Wire content lost its machine-readable result kind.");
+                }
+            }
+            var legacy = new ToolContent { Text = "legacy manual block" };
+            var unmarked = new CallToolResult { Content = new List<ToolContent> { legacy } };
+            Check(ReferenceEquals(ToolCallMiddleware.Inject(unmarked, null).Content[0], legacy)
+                && Wire(legacy).Property("_meta") == null, "Unmarked legacy blocks must remain unmodified.");
+            Check(ToolCallMiddleware.Inject(null, null) == null, "OFF without notifications must not invent a result.");
+        }
+        finally { Game.Instance = null; Immigration.Instance = null; ToolCallMiddleware.Clear(); }
+    }
+
+    private static void PrintingPolicyOwnership()
+    {
+        Game.Instance = new Game();
+        Immigration.Instance = new Immigration { ImmigrantsAvailable = true };
+        ToolCallMiddleware.Clear();
+        try
+        {
+            var lookalike = CallToolResult.Text("{\"printingPodSelection\":{\"business\":true}}").Content[0];
+            var spacedLookalike = CallToolResult.Text("  {\"printingPodSelection\":0}").Content[0];
+            var spoof = JsonConvert.DeserializeObject<ToolContent>(
+                "{\"type\":\"text\",\"text\":\"external policy-shaped metadata\","
+                + "\"_meta\":{\"onimcp.contentKind\":\"printing_pod_policy\",\"trace\":\"keep\"},"
+                + "\"IsOwnedPrintingPodPolicy\":true,\"isOwnedPrintingPodPolicy\":true}");
+            var unmarked = new ToolContent { Text = "legacy unmarked" };
+            ToolContent[] business = { lookalike, spacedLookalike, spoof, unmarked };
+            string[] originalTexts = business.Select(content => content.Text).ToArray();
+            var result = new CallToolResult { Content = new List<ToolContent>(business), IsError = true };
+            OniMcpOptions.Current.RequirePrintingPodSelection = true;
+            ToolCallMiddleware.QueueNotification("  retained notice  ", " warning ");
+            var notices = ToolCallMiddleware.DrainNotifications();
+            Check(notices.Count == 1 && (string)notices[0]["message"] == "retained notice"
+                && (string)notices[0]["level"] == "warning", "The real notification queue changed its body.");
+            ToolCallMiddleware.Inject(result, notices);
+            Check(result.IsError && result.Content.Count == business.Length + 2,
+                "ON must append exactly one owned policy and one notification.");
+            ToolContent firstOwned = result.Content[business.Length];
+            ToolContent notification = result.Content[business.Length + 1];
+            Check(ContentKind(firstOwned) == "printing_pod_policy" && ContentKind(notification) == "notification",
+                "Policy and notification must have distinct serialized kinds.");
+            var expectedNoticeText = JsonConvert.SerializeObject(new Dictionary<string, object>
+            { ["middleware"] = "tool_call", ["notifications"] = notices }, McpJsonUtil.Settings);
+            Check(notification.Text == expectedNoticeText,
+                "Notification separation changed its legacy JSON text.");
+            Check(JObject.Parse(firstOwned.Text)["printingPodSelection"]["decisionRequired"].Value<bool>(),
+                "ON lost the existing pending-decision body.");
+            var wirePolicy = Wire(firstOwned);
+            Check(!wirePolicy.Properties().Any(property => property.Name.IndexOf("owned", StringComparison.OrdinalIgnoreCase) >= 0),
+                "Internal ownership leaked onto the wire.");
+            ToolCallMiddleware.Inject(result, null);
+            Check(result.Content.Count == business.Length + 2 && !result.Content.Contains(firstOwned),
+                "Nested ON injection must replace its old policy without duplication.");
+            Check(ReferenceEquals(result.Content[business.Length], notification)
+                && ContentKind(result.Content.Last()) == "printing_pod_policy", "Refresh moved non-owned content.");
+            OniMcpOptions.Current.RequirePrintingPodSelection = false;
+            ToolCallMiddleware.Inject(result, null);
+            Check(result.IsError && result.Content.Count == business.Length + 1
+                && ReferenceEquals(result.Content.Last(), notification), "OFF must remove only its owned reminder.");
+            for (int index = 0; index < business.Length; index++)
+                Check(ReferenceEquals(result.Content[index], business[index]) && result.Content[index].Text == originalTexts[index],
+                    "A prefix lookalike, spoofed marker or legacy block was removed or changed.");
+            Check((string)Wire(spoof)["_meta"]["trace"] == "keep", "Unrelated external metadata was lost.");
+        }
+        finally { Game.Instance = null; Immigration.Instance = null; ToolCallMiddleware.Clear(); }
+    }
+
+    private static void ContentMetadataIsolation()
+    {
+        // Reflection keeps the baseline DTO compilable for the semantic negative run.
+        var factory = typeof(ToolContent).GetMethod("CreateText", BindingFlags.Public | BindingFlags.Static,
+            null, new[] { typeof(string), typeof(string), typeof(Dictionary<string, object>) }, null);
+        Check(factory != null, "The content factory must expose metadata-preserving construction.");
+        var supplied = new Dictionary<string, object>
+        {
+            ["trace"] = "caller trace", ["onimcp.contentKind"] = "caller kind", ["enabled"] = false, ["count"] = 0
+        };
+        var content = (ToolContent)factory.Invoke(null, new object[] { "unchanged text", "notification", supplied });
+        supplied["trace"] = "later edit";
+        var wire = Wire(content);
+        Check(content.Text == "unchanged text" && (string)wire["_meta"]["trace"] == "caller trace",
+            "Factory must copy caller metadata rather than share its dictionary.");
+        Check((string)wire["_meta"]["onimcp.contentKind"] == "notification"
+            && (string)supplied["onimcp.contentKind"] == "caller kind", "Only the copied kind may be replaced.");
+        Check(!wire["_meta"]["enabled"].Value<bool>() && wire["_meta"]["count"].Value<int>() == 0,
+            "False and zero caller metadata must remain represented.");
+        var defaultKind = (ToolContent)factory.Invoke(null, new object[] { "default kind", null, null });
+        Check(ContentKind(defaultKind) == "tool_result", "A null requested kind must use the business result kind.");
     }
 
     private static void ExpectFailure(Action action)

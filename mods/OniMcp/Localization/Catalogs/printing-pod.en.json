@@ -1,0 +1,8 @@
+{
+  "printingPod.rewards.dupe_claim_support": "Duplicant selection is available through the native open_immigrants UI only; action=claim does not select duplicants.",
+  "printingPod.rewards.notes.no_ready_offers": "No Printing Pod offer is currently ready. Stored candidates from an earlier offer are not counted.",
+  "printingPod.rewards.notes.unknown": "The current native candidate cache could not be observed. Unknown counts are null, not zero.",
+  "printingPod.rewards.notes.not_materialized": "An offer is ready, but its current native candidate list is not materialized. This read does not generate or open choices.",
+  "printingPod.rewards.notes.generation_pending": "The existing native candidate list is still being populated. Counts are unknown; this read does not refresh or generate candidates.",
+  "printingPod.rewards.notes.materialized": "Only care-package choices observed in the current native screen cache are listed. This read does not evaluate requirements or claim eligibility."
+}

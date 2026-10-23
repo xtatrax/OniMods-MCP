@@ -1,0 +1,8 @@
+{
+  "printingPod.rewards.dupe_claim_support": "複製人間の選択は本体の open_immigrants 画面のみ対応します。action=claim で複製人間は選択しません。",
+  "printingPod.rewards.notes.no_ready_offers": "現在受け取れる製造ポッドの候補はありません。以前の候補キャッシュは集計しません。",
+  "printingPod.rewards.notes.unknown": "現在の本体候補キャッシュを確認できませんでした。未取得の件数は0ではなく null です。",
+  "printingPod.rewards.notes.not_materialized": "受取可能ですが、現在の本体候補一覧は未生成です。この読取で候補の生成や画面の表示は行いません。",
+  "printingPod.rewards.notes.generation_pending": "既存の本体候補一覧は生成途中です。件数は未取得であり、この読取で候補の更新や生成は行いません。",
+  "printingPod.rewards.notes.materialized": "現在の本体画面キャッシュで確認できた補給品候補のみを表示します。この読取で要件や受取可否は評価しません。"
+}

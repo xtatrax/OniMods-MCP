@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -44,7 +45,8 @@ namespace OniMcp.Tools
             if (!Immigration.Instance.ImmigrantsAvailable)
                 return CallToolResult.Error("No printing pod rewards available right now");
 
-            var rewards = CurrentCarePackages().ToList();
+            var observation = PrintingPodCandidateObserver.Read(telepad);
+            var rewards = observation.CarePackages.ToList();
             bool initializedScreenForClaim = false;
             if (rewards.Count == 0)
             {
@@ -152,27 +154,27 @@ namespace OniMcp.Tools
         private static Dictionary<string, object> PrintingRewardStatus(Telepad telepad)
         {
             var immigration = Immigration.Instance;
-            bool available = immigration != null && immigration.ImmigrantsAvailable;
-            var rewards = (available ? CurrentCarePackages() : Enumerable.Empty<CarePackageInfo>())
-                .Select((item, index) => CarePackageInfoDictionary(item, index))
+            var observation = PrintingPodCandidateObserver.Read(telepad);
+            var rewards = observation.CarePackages
+                .Select((item, index) => CarePackageInfoDictionary(item, index, evaluateRequirement: false))
                 .ToList();
 
             var result = new Dictionary<string, object>
             {
-                ["available"] = available,
+                ["available"] = observation.Available,
                 ["timeRemainingSeconds"] = immigration == null ? (object)null : Math.Round(ToolUtil.SafeFloat(immigration.GetTimeRemaining()), 1),
                 ["timeRemainingCycles"] = immigration == null ? (object)null : Math.Round(ToolUtil.SafeFloat(immigration.GetTimeRemaining() / 600f), 3),
-                ["rewardCount"] = rewards.Count,
+                ["rewardCount"] = observation.CarePackageCount,
                 ["rewards"] = rewards,
-                ["claimSupport"] = rewards.Count > 0 ? "care_package_only" : "none_currently_safe",
-                ["dupeClaimSupport"] = "open_immigrants UI only; automatic duplicant selection is intentionally not claimed by action=claim",
-                ["notes"] = rewards.Count > 0
-                    ? "Only currently materialized care-package choices are listed."
-                    : "No current care-package containers are materialized. This tool will not open or initialize the immigrant screen during list/status or claim."
+                ["candidateObservation"] = observation.ToDictionary(),
+                ["claimSupport"] = !observation.CarePackageCount.HasValue ? "unknown"
+                    : observation.CarePackageCount.Value > 0 ? "care_package_only" : "none_currently_safe",
+                ["dupeClaimSupport"] = McpLocalization.Get("printingPod.rewards.dupe_claim_support"),
+                ["notes"] = McpLocalization.Get("printingPod.rewards.notes." + observation.Status)
             };
             var policy = OniMcp.Config.PrintingPodSelectionPolicy.Describe(
                 OniMcp.Config.OniMcpOptions.Current.RequirePrintingPodSelection,
-                immigration == null ? (bool?)null : available);
+                observation.Available);
             if (policy != null)
                 result["selectionPolicy"] = policy;
             return result;
@@ -217,10 +219,10 @@ namespace OniMcp.Tools
                 .ToList();
         }
 
-        private static Dictionary<string, object> CarePackageInfoDictionary(CarePackageInfo info, int index)
+        private static Dictionary<string, object> CarePackageInfoDictionary(CarePackageInfo info, int index, bool evaluateRequirement = true)
         {
             var prefab = info == null || string.IsNullOrWhiteSpace(info.id) ? null : Assets.GetPrefab(info.id);
-            return new Dictionary<string, object>
+            var result = new Dictionary<string, object>
             {
                 ["index"] = index,
                 ["kind"] = "care_package",
@@ -229,9 +231,12 @@ namespace OniMcp.Tools
                 ["name"] = prefab == null ? info?.id : ToolUtil.CleanName(prefab.GetProperName()),
                 ["quantity"] = info == null ? (object)null : Math.Round(ToolUtil.SafeFloat(info.quantity), 3),
                 ["facadeId"] = info?.facadeID,
-                ["requirementMet"] = info?.requirement == null ? (object)null : SafeRequirement(info.requirement),
-                ["claimable"] = true
+                ["requirementMet"] = !evaluateRequirement || info?.requirement == null ? (object)null : SafeRequirement(info.requirement),
+                ["claimable"] = evaluateRequirement ? (object)true : null
             };
+            if (!evaluateRequirement)
+                result["claimabilityStatus"] = "not_evaluated";
+            return result;
         }
 
         private static string FirstNonEmpty(params JToken[] values)

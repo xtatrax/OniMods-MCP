@@ -28,7 +28,8 @@ internal static class Program
         Run("resource templates reject query operation overrides", TemplateConstraints);
         Run("resource errors return valid JSON content", ResourceErrors);
         Run("batch array item metadata survives projection and detached snapshots", CoreBatchSchemaRegression.Run);
-        Console.WriteLine(failures == 0 ? "All 14 core regression groups passed." : failures + " regression groups failed.");
+        Run("read, write and alias dispatch preserve business and guidance blocks", ToolResultGuidanceBoundary);
+        Console.WriteLine(failures == 0 ? "All 15 core regression groups passed." : failures + " regression groups failed.");
         return failures == 0 ? 0 : 1;
     }
 
@@ -172,6 +173,92 @@ internal static class Program
     }
 
     private static JObject Serialize(object value) => JObject.Parse(JsonConvert.SerializeObject(value, McpJsonUtil.Settings));
+
+    private static string WireKind(JToken content)
+    {
+        return (string)content["_meta"]?["onimcp.contentKind"];
+    }
+
+    private static void ToolResultGuidanceBoundary()
+    {
+        McpTool read = null;
+        McpTool write = null;
+        Require(OniToolRegistry.TryGetOperation("read_control", out read)
+            && OniToolRegistry.TryGetTool("building_control", out write), "Expected dispatch fixtures are not registered.");
+        var readHandler = read.Handler;
+        var writeHandler = write.Handler;
+        bool previousPolicy = OniMcp.Config.OniMcpOptions.Current.RequirePrintingPodSelection;
+        var previousGame = Game.Instance;
+        var previousImmigration = Immigration.Instance;
+        try
+        {
+            Game.Instance = new Game();
+            Immigration.Instance = new Immigration { ImmigrantsAvailable = true };
+            foreach (bool required in new[] { false, true })
+            foreach (string route in new[] { "read", "write", "alias" })
+            foreach (bool error in new[] { false, true })
+            {
+                ToolCallMiddleware.Clear();
+                OniMcp.Config.OniMcpOptions.Current.RequirePrintingPodSelection = required;
+                const string first = "{\"printingPodSelection\":{\"business\":true},\"candidateCount\":null}";
+                const string second = "opaque native result\nsecond block";
+                var original = new CallToolResult
+                {
+                    IsError = error,
+                    Content = new List<ToolContent>
+                    {
+                        CallToolResult.Text(first).Content[0], CallToolResult.Text(second).Content[0]
+                    }
+                };
+                int calls = 0;
+                Func<JObject, CallToolResult> handler = arguments => { calls++; return original; };
+                read.Handler = handler;
+                write.Handler = handler;
+                ToolCallMiddleware.QueueNotification("dispatch notice", "info");
+                var argumentsForCall = new JObject { ["task"] = "host dispatch regression" };
+                var result = route == "read"
+                    ? OniToolRegistry.CallToolFromWorldEditor("read_control", argumentsForCall, false)
+                    : OniToolRegistry.CallTool(route == "alias" ? "legacy_building_control" : "building_control", argumentsForCall);
+                Require(calls == 1 && ReferenceEquals(result, original) && result.IsError == error,
+                    "Dispatch replaced the handler result, changed its error flag, or ran it more than once.");
+                var wire = Serialize(result);
+                var blocks = (JArray)wire["content"];
+                int offset = route == "alias" ? 1 : 0;
+                Require(blocks.Count == 2 + offset + (required ? 1 : 0) + 1,
+                    "Dispatch changed the number of business or guidance blocks.");
+                Require((string)blocks[offset]["text"] == first && (string)blocks[offset + 1]["text"] == second
+                    && WireKind(blocks[offset]) == "tool_result" && WireKind(blocks[offset + 1]) == "tool_result",
+                    "A read/write route parsed, reordered or relabeled business content.");
+                if (route == "alias")
+                    Require(WireKind(blocks[0]) == "legacy_alias_warning"
+                        && !string.IsNullOrWhiteSpace((string)blocks[0]["text"]),
+                        "The legacy warning must stay first and be separately identifiable.");
+                int guidanceOffset = offset + 2;
+                if (required)
+                {
+                    Require(WireKind(blocks[guidanceOffset]) == "printing_pod_policy"
+                        && JObject.Parse((string)blocks[guidanceOffset]["text"])["printingPodSelection"]["decisionRequired"].Value<bool>(),
+                        "ON lost its separately identified pending policy.");
+                    guidanceOffset++;
+                }
+                Require(WireKind(blocks[guidanceOffset]) == "notification"
+                    && (string)JObject.Parse((string)blocks[guidanceOffset]["text"])["notifications"][0]["message"] == "dispatch notice",
+                    "The queued notice must stay separate and retain its legacy JSON text.");
+                Require((int)ToolCallMiddleware.Status()["pendingNotifications"] == 0,
+                    "Dispatch failed to drain exactly the queued notice.");
+            }
+            // These handlers are boundary fixtures; this host does not perform native read/write gameplay.
+        }
+        finally
+        {
+            read.Handler = readHandler;
+            write.Handler = writeHandler;
+            OniMcp.Config.OniMcpOptions.Current.RequirePrintingPodSelection = previousPolicy;
+            Game.Instance = previousGame;
+            Immigration.Instance = previousImmigration;
+            ToolCallMiddleware.Clear();
+        }
+    }
 
     private static void TaskDescriptions()
     {

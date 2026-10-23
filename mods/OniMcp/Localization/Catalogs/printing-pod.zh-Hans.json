@@ -1,0 +1,8 @@
+{
+  "printingPod.rewards.dupe_claim_support": "复制人选择仅通过原生 open_immigrants 界面进行；action=claim 不会选择复制人。",
+  "printingPod.rewards.notes.no_ready_offers": "打印舱当前没有已就绪的候选。不会统计上一轮候选缓存。",
+  "printingPod.rewards.notes.unknown": "无法读取当前原生候选缓存。未知数量为 null，而不是零。",
+  "printingPod.rewards.notes.not_materialized": "补给已就绪，但当前原生候选列表尚未生成。本次读取不会生成候选或打开界面。",
+  "printingPod.rewards.notes.generation_pending": "现有原生候选列表仍在生成中。数量未知；本次读取不会刷新或生成候选。",
+  "printingPod.rewards.notes.materialized": "仅列出当前原生界面缓存中已观察到的补给品候选。本次读取不评估要求或领取资格。"
+}

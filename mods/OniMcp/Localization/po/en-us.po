@@ -1082,3 +1082,39 @@ msgstr "Screenshot request ID returned by capture acceptance; required for scree
 msgctxt "OniMcp.MCP.TOOLS.NAVIGATION_CONTROL.PARAMETERS.WAITFRAMES"
 msgid "Render frames to wait before capture: 1 to 30, default 2 (coordinate_screenshot: 3). This is not a completion guarantee; poll screenshot_status by requestId."
 msgstr "Render frames to wait before capture: 1 to 30, default 2 (coordinate_screenshot: 3). This is not a completion guarantee; poll screenshot_status by requestId."
+
+#. Runtime JSON key: printingPod.rewards.dupe_claim_support
+#. Runtime zh-Hans msgstr: "复制人选择仅通过原生 open_immigrants 界面进行；action=claim 不会选择复制人。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.DUPE_CLAIM_SUPPORT"
+msgid "Duplicant selection is available through the native open_immigrants UI only; action=claim does not select duplicants."
+msgstr "Duplicant selection is available through the native open_immigrants UI only; action=claim does not select duplicants."
+
+#. Runtime JSON key: printingPod.rewards.notes.no_ready_offers
+#. Runtime zh-Hans msgstr: "打印舱当前没有已就绪的候选。不会统计上一轮候选缓存。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.NO_READY_OFFERS"
+msgid "No Printing Pod offer is currently ready. Stored candidates from an earlier offer are not counted."
+msgstr "No Printing Pod offer is currently ready. Stored candidates from an earlier offer are not counted."
+
+#. Runtime JSON key: printingPod.rewards.notes.unknown
+#. Runtime zh-Hans msgstr: "无法读取当前原生候选缓存。未知数量为 null，而不是零。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.UNKNOWN"
+msgid "The current native candidate cache could not be observed. Unknown counts are null, not zero."
+msgstr "The current native candidate cache could not be observed. Unknown counts are null, not zero."
+
+#. Runtime JSON key: printingPod.rewards.notes.not_materialized
+#. Runtime zh-Hans msgstr: "补给已就绪，但当前原生候选列表尚未生成。本次读取不会生成候选或打开界面。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.NOT_MATERIALIZED"
+msgid "An offer is ready, but its current native candidate list is not materialized. This read does not generate or open choices."
+msgstr "An offer is ready, but its current native candidate list is not materialized. This read does not generate or open choices."
+
+#. Runtime JSON key: printingPod.rewards.notes.generation_pending
+#. Runtime zh-Hans msgstr: "现有原生候选列表仍在生成中。数量未知；本次读取不会刷新或生成候选。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.GENERATION_PENDING"
+msgid "The existing native candidate list is still being populated. Counts are unknown; this read does not refresh or generate candidates."
+msgstr "The existing native candidate list is still being populated. Counts are unknown; this read does not refresh or generate candidates."
+
+#. Runtime JSON key: printingPod.rewards.notes.materialized
+#. Runtime zh-Hans msgstr: "仅列出当前原生界面缓存中已观察到的补给品候选。本次读取不评估要求或领取资格。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.MATERIALIZED"
+msgid "Only care-package choices observed in the current native screen cache are listed. This read does not evaluate requirements or claim eligibility."
+msgstr "Only care-package choices observed in the current native screen cache are listed. This read does not evaluate requirements or claim eligibility."

@@ -161,7 +161,7 @@ namespace OniMcp.Core
         {
             return new CallToolResult
             {
-                Content = new List<ToolContent> { new ToolContent { Text = text } }
+                Content = new List<ToolContent> { ToolContent.CreateText(text) }
             };
         }
 
@@ -169,7 +169,7 @@ namespace OniMcp.Core
         {
             return new CallToolResult
             {
-                Content = new List<ToolContent> { new ToolContent { Text = message } },
+                Content = new List<ToolContent> { ToolContent.CreateText(message) },
                 IsError = true
             };
         }
@@ -177,10 +177,32 @@ namespace OniMcp.Core
 
     public class ToolContent
     {
+        public const string ContentKindMetadataKey = "onimcp.contentKind";
+        public const string ToolResultKind = "tool_result";
+        public const string PrintingPodPolicyKind = "printing_pod_policy";
+        public const string NotificationKind = "notification";
+        public const string LegacyAliasWarningKind = "legacy_alias_warning";
+
         [JsonProperty("type")]
         public string Type { get; set; } = "text";
 
         [JsonProperty("text")]
         public string Text { get; set; }
+
+        [JsonProperty("_meta", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, object> Meta { get; set; }
+
+        [JsonIgnore]
+        internal bool IsOwnedPrintingPodPolicy { get; set; }
+
+        public static ToolContent CreateText(string text, string contentKind = ToolResultKind,
+            Dictionary<string, object> metadata = null)
+        {
+            var meta = metadata == null
+                ? new Dictionary<string, object>()
+                : new Dictionary<string, object>(metadata);
+            meta[ContentKindMetadataKey] = contentKind ?? ToolResultKind;
+            return new ToolContent { Text = text, Meta = meta };
+        }
     }
 }

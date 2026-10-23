@@ -47,10 +47,9 @@ namespace OniMcp.Tools
             if (result.Content == null)
                 result.Content = new List<ToolContent>();
 
-            result.Content.Insert(0, new ToolContent
-            {
-                Text = McpLocalization.Format("warnings.legacy_alias", "DEPRECATED: legacy tool name/alias '{0}' will be removed in {1}; use '{2}' instead.", alias, LegacyAliasRemovalVersion, canonicalName)
-            });
+            result.Content.Insert(0, ToolContent.CreateText(
+                McpLocalization.Format("warnings.legacy_alias", "DEPRECATED: legacy tool name/alias '{0}' will be removed in {1}; use '{2}' instead.", alias, LegacyAliasRemovalVersion, canonicalName),
+                ToolContent.LegacyAliasWarningKind));
             return result;
         }
         private static string InferGroup(string name)

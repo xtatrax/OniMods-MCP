@@ -131,7 +131,7 @@ namespace OniMcp.Tools
                     };
                         return new CallToolResult
                         {
-                            Content = new List<ToolContent> { new ToolContent { Text = JsonConvert.SerializeObject(validationPayload, McpJsonUtil.Settings) } },
+                            Content = new List<ToolContent> { ToolContent.CreateText(JsonConvert.SerializeObject(validationPayload, McpJsonUtil.Settings)) },
                             IsError = !preflightValid
                         };
                     }

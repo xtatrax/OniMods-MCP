@@ -1114,3 +1114,39 @@ msgstr "截圖受理時傳回的 requestId；screenshot_status 必填。"
 msgctxt "OniMcp.MCP.TOOLS.NAVIGATION_CONTROL.PARAMETERS.WAITFRAMES"
 msgid "Render frames to wait before capture: 1 to 30, default 2 (coordinate_screenshot: 3). This is not a completion guarantee; poll screenshot_status by requestId."
 msgstr "截圖前等待的繪製影格數：1至30，預設2（coordinate_screenshot 為3）。這不保證完成；請用 requestId 查詢 screenshot_status。"
+
+#. Runtime JSON key: printingPod.rewards.dupe_claim_support
+#. Runtime zh-Hans msgstr: "复制人选择仅通过原生 open_immigrants 界面进行；action=claim 不会选择复制人。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.DUPE_CLAIM_SUPPORT"
+msgid "Duplicant selection is available through the native open_immigrants UI only; action=claim does not select duplicants."
+msgstr "複製人選擇僅透過原生 open_immigrants 介面進行；action=claim 不會選擇複製人。"
+
+#. Runtime JSON key: printingPod.rewards.notes.no_ready_offers
+#. Runtime zh-Hans msgstr: "打印舱当前没有已就绪的候选。不会统计上一轮候选缓存。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.NO_READY_OFFERS"
+msgid "No Printing Pod offer is currently ready. Stored candidates from an earlier offer are not counted."
+msgstr "列印艙目前沒有已就緒的候選。不會統計上一輪候選快取。"
+
+#. Runtime JSON key: printingPod.rewards.notes.unknown
+#. Runtime zh-Hans msgstr: "无法读取当前原生候选缓存。未知数量为 null，而不是零。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.UNKNOWN"
+msgid "The current native candidate cache could not be observed. Unknown counts are null, not zero."
+msgstr "無法讀取目前的原生候選快取。未知數量為 null，而不是零。"
+
+#. Runtime JSON key: printingPod.rewards.notes.not_materialized
+#. Runtime zh-Hans msgstr: "补给已就绪，但当前原生候选列表尚未生成。本次读取不会生成候选或打开界面。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.NOT_MATERIALIZED"
+msgid "An offer is ready, but its current native candidate list is not materialized. This read does not generate or open choices."
+msgstr "補給已就緒，但目前的原生候選清單尚未產生。本次讀取不會產生候選或開啟介面。"
+
+#. Runtime JSON key: printingPod.rewards.notes.generation_pending
+#. Runtime zh-Hans msgstr: "现有原生候选列表仍在生成中。数量未知；本次读取不会刷新或生成候选。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.GENERATION_PENDING"
+msgid "The existing native candidate list is still being populated. Counts are unknown; this read does not refresh or generate candidates."
+msgstr "現有的原生候選清單仍在產生中。數量未知；本次讀取不會重新整理或產生候選。"
+
+#. Runtime JSON key: printingPod.rewards.notes.materialized
+#. Runtime zh-Hans msgstr: "仅列出当前原生界面缓存中已观察到的补给品候选。本次读取不评估要求或领取资格。"
+msgctxt "OniMcp.MCP.PRINTING_POD.REWARDS.NOTES.MATERIALIZED"
+msgid "Only care-package choices observed in the current native screen cache are listed. This read does not evaluate requirements or claim eligibility."
+msgstr "僅列出目前原生介面快取中已觀察到的補給品候選。本次讀取不評估要求或領取資格。"
