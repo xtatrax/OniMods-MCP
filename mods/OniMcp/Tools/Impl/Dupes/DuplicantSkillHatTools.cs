@@ -386,7 +386,7 @@ namespace OniMcp.Tools
                 if (state.Reason != null) result["masteryReasonCode"] = state.Reason;
                 result["modelMatch"] = DuplicantSkillObservation.JsonBoolean(modelMatch);
                 result["candidateScope"] = modelMatch == false
-                    ? mastered == true ? "mastered_history_model_mismatch" : "mastery_unknown_model_mismatch"
+                    ? mastered == true ? "mastered_history_model_mismatch" : mastered == false ? "model_mismatch" : "mastery_unknown_model_mismatch"
                     : modelMatch == true ? mastered == true ? "mastered_history" : "model_match"
                         : mastered == true ? "mastered_history_model_unknown" : "model_unknown";
             }

@@ -11,10 +11,12 @@
 | `targetModel` / `modelSource` | 既存Personality.modelの値と根拠 |
 | `requiredDuplicantModel` | native定義。nullを全モデル可へ補わない |
 | `modelMatch` | nativeのモデル比較。必要モデルがnullなら未判定のnull |
-| `candidateScope` | モデル一致、モデル未判定、または既習得履歴の区別 |
+| `candidateScope` | モデル一致／不適合、モデル未判定、または既習得履歴の区別 |
 | `mastered` / `granted` | 現在取得できた本体の習得・外部付与の履歴 |
 | `canMaster` / `conditions` | native GetSkillMasteryConditions→CanMasterSkillの結果。完全なUI適合・未習得・将来の習得成功ではない |
 | `masteryStatus` / `masteryReasonCode` | 条件読取の欠測理由。nullをfalseへ補わない |
+
+モデル不適合の詳細では、取得済みの `mastered=false` は `model_mismatch`、習得履歴を取得できないnullは `mastery_unknown_model_mismatch`、既習得trueは `mastered_history_model_mismatch` とする。scopeラベルを変えても、一覧の除外やnative UIの実行ガードは変更しない。
 
 既習得の不適合技能は消さず、`mastered_history_model_mismatch` として履歴を残す。必要モデル未判定の既習得行も履歴と未判定を分ける。管理Markdownの列も「本体の習得条件」とモデル一致を別に表示し、「習得可能」と言い換えない。
 
@@ -52,4 +54,5 @@ native操作後は習得を再取得し、未習得のままなら成功とし�
 
 実ソースをリンクした専用ホスト127条件、管理表示233条件と関連既存群を確認した。旧製品全文の負試験はコンパイル後にモデル除外の条件で失敗し、型衝突を含む境界fixtureとゲームDLL参照ビルドも確認した。これらはnative実機の習得成功や全UIの証明ではない。開発側の正式経路で、初回と通常再読込の一覧・モデル別UI・外側予行を照合した。別名保存した試験分岐では通常モデルとバイオニックの各1技能を通常UIで習得し、各1ポイント消費と習得状態の変化を確認した。両モデルの不適合技能は、本体条件がtrueでも対象一致のcached widgetが非表示で、クリック・付与・ポイント消費なしに拒否した。停止時刻と他の住民の状態を保持した。公開側も固有ID・独立DLLで同じ初回／通常再読込と、各モデルの通常UI習得・非表示拒否を受入れた。元の導入物・設定・他MOD／DLC・選択セーブと開始時の未起動状態へ復帰し、原本と試験分岐を保持した。再読込は保護した入力の再読込であり、習得後分岐の再ロードによる永続化確認とは別である。実欠測・必要モデルnull・任意のpointer raycast・明示force付与・内部handler直dryRunの実機境界は未受入のまま残す。model-filterを現在DLCを含む全UI許可と呼ばず、全GUI・全MOD・将来状態の保証へ広げない。
 
-残件: 不適合技能のlearn拒否詳細では、`mastered=false` と取得済みでも `candidateScope=mastery_unknown_model_mismatch` を返すラベルの不整合が残る。このscopeを習得履歴の欠測根拠に使わず、`mastered`・`masteryStatus` と別に読む。一覧の既知不適合除外やnative widgetの実行ガードには使っていないが、既知falseとnullのscopeは今後の限定修正で分離する。
+
+既知falseのラベル修正は実ソースのホスト128条件で確認し、旧ソースはコンパイル成功後に追加条件で失敗した。開発・公開の別IDで初回と通常再読込後に、通常型とバイオニックの不適合技能を通常UI経路へ各一度要求し、既知false・modelMatch=false・model_mismatchと非表示widgetによる無クリック拒否を確認した。全住民のポイント・習得履歴、停止時刻、原本と既存ファイルを保持し、保存や時間進行は要求していない。null欠測と既習得trueの不適合履歴はホスト対照であり、この追加試験の実機受入には含めない。

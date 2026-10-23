@@ -195,6 +195,13 @@ internal static class Program
             if (broken == "after_open_instant") f.Menu.OnOpen = _ => DebugHandler.InstantValue = true;
             var result = Learn(f, "Ordinary");
             Check(result.IsError, broken + " must refuse ordinary native click");
+            if (broken == "model")
+            {
+                var skill = Body(result)["skill"];
+                Check(skill["mastered"].Type == JTokenType.Boolean && !(bool)skill["mastered"] && !(bool)skill["modelMatch"]
+                    && (string)skill["candidateScope"] == "model_mismatch",
+                    "observed false mastery with a model mismatch must not be labeled unknown mastery");
+            }
             Check(widget.ClickCalls == 0 && f.Resume.DirectMasterCalls == 0 && f.Resume.GrantCalls == 0 && !f.Resume.Mastered.Any(),
                 broken + " cannot click or fall back to direct native mutation");
         }
