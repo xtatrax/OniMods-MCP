@@ -44,12 +44,13 @@ namespace OniMcp.Tools
                     return ValidatedMaterialSelection(new List<Tag> { categoryMatch.Tag }, "category:" + requestedCategory.Name, requested, categoryMatch, available);
             }
 
-            var match = AvailableMaterials(def, worldId, includeUnavailable: true)
+            var allCandidates = AvailableMaterials(def, worldId, includeUnavailable: true);
+            var match = allCandidates
                 .FirstOrDefault(item => EqualsIgnoreCase(item.Tag.Name, requested)
                     || EqualsIgnoreCase(item.Name, requested)
                     || Contains(item.Tag.Name, requested)
                     || Contains(item.Name, requested));
-            var candidates = AvailableMaterials(def, worldId, includeUnavailable: true).Take(20).ToList();
+            var candidates = allCandidates.Take(20).ToList();
             if (match == null || !match.ValidForBuilding)
             {
                 return MaterialSelection.Invalid(
