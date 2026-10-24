@@ -4,6 +4,8 @@ namespace OniMcp.Tools
     {
         private static string GetMapHtml(string title, string backUrl, string backText, string description, int width, string cellsHtml, string legendHtml)
         {
+            string showRaw = System.Security.SecurityElement.Escape(OniMcp.Support.McpLocalization.Get("map_html.show_raw"));
+            string showMap = System.Security.SecurityElement.Escape(OniMcp.Support.McpLocalization.Get("map_html.show_map"));
             return @"<!doctype html>
         <html>
         <head>
@@ -26,7 +28,7 @@ namespace OniMcp.Tools
         <body>
           <div style=""display: flex; align-items: center; justify-content: space-between; max-width: 1100px;"">
             <a class=""back-btn"" href=""" + backUrl + @""">" + backText + @"</a>
-            <button id=""toggle-btn"" class=""toggle-btn"" onclick=""toggleRaw()"">Show Raw HTML</button>
+            <button id=""toggle-btn"" class=""toggle-btn"" data-show-raw=""" + showRaw + @""" data-show-map=""" + showMap + @""" onclick=""toggleRaw()"">" + showRaw + @"</button>
           </div>
           <h1>" + title + @"</h1>
           <div id=""main-desc""><p>" + description + @"</p></div>
@@ -65,12 +67,12 @@ namespace OniMcp.Tools
           html += '<span style=""color:#718096;user-select:none;margin-right:12px;text-align:right;display:inline-block;width:30px;"">' + lineNum + '</span>' + escapeHtml(lines[i]) + '\n';
         }
         document.getElementById('raw-code').innerHTML = html;
-        btn.textContent = 'Show Visual Map';
+        btn.textContent = btn.getAttribute('data-show-map');
               } else {
         grid.style.display = 'grid';
         if (legend) legend.style.display = 'flex';
         raw.style.display = 'none';
-        btn.textContent = 'Show Raw HTML';
+        btn.textContent = btn.getAttribute('data-show-raw');
               }
             }
           </script>

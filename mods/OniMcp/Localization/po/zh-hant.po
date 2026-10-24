@@ -1512,3 +1512,17 @@ msgstr "已知 {0} kg；{1} 件物品的質量未取得"
 msgctxt "OniMcp.MCP.BUILD.PREVIEW_ANCHOR.UNAVAILABLE"
 msgid "Cannot use completed-building ID {0} as a preview anchor: {1}."
 msgstr "無法將已建成建築ID {0} 用作預覽錨點：{1}。"
+
+#. Runtime JSON key: map_html.show_raw
+#. Runtime zh-Hans msgstr: "显示原始HTML"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.SHOW_RAW"
+msgid "Show Raw HTML"
+msgstr "顯示原始HTML"
+
+#. Runtime JSON key: map_html.show_map
+#. Runtime zh-Hans msgstr: "显示地图"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.SHOW_MAP"
+msgid "Show Visual Map"
+msgstr "顯示地圖"

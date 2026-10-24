@@ -1,0 +1,4 @@
+{
+  "map_html.show_raw": "Raw \" ' & <img src=x onerror=globalThis.__injected=1> </button><script>globalThis.__injected=2</script>",
+  "map_html.show_map": "Map </script><script>globalThis.__injected=3</script> \\ ` ${globalThis.__injected=4} \u2028 \u2029"
+}

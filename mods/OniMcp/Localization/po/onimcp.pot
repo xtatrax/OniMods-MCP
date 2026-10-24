@@ -1463,3 +1463,15 @@ msgstr ""
 msgctxt "OniMcp.MCP.BUILD.PREVIEW_ANCHOR.UNAVAILABLE"
 msgid "Cannot use completed-building ID {0} as a preview anchor: {1}."
 msgstr ""
+
+#. Runtime JSON key: map_html.show_raw
+#. Runtime zh-Hans msgstr: "显示原始HTML"
+msgctxt "OniMcp.MCP.MAP_HTML.SHOW_RAW"
+msgid "Show Raw HTML"
+msgstr ""
+
+#. Runtime JSON key: map_html.show_map
+#. Runtime zh-Hans msgstr: "显示地图"
+msgctxt "OniMcp.MCP.MAP_HTML.SHOW_MAP"
+msgid "Show Visual Map"
+msgstr ""

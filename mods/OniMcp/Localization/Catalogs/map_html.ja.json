@@ -5,5 +5,7 @@
   "map_html.viewport_description": "カメラ位置に基づくグリッドを表示しています。ゲーム内でカメラを動かすと表示範囲が更新されます。",
   "map_html.layer_title": "[ビュー: {0}] 地図レイヤー Y = {1}〜{2}",
   "map_html.layer_back": "← レイヤー一覧へ戻る",
-  "map_html.layer_description": "セルにカーソルを重ねると、座標・元素・温度を確認できます。黄色のセルは設備を表します。"
+  "map_html.layer_description": "セルにカーソルを重ねると、座標・元素・温度を確認できます。黄色のセルは設備を表します。",
+  "map_html.show_raw": "HTMLソースを表示",
+  "map_html.show_map": "地図を表示"
 }

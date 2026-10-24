@@ -10,7 +10,7 @@ import re
 
 
 KEYS = ("unreadable", "viewport_title", "viewport_back", "viewport_description",
-        "layer_title", "layer_back", "layer_description")
+        "layer_title", "layer_back", "layer_description", "show_raw", "show_map")
 
 
 def check(root: Path) -> dict:
@@ -37,6 +37,7 @@ def check(root: Path) -> dict:
     for language, entries in catalogs.items():
         require(entries.keys() == expected, "Unexpected legacy HTML keys: " + language)
     source = (root / "mods/OniMcp/Tools/WorldEditor/WorldEditorVirtualFileReader.cs").read_text(encoding="utf-8")
+    shell_source = (root / "mods/OniMcp/Tools/WorldEditor/WorldEditorMapHtml.cs").read_text(encoding="utf-8")
     for key in KEYS:
         runtime = "map_html." + key
         context = "OniMcp.MCP.MAP_HTML." + key.upper()
@@ -60,6 +61,9 @@ def check(root: Path) -> dict:
         if key.endswith("_title"):
             require(source.count('WebUtility.HtmlEncode(McpLocalization.Format("' + runtime + '", null, ') == 1,
                     "Title must format without inline prose fallback and HTML encode: " + runtime)
+        elif key in ("show_raw", "show_map"):
+            require(shell_source.count('System.Security.SecurityElement.Escape(OniMcp.Support.McpLocalization.Get("' + runtime + '"))') == 1,
+                    "Button label must resolve without inline fallback and HTML encode: " + runtime)
         else:
             expected_count = 2 if key == "unreadable" else 1
             require(source.count('WebUtility.HtmlEncode(McpLocalization.Get("' + runtime + '"))') == expected_count,

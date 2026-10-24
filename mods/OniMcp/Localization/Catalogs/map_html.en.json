@@ -5,5 +5,7 @@
   "map_html.viewport_description": "Currently showing visible grid based on camera view position. Move camera in game to update viewport area.",
   "map_html.layer_title": "[View: {0}] Map Layer Y = {1} to {2}",
   "map_html.layer_back": "← Back to Layers",
-  "map_html.layer_description": "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings."
+  "map_html.layer_description": "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings.",
+  "map_html.show_raw": "Show Raw HTML",
+  "map_html.show_map": "Show Visual Map"
 }

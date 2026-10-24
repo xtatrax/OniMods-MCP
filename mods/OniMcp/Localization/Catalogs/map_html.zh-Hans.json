@@ -5,5 +5,7 @@
   "map_html.viewport_description": "当前显示基于摄像机位置的网格。在游戏中移动摄像机可更新视口范围。",
   "map_html.layer_title": "[视图: {0}] 地图层 Y = {1} 至 {2}",
   "map_html.layer_back": "← 返回地图层列表",
-  "map_html.layer_description": "将鼠标悬停在单元格上可查看坐标、元素和温度。黄色单元格表示建筑。"
+  "map_html.layer_description": "将鼠标悬停在单元格上可查看坐标、元素和温度。黄色单元格表示建筑。",
+  "map_html.show_raw": "显示原始HTML",
+  "map_html.show_map": "显示地图"
 }
