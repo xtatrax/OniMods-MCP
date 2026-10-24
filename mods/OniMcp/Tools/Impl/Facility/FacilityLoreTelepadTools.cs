@@ -262,29 +262,7 @@ namespace OniMcp.Tools
 
         private static List<Dictionary<string, object>> VictoryConditionInfos()
         {
-            var results = new List<Dictionary<string, object>>();
-            if (Db.Get()?.ColonyAchievements?.resources == null)
-                return results;
-            foreach (var achievement in Db.Get().ColonyAchievements.resources)
-            {
-                if (!achievement.isVictoryCondition || achievement.Disabled || !achievement.IsValidForSave())
-                    continue;
-                results.Add(new Dictionary<string, object>
-                {
-                    ["id"] = achievement.Id,
-                    ["name"] = achievement.Name,
-                    ["success"] = achievement.requirementChecklist.All(req => req.Success()),
-                    ["requirements"] = achievement.requirementChecklist
-                        .Select(req => new Dictionary<string, object>
-                        {
-                            ["type"] = req.GetType().Name,
-                            ["success"] = req.Success(),
-                            ["progress"] = req.GetProgress(req.Success())
-                        })
-                        .ToList()
-                });
-            }
-            return results;
+            return ColonyAchievementTools.ReadVictoryConditions();
         }
     }
 }

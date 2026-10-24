@@ -1,1 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Newtonsoft.Json" Version="13.0.3" /><Compile Include="../../mods/OniMcp/Tools/Impl/Facility/FacilityPrintingPodRewardTools.cs" Link="FacilityPrintingPodRewardTools.cs"/><Compile Include="../../mods/OniMcp/Tools/Impl/Facility/PrintingPodCandidateObserver.cs" Link="PrintingPodCandidateObserver.cs"/><Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="McpContentTypes.cs"/><Compile Include="../../mods/OniMcp/Config/PrintingPodSelectionPolicy.cs" Link="PrintingPodSelectionPolicy.cs"/></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <OniMcpSourceRoot Condition="'$(OniMcpSourceRoot)' == ''">$(MSBuildThisFileDirectory)../../mods/OniMcp</OniMcpSourceRoot>
+    <FacilityLoreTelepadSource Condition="'$(FacilityLoreTelepadSource)' == ''">$(OniMcpSourceRoot)/Tools/Impl/Facility/FacilityLoreTelepadTools.cs</FacilityLoreTelepadSource>
+    <ColonyAchievementSource Condition="'$(ColonyAchievementSource)' == ''">$(OniMcpSourceRoot)/Tools/Impl/Colony/ColonyAchievementTools.cs</ColonyAchievementSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="$(OniMcpSourceRoot)/Tools/Impl/Facility/FacilityPrintingPodRewardTools.cs" Link="FacilityPrintingPodRewardTools.cs" />
+    <Compile Include="$(OniMcpSourceRoot)/Tools/Impl/Facility/PrintingPodCandidateObserver.cs" Link="PrintingPodCandidateObserver.cs" />
+    <Compile Include="$(OniMcpSourceRoot)/Core/McpContentTypes.cs" Link="McpContentTypes.cs" />
+    <Compile Include="$(OniMcpSourceRoot)/Config/PrintingPodSelectionPolicy.cs" Link="PrintingPodSelectionPolicy.cs" />
+    <Compile Include="$(OniMcpSourceRoot)/Support/McpJsonUtil.cs" Link="McpJsonUtil.cs" />
+    <Compile Include="$(OniMcpSourceRoot)/Tools/Impl/Colony/EntitySectionText.cs" Link="EntitySectionText.cs" />
+    <Compile Include="$(FacilityLoreTelepadSource)" Link="FacilityLoreTelepadTools.cs" />
+    <Compile Include="$(ColonyAchievementSource)" Link="ColonyAchievementTools.cs" />
+  </ItemGroup>
+</Project>

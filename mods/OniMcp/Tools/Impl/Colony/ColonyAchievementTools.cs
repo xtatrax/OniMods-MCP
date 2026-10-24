@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
@@ -11,10 +12,30 @@ namespace OniMcp.Tools
     // Read cached colony state only. IsAchievementUnlocked updates status and must not be called here.
     internal static class ColonyAchievementTools
     {
+        private static readonly FieldInfo ExistingDb = BindExistingDb();
+
+        private static FieldInfo BindExistingDb()
+        {
+            try
+            {
+                var field = typeof(Db).GetField("_Instance", BindingFlags.Static | BindingFlags.NonPublic);
+                return field != null && field.DeclaringType == typeof(Db) && field.FieldType == typeof(Db)
+                    && field.IsStatic ? field : null;
+            }
+            catch { return null; }
+        }
+
+        private static Db ReadExistingDatabase()
+        {
+            if (ExistingDb == null) return null;
+            try { return ExistingDb.GetValue(null) as Db; }
+            catch { return null; }
+        }
+
         internal static CallToolResult Read(JObject args)
         {
             var tracker = SaveGame.Instance?.ColonyAchievementTracker;
-            var definitions = Db.Get()?.ColonyAchievements?.resources;
+            var definitions = ReadExistingDatabase()?.ColonyAchievements?.resources;
             if (Game.Instance == null || tracker == null || definitions == null)
                 return CallToolResult.Error("Colony achievement data is not initialized");
             string detail = (args["achievementDetail"]?.ToString() ?? "brief").Trim().ToLowerInvariant();
@@ -30,9 +51,8 @@ namespace OniMcp.Tools
             foreach (var definition in definitions.OrderBy(d => d.Id))
             {
                 if (definition.Disabled || !definition.IsValidForSave()) continue;
-                ColonyAchievementStatus cached = null;
-                if (tracker.achievements != null) tracker.achievements.TryGetValue(definition.Id, out cached);
-                string state = cached == null ? "unknown" : cached.success ? "completed" : cached.failed ? "failed" : "incomplete";
+                var cached = ReadCachedStatus(tracker, definition.Id);
+                string state = CachedState(cached);
                 counts[state]++;
                 string name = EntitySectionText.Plain(definition.Name);
                 if (filter != "all" && state != filter) continue;
@@ -47,10 +67,7 @@ namespace OniMcp.Tools
                 };
                 if (detail == "full") {
                     row["description"] = EntitySectionText.Plain(definition.description);
-                    row["requirements"] = definition.requirementChecklist?.Select(req => new Dictionary<string, object> {
-                        ["type"] = req.GetType().Name, ["progress"] = null,
-                        ["progressState"] = "not_evaluated_readonly"
-                    }).ToList();
+                    row["requirements"] = ReadRequirements(definition, includeSuccess: false);
                 }
                 items.Add(row);
             }
@@ -63,6 +80,58 @@ namespace OniMcp.Tools
                 ["truncated"] = items.Count > limit, ["items"] = items.Take(limit).ToList(),
                 ["coverage"] = "Colony state, not Steam account unlocks. Disabled/save-incompatible definitions excluded. Missing cached status is unknown; requirement progress is not reevaluated."
             }, McpJsonUtil.Settings));
+        }
+
+        // Read existing cached flags and definition metadata only. Requirement evaluation can mutate reports.
+        internal static List<Dictionary<string, object>> ReadVictoryConditions()
+        {
+            var results = new List<Dictionary<string, object>>();
+            var definitions = ReadExistingDatabase()?.ColonyAchievements?.resources;
+            if (definitions == null) return null;
+            var tracker = SaveGame.Instance?.ColonyAchievementTracker;
+            foreach (var definition in definitions)
+            {
+                if (!definition.isVictoryCondition || definition.Disabled || !definition.IsValidForSave()) continue;
+                var cached = ReadCachedStatus(tracker, definition.Id);
+                results.Add(new Dictionary<string, object> {
+                    ["id"] = definition.Id, ["name"] = definition.Name,
+                    ["success"] = cached == null ? (object)null : cached.success,
+                    ["failed"] = cached == null ? (object)null : cached.failed,
+                    ["status"] = CachedState(cached),
+                    ["source"] = "SaveGame.ColonyAchievementTracker.achievements",
+                    ["stateMode"] = "cached_no_reevaluation",
+                    ["requirements"] = ReadRequirements(definition, includeSuccess: true)
+                });
+            }
+            return results;
+        }
+
+        private static ColonyAchievementStatus ReadCachedStatus(ColonyAchievementTracker tracker, string id)
+        {
+            ColonyAchievementStatus cached = null;
+            if (tracker?.achievements != null && id != null) tracker.achievements.TryGetValue(id, out cached);
+            return cached;
+        }
+
+        private static string CachedState(ColonyAchievementStatus cached)
+        {
+            return cached == null ? "unknown" : cached.success ? "completed" : cached.failed ? "failed" : "incomplete";
+        }
+
+        private static List<Dictionary<string, object>> ReadRequirements(Database.ColonyAchievement definition, bool includeSuccess)
+        {
+            return definition.requirementChecklist?.Select(req => {
+                var row = new Dictionary<string, object> {
+                    ["type"] = req?.GetType().Name,
+                    ["progress"] = null,
+                    ["progressState"] = req == null ? "unavailable" : "not_evaluated_readonly"
+                };
+                if (includeSuccess) {
+                    row["success"] = null;
+                    row["successState"] = req == null ? "unavailable" : "not_evaluated_readonly";
+                }
+                return row;
+            }).ToList();
         }
     }
 }

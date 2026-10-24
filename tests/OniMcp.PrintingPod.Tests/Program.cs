@@ -30,6 +30,7 @@ class Program {
  Reset();ImmigrantScreen.instance=null;r=FacilitySideScreenTools.Reject(new JObject{["confirm"]=true});Require(r.IsError&&Immigration.Instance.ImmigrantsAvailable,"Missing screen must not reject");
  Console.WriteLine("PASS: native reject-all, no delivery, duplicate rejection, preview, confirmation, screen guards, OFF policy omission");
  Console.WriteLine("PASS: Printing Pod native confirmation, cleanup, dupe exclusion, single delivery, stale-offer guard, preview, confirmation, invalid candidate and screen validation");
+ AchievementReadRegression.Run();
  }
  static JObject Observe(string state, bool? available, int? total, int? care, string support) {
   var screen=ImmigrantScreen.instance;
