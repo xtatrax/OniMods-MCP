@@ -194,6 +194,61 @@ internal static class Program
   }
  }
 
+ static void PreyAmountSemanticsRegression()
+ {
+  var oldGame=Game.Instance;var oldEntries=CodexCache.entries;var oldSubs=CodexCache.subEntries;
+  int oldPrey=GameUtil.PreyCalls,oldDirectPlant=GameUtil.DirectPlantCalls,oldStoragePlant=GameUtil.StoragePlantCalls,oldForeign=UnrelatedPreyFormatters.Calls;
+  try
+  {
+   Game.Instance=new Game {unlocks=new Unlocks()};CodexCache.entries=new Dictionary<string,CodexEntry>();CodexCache.subEntries=new Dictionary<string,SubEntry>();
+   GameUtil.PreyCalls=GameUtil.DirectPlantCalls=GameUtil.StoragePlantCalls=UnrelatedPreyFormatters.Calls=0;
+   var usage=new ElementUsage {tag=new Tag("PRIVATE_PREY_TAG"),amount=.0025f,continuous=true,customFormating=GameUtil.GetFormattedPreyConsumptionValuePerCycle};
+   var output=new ElementUsage {tag=new Tag("PRIVATE_OUTPUT_TAG"),amount=42f,continuous=true};
+   var panel=new CodexConversionPanel {title="Cached prey definition",ins=new[]{usage},outs=new[]{output}};
+   var entry=new CodexEntry {id="PREYSEMANTICS",StoredContent=new List<ContentContainer>{Box(panel)}};CodexCache.entries[entry.id]=entry;
+   Func<JToken> readPanel=()=>Read("{id:'PREYSEMANTICS',maxChars:20000}")["results"][0]["content"]["blocks"][0];
+   Read("{id:'PREYSEMANTICS',includeContent:false}");Check(GameUtil.PreyCalls==0,"prey metadata reads execute no formatter");
+   var value=readPanel();var row=value["data"]["ins"][0];var semantics=row["amountSemantics"];
+   Check(semantics!=null && (string)semantics["rawUnit"]=="entity_count_per_second" && (string)semantics["nativeDisplayUnit"]=="entity_count_per_cycle","known native prey formatter receives amount semantics through actual reader");
+   Check(((JObject)semantics).Count==4 && (string)semantics["source"]=="GameUtil.GetFormattedPreyConsumptionValuePerCycle" && !(bool)semantics["formatterExecuted"] && !semantics.ToString().Contains("PRIVATE"),"semantics contain source and non execution metadata without prey identity");
+   Check((float)row["amount"]==.0025f && (string)row["tag"]=="PRIVATE_PREY_TAG" && (bool)row["continuous"] && (bool)row["customFormating"]["callbackPresent"],"raw amount tag continuous and callback presence remain unchanged");
+   Check(value["issues"].ToString().Contains("formatter_not_executed") && !(bool)value["renderedUiComplete"],"recognized formatter remains unexecuted and rendered UI incomplete");
+   Check(value["data"]["outs"][0]["amountSemantics"]==null && (float)value["data"]["outs"][0]["amount"]==42f,"output units are not inferred from prey input formatter");
+   usage.amount=0f;row=readPanel()["data"]["ins"][0];Check((float)row["amount"]==0f && row["amountSemantics"]!=null,"prey raw zero is retained without a computed amount");
+   usage.amount=-.25f;row=readPanel()["data"]["ins"][0];Check((float)row["amount"]==-.25f && row["amountSemantics"]!=null,"prey raw negative is retained without a correction or validity claim");usage.amount=.0025f;
+   usage.customFormating=null;row=readPanel()["data"]["ins"][0];Check(row["amountSemantics"]==null && row["customFormating"].Type==JTokenType.Null,"null formatter remains unclassified");
+   var bound=new BoundPreyFormatter();
+   var unknown=new Func<Tag,float,bool,string>[]
+   {
+    GameUtil.GetFormattedDirectPlantConsumptionValuePerCycle,
+    GameUtil.GetFormattedPlantStorageConsumptionValuePerCycle,
+    UnrelatedPreyFormatters.GetFormattedPreyConsumptionValuePerCycle,
+    bound.GetFormattedPreyConsumptionValuePerCycle,
+    (tag,amount,perCycle)=>GameUtil.GetFormattedPreyConsumptionValuePerCycle(tag,amount,perCycle)
+   };
+   foreach(var formatter in unknown)
+   {
+    usage.customFormating=formatter;value=readPanel();row=value["data"]["ins"][0];
+    Check(row["amountSemantics"]==null && (bool)row["customFormating"]["callbackPresent"] && value["issues"].ToString().Contains("formatter_not_executed"),"plant foreign instance and wrapper delegates retain unclassified callback presence");
+   }
+   Func<Tag,float,bool,string> native=GameUtil.GetFormattedPreyConsumptionValuePerCycle;
+   foreach(var formatter in new[]{native+native,native+(Func<Tag,float,bool,string>)UnrelatedPreyFormatters.GetFormattedPreyConsumptionValuePerCycle,(Func<Tag,float,bool,string>)UnrelatedPreyFormatters.GetFormattedPreyConsumptionValuePerCycle+native})
+   {usage.customFormating=formatter;row=readPanel()["data"]["ins"][0];Check(row["amountSemantics"]==null && (bool)row["customFormating"]["callbackPresent"],"multicast delegates remain unclassified even when native is first last or repeated");}
+   usage.customFormating=native;var expected=readPanel()["data"]["ins"][0];Check(JToken.DeepEquals(expected,readPanel()["data"]["ins"][0]),"repeat read retains identical raw and semantics metadata");
+   entry.StoredContent[0].lockID="unreleased-prey";var locked=Read("{id:'PREYSEMANTICS'}");Check(((JArray)locked["results"][0]["content"]["blocks"]).Count==0,"locked container does not expose prey semantics");entry.StoredContent[0].lockID=null;
+   var budgetUsages=new List<ElementUsage>();for(int i=0;i<1021;i++)budgetUsages.Add(new ElementUsage {tag=new Tag("PREY"),amount=1f,continuous=true});budgetUsages.Add(usage);
+   var limited=CodexPanelReader.Read(new CodexConversionPanel {title="budget",ins=budgetUsages.ToArray()});
+   var wire=JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(limited,OniMcp.Support.McpJsonUtil.Settings));var last=wire["data"]["ins"][1021];
+   Check((float)last["amount"]==.0025f && (bool)last["customFormating"]["callbackPresent"] && last["amountSemantics"]==null && wire["issues"].ToString().Contains("data_limit"),"shared node budget preserves raw callback data but refuses an unbudgeted semantics object");
+   Check(GameUtil.PreyCalls==0 && GameUtil.DirectPlantCalls==0 && GameUtil.StoragePlantCalls==0 && UnrelatedPreyFormatters.Calls==0 && bound.Calls==0,"classification never invokes known plant foreign instance multicast or wrapper formatters");
+  }
+  finally
+  {
+   Game.Instance=oldGame;CodexCache.entries=oldEntries;CodexCache.subEntries=oldSubs;
+   GameUtil.PreyCalls=oldPrey;GameUtil.DirectPlantCalls=oldDirectPlant;GameUtil.StoragePlantCalls=oldStoragePlant;UnrelatedPreyFormatters.Calls=oldForeign;
+  }
+ }
+
  static void Main()
  {
   Check(CodexReadTools.Read(null).IsError,"menu blocked without initialization");
@@ -249,7 +304,7 @@ internal static class Program
   Check((bool)body["unlockedContentComplete"] && !(bool)body["complete"],"locks separated from readable coverage");
   Check((int)body["layoutWidgetsSkipped"]["CodexSpacer"]==1,"layout is not missing knowledge");
   var conversion=(CodexConversionPanel)panels.StoredContent[0].content[2];
-  conversion.ins[0].customFormating=()=>throw new Exception("must not run formatter");
+  conversion.ins[0].customFormating=(tag,amount,perCycle)=>throw new Exception("must not run formatter");
   x=Read("{id:'PANELS',maxChars:20000}");Check(x.ToString().Contains("formatter_not_executed"),"callback reported without execution");
   conversion.ins[0].customFormating=null;
   panels.StoredContent.Add(Box(new CodexText{text=new string('文',30000)+"😀終わり"}));
@@ -301,6 +356,7 @@ internal static class Program
   Check(!(bool)LoreReadTools.ReadNewUnlocks(null)["available"], "unknown snapshot not treated as empty unlock set");
   CategoryMembersRegression();
   SublimationFallbackRegression();
+  PreyAmountSemanticsRegression();
   Console.WriteLine("PASS: Codex cache-only reads, metadata limits, locks/DLC, native text and unsupported widgets");
  }
 }

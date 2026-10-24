@@ -110,7 +110,7 @@ public sealed class CodexElementCategoryList : CodexCollapsibleHeader
  public Tag categoryTag {get;set;}
  public CodexElementCategoryList(Tag category) : base("Elements", null) {categoryTag=category;}
 }
-public sealed class ElementUsage { public Tag tag; public float amount; public bool continuous; public Func<string> customFormating; }
+public sealed class ElementUsage { public Tag tag; public float amount; public bool continuous; public Func<Tag,float,bool,string> customFormating; }
 public sealed class CodexConversionPanel : ICodexWidget
 {
  public string title; public ElementUsage[] ins, outs; public UnityEngine.Object Converter; public IconSettings aidIcon;
@@ -179,4 +179,27 @@ public sealed class Sublimates
  public Info info;
  public static int SimCalls;
  public void Sim200ms(float dt) { SimCalls++; throw new Exception("Read must not simulate emission"); }
+}
+
+public static class GameUtil
+{
+ public static int PreyCalls, DirectPlantCalls, StoragePlantCalls;
+ public static string GetFormattedPreyConsumptionValuePerCycle(Tag tag,float value,bool perCycle=true)
+ { PreyCalls++;throw new Exception("Read must not execute native prey formatter"); }
+ public static string GetFormattedDirectPlantConsumptionValuePerCycle(Tag tag,float value,bool perCycle=true)
+ { DirectPlantCalls++;throw new Exception("Read must not execute native direct plant formatter"); }
+ public static string GetFormattedPlantStorageConsumptionValuePerCycle(Tag tag,float value,bool perCycle=true)
+ { StoragePlantCalls++;throw new Exception("Read must not execute native storage plant formatter"); }
+}
+public static class UnrelatedPreyFormatters
+{
+ public static int Calls;
+ public static string GetFormattedPreyConsumptionValuePerCycle(Tag tag,float value,bool perCycle=true)
+ { Calls++;throw new Exception("Read must not execute same name foreign formatter"); }
+}
+public sealed class BoundPreyFormatter
+{
+ public int Calls;
+ public string GetFormattedPreyConsumptionValuePerCycle(Tag tag,float value,bool perCycle=true)
+ { Calls++;throw new Exception("Read must not execute instance formatter"); }
 }

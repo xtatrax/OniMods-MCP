@@ -118,6 +118,27 @@ namespace OniMcp.Tools
                 string key = field.StartsWith("<", StringComparison.Ordinal) ? field.Substring(1, field.IndexOf('>') - 1) : field;
                 result[key] = Value(child, issues, depth + 1, ref remainingNodes);
             }
+            if (IsKnown(value, "ElementUsage"))
+            {
+                var formatter = ((ElementUsage)value).customFormating;
+                // Delegate equality requires this exact native static method and single invocation.
+                if (formatter != null && formatter.Equals((Func<Tag, float, bool, string>)GameUtil.GetFormattedPreyConsumptionValuePerCycle))
+                {
+                    if (remainingNodes < 5)
+                    {
+                        if (!issues.Contains("data_limit")) issues.Add("data_limit");
+                    }
+                    else
+                    {
+                        remainingNodes -= 5;
+                        result["amountSemantics"] = new Dictionary<string, object>
+                        {
+                            ["rawUnit"] = "entity_count_per_second", ["nativeDisplayUnit"] = "entity_count_per_cycle",
+                            ["source"] = "GameUtil.GetFormattedPreyConsumptionValuePerCycle", ["formatterExecuted"] = false
+                        };
+                    }
+                }
+            }
             return result;
         }
     }
