@@ -37,13 +37,13 @@ namespace OniMcp.Tools
             var tracker = SaveGame.Instance?.ColonyAchievementTracker;
             var definitions = ReadExistingDatabase()?.ColonyAchievements?.resources;
             if (Game.Instance == null || tracker == null || definitions == null)
-                return CallToolResult.Error("Colony achievement data is not initialized");
+                return CallToolResult.Error(McpLocalization.Get("achievement_read.not_initialized"));
             string detail = (args["achievementDetail"]?.ToString() ?? "brief").Trim().ToLowerInvariant();
             if (detail != "brief" && detail != "full")
-                return CallToolResult.Error("achievementDetail must be brief or full");
+                return CallToolResult.Error(McpLocalization.Get("achievement_read.invalid_detail"));
             string filter = (args["achievementStatus"]?.ToString() ?? "all").Trim().ToLowerInvariant();
             if (!new[] { "all", "completed", "incomplete", "failed", "unknown" }.Contains(filter))
-                return CallToolResult.Error("achievementStatus must be all, completed, incomplete, failed or unknown");
+                return CallToolResult.Error(McpLocalization.Get("achievement_read.invalid_filter"));
             string query = args["query"]?.ToString();
             int limit = Math.Max(1, Math.Min(200, ToolUtil.GetInt(args, "limit") ?? (detail == "full" ? 10 : 100)));
             var items = new List<Dictionary<string, object>>();
@@ -71,15 +71,19 @@ namespace OniMcp.Tools
                 }
                 items.Add(row);
             }
-            return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object> {
+            var returned = items.Take(limit).ToList();
+            var result = new Dictionary<string, object> {
                 ["scope"] = "current_colony_valid_achievements", ["source"] = "SaveGame.ColonyAchievementTracker.achievements",
                 ["stateMode"] = "cached_no_reevaluation", ["achievementDetail"] = detail,
                 ["achievementStatus"] = filter, ["counts"] = counts,
                 ["observedCycle"] = GameClock.Instance == null ? (object)null : GameClock.Instance.GetCycle(),
                 ["matched"] = items.Count, ["returned"] = Math.Min(limit, items.Count),
-                ["truncated"] = items.Count > limit, ["items"] = items.Take(limit).ToList(),
-                ["coverage"] = "Colony state, not Steam account unlocks. Disabled/save-incompatible definitions excluded. Missing cached status is unknown; requirement progress is not reevaluated."
-            }, McpJsonUtil.Settings));
+                ["truncated"] = items.Count > limit, ["items"] = returned,
+                ["coverage"] = McpLocalization.Get("achievement_read.coverage")
+            };
+            if (ToolUtil.GetBool(args, "includeAchievementUi", false))
+                result["uiObservation"] = NativeAchievementUi.Read(returned.Select(row => (string)row["id"]));
+            return CallToolResult.Text(JsonConvert.SerializeObject(result, McpJsonUtil.Settings));
         }
 
         // Read existing cached flags and definition metadata only. Requirement evaluation can mutate reports.

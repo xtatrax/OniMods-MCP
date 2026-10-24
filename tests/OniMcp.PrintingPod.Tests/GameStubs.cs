@@ -33,7 +33,7 @@ namespace UnityEngine{public class Object{
  public override bool Equals(object other)=>ReferenceEquals(this,other);
  public override int GetHashCode()=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this);
 }
-public partial class GameObject{public bool activeSelf=true;public T GetComponent<T>() where T:class=>null;public int GetMyWorldId()=>0;public string GetProperName()=>"seed";}}
+public partial class GameObject:Object{public bool activeSelf=true;public T GetComponent<T>() where T:class=>ReadExistingComponentForTest<T>();public int GetMyWorldId()=>0;public string GetProperName()=>"seed";}}
 namespace OniMcp.Support{public static class McpLocalization{public static string Get(string key,string fallback=null)=>fallback??key;}}
 namespace OniMcp.Config{public class OniMcpOptions{public static OniMcpOptions Current=new OniMcpOptions();public bool RequirePrintingPodSelection;}}
 namespace OniMcp.Tools{

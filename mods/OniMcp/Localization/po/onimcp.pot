@@ -1333,3 +1333,45 @@ msgstr ""
 msgctxt "OniMcp.MCP.SETTINGS.ERROR.PLIBSTORAGEUNAVAILABLE"
 msgid "The PLib settings storage adapter is unavailable. The in-game options are disabled to protect the existing configuration; use the web settings page."
 msgstr ""
+
+#. Runtime JSON key: achievement_read.include_ui
+#. Runtime zh-Hans msgstr: "显式设置includeAchievementUi=true时，仅对返回的成就ID附加读取已打开的殖民地概要/成就组件中缓存的原始状态和工具提示文本。默认false；不会打开或刷新UI，也不会验证所显示的概要是否属于当前殖民地。"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.INCLUDE_UI"
+msgid "Read-only opt-in: includeAchievementUi=true reads cached raw state and tooltip text from already-open summary/achievement widgets for returned IDs only. Defaults to false; does not open or refresh UI, and does not verify that the summary is for the current colony."
+msgstr ""
+
+#. Runtime JSON key: achievement_read.detail
+#. Runtime zh-Hans msgstr: "殖民地/Steam成就：brief（默认）或包含说明和需求类型的full；不会重新评估进度。"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.DETAIL"
+msgid "Colony/Steam achievements: brief (default) or full with description and requirement types; no progress reevaluation."
+msgstr ""
+
+#. Runtime JSON key: achievement_read.filter
+#. Runtime zh-Hans msgstr: "按成就状态筛选；Steam支持all/completed/incomplete/unknown，不支持failed。计数覆盖整个目录。"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.FILTER"
+msgid "Filter achievement state; Steam supports all/completed/incomplete/unknown, not failed. Counts cover the full catalog."
+msgstr ""
+
+#. Runtime JSON key: achievement_read.not_initialized
+#. Runtime zh-Hans msgstr: "殖民地成就数据尚未初始化"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.NOT_INITIALIZED"
+msgid "Colony achievement data is not initialized"
+msgstr ""
+
+#. Runtime JSON key: achievement_read.invalid_detail
+#. Runtime zh-Hans msgstr: "achievementDetail必须为brief或full"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.INVALID_DETAIL"
+msgid "achievementDetail must be brief or full"
+msgstr ""
+
+#. Runtime JSON key: achievement_read.invalid_filter
+#. Runtime zh-Hans msgstr: "achievementStatus必须为all、completed、incomplete、failed或unknown"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.INVALID_FILTER"
+msgid "achievementStatus must be all, completed, incomplete, failed or unknown"
+msgstr ""
+
+#. Runtime JSON key: achievement_read.coverage
+#. Runtime zh-Hans msgstr: "殖民地状态，并非Steam账户解锁状态。已排除禁用或不适用于存档的定义。缺失的缓存状态为unknown；不会重新评估需求进度。"
+msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.COVERAGE"
+msgid "Colony state, not Steam account unlocks. Disabled/save-incompatible definitions excluded. Missing cached status is unknown; requirement progress is not reevaluated."
+msgstr ""

@@ -1,0 +1,9 @@
+{
+  "achievement_read.include_ui": "Read-only opt-in: includeAchievementUi=true reads cached raw state and tooltip text from already-open summary/achievement widgets for returned IDs only. Defaults to false; does not open or refresh UI, and does not verify that the summary is for the current colony.",
+  "achievement_read.detail": "Colony/Steam achievements: brief (default) or full with description and requirement types; no progress reevaluation.",
+  "achievement_read.filter": "Filter achievement state; Steam supports all/completed/incomplete/unknown, not failed. Counts cover the full catalog.",
+  "achievement_read.not_initialized": "Colony achievement data is not initialized",
+  "achievement_read.invalid_detail": "achievementDetail must be brief or full",
+  "achievement_read.invalid_filter": "achievementStatus must be all, completed, incomplete, failed or unknown",
+  "achievement_read.coverage": "Colony state, not Steam account unlocks. Disabled/save-incompatible definitions excluded. Missing cached status is unknown; requirement progress is not reevaluated."
+}

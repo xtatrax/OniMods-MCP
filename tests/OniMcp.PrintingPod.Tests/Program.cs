@@ -31,6 +31,7 @@ class Program {
  Console.WriteLine("PASS: native reject-all, no delivery, duplicate rejection, preview, confirmation, screen guards, OFF policy omission");
  Console.WriteLine("PASS: Printing Pod native confirmation, cleanup, dupe exclusion, single delivery, stale-offer guard, preview, confirmation, invalid candidate and screen validation");
  AchievementReadRegression.Run();
+ AchievementUiRegression.Run();
  }
  static JObject Observe(string state, bool? available, int? total, int? care, string support) {
   var screen=ImmigrantScreen.instance;

@@ -150,7 +150,7 @@ public static class RetireColonyUtility
 }
 namespace UnityEngine
 {
-    public class Transform { public Transform parent; public GameObject gameObject; }
+    public partial class Transform { public Transform parent; public GameObject gameObject; }
 }
 namespace OniMcp.Tools
 {
@@ -200,5 +200,109 @@ namespace OniMcp.Tools
         }
         private static bool MatchesTarget(GameObject target, Dictionary<string, int> rect, int worldId) => target != null;
         private static Dictionary<string, object> TargetInfo(GameObject target) => new Dictionary<string, object> { ["name"] = target.GetProperName() };
+    }
+}
+
+internal static class AchievementUiBoundary
+{
+    internal static int NativeConstructions;
+}
+public class KScreen : UnityEngine.Component
+{
+    public bool isActiveAndEnabled = true;
+    public virtual bool IsActive() { throw AchievementNativePoison.Ui("KScreen.IsActive"); }
+    public virtual bool IsScreenActive() { throw AchievementNativePoison.Ui("KScreen.IsScreenActive"); }
+    public virtual void Show(bool show = true) { throw AchievementNativePoison.Ui("KScreen.Show"); }
+}
+public class RetiredColonyInfoScreen : KScreen
+{
+    public static RetiredColonyInfoScreen Instance;
+    private Dictionary<string, GameObject> achievementEntries;
+    private GameObject achievementsContainer;
+    public void SetCacheForTest(Dictionary<string, GameObject> entries, GameObject container)
+    { achievementEntries = entries; achievementsContainer = container; }
+    public void LoadColony(object data) { throw AchievementNativePoison.Ui("LoadColony"); }
+}
+public sealed class DerivedRetiredColonyInfoScreen : RetiredColonyInfoScreen { }
+public class KScreenManager : UnityEngine.Object
+{
+    public static KScreenManager Instance;
+    private List<KScreen> screenStack;
+    public KScreenManager() { AchievementUiBoundary.NativeConstructions++; }
+    public void SetStackForTest(List<KScreen> stack) { screenStack = stack; }
+}
+public class AchievementWidget : UnityEngine.Component
+{
+    public void ShowProgress(ColonyAchievementStatus value) { throw AchievementNativePoison.Ui("ShowProgress"); }
+    public void SetFailed() { throw AchievementNativePoison.Ui("SetFailed"); }
+}
+public sealed class DerivedAchievementWidget : AchievementWidget { }
+public class MultiToggle : UnityEngine.Component
+{
+    public int StateForTest = 2, StateReads;
+    public bool ThrowState;
+    public int CurrentState { get { StateReads++; if (ThrowState) throw new InvalidOperationException("state_read_fault"); return StateForTest; } }
+    public void ChangeState(int state) { throw AchievementNativePoison.Ui("ChangeState"); }
+}
+public class ToolTip : UnityEngine.Component
+{
+    public List<string> Strings = new List<string>();
+    public int CountReads, StringReads, CountOverride = int.MinValue, ThrowStringIndex = -1;
+    public bool ThrowCount;
+    public int multiStringCount { get { CountReads++; if (ThrowCount) throw new InvalidOperationException("tooltip_count_fault"); return CountOverride == int.MinValue ? Strings.Count : CountOverride; } }
+    public string GetMultiString(int index) { StringReads++; if (index == ThrowStringIndex) throw new InvalidOperationException("tooltip_string_fault"); return Strings[index]; }
+    public void Refresh() { throw AchievementNativePoison.Ui("ToolTip.Refresh"); }
+    public void ClearMultiStringTooltip() { throw AchievementNativePoison.Ui("ToolTip.Clear"); }
+}
+namespace UnityEngine
+{
+    public class Component : Object
+    {
+        public GameObject gameObject;
+        public Transform transform => gameObject == null ? null : gameObject.transform;
+        public Component() { AchievementUiBoundary.NativeConstructions++; }
+    }
+    public partial class Transform
+    {
+        public bool IsChildOf(Transform ancestor)
+        {
+            for (var node = this; node != null; node = node.parent)
+                if (ReferenceEquals(node, ancestor)) return true;
+            return false;
+        }
+    }
+    public partial class GameObject
+    {
+        public bool activeInHierarchy = true;
+        public readonly Transform transform;
+        public bool ThrowComponentReads;
+        public int ComponentReads;
+        private readonly List<object> existingComponentsForTest = new List<object>();
+        public GameObject()
+        {
+            AchievementUiBoundary.NativeConstructions++;
+            transform = new Transform { gameObject = this };
+        }
+        public T AttachForTest<T>(T component) where T : Component
+        {
+            component.gameObject = this;
+            existingComponentsForTest.Add(component);
+            return component;
+        }
+        private T ReadExistingComponentForTest<T>() where T : class
+        {
+            ComponentReads++;
+            if (ThrowComponentReads) throw new InvalidOperationException("component_read_fault");
+            foreach (var item in existingComponentsForTest) if (item is T typed) return typed;
+            return null;
+        }
+        public T[] GetComponents<T>() where T : Component
+        {
+            ComponentReads++;
+            if (ThrowComponentReads) throw new InvalidOperationException("components_read_fault");
+            var result = new List<T>();
+            foreach (var item in existingComponentsForTest) if (item is T typed) result.Add(typed);
+            return result.ToArray();
+        }
     }
 }

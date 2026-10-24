@@ -1,0 +1,9 @@
+{
+  "achievement_read.include_ui": "显式设置includeAchievementUi=true时，仅对返回的成就ID附加读取已打开的殖民地概要/成就组件中缓存的原始状态和工具提示文本。默认false；不会打开或刷新UI，也不会验证所显示的概要是否属于当前殖民地。",
+  "achievement_read.detail": "殖民地/Steam成就：brief（默认）或包含说明和需求类型的full；不会重新评估进度。",
+  "achievement_read.filter": "按成就状态筛选；Steam支持all/completed/incomplete/unknown，不支持failed。计数覆盖整个目录。",
+  "achievement_read.not_initialized": "殖民地成就数据尚未初始化",
+  "achievement_read.invalid_detail": "achievementDetail必须为brief或full",
+  "achievement_read.invalid_filter": "achievementStatus必须为all、completed、incomplete、failed或unknown",
+  "achievement_read.coverage": "殖民地状态，并非Steam账户解锁状态。已排除禁用或不适用于存档的定义。缺失的缓存状态为unknown；不会重新评估需求进度。"
+}

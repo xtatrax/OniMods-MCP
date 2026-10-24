@@ -27,6 +27,7 @@ internal static partial class Program
         OutcomeRegression.Run();
         CommandParsingRegression.Run();
         OperationCommandLimitRegression.Run();
+        AchievementUiSchemaRegression.Run();
     }
 
     private static void DetailedPayloadsRemainExact()

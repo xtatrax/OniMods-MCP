@@ -41,6 +41,7 @@
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/dupe_move_guidance.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/skill_model.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/achievement_read.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>

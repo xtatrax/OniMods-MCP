@@ -5,6 +5,7 @@
     <OniMcpSourceRoot Condition="'$(OniMcpSourceRoot)' == ''">$(MSBuildThisFileDirectory)../../mods/OniMcp</OniMcpSourceRoot>
     <FacilityLoreTelepadSource Condition="'$(FacilityLoreTelepadSource)' == ''">$(OniMcpSourceRoot)/Tools/Impl/Facility/FacilityLoreTelepadTools.cs</FacilityLoreTelepadSource>
     <ColonyAchievementSource Condition="'$(ColonyAchievementSource)' == ''">$(OniMcpSourceRoot)/Tools/Impl/Colony/ColonyAchievementTools.cs</ColonyAchievementSource>
+    <NativeAchievementUiSource Condition="'$(NativeAchievementUiSource)' == ''">$(OniMcpSourceRoot)/Tools/Impl/Colony/NativeAchievementUi.cs</NativeAchievementUiSource>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -16,5 +17,6 @@
     <Compile Include="$(OniMcpSourceRoot)/Tools/Impl/Colony/EntitySectionText.cs" Link="EntitySectionText.cs" />
     <Compile Include="$(FacilityLoreTelepadSource)" Link="FacilityLoreTelepadTools.cs" />
     <Compile Include="$(ColonyAchievementSource)" Link="ColonyAchievementTools.cs" />
+    <Compile Include="$(NativeAchievementUiSource)" Link="NativeAchievementUi.cs" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,9 @@
+{
+  "achievement_read.include_ui": "includeAchievementUi=trueで、既に開いているコロニー概要／実績ウィジェットのキャッシュ済み生状態とツールチップ文を、返却対象ID分だけ追加読取します。既定false。UIを開く／更新する操作はせず、表示中の概要が現在のコロニーのものかは検証しません。",
+  "achievement_read.detail": "コロニー／Steam実績: brief（既定）、または説明と要求型を含むfull。進捗の再評価は行いません。",
+  "achievement_read.filter": "実績の状態で絞り込みます。Steamはall/completed/incomplete/unknownに対応し、failedには対応しません。件数は全カタログを対象とします。",
+  "achievement_read.not_initialized": "コロニー実績データが初期化されていません。",
+  "achievement_read.invalid_detail": "achievementDetailはbriefまたはfullで指定してください。",
+  "achievement_read.invalid_filter": "achievementStatusはall、completed、incomplete、failed、unknownのいずれかで指定してください。",
+  "achievement_read.coverage": "コロニーの状態で、Steamアカウントの解除状態ではありません。無効な定義とセーブに適合しない定義は除外します。キャッシュ済みの状態がない場合はunknownとし、要求の進捗は再評価しません。"
+}
