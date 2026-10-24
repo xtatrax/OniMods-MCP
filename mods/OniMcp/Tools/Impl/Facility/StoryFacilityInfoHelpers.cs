@@ -117,32 +117,6 @@ namespace OniMcp.Tools
             return result;
         }
 
-        private static List<Dictionary<string, object>> GetGeneticSeedOptions(GeneticAnalysisStation.StatesInstance station)
-        {
-            var options = new List<Dictionary<string, object>>();
-            if (PlantSubSpeciesCatalog.Instance == null || DiscoveredResources.Instance == null)
-                return options;
-            foreach (Tag species in PlantSubSpeciesCatalog.Instance.GetAllDiscoveredSpecies())
-            {
-                var subspecies = PlantSubSpeciesCatalog.Instance.GetAllSubSpeciesForSpecies(species);
-                if (subspecies.Count <= 1)
-                    continue;
-                Tag seed = GetSeedIDFromPlantID(species);
-                if (!seed.IsValid || !DiscoveredResources.Instance.IsDiscovered(seed))
-                    continue;
-                bool forbidden = station.GetSeedForbidden(seed);
-                options.Add(new Dictionary<string, object>
-                {
-                    ["speciesId"] = species.Name,
-                    ["seedId"] = seed.Name,
-                    ["name"] = seed.ProperName(),
-                    ["allowed"] = !forbidden,
-                    ["forbidden"] = forbidden,
-                    ["subSpeciesCount"] = subspecies.Count
-                });
-            }
-            return options.OrderBy(option => option["name"].ToString()).ToList();
-        }
 
         private static Tag ResolveSeedTag(JObject args)
         {
@@ -155,14 +129,6 @@ namespace OniMcp.Tools
             return Tag.Invalid;
         }
 
-        private static Tag GetSeedIDFromPlantID(Tag speciesID)
-        {
-            GameObject prefab = Assets.GetPrefab(speciesID);
-            SeedProducer component = prefab?.GetComponent<SeedProducer>();
-            if (component == null)
-                return Tag.Invalid;
-            return component.seedInfo.seedId;
-        }
 
     }
 }
