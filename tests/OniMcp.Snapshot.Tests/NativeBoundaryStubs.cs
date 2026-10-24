@@ -120,7 +120,7 @@ namespace Klei.AI
 }
 namespace Database
 {
-    internal sealed class Amounts { internal Klei.AI.Amount Stress, Stamina, Calories; }
+    internal sealed class Amounts { internal Klei.AI.Amount Stress, Stamina, Calories; internal Klei.AI.Amount Breath = null; }
 }
 internal sealed class Db
 {

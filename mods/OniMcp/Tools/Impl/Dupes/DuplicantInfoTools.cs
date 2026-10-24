@@ -123,7 +123,7 @@ namespace OniMcp.Tools
                 {
                     var dupe = ToolUtil.FindDupe(args);
                     var dupes = dupe != null ? new List<MinionIdentity> { dupe } : Components.LiveMinionIdentities.Items.Where(d => d != null).ToList();
-                    return CallToolResult.Text(JsonConvert.SerializeObject(dupes.Select(GetNeedsSummary).ToList(), McpJsonUtil.Settings));
+                    return CallToolResult.Text(JsonConvert.SerializeObject(dupes.Select(d => GetNeedsSummary(d, true)).ToList(), McpJsonUtil.Settings));
                 }
             };
         }
@@ -347,7 +347,7 @@ namespace OniMcp.Tools
                 if (detailMode == "full")
                 {
                     result["attributes"] = GetAttributeSummary(dupe);
-                    result["needsDetail"] = GetNeedsSummary(dupe);
+                    result["needsDetail"] = GetNeedsSummary(dupe, true);
                 }
                 else
                 {

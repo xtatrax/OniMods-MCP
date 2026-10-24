@@ -227,7 +227,7 @@ namespace OniMcp.Tools
             d["dryRun"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dryRun");
             d["confirm"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.confirm");
             d["name"] = "Save name, or duplicant name for ui/feedback speech_bubble.";
-            d["id"] = "Target object id, or duplicant instance id for ui/feedback speech_bubble.";
+            d["id"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.id");
             d["text"] = "Displayed text for ui/feedback popup or speech_bubble; required for speech_bubble.";
             d["duration"] = "Speech-bubble display duration in seconds; defaults to 5 and is clamped to 0.5-30.";
             d["speed"] = "Game speed level.";

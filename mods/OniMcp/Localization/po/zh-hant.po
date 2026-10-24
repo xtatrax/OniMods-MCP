@@ -261,28 +261,28 @@ msgid "Invalid JSON array or object for `{0}`. Use valid JSON, or enclose the en
 msgstr "參數 `{0}` 的 JSON 陣列或物件無效。請使用有效的 JSON，或用雙引號括住整個值以作為字串傳遞。"
 
 #. Runtime JSON key: tools.game_control.description
-#. Runtime zh-Hans msgstr: "统一的游戏入口，用于速度、暂停/恢复、游戏状态、存档、DLC启用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 读取或确认当前的MOD不匹配对话框。使用语义操作和具名目标；此入口不接受坐标输入。"
+#. Runtime zh-Hans msgstr: "统一的游戏入口，用于速度、暂停/恢复、游戏状态、存档、DLC启用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 读取或确认当前的MOD不匹配对话框。使用语义操作和具名目标；此入口不接受坐标输入。 uiDomain=selection支持按精确id被动读取一名复制人的status，以及显式select/close/scroll_up/scroll_down。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.DESCRIPTION"
-msgid "Unified game entrypoint for speed, pause/resume, game state, saves, DLC activation, sandbox operations, and UI actions. Use domain=ui uiDomain=dialog to inspect or acknowledge the current MOD mismatch dialog. Use semantic actions and named targets; coordinate input is not accepted here."
-msgstr "統一的遊戲入口，用於速度、暫停/恢復、遊戲狀態、存檔、DLC啟用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 讀取或確認目前的MOD不匹配對話框。使用語意操作和具名目標；此入口不接受座標輸入。"
+msgid "Unified game entrypoint for speed, pause/resume, game state, saves, DLC activation, sandbox operations, and UI actions. Use domain=ui uiDomain=dialog to inspect or acknowledge the current MOD mismatch dialog. Use semantic actions and named targets; coordinate input is not accepted here. uiDomain=selection supports passive status and explicit select/close/scroll_up/scroll_down for one duplicant by exact id."
+msgstr "統一的遊戲入口，用於速度、暫停/恢復、遊戲狀態、存檔、DLC啟用、sandbox操作和UI操作。使用 domain=ui uiDomain=dialog 讀取或確認目前的MOD不匹配對話框。使用語意操作和具名目標；此入口不接受座標輸入。 uiDomain=selection支援按精確id被動讀取一名複製人的status，以及明確select/close/scroll_up/scroll_down。"
 
 #. Runtime JSON key: tools.game_control.parameters.action
-#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。domain=speed支持time、pause、resume、set_speed和只读trace。UI feedback支持notification、popup、speech_bubble、marker；uiDomain=dialog支持当前MOD不匹配对话框的status、acknowledge。 domain=save支持list、status、save、load和quit；status只读取已记录的存档模组标签，不会加载存档。"
+#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。domain=speed支持time、pause、resume、set_speed和只读trace。UI feedback支持notification、popup、speech_bubble、marker；uiDomain=dialog支持当前MOD不匹配对话框的status、acknowledge。 domain=save支持list、status、save、load和quit；status只读取已记录的存档模组标签，不会加载存档。 uiDomain=selection支持按精确id被动读取一名复制人的status，以及显式select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不调用UI。滚动仅针对已选复制人的UI；scroll_up/down各发送一次原生滚轮事件（+1/-1）并返回pending，不保证距离、完成或可见性。后续status或截图需显式请求。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.ACTION"
-msgid "Game action for the selected subsystem. domain=speed supports time, pause, resume, set_speed and read-only trace. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog. domain=save supports list, status, save, load and quit; status only reads cached MOD labels and never loads a save."
-msgstr "所選子系統的遊戲操作。domain=speed支援time、pause、resume、set_speed和唯讀trace。UI feedback支援notification、popup、speech_bubble、marker；uiDomain=dialog支援目前MOD不符對話框的status、acknowledge。 domain=save支援list、status、save、load和quit；status只讀取已記錄的存檔模組標籤，不會載入存檔。"
+msgid "Game action for the selected subsystem. domain=speed supports time, pause, resume, set_speed and read-only trace. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog. domain=save supports list, status, save, load and quit; status only reads cached MOD labels and never loads a save. uiDomain=selection supports passive status and explicit select/close/scroll_up/scroll_down for one duplicant by exact id. Selection UI mutations require task and confirm=true; dryRun invokes no UI. Scroll requires the selected duplicant UI; scroll_up/down dispatches one native wheel event (+1/-1) and returns pending, without guaranteeing distance, completion or visibility. Request a later status or screenshot explicitly."
+msgstr "所選子系統的遊戲操作。domain=speed支援time、pause、resume、set_speed和唯讀trace。UI feedback支援notification、popup、speech_bubble、marker；uiDomain=dialog支援目前MOD不符對話框的status、acknowledge。 domain=save支援list、status、save、load和quit；status只讀取已記錄的存檔模組標籤，不會載入存檔。 uiDomain=selection支援按精確id被動讀取一名複製人的status，以及明確select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不呼叫UI。捲動僅針對已選複製人的UI；scroll_up/down各傳送一次原生滾輪事件（+1/-1）並回傳pending，不保證距離、完成或可見性。後續status或螢幕截圖需明確要求。"
 
 #. Runtime JSON key: tools.game_control.parameters.uiDomain
-#. Runtime zh-Hans msgstr: "UI子系统：action、feedback或dialog。"
+#. Runtime zh-Hans msgstr: "UI子系统：action、feedback、dialog或selection。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.UIDOMAIN"
-msgid "UI subsystem: action, feedback or dialog."
-msgstr "UI子系統：action、feedback或dialog。"
+msgid "UI subsystem: action, feedback, dialog or selection."
+msgstr "UI子系統：action、feedback、dialog或selection。"
 
 #. Runtime JSON key: tools.game_control.parameters.dryRun
-#. Runtime zh-Hans msgstr: "对于支持的操作，预览而不应用更改。uiDomain=dialog action=acknowledge 为 true 时验证当前目标而不调用按钮。其他操作仍遵守各自的预览约定。"
+#. Runtime zh-Hans msgstr: "对于支持的操作，预览而不应用更改。uiDomain=dialog action=acknowledge 为 true 时验证当前目标而不调用按钮。其他操作仍遵守各自的预览约定。 selection的select/close/scroll_up/scroll_down只验证现有UI目标，不选择、不关闭、不发送滚轮事件，也不刷新UI。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.DRYRUN"
-msgid "For supported actions, preview without applying changes. uiDomain=dialog action=acknowledge validates the current target without invoking its button when true. Other actions retain their own preview contract."
-msgstr "對於支援的操作，預覽而不套用變更。uiDomain=dialog action=acknowledge 為 true 時驗證目前目標而不呼叫按鈕。其他操作仍遵守各自的預覽約定。"
+msgid "For supported actions, preview without applying changes. uiDomain=dialog action=acknowledge validates the current target without invoking its button when true. Other actions retain their own preview contract. selection select/close/scroll_up/scroll_down validates existing UI targets without native selection, close, wheel events or UI refresh."
+msgstr "對於支援的操作，預覽而不套用變更。uiDomain=dialog action=acknowledge 為 true 時驗證目前目標而不呼叫按鈕。其他操作仍遵守各自的預覽約定。 selection的select/close/scroll_up/scroll_down只驗證既有UI目標，不選擇、不關閉、不傳送滾輪事件，也不重新整理UI。"
 
 #. Runtime JSON key: tools.game_control.parameters.dialog
 #. Runtime zh-Hans msgstr: "uiDomain=dialog 的对话框种类。仅支持 mod_mismatch；不能确认其他对话框。"
@@ -297,28 +297,28 @@ msgid "Opaque token returned by status for the current MOD mismatch dialog. Requ
 msgstr "status 傳回的目前MOD不匹配對話框的不透明權杖。acknowledge 必填，並在原生呼叫前重新核對。"
 
 #. Runtime JSON key: ui_dialog.ui_control_description
-#. Runtime zh-Hans msgstr: "UI统一入口：domain=action/feedback/dialog。支持允许的UI Action、玩家反馈，以及当前MOD不匹配对话框的显式读取与确认。"
+#. Runtime zh-Hans msgstr: "UI统一入口：domain=action/feedback/dialog/selection。支持允许的UI Action、玩家反馈、原生对话框status/acknowledge，以及按精确id操作复制人选择的status/select/close/scroll_up/scroll_down。"
 msgctxt "OniMcp.MCP.UI_DIALOG.UI_CONTROL_DESCRIPTION"
-msgid "Unified UI entrypoint: domain=action/feedback/dialog. Supports allowed UI actions, player feedback, and explicit status/acknowledge of the current MOD mismatch dialog."
-msgstr "UI統一入口：domain=action/feedback/dialog。支援允許的UI Action、玩家回饋，以及目前MOD不匹配對話框的明確讀取與確認。"
+msgid "Unified UI entrypoint: domain=action/feedback/dialog/selection. Supports allowed UI actions, player feedback, native dialog status/acknowledge, and exact-id duplicant selection status/select/close/scroll_up/scroll_down."
+msgstr "UI統一入口：domain=action/feedback/dialog/selection。支援允許的UI Action、玩家回饋、原生對話框status/acknowledge，以及按精確id操作複製人選擇的status/select/close/scroll_up/scroll_down。"
 
 #. Runtime JSON key: ui_dialog.ui_domain_description
-#. Runtime zh-Hans msgstr: "UI子系统：action、feedback或dialog。"
+#. Runtime zh-Hans msgstr: "UI子系统：action、feedback、dialog或selection。"
 msgctxt "OniMcp.MCP.UI_DIALOG.UI_DOMAIN_DESCRIPTION"
-msgid "UI subsystem: action, feedback or dialog."
-msgstr "UI子系統：action、feedback或dialog。"
+msgid "UI subsystem: action, feedback, dialog or selection."
+msgstr "UI子系統：action、feedback、dialog或selection。"
 
 #. Runtime JSON key: ui_dialog.ui_action_description
-#. Runtime zh-Hans msgstr: "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge。"
+#. Runtime zh-Hans msgstr: "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge；domain=selection：使用精确id的被动status或显式select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不调用UI。滚动仅针对已选复制人的UI；scroll_up/down各发送一次原生滚轮事件（+1/-1）并返回pending，不保证距离、完成或可见性。后续status或截图需显式请求。"
 msgctxt "OniMcp.MCP.UI_DIALOG.UI_ACTION_DESCRIPTION"
-msgid "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge."
-msgstr "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge。"
+msgid "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge; domain=selection: passive status or explicit select/close/scroll_up/scroll_down with exact id. Selection UI mutations require task and confirm=true; dryRun invokes no UI. Scroll requires the selected duplicant UI; scroll_up/down dispatches one native wheel event (+1/-1) and returns pending, without guaranteeing distance, completion or visibility. Request a later status or screenshot explicitly."
+msgstr "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge；domain=selection：使用精確id的被動status或明確select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不呼叫UI。捲動僅針對已選複製人的UI；scroll_up/down各傳送一次原生滾輪事件（+1/-1）並回傳pending，不保證距離、完成或可見性。後續status或螢幕截圖需明確要求。"
 
 #. Runtime JSON key: ui_dialog.invalid_ui_domain
-#. Runtime zh-Hans msgstr: "UI的domain必须为action、feedback或dialog。"
+#. Runtime zh-Hans msgstr: "UI的domain必须为action、feedback、dialog或selection。"
 msgctxt "OniMcp.MCP.UI_DIALOG.INVALID_UI_DOMAIN"
-msgid "UI domain must be action, feedback or dialog."
-msgstr "UI的domain必須為action、feedback或dialog。"
+msgid "UI domain must be action, feedback, dialog or selection."
+msgstr "UI的domain必須為action、feedback、dialog或selection。"
 
 #. Runtime JSON key: tools.game_control.parameters.keepPaused
 #. Runtime zh-Hans msgstr: "确认MOD不匹配后是否保持暂停，默认为true。false保留原生暂停处理，绝不强制恢复。status和dryRun不改变速度。"
@@ -1596,3 +1596,33 @@ msgstr "氧氣"
 msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.CARBON_DIOXIDE"
 msgid "Carbon Dioxide"
 msgstr "二氧化碳"
+
+#. Runtime JSON key: tools.game_control.parameters.id
+#. Runtime zh-Hans msgstr: "目标对象ID，或ui/feedback speech_bubble的复制人实例ID。uiDomain=selection的status/select/close/scroll_up/scroll_down必须使用非零且精确的canonical Int32复制人ID；拒绝其他选择方式。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.ID"
+msgid "Target object id, or duplicant instance id for ui/feedback speech_bubble. uiDomain=selection requires the exact nonzero canonical Int32 duplicant id for status/select/close/scroll_up/scroll_down; alternate selectors are rejected."
+msgstr "目標物件ID，或ui/feedback speech_bubble的複製人實例ID。uiDomain=selection的status/select/close/scroll_up/scroll_down必須使用非零且精確的canonical Int32複製人ID；拒絕其他選擇方式。"
+
+#. Runtime JSON key: ui_selection.unavailable
+#. Runtime zh-Hans msgstr: "当前状态下无法观测原生复制人选择UI。请查看reasonCode。"
+msgctxt "OniMcp.MCP.UI_SELECTION.UNAVAILABLE"
+msgid "The native duplicant selection UI cannot be observed in the current state. See reasonCode."
+msgstr "目前狀態下無法觀測原生複製人選擇UI。請查看reasonCode。"
+
+#. Runtime JSON key: ui_selection.pending
+#. Runtime zh-Hans msgstr: "原生复制人选择UI尚未完成更新，未强制刷新UI。"
+msgctxt "OniMcp.MCP.UI_SELECTION.PENDING"
+msgid "The native duplicant selection UI has not finished updating. No UI refresh was forced."
+msgstr "原生複製人選擇UI尚未完成更新，未強制重新整理UI。"
+
+#. Runtime JSON key: ui_selection.native_failed
+#. Runtime zh-Hans msgstr: "已调用原生UI操作，但最终状态尚未确认。重试前请读取status。"
+msgctxt "OniMcp.MCP.UI_SELECTION.NATIVE_FAILED"
+msgid "The native UI operation was invoked, but its final state is not confirmed. Inspect status before retrying."
+msgstr "已呼叫原生UI操作，但最終狀態尚未確認。重試前請讀取status。"
+
+#. Runtime JSON key: ui_selection.invalid_request
+#. Runtime zh-Hans msgstr: "复制人选择请求无效。请查看reasonCode和parameter。"
+msgctxt "OniMcp.MCP.UI_SELECTION.INVALID_REQUEST"
+msgid "The duplicant selection request is invalid. See reasonCode and parameter."
+msgstr "複製人選擇請求無效。請查看reasonCode和parameter。"

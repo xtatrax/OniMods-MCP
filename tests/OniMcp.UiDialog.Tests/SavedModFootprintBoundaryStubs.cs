@@ -11,7 +11,7 @@ internal sealed class SaveLoader : UnityEngine.Object
     private bool Load(IReader reader) { NativeCalls++; return true; }
     public static string GetActiveSaveFilePath() { return Active; }
 }
-internal static class Grid { public static int CellCount = 1; }
+internal static partial class Grid { public static int CellCount = 1; }
 namespace Klei
 {
     internal sealed class SaveFileRoot { public List<KMod.Label> active_mods = null; }
@@ -51,7 +51,7 @@ internal sealed class SaveGame : UnityEngine.Object
     public static SaveGame Instance;
     public string BaseName { get; set; }
 }
-internal sealed class ClusterManager
+internal sealed partial class ClusterManager
 {
     public static ClusterManager Instance;
     public List<WorldContainer> WorldContainers = new List<WorldContainer>();

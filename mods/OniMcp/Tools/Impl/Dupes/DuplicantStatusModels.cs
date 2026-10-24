@@ -48,7 +48,7 @@ namespace OniMcp.Tools
             };
         }
 
-        private static Dictionary<string, object> GetNeedsSummary(MinionIdentity dupe)
+        private static Dictionary<string, object> GetNeedsSummary(MinionIdentity dupe, bool includeBreathDetails = false)
         {
             var amounts = new Dictionary<string, object>();
             var amountInstance = dupe.GetAmounts();
@@ -66,7 +66,7 @@ namespace OniMcp.Tools
                 ["id"] = dupe.GetComponent<KPrefabID>()?.InstanceID ?? -1,
                 ["name"] = dupe.GetProperName(),
                 ["amounts"] = amounts,
-                ["amountDetails"] = NativeAmountDetails(dupe),
+                ["amountDetails"] = NativeAmountDetails(dupe, includeBreathDetails),
                 ["bionic"] = NativeBionicNeeds(dupe, false),
                 ["amountsAvailable"] = amountInstance != null,
                 ["amountsSource"] = amountInstance != null ? "MinionIdentity.GetAmounts().ModifierList" : null

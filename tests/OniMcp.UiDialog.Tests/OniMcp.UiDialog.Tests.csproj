@@ -9,6 +9,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NativeDialogSource Condition="'$(NativeDialogSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/NativeModMismatchDialog.cs</NativeDialogSource>
     <DialogHandlerSource Condition="'$(DialogHandlerSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/UiDialogTools.cs</DialogHandlerSource>
+    <NativeSelectionSource Condition="'$(NativeSelectionSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/NativeDuplicantSelectionUi.cs</NativeSelectionSource>
+    <SelectionHandlerSource Condition="'$(SelectionHandlerSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/UiSelectionTools.cs</SelectionHandlerSource>
+    <UiControlSource Condition="'$(UiControlSource)' == ''">../../mods/OniMcp/Tools/Impl/Ui/UiControlTools.cs</UiControlSource>
+    <GameControlSource Condition="'$(GameControlSource)' == ''">../../mods/OniMcp/Tools/Impl/Core/GameControlTools.cs</GameControlSource>
     <SpeedTraceStoreSource Condition="'$(SpeedTraceStoreSource)' == ''">../../mods/OniMcp/Tools/Impl/Core/SpeedTransitionTraceStore.cs</SpeedTraceStoreSource>
     <SpeedTraceSource Condition="'$(SpeedTraceSource)' == ''">../../mods/OniMcp/Tools/Impl/Core/SpeedTransitionTrace.cs</SpeedTraceSource>
     <SpeedTracePatchSource Condition="'$(SpeedTracePatchSource)' == ''">../../mods/OniMcp/Patches/SpeedTransitionTracePatch.cs</SpeedTracePatchSource>
@@ -19,12 +23,14 @@
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/save_status.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <Compile Include="$(NativeDialogSource)" Link="Source/NativeModMismatchDialog.cs" />
     <Compile Include="$(DialogHandlerSource)" Link="Source/UiDialogTools.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/Impl/Ui/UiControlTools.cs" Link="Source/UiControlTools.cs" />
+    <Compile Include="$(UiControlSource)" Link="Source/UiControlTools.cs" />
+    <Compile Include="$(NativeSelectionSource)" Link="Source/NativeDuplicantSelectionUi.cs" />
+    <Compile Include="$(SelectionHandlerSource)" Link="Source/UiSelectionTools.cs" />
     <Compile Include="$(SpeedTraceStoreSource)" Link="Source/SpeedTransitionTraceStore.cs" />
     <Compile Include="$(SpeedTraceSource)" Link="Source/SpeedTransitionTrace.cs" />
     <Compile Include="$(SpeedTracePatchSource)" Link="Source/SpeedTransitionTracePatch.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Core/GameSpeedTools.cs" Link="Source/GameSpeedTools.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/Impl/Core/GameControlTools.cs" Link="Source/GameControlTools.cs" />
+    <Compile Include="$(GameControlSource)" Link="Source/GameControlTools.cs" />
     <Compile Include="../../mods/OniMcp/Core/McpTypes.cs" Link="Source/McpTypes.cs" />
     <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />

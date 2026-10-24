@@ -1,10 +1,10 @@
 {
   "tools.game_control.parameters.dialog": "Dialog kind for uiDomain=dialog. Only mod_mismatch is supported; unrelated dialogs cannot be acknowledged.",
   "tools.game_control.parameters.dialogToken": "Opaque token returned by status for the current MOD mismatch dialog. Required for acknowledge and checked again before native invocation.",
-  "ui_dialog.ui_control_description": "Unified UI entrypoint: domain=action/feedback/dialog. Supports allowed UI actions, player feedback, and explicit status/acknowledge of the current MOD mismatch dialog.",
-  "ui_dialog.ui_domain_description": "UI subsystem: action, feedback or dialog.",
-  "ui_dialog.ui_action_description": "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge.",
-  "ui_dialog.invalid_ui_domain": "UI domain must be action, feedback or dialog.",
+  "ui_dialog.ui_control_description": "Unified UI entrypoint: domain=action/feedback/dialog/selection. Supports allowed UI actions, player feedback, native dialog status/acknowledge, and exact-id duplicant selection status/select/close/scroll_up/scroll_down.",
+  "ui_dialog.ui_domain_description": "UI subsystem: action, feedback, dialog or selection.",
+  "ui_dialog.ui_action_description": "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge; domain=selection: passive status or explicit select/close/scroll_up/scroll_down with exact id. Selection UI mutations require task and confirm=true; dryRun invokes no UI. Scroll requires the selected duplicant UI; scroll_up/down dispatches one native wheel event (+1/-1) and returns pending, without guaranteeing distance, completion or visibility. Request a later status or screenshot explicitly.",
+  "ui_dialog.invalid_ui_domain": "UI domain must be action, feedback, dialog or selection.",
   "tools.game_control.parameters.keepPaused": "For MOD mismatch acknowledgement, preserve a paused game after native OK; defaults to true. False leaves native pause handling unchanged and never forces resume. Status and dryRun do not change speed.",
   "ui_dialog.unsupported_action": "Dialog action must be status or acknowledge.",
   "ui_dialog.unsupported_dialog": "Only the mod_mismatch dialog is supported.",
@@ -19,5 +19,9 @@
   "ui_dialog.click_failed": "Native MOD mismatch acknowledgement failed: {0}",
   "ui_dialog.pause_unavailable": "Native pause control is unavailable; a paused result cannot be preserved.",
   "ui_dialog.not_present": "No MOD mismatch dialog is currently visible.",
-  "ui_dialog.invalid_boolean": "Parameter `{0}` must be a JSON boolean."
+  "ui_dialog.invalid_boolean": "Parameter `{0}` must be a JSON boolean.",
+  "ui_selection.unavailable": "The native duplicant selection UI cannot be observed in the current state. See reasonCode.",
+  "ui_selection.pending": "The native duplicant selection UI has not finished updating. No UI refresh was forced.",
+  "ui_selection.native_failed": "The native UI operation was invoked, but its final state is not confirmed. Inspect status before retrying.",
+  "ui_selection.invalid_request": "The duplicant selection request is invalid. See reasonCode and parameter."
 }

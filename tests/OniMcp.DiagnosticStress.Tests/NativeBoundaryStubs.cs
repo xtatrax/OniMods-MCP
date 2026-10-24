@@ -54,6 +54,7 @@ namespace Database
 {
     public sealed class Amounts
     {
+        public Klei.AI.Amount Breath = null;
         private Klei.AI.Amount stress;
         public bool ThrowStress;
         public Klei.AI.Amount Stress { get { if (ThrowStress) throw new InvalidOperationException("definition fixture"); return stress; } set { stress=value; } }

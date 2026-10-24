@@ -20,7 +20,7 @@ namespace OniMcp.Tools
                 Description = McpLocalization.Get("ui_dialog.ui_control_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["domain"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_dialog.ui_domain_description"), Required = true, EnumValues = new List<string> { "action", "feedback", "dialog" } },
+                    ["domain"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_dialog.ui_domain_description"), Required = true, EnumValues = new List<string> { "action", "feedback", "dialog", "selection" } },
                     ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_dialog.ui_action_description"), Required = true },
                     ["kind"] = new McpToolParameter { Type = "string", Description = "domain=action action=list の場合の絞り込みタイプ: all/management/overlay/build/navigation。その他の domain ではサブツールの意味に従って使用", Required = false },
                     ["dialog"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.dialog"), Required = false, EnumValues = new List<string> { "mod_mismatch" } },
@@ -34,7 +34,7 @@ namespace OniMcp.Tools
                     ["message"] = new McpToolParameter { Type = "string", Description = "通知本文または案内内容。サブアクションの意味に従って使用", Required = false },
                     ["text"] = new McpToolParameter { Type = "string", Description = "domain=feedback action=popup/speech_bubble の場合の表示テキスト。speech_bubble では必須", Required = false },
                     ["name"] = new McpToolParameter { Type = "string", Description = "domain=feedback action=speech_bubble の場合の複製人間名。id とどちらか一方を指定", Required = false },
-                    ["id"] = new McpToolParameter { Type = "integer", Description = "domain=feedback action=speech_bubble の場合の複製人間の InstanceID。name とどちらか一方を指定", Required = false },
+                    ["id"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("tools.game_control.parameters.id"), Required = false },
                     ["duration"] = new McpToolParameter { Type = "number", Description = "domain=feedback action=speech_bubble の場合の表示秒数。既定値は 5、範囲は 0.5-30", Required = false },
                     ["markerAction"] = new McpToolParameter { Type = "string", Description = "domain=feedback action=marker の場合のサブアクション: create/list/clear", Required = false, EnumValues = new List<string> { "create", "list", "clear" } },
                     ["x"] = new McpToolParameter { Type = "integer", Description = "対象セルの X 座標。action に応じて解釈", Required = false },
@@ -58,6 +58,8 @@ namespace OniMcp.Tools
                             return UiTools.ControlUiAction().Handler(args);
                         case "dialog":
                             return UiDialogTools.Control(args);
+                        case "selection":
+                            return UiSelectionTools.Control(args);
                         case "feedback":
                         case "hint":
                         case "hints":

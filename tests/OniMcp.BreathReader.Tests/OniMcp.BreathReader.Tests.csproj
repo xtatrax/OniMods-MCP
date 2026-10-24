@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
+    <LangVersion>7.3</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors><NuGetAudit>true</NuGetAudit>
+    <ProductRoot>../../mods/OniMcp</ProductRoot>
+    <InfoSource Condition="'$(InfoSource)' == ''">$(ProductRoot)/Tools/Impl/Dupes/DuplicantInfoTools.cs</InfoSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ProductRoot)/Tools/Shared/DupeAmountUtil.cs" Link="Source/DupeAmountUtil.cs" />
+    <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/BionicNeedsRead.cs" Link="Source/BionicNeedsRead.cs" />
+    <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/DuplicantStatusModels.cs" Link="Source/DuplicantStatusModels.cs" />
+    <Compile Include="$(InfoSource)" Link="Source/DuplicantInfoTools.cs" />
+    <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/NativeAmountSnapshot.cs" Link="Source/NativeAmountSnapshot.cs" />
+    <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/DiagnosticKeyNeeds.cs" Link="Source/DiagnosticKeyNeeds.cs" />
+    <Compile Include="$(ProductRoot)/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
+    <Compile Include="$(ProductRoot)/Core/McpTypes.cs" Link="Source/McpTypes.cs" />
+    <Compile Include="$(ProductRoot)/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>

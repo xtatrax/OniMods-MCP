@@ -1,10 +1,10 @@
 {
   "tools.game_control.parameters.dialog": "uiDomain=dialog 的对话框种类。仅支持 mod_mismatch；不能确认其他对话框。",
   "tools.game_control.parameters.dialogToken": "status 返回的当前MOD不匹配对话框的不透明令牌。acknowledge 必填，并在原生调用前重新核对。",
-  "ui_dialog.ui_control_description": "UI统一入口：domain=action/feedback/dialog。支持允许的UI Action、玩家反馈，以及当前MOD不匹配对话框的显式读取与确认。",
-  "ui_dialog.ui_domain_description": "UI子系统：action、feedback或dialog。",
-  "ui_dialog.ui_action_description": "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge。",
-  "ui_dialog.invalid_ui_domain": "UI的domain必须为action、feedback或dialog。",
+  "ui_dialog.ui_control_description": "UI统一入口：domain=action/feedback/dialog/selection。支持允许的UI Action、玩家反馈、原生对话框status/acknowledge，以及按精确id操作复制人选择的status/select/close/scroll_up/scroll_down。",
+  "ui_dialog.ui_domain_description": "UI子系统：action、feedback、dialog或selection。",
+  "ui_dialog.ui_action_description": "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge；domain=selection：使用精确id的被动status或显式select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不调用UI。滚动仅针对已选复制人的UI；scroll_up/down各发送一次原生滚轮事件（+1/-1）并返回pending，不保证距离、完成或可见性。后续status或截图需显式请求。",
+  "ui_dialog.invalid_ui_domain": "UI的domain必须为action、feedback、dialog或selection。",
   "tools.game_control.parameters.keepPaused": "确认MOD不匹配后是否保持暂停，默认为true。false保留原生暂停处理，绝不强制恢复。status和dryRun不改变速度。",
   "ui_dialog.unsupported_action": "对话框action必须为status或acknowledge。",
   "ui_dialog.unsupported_dialog": "仅支持mod_mismatch对话框。",
@@ -19,5 +19,9 @@
   "ui_dialog.click_failed": "原生MOD不匹配确认失败：{0}",
   "ui_dialog.pause_unavailable": "原生暂停控制不可用，无法保持暂停状态。",
   "ui_dialog.not_present": "当前未显示MOD不匹配对话框。",
-  "ui_dialog.invalid_boolean": "参数 `{0}` 必须是 JSON 布尔值。"
+  "ui_dialog.invalid_boolean": "参数 `{0}` 必须是 JSON 布尔值。",
+  "ui_selection.unavailable": "当前状态下无法观测原生复制人选择UI。请查看reasonCode。",
+  "ui_selection.pending": "原生复制人选择UI尚未完成更新，未强制刷新UI。",
+  "ui_selection.native_failed": "已调用原生UI操作，但最终状态尚未确认。重试前请读取status。",
+  "ui_selection.invalid_request": "复制人选择请求无效。请查看reasonCode和parameter。"
 }

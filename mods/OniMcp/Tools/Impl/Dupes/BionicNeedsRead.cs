@@ -6,9 +6,10 @@ namespace OniMcp.Tools
 {
     public static partial class DuplicantTools
     {
-        private static Dictionary<string, object> NativeAmountDetails(MinionIdentity dupe)
+        private static Dictionary<string, object> NativeAmountDetails(MinionIdentity dupe, bool includeBreathDetails = false)
         {
             var result = new Dictionary<string, object>();
+            if (includeBreathDetails) result["Breath"] = NativeBreathAmountDetails(dupe);
             var amounts = dupe.GetAmounts();
             if (amounts == null) return result;
             foreach (var instance in amounts.ModifierList)
@@ -29,6 +30,76 @@ namespace OniMcp.Tools
                 result[amount.Id] = item;
             }
             return result;
+        }
+
+        private static Dictionary<string, object> NativeBreathAmountDetails(MinionIdentity dupe)
+        {
+            var sources = new Dictionary<string, object>
+            {
+                ["value"] = null, ["maximum"] = null, ["nativeUnits"] = null, ["displayValue"] = null
+            };
+            var reasons = new Dictionary<string, object>();
+            var result = new Dictionary<string, object>
+            {
+                ["id"] = "Breath", ["value"] = null, ["maximum"] = null,
+                ["nativeUnits"] = null, ["rawUnit"] = null,
+                ["rawUnitUnavailableReason"] = "native_physical_unit_not_exposed",
+                ["displayValue"] = null, ["available"] = false, ["status"] = "unknown",
+                ["attemptedSource"] = "Db._Instance.Amounts.Breath.Lookup(dupe)",
+                ["fieldSources"] = sources, ["unavailableReasons"] = reasons
+            };
+            if (!DupeAmountUtil.TryGetBreathInstance(dupe, out var instance, out var reason))
+            {
+                foreach (string field in new[] { "value", "maximum", "nativeUnits", "displayValue" })
+                    reasons[field] = reason;
+                return result;
+            }
+            result["value"] = ReadBreathNumber(() => instance.value, "value", "AmountInstance.value", sources, reasons);
+            result["maximum"] = ReadBreathNumber(instance.GetMax, "maximum", "AmountInstance.GetMax()", sources, reasons);
+            try
+            {
+                if (instance.amount == null) reasons["nativeUnits"] = "instance_amount_missing";
+                else
+                {
+                    result["nativeUnits"] = instance.amount.units.ToString();
+                    sources["nativeUnits"] = "AmountInstance.amount.units";
+                }
+            }
+            catch (Exception ex) { reasons["nativeUnits"] = "read_failed:" + ex.GetType().Name; }
+            if (result["value"] != null && result["maximum"] != null)
+            {
+                try
+                {
+                    string display = instance.GetValueString();
+                    if (string.IsNullOrEmpty(display)) reasons["displayValue"] = "empty_native_display";
+                    else
+                    {
+                        result["displayValue"] = display;
+                        sources["displayValue"] = "AmountInstance.GetValueString()";
+                    }
+                }
+                catch (Exception ex) { reasons["displayValue"] = "read_failed:" + ex.GetType().Name; }
+            }
+            else reasons["displayValue"] = "value_or_maximum_unavailable";
+            bool available = reasons.Count == 0;
+            result["available"] = available;
+            result["status"] = available ? "observed"
+                : result["value"] != null || result["maximum"] != null || result["nativeUnits"] != null || result["displayValue"] != null
+                    ? "partial" : "unknown";
+            return result;
+        }
+
+        private static object ReadBreathNumber(Func<float> read, string field, string source,
+            Dictionary<string, object> sources, Dictionary<string, object> reasons)
+        {
+            try
+            {
+                float value = read();
+                if (float.IsNaN(value) || float.IsInfinity(value)) { reasons[field] = "non_finite_value"; return null; }
+                sources[field] = source;
+                return (double)value;
+            }
+            catch (Exception ex) { reasons[field] = "read_failed:" + ex.GetType().Name; return null; }
         }
 
         private static object NativeBionicNeeds(MinionIdentity dupe, bool includeAmounts = true)

@@ -13,6 +13,9 @@ namespace UnityEngine
     internal class Object
     {
         public bool Destroyed;
+        private static int nextInstanceId;
+        private readonly int instanceId = ++nextInstanceId;
+        public int GetInstanceID() { return instanceId; }
         public static bool operator ==(Object a, Object b)
         {
             bool an = ReferenceEquals(a, null) || (!ReferenceEquals(a, null) && a.Destroyed);
@@ -29,6 +32,8 @@ namespace UnityEngine
         public bool isActiveAndEnabled = true;
         public bool isSpawned = true;
         public Transform transform { get { return gameObject.transform; } }
+        public T[] GetComponentsInParent<T>(bool includeInactive) where T : class
+        { return gameObject.GetComponentsInParent<T>(includeInactive); }
     }
     internal sealed class GameObject : Object
     {
@@ -37,8 +42,12 @@ namespace UnityEngine
         public bool activeInHierarchy = true;
         public bool activeSelf = true;
         public string name = "fixture";
-        public readonly Transform transform;
-        public GameObject() { transform = new Transform(this); }
+        private Transform fixtureTransform;
+        public Transform transform { get { return fixtureTransform; } }
+        public static int FixtureParentEnumerations;
+        public static Action<int> FixtureOnParentEnumeration;
+        public GameObject() { fixtureTransform = new Transform(this); }
+        public void FixtureUseRectTransform() { fixtureTransform = new RectTransform(this); }
         public void Add(object component)
         {
             components.Add(component);
@@ -46,11 +55,20 @@ namespace UnityEngine
             if (item != null) item.gameObject = this;
         }
         public T GetComponent<T>() where T : class { return components.OfType<T>().FirstOrDefault(); }
+        public T[] GetComponentsInParent<T>(bool includeInactive) where T : class
+        {
+            var result = new List<T>();
+            for (var node = transform; node != null; node = node.parent)
+                if (includeInactive || node.gameObject.activeInHierarchy)
+                    result.AddRange(node.gameObject.components.OfType<T>());
+            FixtureOnParentEnumeration?.Invoke(++FixtureParentEnumerations);
+            return result.ToArray();
+        }
         public T GetComponentInChildren<T>() where T : class
         { return GetComponent<T>() ?? Children.Select(c => c.GetComponentInChildren<T>()).FirstOrDefault(c => c != null); }
         public void SetActive(bool value) { activeSelf = value; activeInHierarchy = value; }
     }
-    internal sealed class Transform : Object
+    internal class Transform : Object
     {
         public readonly GameObject gameObject;
         public Transform parent;

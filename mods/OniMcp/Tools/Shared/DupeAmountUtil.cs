@@ -19,6 +19,27 @@ namespace OniMcp.Tools
             catch { return null; }
         }
 
+        internal static bool TryGetBreathInstance(MinionIdentity dupe, out AmountInstance instance, out string reason)
+        {
+            instance = null;
+            reason = null;
+            if (dupe == null) { reason = "dupe_missing"; return false; }
+            if (ExistingDb == null) { reason = "db_binding_unavailable"; return false; }
+            try
+            {
+                var db = ExistingDb.GetValue(null) as Db;
+                if (db == null) { reason = "db_unavailable"; return false; }
+                var amounts = db.Amounts;
+                if (amounts == null) { reason = "amount_definitions_unavailable"; return false; }
+                var breath = amounts.Breath;
+                if (breath == null) { reason = "breath_definition_unavailable"; return false; }
+                instance = breath.Lookup(dupe);
+                if (instance == null) { reason = "amount_missing"; return false; }
+                return true;
+            }
+            catch (Exception ex) { instance = null; reason = "read_failed:" + ex.GetType().Name; return false; }
+        }
+
         public static bool TryGetStressValue(MinionIdentity dupe, out float value)
         {
             value = 0f;
