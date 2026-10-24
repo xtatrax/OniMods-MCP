@@ -173,7 +173,7 @@ namespace OniMcp.Tools
                     string error;
                     int x;
                     int y;
-                    if (!TryResolvePoint(args, out x, out y, out error))
+                    if (!TryResolvePreviewPoint(args, out x, out y, out error))
                         return CallToolResult.Error(error);
 
                     var previewArgs = (JObject)args.DeepClone();

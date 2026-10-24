@@ -55,6 +55,101 @@ namespace OniMcp.Tools
             return parameters;
         }
 
+        private static bool TryResolvePreviewPoint(JObject args, out int x, out int y, out string error)
+        {
+            // No supplied ID preserves the shared legacy resolver exactly.
+            // This helper is used by preview only; write paths keep their contract.
+            if (args.Property("id") == null)
+                return TryResolvePoint(args, out x, out y, out error);
+
+            x = 0;
+            y = 0;
+            error = null;
+            var token = args["id"];
+            int requestedId;
+            if (token == null || token.Type != JTokenType.Integer
+                || !int.TryParse(token.ToString(), System.Globalization.NumberStyles.Integer,
+                    System.Globalization.CultureInfo.InvariantCulture, out requestedId)
+                || requestedId == 0)
+            {
+                error = PreviewAnchorUnavailable("?", "invalid_id");
+                return false;
+            }
+
+            try
+            {
+                var game = Game.Instance;
+                var completed = Components.BuildingCompletes;
+                if (game == null || game.IsLoading() || completed?.Items == null)
+                {
+                    error = PreviewAnchorUnavailable(requestedId, "unreadable");
+                    return false;
+                }
+
+                int worldId = ToolUtil.ResolveWorldId(args);
+                BuildingComplete match = null;
+                foreach (var building in completed.Items)
+                {
+                    var go = building?.gameObject;
+                    if (go == null)
+                        continue;
+                    // Match the canonical geometry ID, never a second Unity alias
+                    // when KPrefabID exists. Do not filter duplicate IDs by world.
+                    int id = go.GetComponent<KPrefabID>()?.InstanceID ?? go.GetInstanceID();
+                    if (id != requestedId)
+                        continue;
+                    if (match != null)
+                    {
+                        error = PreviewAnchorUnavailable(requestedId, "ambiguous");
+                        return false;
+                    }
+                    match = building;
+                }
+
+                if (match != null && match.Def == null)
+                {
+                    error = PreviewAnchorUnavailable(requestedId, "unreadable");
+                    return false;
+                }
+                int cell = match == null ? Grid.InvalidCell : Grid.PosToCell(match.gameObject);
+                if (worldId < 0 || !Grid.IsValidCell(cell) || !Grid.IsWorldValidCell(cell)
+                    || !Grid.IsVisible(cell) || Grid.WorldIdx[cell] != worldId)
+                {
+                    error = PreviewAnchorUnavailable(requestedId, "not_found");
+                    return false;
+                }
+
+                // The object's native reference cell is the anchor, not its
+                // inferred footprint lower-left. Existing offset aliases apply.
+                x = Grid.CellColumn(cell);
+                y = Grid.CellRow(cell);
+                ApplyAnchorOffset(args, ref x, ref y);
+                if (x < 0 || x >= Grid.WidthInCells || y < 0 || y >= Grid.HeightInCells)
+                {
+                    error = PreviewAnchorUnavailable(requestedId, "not_found");
+                    return false;
+                }
+                int anchorCell = Grid.XYToCell(x, y);
+                if (!Grid.IsValidCell(anchorCell) || !Grid.IsWorldValidCell(anchorCell)
+                    || !Grid.IsVisible(anchorCell) || Grid.WorldIdx[anchorCell] != worldId)
+                {
+                    error = PreviewAnchorUnavailable(requestedId, "not_found");
+                    return false;
+                }
+                return true;
+            }
+            catch
+            {
+                error = PreviewAnchorUnavailable(requestedId, "unreadable");
+                return false;
+            }
+        }
+
+        private static string PreviewAnchorUnavailable(object id, string reasonCode)
+        {
+            return OniMcp.Support.McpLocalization.Format("build.preview_anchor.unavailable", null, id, reasonCode);
+        }
+
         private static bool TryResolvePoint(JObject args, out int x, out int y, out string error)
         {
             x = 0;

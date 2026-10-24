@@ -14,6 +14,8 @@
     <BlueprintRuntimeSource Condition="'$(BlueprintRuntimeSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRuntimePlacement.cs</BlueprintRuntimeSource>
     <BlueprintInstantSource Condition="'$(BlueprintInstantSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningInstantCompletion.cs</BlueprintInstantSource>
     <PlanOneSource Condition="'$(PlanOneSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlanOne.cs</PlanOneSource>
+    <PreviewAnchorsSource Condition="'$(PreviewAnchorsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningAnchors.cs</PreviewAnchorsSource>
+    <PreviewPlacementSource Condition="'$(PreviewPlacementSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningActionPlacement.cs</PreviewPlacementSource>
     <TileReplacementSource Condition="'$(TileReplacementSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningTileReplacement.cs</TileReplacementSource>
     <TileReplacementStateSource Condition="'$(TileReplacementStateSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningTileReplacementState.cs</TileReplacementStateSource>
     <NativeTileReplacementSource Condition="'$(NativeTileReplacementSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeTileReplacement.cs</NativeTileReplacementSource>
@@ -23,6 +25,7 @@
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativePlayerToggleUi.cs" Link="Source/NativePlayerToggleUi.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingMaterialReader.cs" Link="Source/BuildPlanningExistingMaterialReader.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingAvailabilityReader.cs" Link="Source/BuildingAvailabilityReader.cs" />
     <Compile Include="$(NativeBlueprintSource)" Link="Source/NativeBlueprintInstantCompletion.cs" />
     <Compile Include="$(ExistingBlueprintSource)" Link="Source/BuildPlanningExistingBlueprintCompletion.cs" />
     <Compile Include="$(PlanOneSource)" Link="Source/BuildPlanningPlanOne.cs" />
@@ -39,7 +42,7 @@
   </ItemGroup>
   <Target Name="GenerateBlueprintSafetySource" BeforeTargets="BeforeCompile">
     <PropertyGroup><BlueprintGeneratedSource>$(IntermediateOutputPath)BlueprintSafety.g.cs</BlueprintGeneratedSource></PropertyGroup>
-    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot;" />
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot; --anchors &quot;$(PreviewAnchorsSource)&quot; --placement &quot;$(PreviewPlacementSource)&quot;" />
     <ItemGroup><Compile Include="$(BlueprintGeneratedSource)" /></ItemGroup>
   </Target>
 </Project>

@@ -17,6 +17,7 @@ namespace UnityEngine
         public bool activeSelf {get{return Active;}}
         public bool activeInHierarchy {get{return Active;}}
         public int DeleteCalls;
+        public bool ThrowFixtureComponentRead;
         public int GetInstanceID() { return Id; }
         public string GetProperName() { return name; }
         public void DeleteObject() { DeleteCalls++; Destroyed=true; }
@@ -26,7 +27,11 @@ namespace UnityEngine
             var component = item as Component;
             if (component != null) component.gameObject = this;
         }
-        public T GetComponent<T>() where T : class { return components.OfType<T>().FirstOrDefault(); }
+        public T GetComponent<T>() where T : class
+        {
+            if (ThrowFixtureComponentRead) throw new InvalidOperationException("Fixture component read unavailable");
+            return components.OfType<T>().FirstOrDefault();
+        }
     }
 }
 internal sealed class KPrefabID : UnityEngine.Component { public int InstanceID; public Tag PrefabTag; }

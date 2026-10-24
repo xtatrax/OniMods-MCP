@@ -1458,3 +1458,9 @@ msgstr "mass unavailable"
 msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_PARTIAL"
 msgid "{0} kg known; mass unavailable for {1} item(s)"
 msgstr "{0} kg known; mass unavailable for {1} item(s)"
+
+#. Runtime JSON key: build.preview_anchor.unavailable
+#. Runtime zh-Hans msgstr: "无法将已建成建筑ID {0} 用作预览锚点：{1}。"
+msgctxt "OniMcp.MCP.BUILD.PREVIEW_ANCHOR.UNAVAILABLE"
+msgid "Cannot use completed-building ID {0} as a preview anchor: {1}."
+msgstr "Cannot use completed-building ID {0} as a preview anchor: {1}."
