@@ -22,7 +22,8 @@ namespace OniMcp.Server
     public partial class McpHttpServer
     {
         public static McpHttpServer Instance { get; set; }
-        public void RestartServer() { }
+        public int RestartCalls { get; private set; }
+        public void RestartServer() { RestartCalls++; }
         internal string SettingsHtmlForTest(string message = null) => RenderSettingsHtml(message);
         internal static string LocalizedTemplateForTest(string template, bool forFormatting) => SettingsHtml(template, forFormatting);
         private static Dictionary<string, string> ParseQueryString(string input) => throw new NotSupportedException();
@@ -75,7 +76,16 @@ namespace PeterHan.PLib.Options
 
     public sealed class ConfigFileAttribute : Attribute
     {
-        public ConfigFileAttribute(string filename, bool shared) { }
+        public string ConfigFileName { get; }
+        public bool IndentOutput { get; }
+        public bool UseSharedConfigLocation { get; }
+        public ConfigFileAttribute(string FileName = "config.json", bool IndentOutput = false,
+            bool SharedConfigLocation = false)
+        {
+            ConfigFileName = FileName;
+            this.IndentOutput = IndentOutput;
+            UseSharedConfigLocation = SharedConfigLocation;
+        }
     }
 
     public sealed class ModInfoAttribute : Attribute
@@ -138,5 +148,39 @@ namespace OniMcp
     {
         internal static void ShowNearPlayerMouse(string text) { }
         internal static void NotifyMissingDescription(string name) { }
+    }
+}
+
+
+// Binding shapes only. Direct prefix tests never install or execute a native PLib patch.
+namespace HarmonyLib
+{
+    public sealed class HarmonyMethod
+    {
+        public HarmonyMethod(Type type, string name) { }
+    }
+    public sealed class Patch
+    {
+        public System.Reflection.MethodInfo PatchMethod { get; set; }
+    }
+    public sealed class Patches
+    {
+        public System.Collections.Generic.IEnumerable<Patch> Prefixes { get; set; }
+    }
+    public sealed class Harmony
+    {
+        public void Patch(System.Reflection.MethodBase method, HarmonyMethod prefix)
+        { throw new NotSupportedException("Native patch installation is not part of this host fixture."); }
+        public static Patches GetPatchInfo(System.Reflection.MethodBase method) { return null; }
+    }
+}
+namespace PeterHan.PLib.Options
+{
+    public sealed class POptions
+    {
+        internal static object ReadSettings(string path, Type optionsType)
+        { throw new NotSupportedException("Native PLib IO is not executed by direct prefix tests."); }
+        internal static void WriteSettings(object settings, string path, bool indent)
+        { throw new NotSupportedException("Native PLib IO is not executed by direct prefix tests."); }
     }
 }

@@ -31,8 +31,13 @@ namespace OniMcp
 
             try
             {
-                var options = new POptions();
-                options.RegisterOptions(this, typeof(OniMcpOptions));
+                if (PlibOptionsStorage.EnsureInstalled(harmony))
+                {
+                    var options = new POptions();
+                    options.RegisterOptions(this, typeof(OniMcpOptions));
+                }
+                else
+                    Debug.LogWarning("[OniMcp] " + McpLocalization.Get("settings.error.plibStorageUnavailable"));
             }
             catch (Exception e)
             {

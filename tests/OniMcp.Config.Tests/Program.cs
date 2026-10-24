@@ -42,7 +42,8 @@ internal static class Program
         Run("tool content metadata preserves opaque legacy results", ToolContentWireContract);
         Run("printing policy refresh removes only middleware-owned blocks", PrintingPolicyOwnership);
         Run("content metadata copies caller fields without exposing ownership", ContentMetadataIsolation);
-        Console.WriteLine("PASS: 20 OniMcp config regression tests");
+        Run("PLib dialog storage uses isolated canonical settings", PlibOptionsStorageRegression.Run);
+        Console.WriteLine("PASS: 21 OniMcp config regression tests");
     }
 
     private static void Run(string name, Action test)

@@ -29,5 +29,7 @@
   "settings.error.language": "MCP の言語には auto、en、ja、zh-Hans のいずれかを選択してください。",
   "settings.printingPod": "製造ポッドの受取・全拒否を必須にする",
   "settings.printingPod.help": "ON: エージェントは補給品を1つ受け取るか、全て拒否して決着させます。OFF: この機能は案内・判断要求・再確認を行わず、完全にエージェント任せです。ゲームの自動停止や報酬の自動選択は行いません。",
-  "policy.printingPod.required": "補給品が受取可能です。通常作業を続ける前に、候補を確認して補給品を1つ受け取るか、全て拒否して決着させてください。保留・放置では完了しません。全拒否は building_control domain=side_surface surface=facility kind=printing_pod action=reject_all confirm=true を使います。候補画面が未生成なら action=open_immigrants confirm=true で開いてください。複製人間は自動選択しないでください。操作できない場合は決着したと装わず、失敗理由を報告してください。"
+  "policy.printingPod.required": "補給品が受取可能です。通常作業を続ける前に、候補を確認して補給品を1つ受け取るか、全て拒否して決着させてください。保留・放置では完了しません。全拒否は building_control domain=side_surface surface=facility kind=printing_pod action=reject_all confirm=true を使います。候補画面が未生成なら action=open_immigrants confirm=true で開いてください。複製人間は自動選択しないでください。操作できない場合は決着したと装わず、失敗理由を報告してください。",
+  "settings.error.optionsNotInitialized": "OniMcp設定は初期化されていません。MODの読み込み完了後に設定を開き直してください。",
+  "settings.error.plibStorageUnavailable": "PLib設定の保存アダプターを利用できません。既存設定を保護するためゲーム内設定を無効にしました。Web設定ページをご利用ください。"
 }

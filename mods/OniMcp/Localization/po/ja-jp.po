@@ -1322,3 +1322,15 @@ msgstr "この欄は現在の本体のコロニー・ワールドのキャッシ
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.INCLUDESAVECONTEXT"
 msgid "Read-only opt-in for current native colony name and world cache fields (at most 128 worlds, 2048 characters per name). Defaults to false; separate from saved MOD labels."
 msgstr "現在の本体のコロニー名とワールドのキャッシュ値を追加する読取専用指定。既定false。最大128ワールド、各名称2048文字。保存MODラベルとは別です。"
+
+#. Runtime JSON key: settings.error.optionsNotInitialized
+#. Runtime zh-Hans msgstr: "OniMcp 设置尚未初始化。请在模组加载完成后重新打开设置。"
+msgctxt "OniMcp.MCP.SETTINGS.ERROR.OPTIONSNOTINITIALIZED"
+msgid "OniMcp settings have not been initialized. Reopen settings after the mod has finished loading."
+msgstr "OniMcp設定は初期化されていません。MODの読み込み完了後に設定を開き直してください。"
+
+#. Runtime JSON key: settings.error.plibStorageUnavailable
+#. Runtime zh-Hans msgstr: "PLib 设置存储适配器不可用。为保护现有配置，已禁用游戏内设置；请使用网页设置。"
+msgctxt "OniMcp.MCP.SETTINGS.ERROR.PLIBSTORAGEUNAVAILABLE"
+msgid "The PLib settings storage adapter is unavailable. The in-game options are disabled to protect the existing configuration; use the web settings page."
+msgstr "PLib設定の保存アダプターを利用できません。既存設定を保護するためゲーム内設定を無効にしました。Web設定ページをご利用ください。"

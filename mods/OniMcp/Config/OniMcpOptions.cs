@@ -94,6 +94,18 @@ namespace OniMcp.Config
 
         public static string ConfigPath => OniMcpPaths.ConfigPath;
 
+        internal static OniMcpOptions CreateDialogSnapshot()
+        {
+            lock (SyncRoot)
+            {
+                // Opening a dialog must not initialize, read or write configuration.
+                // OnLoad has already loaded the server's authoritative settings.
+                if (_current == null || _current.GetType() != typeof(OniMcpOptions))
+                    throw new InvalidOperationException(McpLocalization.GetForLanguage("en", "settings.error.optionsNotInitialized"));
+                return (OniMcpOptions)_current.MemberwiseClone();
+            }
+        }
+
         [JsonIgnore]
         public string EndpointUrl => $"http://{DisplayHost}:{Port}/mcp/";
 
@@ -240,7 +252,8 @@ namespace OniMcp.Config
 
         public void OnOptionsChanged()
         {
-            Save(this);
+            // PLib calls this only after its storage write succeeds. Our owner-specific
+            // storage adapter has already validated and persisted the detached dialog.
             if (McpHttpServer.Instance != null)
                 McpHttpServer.Instance.RestartServer();
         }

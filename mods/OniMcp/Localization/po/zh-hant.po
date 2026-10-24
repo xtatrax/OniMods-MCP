@@ -1354,3 +1354,15 @@ msgstr "此部分為本體目前的殖民地及世界快取欄位，並非存檔
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.INCLUDESAVECONTEXT"
 msgid "Read-only opt-in for current native colony name and world cache fields (at most 128 worlds, 2048 characters per name). Defaults to false; separate from saved MOD labels."
 msgstr "唯讀選項，附加本體目前的殖民地名稱及世界快取欄位。預設false，最多128個世界，每個名稱最多2048字元；與存檔模組標籤分開。"
+
+#. Runtime JSON key: settings.error.optionsNotInitialized
+#. Runtime zh-Hans msgstr: "OniMcp 设置尚未初始化。请在模组加载完成后重新打开设置。"
+msgctxt "OniMcp.MCP.SETTINGS.ERROR.OPTIONSNOTINITIALIZED"
+msgid "OniMcp settings have not been initialized. Reopen settings after the mod has finished loading."
+msgstr "OniMcp 設定尚未初始化。請在模組載入完成後重新開啟設定。"
+
+#. Runtime JSON key: settings.error.plibStorageUnavailable
+#. Runtime zh-Hans msgstr: "PLib 设置存储适配器不可用。为保护现有配置，已禁用游戏内设置；请使用网页设置。"
+msgctxt "OniMcp.MCP.SETTINGS.ERROR.PLIBSTORAGEUNAVAILABLE"
+msgid "The PLib settings storage adapter is unavailable. The in-game options are disabled to protect the existing configuration; use the web settings page."
+msgstr "PLib 設定儲存介面不可用。為保護現有設定，已停用遊戲內設定；請使用網頁設定。"

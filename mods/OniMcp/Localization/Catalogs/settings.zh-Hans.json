@@ -29,5 +29,7 @@
   "settings.error.language": "MCP 语言请选择 auto、en、ja 或 zh-Hans。",
   "settings.printingPod": "要求领取或全部拒绝打印舱补给",
   "settings.printingPod.help": "ON：智能体必须领取一份补给品或拒绝全部候选。OFF：本功能不提供提示、决策要求或复查提醒，完全由智能体上下文决定。不会自动暂停游戏或自动选择奖励。",
-  "policy.printingPod.required": "继续常规工作前，查看打印舱候选并领取一份补给品，或拒绝全部候选。暂缓或忽略不算完成。全部拒绝使用 building_control domain=side_surface surface=facility kind=printing_pod action=reject_all confirm=true。尚未生成候选时，用 action=open_immigrants confirm=true 打开界面。不要自动选择复制人。无法操作时说明原因，不要声称已完成。"
+  "policy.printingPod.required": "继续常规工作前，查看打印舱候选并领取一份补给品，或拒绝全部候选。暂缓或忽略不算完成。全部拒绝使用 building_control domain=side_surface surface=facility kind=printing_pod action=reject_all confirm=true。尚未生成候选时，用 action=open_immigrants confirm=true 打开界面。不要自动选择复制人。无法操作时说明原因，不要声称已完成。",
+  "settings.error.optionsNotInitialized": "OniMcp 设置尚未初始化。请在模组加载完成后重新打开设置。",
+  "settings.error.plibStorageUnavailable": "PLib 设置存储适配器不可用。为保护现有配置，已禁用游戏内设置；请使用网页设置。"
 }

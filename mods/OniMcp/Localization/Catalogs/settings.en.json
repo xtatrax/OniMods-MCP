@@ -29,5 +29,7 @@
   "settings.error.language": "Choose auto, en, ja, or zh-Hans for the MCP language.",
   "settings.printingPod": "Require acceptance or rejection of Printing Pod offers",
   "settings.printingPod.help": "ON: the agent must accept one care package or reject all offers. OFF: this feature gives no guidance, decision requests, or reminders; everything is left to agent context. Does not pause the game or automatically select rewards.",
-  "policy.printingPod.required": "Before routine work, inspect Printing Pod offers and accept one care package or reject all offers. Deferring or ignoring does not resolve the offer. To reject all, use building_control domain=side_surface surface=facility kind=printing_pod action=reject_all confirm=true. Open unmaterialized choices with action=open_immigrants confirm=true. Do not automatically select duplicants. If an operation is unavailable, report why without claiming resolution."
+  "policy.printingPod.required": "Before routine work, inspect Printing Pod offers and accept one care package or reject all offers. Deferring or ignoring does not resolve the offer. To reject all, use building_control domain=side_surface surface=facility kind=printing_pod action=reject_all confirm=true. Open unmaterialized choices with action=open_immigrants confirm=true. Do not automatically select duplicants. If an operation is unavailable, report why without claiming resolution.",
+  "settings.error.optionsNotInitialized": "OniMcp settings have not been initialized. Reopen settings after the mod has finished loading.",
+  "settings.error.plibStorageUnavailable": "The PLib settings storage adapter is unavailable. The in-game options are disabled to protect the existing configuration; use the web settings page."
 }
