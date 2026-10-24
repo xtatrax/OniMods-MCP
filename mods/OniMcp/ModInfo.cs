@@ -42,6 +42,7 @@ namespace OniMcp
             // The native base entry point performs PatchAll(assembly); install once after setup.
             base.OnLoad(harmony);
             SpeedTransitionTracePatch.EnsureInstalled(harmony);
+            SavedModFootprintPatch.EnsureInstalled(harmony);
             InputSafetyPatchVerifier.EnsureInstalled(harmony, "OnLoad");
             AutoDisinfectPolicy.EnsureInstalled(harmony, "OnLoad");
             OniMcpLog.Debug($"[OniMcp] Loaded assembly {OniMcpVersion.Display} from {modAssembly.Location}");

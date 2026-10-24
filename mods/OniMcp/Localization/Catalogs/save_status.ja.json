@@ -1,0 +1,11 @@
+{
+  "save_status.unavailable": "この状況の保存MODラベルは未取得です。通常ロードの成功を観測した場合のみ取得でき、この読取はセーブのロードやファイル解析を行いません。",
+  "save_status.observed": "直近の通常ロード成功時に本体が読み込んだMODラベルです（旧形式の本体変換後）。現在有効なMOD一覧や現在のディスク内容の再読取ではありません。ラベルidはMODのstaticIDとは別で、ロード元と現在の保存先も区別します。",
+  "tools.game_save_control.description": "セーブ／ライフサイクル操作: list/status/save/load/quit。statusは通常ロード成功時の保存MODラベルの記録のみを読み取ります。save/load/quitにはconfirm=trueが必要です。",
+  "tools.game_save_control.parameters.action": "list、status、save、load、quit。statusはロードを開始しません。",
+  "tools.game_save_control.parameters.limit": "最大返却件数: listは既定40・最大200、statusは既定20・最大100。",
+  "tools.game_save_control.parameters.query": "status: 保存ラベルのid／titleを大文字小文字を区別せず、件数制限の前に絞り込みます。最大2048文字。",
+  "tools.game_save_control.unsupported_action": "actionはlist、status、save、load、quitのいずれかです。",
+  "save_status.current_context": "この欄は現在の本体のコロニー・ワールドのキャッシュ値で、保存MODラベルとは別です。ワールド選択や発見状態の変更は行いません。クラスタ名が無い場合や未対応の型は未取得です。名称は、発見済みでモジュール内部ではないワールドだけ取得します。",
+  "tools.game_control.parameters.includeSaveContext": "現在の本体のコロニー名とワールドのキャッシュ値を追加する読取専用指定。既定false。最大128ワールド、各名称2048文字。保存MODラベルとは別です。"
+}

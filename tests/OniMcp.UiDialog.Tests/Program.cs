@@ -28,6 +28,7 @@ internal static class Program
         TestPartialFailures();
         TestLocalization();
         PauseTraceRegression.Run();
+        SavedModFootprintRegression.Run();
         Console.WriteLine("MOD mismatch dialog: " + checks + " host checks passed (actual product adapter/handler/routing; native UI boundary substituted)");
     }
 

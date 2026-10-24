@@ -1,0 +1,11 @@
+{
+  "save_status.unavailable": "Saved MOD labels are unavailable for this context. Only an observed successful normal load can provide them; this read does not load or inspect save files.",
+  "save_status.observed": "MOD labels observed at the last successful normal load, after any native legacy conversion. These are not current enabled MODs or a fresh disk read. Label id is not MOD staticID; loaded source and active save pointer are separate.",
+  "tools.game_save_control.description": "Save/lifecycle actions: list/status/save/load/quit. status reads only cached MOD labels from a successful normal load. save/load/quit require confirm=true.",
+  "tools.game_save_control.parameters.action": "list, status, save, load or quit. status never triggers loading.",
+  "tools.game_save_control.parameters.limit": "Maximum returned rows: list defaults to 40/max 200; status defaults to 20/max 100.",
+  "tools.game_save_control.parameters.query": "status: case-insensitive saved label id/title filter, applied before limit; at most 2048 characters.",
+  "tools.game_save_control.unsupported_action": "action must be list, status, save, load or quit.",
+  "save_status.current_context": "This section contains current native colony and world cache fields, not saved MOD labels. No world is selected and no discovery state is changed. Missing or unsupported cluster names remain unavailable. Names are read only for discovered worlds that are not module interiors.",
+  "tools.game_control.parameters.includeSaveContext": "Read-only opt-in for current native colony name and world cache fields (at most 128 worlds, 2048 characters per name). Defaults to false; separate from saved MOD labels."
+}

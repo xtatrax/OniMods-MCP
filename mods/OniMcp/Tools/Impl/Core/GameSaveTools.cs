@@ -25,12 +25,14 @@ namespace OniMcp.Tools
                 Risk = "dangerous",
                 Aliases = new List<string> { "game_saves_control", "game_lifecycle_control" },
                 Tags = new List<string> { "game", "save", "load", "quit", "pause-menu", "lifecycle" },
-                Description = "セーブ/ライフサイクルの集約ツール。action=list/save/load/quit。save/load/quit には confirm=true が必須。",
+                Description = McpLocalization.Get("tools.game_save_control.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["action"] = new McpToolParameter { Type = "string", Description = "list、save、load、quit のいずれか", Required = true, EnumValues = new List<string> { "list", "save", "load", "quit" } },
+                    ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_save_control.parameters.action"), Required = true, EnumValues = new List<string> { "list", "status", "save", "load", "quit" } },
                     ["type"] = new McpToolParameter { Type = "string", Description = "list/load index の検索範囲: local、cloud、both。既定は both", Required = false, EnumValues = new List<string> { "local", "cloud", "both" } },
-                    ["limit"] = new McpToolParameter { Type = "integer", Description = "action=list で返す最大件数。既定は 40、最大 200", Required = false },
+                    ["limit"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("tools.game_save_control.parameters.limit"), Required = false },
+                    ["includeSaveContext"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.includeSaveContext"), Required = false },
+                    ["query"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_save_control.parameters.query"), Required = false },
                     ["name"] = new McpToolParameter { Type = "string", Description = "save/quit saveFirst=true で別名保存するファイル名。ディレクトリ区切り文字は使用不可", Required = false },
                     ["overwrite"] = new McpToolParameter { Type = "boolean", Description = "対象ファイルが既に存在する場合に上書きを許可するか。既定は false", Required = false },
                     ["updateActiveSave"] = new McpToolParameter { Type = "boolean", Description = "action=save の保存成功後、対象を現在の active save に設定するか。既定は true", Required = false },
@@ -45,6 +47,8 @@ namespace OniMcp.Tools
                     string action = (args["action"]?.ToString() ?? "").Trim().ToLowerInvariant();
                     switch (action)
                     {
+                        case "status":
+                            return SavedModFootprint.Read(args);
                         case "list":
                             return ListSaves().Handler(args);
                         case "save":
@@ -54,7 +58,7 @@ namespace OniMcp.Tools
                         case "quit":
                             return QuitGame().Handler(args);
                         default:
-                            return CallToolResult.Error("action must be list, save, load, or quit");
+                            return CallToolResult.Error(McpLocalization.Get("tools.game_save_control.unsupported_action"));
                     }
                 }
             };

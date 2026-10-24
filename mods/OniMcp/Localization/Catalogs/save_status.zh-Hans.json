@@ -1,0 +1,11 @@
+{
+  "save_status.unavailable": "此上下文的存档模组标签尚未取得。只有已观测到的正常成功加载才能提供；此读取不会加载或解析存档文件。",
+  "save_status.observed": "上次正常成功加载时观测到的模组标签（本体旧格式转换后）。它们并非当前启用模组或重新读取的磁盘内容。标签id不是模组staticID；加载来源和当前存档指针分别显示。",
+  "tools.game_save_control.description": "存档/生命周期操作：list/status/save/load/quit。status只读取正常成功加载时记录的存档模组标签。save/load/quit需要confirm=true。",
+  "tools.game_save_control.parameters.action": "list、status、save、load或quit。status不会触发加载。",
+  "tools.game_save_control.parameters.limit": "最多返回条目：list默认40/最多200；status默认20/最多100。",
+  "tools.game_save_control.parameters.query": "status：在数量限制之前按存档标签id/title筛选，不区分大小写；最多2048字符。",
+  "tools.game_save_control.unsupported_action": "action必须是list、status、save、load或quit。",
+  "save_status.current_context": "此部分为本体当前的殖民地及世界缓存字段，并非存档模组标签。不会选择世界或更改发现状态。缺失或不支持的星群名称仍为未取得。仅对已发现且不是模块内部的世界读取名称。",
+  "tools.game_control.parameters.includeSaveContext": "只读选项，附加本体当前的殖民地名称及世界缓存字段。默认false，最多128个世界，每个名称最多2048字符；与存档模组标签分开。"
+}

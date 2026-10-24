@@ -189,7 +189,7 @@ internal sealed class Global
 }
 namespace KMod
 {
-    internal sealed class Manager
+    internal sealed partial class Manager
     {
         public void NotifyDialog(string title, string message_format, UnityEngine.GameObject parent) { }
     }
@@ -238,6 +238,14 @@ namespace OniMcp.Tools
 {
     internal static class ToolUtil
     {
+        // Match the shared ClampLimit boundary; production helper behavior is tested separately.
+        internal static int ClampLimit(JObject args, int defaultValue, int max)
+        {
+            int value;
+            if (args["limit"] != null && int.TryParse(args["limit"].ToString(), out value))
+                return Math.Max(1, Math.Min(value, max));
+            return defaultValue;
+        }
         internal static bool GetBool(JObject args, string key, bool fallback = false)
         { bool value; return args != null && args[key] != null && bool.TryParse(args[key].ToString(), out value) ? value : fallback; }
     }

@@ -22,6 +22,8 @@ internal sealed class Game : UnityEngine.Object
 {
     private static Game instance;
     public static bool ThrowOnRead;
+    public bool Loading;
+    public bool IsLoading() { return Loading; }
     public static Game Instance
     {
         get { if (ThrowOnRead) throw new InvalidOperationException("fixture game unavailable"); return instance; }

@@ -245,9 +245,9 @@ msgid "Unified game entrypoint for speed, pause/resume, game state, saves, DLC a
 msgstr ""
 
 #. Runtime JSON key: tools.game_control.parameters.action
-#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。domain=speed支持time、pause、resume、set_speed和只读trace。UI feedback支持notification、popup、speech_bubble、marker；uiDomain=dialog支持当前MOD不匹配对话框的status、acknowledge。"
+#. Runtime zh-Hans msgstr: "所选子系统的游戏操作。domain=speed支持time、pause、resume、set_speed和只读trace。UI feedback支持notification、popup、speech_bubble、marker；uiDomain=dialog支持当前MOD不匹配对话框的status、acknowledge。 domain=save支持list、status、save、load和quit；status只读取已记录的存档模组标签，不会加载存档。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.ACTION"
-msgid "Game action for the selected subsystem. domain=speed supports time, pause, resume, set_speed and read-only trace. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog."
+msgid "Game action for the selected subsystem. domain=speed supports time, pause, resume, set_speed and read-only trace. UI feedback supports notification, popup, speech_bubble and marker; uiDomain=dialog supports status and acknowledge for the current MOD mismatch dialog. domain=save supports list, status, save, load and quit; status only reads cached MOD labels and never loads a save."
 msgstr ""
 
 #. Runtime JSON key: tools.game_control.parameters.uiDomain
@@ -1254,4 +1254,70 @@ msgstr ""
 #. Runtime zh-Hans msgstr: "子系统操作：info=detail/attributes/needs/status_check; priority=list/set/batch/settings_get/settings_set/reset; hat=list/set; command=move_to/move_batch_to/force_action/rename/auto_rename; side_screen=direct_commands/equipment/todos/bionic_upgrades; skill=list/open/learn; assignable=list/set/set_slot."
 msgctxt "OniMcp.MCP.SKILL_MODEL.ENTRY_ACTION"
 msgid "Subsystem action: info=detail/attributes/needs/status_check; priority=list/set/batch/settings_get/settings_set/reset; hat=list/set; command=move_to/move_batch_to/force_action/rename/auto_rename; side_screen=direct_commands/equipment/todos/bionic_upgrades; skill=list/open/learn; assignable=list/set/set_slot."
+msgstr ""
+
+#. Runtime JSON key: save_status.unavailable
+#. Runtime zh-Hans msgstr: "此上下文的存档模组标签尚未取得。只有已观测到的正常成功加载才能提供；此读取不会加载或解析存档文件。"
+msgctxt "OniMcp.MCP.SAVE_STATUS.UNAVAILABLE"
+msgid "Saved MOD labels are unavailable for this context. Only an observed successful normal load can provide them; this read does not load or inspect save files."
+msgstr ""
+
+#. Runtime JSON key: save_status.observed
+#. Runtime zh-Hans msgstr: "上次正常成功加载时观测到的模组标签（本体旧格式转换后）。它们并非当前启用模组或重新读取的磁盘内容。标签id不是模组staticID；加载来源和当前存档指针分别显示。"
+msgctxt "OniMcp.MCP.SAVE_STATUS.OBSERVED"
+msgid "MOD labels observed at the last successful normal load, after any native legacy conversion. These are not current enabled MODs or a fresh disk read. Label id is not MOD staticID; loaded source and active save pointer are separate."
+msgstr ""
+
+#. Runtime JSON key: tools.game_save_control.description
+#. Runtime zh-Hans msgstr: "存档/生命周期操作：list/status/save/load/quit。status只读取正常成功加载时记录的存档模组标签。save/load/quit需要confirm=true。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_SAVE_CONTROL.DESCRIPTION"
+msgid "Save/lifecycle actions: list/status/save/load/quit. status reads only cached MOD labels from a successful normal load. save/load/quit require confirm=true."
+msgstr ""
+
+#. Runtime JSON key: tools.game_save_control.parameters.action
+#. Runtime zh-Hans msgstr: "list、status、save、load或quit。status不会触发加载。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_SAVE_CONTROL.PARAMETERS.ACTION"
+msgid "list, status, save, load or quit. status never triggers loading."
+msgstr ""
+
+#. Runtime JSON key: tools.game_save_control.parameters.limit
+#. Runtime zh-Hans msgstr: "最多返回条目：list默认40/最多200；status默认20/最多100。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_SAVE_CONTROL.PARAMETERS.LIMIT"
+msgid "Maximum returned rows: list defaults to 40/max 200; status defaults to 20/max 100."
+msgstr ""
+
+#. Runtime JSON key: tools.game_save_control.parameters.query
+#. Runtime zh-Hans msgstr: "status：在数量限制之前按存档标签id/title筛选，不区分大小写；最多2048字符。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_SAVE_CONTROL.PARAMETERS.QUERY"
+msgid "status: case-insensitive saved label id/title filter, applied before limit; at most 2048 characters."
+msgstr ""
+
+#. Runtime JSON key: tools.game_save_control.unsupported_action
+#. Runtime zh-Hans msgstr: "action必须是list、status、save、load或quit。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_SAVE_CONTROL.UNSUPPORTED_ACTION"
+msgid "action must be list, status, save, load or quit."
+msgstr ""
+
+#. Runtime JSON key: tools.game_control.parameters.limit
+#. Runtime zh-Hans msgstr: "读取最多返回条目。save/status默认20，最多100。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.LIMIT"
+msgid "Maximum returned rows for reads. save/status defaults to 20, maximum 100."
+msgstr ""
+
+#. Runtime JSON key: tools.game_control.parameters.query
+#. Runtime zh-Hans msgstr: "save/status：在数量限制之前筛选存档标签id/title。sandbox/read/list_story_traits：搜索文本。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.QUERY"
+msgid "save/status: filter saved label id/title before limit. sandbox/read/list_story_traits: search text."
+msgstr ""
+
+#. Runtime JSON key: save_status.current_context
+#. Runtime zh-Hans msgstr: "此部分为本体当前的殖民地及世界缓存字段，并非存档模组标签。不会选择世界或更改发现状态。缺失或不支持的星群名称仍为未取得。仅对已发现且不是模块内部的世界读取名称。"
+msgctxt "OniMcp.MCP.SAVE_STATUS.CURRENT_CONTEXT"
+msgid "This section contains current native colony and world cache fields, not saved MOD labels. No world is selected and no discovery state is changed. Missing or unsupported cluster names remain unavailable. Names are read only for discovered worlds that are not module interiors."
+msgstr ""
+
+#. Runtime JSON key: tools.game_control.parameters.includeSaveContext
+#. Runtime zh-Hans msgstr: "只读选项，附加本体当前的殖民地名称及世界缓存字段。默认false，最多128个世界，每个名称最多2048字符；与存档模组标签分开。"
+msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.INCLUDESAVECONTEXT"
+msgid "Read-only opt-in for current native colony name and world cache fields (at most 128 worlds, 2048 characters per name). Defaults to false; separate from saved MOD labels."
 msgstr ""
