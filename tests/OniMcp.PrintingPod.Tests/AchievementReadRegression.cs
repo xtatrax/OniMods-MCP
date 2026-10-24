@@ -129,11 +129,42 @@ internal static class AchievementReadRegression
     internal static void Run()
     {
         Console.WriteLine("AchievementReadRegression: linked full Facility and Colony readers, poisoned native evaluation");
+        FailurePrecedenceAcrossCachedReads();
         KnownStatesAndActualTelepadWire();
         MissingCachesAndKnownEmpty();
         RequirementsAndFullShape();
         FiltersLimitsAndErrors();
         Console.WriteLine("PASS: actual achievement cached readers, " + checks + " boundary checks; native game/UI not exercised");
+    }
+    private static void FailurePrecedenceAcrossCachedReads()
+    {
+        Fresh();
+        const string id = "BOTH_FLAGS";
+        Db.Instance.ColonyAchievements.resources.Add(Definition(id));
+        Cache(id, true, true);
+        Guarded(() => {
+            var victory = Victory();
+            Check(victory.Count == 1 && (string)Row(victory, id)["status"] == "failed",
+                "both_true_failure_priority: cached failure must override success on victory reads");
+            Status(Row(victory, id), "failed", true, true, "success");
+            foreach (var detail in new[] { "brief", "full" }) {
+                var result = ReadMain(new JObject { ["achievementDetail"] = detail });
+                Counts(result, 0, 0, 1, 0);
+                Check((int)result["matched"] == 1 && (int)result["returned"] == 1 && !(bool)result["truncated"],
+                    "both_true_failure_priority: unfiltered row must remain present");
+                Status(Row(Items(result), id), "failed", true, true, "completed");
+            }
+            var failed = ReadMain(new JObject { ["achievementStatus"] = "failed" });
+            Counts(failed, 0, 0, 1, 0);
+            Check((int)failed["matched"] == 1 && (int)failed["returned"] == 1,
+                "both_true_failure_priority: failed filter must include the conflicting cached flags");
+            Status(Row(Items(failed), id), "failed", true, true, "completed");
+            var completed = ReadMain(new JObject { ["achievementStatus"] = "completed" });
+            Counts(completed, 0, 0, 1, 0);
+            Check((int)completed["matched"] == 0 && (int)completed["returned"] == 0 && !Items(completed).Any()
+                && !(bool)completed["truncated"],
+                "both_true_failure_priority: completed filter must exclude the conflicting cached flags");
+        });
     }
     private static void KnownStatesAndActualTelepadWire()
     {
@@ -158,7 +189,7 @@ internal static class AchievementReadRegression
             Check(victory.Count == 6 && victory.Select(r => (string)r["id"]).SequenceEqual(definitions.Take(6).Select(d => d.Id)), "victory filter/order changed");
             Status(Row(victory, "COMPLETE"), "completed", true, false, "success");
             Status(Row(victory, "FAIL"), "failed", false, true, "success");
-            Status(Row(victory, "BOTH"), "completed", true, true, "success");
+            Status(Row(victory, "BOTH"), "failed", true, true, "success");
             Status(Row(victory, "INCOMPLETE"), "incomplete", false, false, "success");
             Status(Row(victory, "MISSING"), "unknown", null, null, "success");
             Status(Row(victory, "NULL_CACHED"), "unknown", null, null, "success");
@@ -168,7 +199,7 @@ internal static class AchievementReadRegression
                 Check((string)row["source"] == CacheSource && (string)row["stateMode"] == CacheMode, "victory provenance absent");
             }
             var main = ReadMain();
-            Counts(main, 2, 2, 1, 2);
+            Counts(main, 1, 2, 2, 2);
             Check((string)main["source"] == CacheSource && (string)main["stateMode"] == CacheMode
                 && (string)main["scope"] == "current_colony_valid_achievements" && (int)main["observedCycle"] == 40, "main provenance changed");
             Check((int)main["matched"] == 7 && (int)main["returned"] == 7 && !(bool)main["truncated"], "brief counts changed");
@@ -176,7 +207,7 @@ internal static class AchievementReadRegression
             Check(Items(main).Select(r => (string)r["id"]).SequenceEqual(new[] { "BOTH", "COMPLETE", "FAIL", "INCOMPLETE", "MISSING", "NULL_CACHED", "ORDINARY" }), "main sorting/filter changed");
             Status(Row(Items(main), "COMPLETE"), "completed", true, false, "completed");
             Status(Row(Items(main), "FAIL"), "failed", false, true, "completed");
-            Status(Row(Items(main), "BOTH"), "completed", true, true, "completed");
+            Status(Row(Items(main), "BOTH"), "failed", true, true, "completed");
             Status(Row(Items(main), "INCOMPLETE"), "incomplete", false, false, "completed");
             Status(Row(Items(main), "MISSING"), "unknown", null, null, "completed");
             Status(Row(Items(main), "NULL_CACHED"), "unknown", null, null, "completed");
@@ -296,13 +327,13 @@ internal static class AchievementReadRegression
         Guarded(() => {
             foreach (var filter in new[] { "all", "completed", "failed", "incomplete", "unknown" }) {
                 var result = ReadMain(new JObject { ["achievementStatus"] = filter });
-                Counts(result, 2, 1, 1, 1);
+                Counts(result, 1, 1, 2, 1);
                 Check(Items(result).All(r => filter == "all" || (string)r["status"] == filter), "status filter escaped");
-                Check((int)result["matched"] == (filter == "all" ? 5 : filter == "completed" ? 2 : 1), "filter matched count changed");
+                Check((int)result["matched"] == (filter == "all" ? 5 : filter == "failed" ? 2 : 1), "filter matched count changed");
             }
             var query = ReadMain(new JObject { ["query"] = "searchTARGET", ["achievementDetail"] = "full" });
             Check(Items(query).Count == 1 && (string)Items(query)[0]["id"] == "B", "query must use case-insensitive plain name");
-            Counts(query, 2, 1, 1, 1);
+            Counts(query, 1, 1, 2, 1);
             var limited = ReadMain(new JObject { ["limit"] = 1 });
             Check((int)limited["matched"] == 5 && (int)limited["returned"] == 1 && (bool)limited["truncated"], "limit must not change matched count");
             Check((int)ReadMain(new JObject { ["limit"] = 0 })["returned"] == 1, "minimum limit changed");

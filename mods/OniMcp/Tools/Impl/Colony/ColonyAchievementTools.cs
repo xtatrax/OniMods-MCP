@@ -115,7 +115,8 @@ namespace OniMcp.Tools
 
         private static string CachedState(ColonyAchievementStatus cached)
         {
-            return cached == null ? "unknown" : cached.success ? "completed" : cached.failed ? "failed" : "incomplete";
+            // The native summary applies failure after achievement/progress state; keep both raw flags.
+            return cached == null ? "unknown" : cached.failed ? "failed" : cached.success ? "completed" : "incomplete";
         }
 
         private static List<Dictionary<string, object>> ReadRequirements(Database.ColonyAchievement definition, bool includeSuccess)
