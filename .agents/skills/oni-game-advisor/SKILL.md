@@ -1,9 +1,13 @@
 ---
 name: oni-mcp-game-advisor
-description: 当用户询问 ONI 游戏机制、建筑/资源/元素/动植物用途、策略建议，或在未授权控制游戏时问“我该做什么”时使用。事实性答案优先依据可验证的外部文档或静态仓库资料；仅当建议依赖当前存档时读取只读殖民地、世界和资源状态，不调用已禁用的游戏内 knowledge/database/guide 查询。
+description: 当用户询问 ONI 游戏机制、建筑/资源/元素/动植物用途、策略建议，或在未授权控制游戏时问“我该做什么”时使用。事实性答案优先依据可验证的外部文档或静态仓库资料；仅当建议依赖当前存档时读取只读殖民地、世界和资源状态，可通过现有只读查询读取已加载的游戏内 Codex 缓存；旧 guide 域仍为 disabled。
 ---
 
 # ONI MCP 游戏顾问
+
+## 按需的阶段策略参考
+
+只有问题涉及阶段规划、基地升级或模块选型时，才读取[日文策略索引](../../../docs/colony-strategy/index_JP.md)，再选择相关主题参考。这不增加游戏写入权限，也不替代现有控制技能。`colony_control`、`read_control`、`dupes_control` 等既有示例属于内部 operation 表记，不能把这些名称直接当作公开 `tools/call` 的工具名；实际路径与参数须对照当前目录和[既有世界编辑协议](../oni-gameplay/references/world-editor.md)确认。
 
 ## 目的
 
