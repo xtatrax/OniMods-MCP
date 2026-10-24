@@ -3,6 +3,7 @@ using UnityEngine;
 using OniMcp.Tools;
 
 WorldAnalysisTools.RunPickupableGroupingRegressions();
+WorldEditorTools.RunPickupableDetailRegressions();
 WorldAnalysisTools.RunUtilitySummaryRegressions();
 WorldEditorTools.RunReadRegressions();
 WorldEditorTools.RunMapContractRegressions();

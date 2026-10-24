@@ -1450,3 +1450,59 @@ msgstr "← 返回地圖層清單"
 msgctxt "OniMcp.MCP.MAP_HTML.LAYER_DESCRIPTION"
 msgid "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings."
 msgstr "將游標停在儲存格上可查看座標、元素和溫度。黃色儲存格表示建築。"
+
+#. Runtime JSON key: cell.pickups.title
+#. Runtime zh-Hans msgstr: "掉落物概要"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.TITLE"
+msgid "Pickup summary"
+msgstr "掉落物概要"
+
+#. Runtime JSON key: cell.pickups.items
+#. Runtime zh-Hans msgstr: "掉落物："
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.ITEMS"
+msgid "Dropped items: "
+msgstr "掉落物："
+
+#. Runtime JSON key: cell.pickups.count
+#. Runtime zh-Hans msgstr: " 件，"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.COUNT"
+msgid " items, "
+msgstr " 件，"
+
+#. Runtime JSON key: cell.pickups.details
+#. Runtime zh-Hans msgstr: "明细"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.DETAILS"
+msgid "Details"
+msgstr "明細"
+
+#. Runtime JSON key: cell.pickups.groups
+#. Runtime zh-Hans msgstr: "汇总"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.GROUPS"
+msgid "Groups"
+msgstr "彙總"
+
+#. Runtime JSON key: cell.pickups.element
+#. Runtime zh-Hans msgstr: "元素"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.ELEMENT"
+msgid "Element"
+msgstr "元素"
+
+#. Runtime JSON key: cell.pickups.mass_unavailable
+#. Runtime zh-Hans msgstr: "质量未获取"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_UNAVAILABLE"
+msgid "mass unavailable"
+msgstr "質量未取得"
+
+#. Runtime JSON key: cell.pickups.mass_partial
+#. Runtime zh-Hans msgstr: "已知 {0} kg；{1} 件物品的质量未获取"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_PARTIAL"
+msgid "{0} kg known; mass unavailable for {1} item(s)"
+msgstr "已知 {0} kg；{1} 件物品的質量未取得"

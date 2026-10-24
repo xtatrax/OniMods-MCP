@@ -32,7 +32,7 @@ var entries = new List<CellPickupDetail>();
                     Name = StripLinkTags(pickupable.GetProperName()),
                     PrefabId = prefab != null && prefab.PrefabTag.IsValid ? prefab.PrefabTag.Name : pickupable.gameObject.name,
                     ElementId = primary != null ? primary.ElementID.ToString() : "?",
-                    MassKg = primary != null ? primary.Mass : 0f,
+                    MassKg = primary != null ? (float?)primary.Mass : null,
                     Stored = stored,
                     CachedCell = pickupable.cachedCell,
                     ObjectCell = objectCell,
@@ -46,7 +46,7 @@ var entries = new List<CellPickupDetail>();
 
             sb.AppendLine();
 sb.AppendLine("## " + McpLocalization.Get("cell.pickups.title"));
-            sb.AppendLine("- " + McpLocalization.Get("cell.pickups.items") + entries.Count + McpLocalization.Get("cell.pickups.count") + entries.Sum(item => item.MassKg).ToString("F2") + " kg"
+            sb.AppendLine("- " + McpLocalization.Get("cell.pickups.items") + entries.Count + McpLocalization.Get("cell.pickups.count") + CellPickupMassText(entries)
                 + ", loose=" + entries.Count(item => !item.Stored)
                 + ", stored=" + entries.Count(item => item.Stored));
 sb.AppendLine("- " + McpLocalization.Get("cell.pickups.details") + ": shown=" + Math.Min(entries.Count, limit)
@@ -55,7 +55,7 @@ sb.AppendLine("- " + McpLocalization.Get("cell.pickups.details") + ": shown=" + 
 sb.AppendLine("- " + McpLocalization.Get("cell.pickups.groups") + ":");
             foreach (var group in entries
                          .GroupBy(item => item.PrefabId + "|" + item.ElementId + "|" + item.Name)
-                         .OrderByDescending(group => group.Sum(item => item.MassKg))
+                         .OrderByDescending(group => group.Sum(item => item.MassKg ?? 0f))
 .Take(limit))
             {
                 CellPickupDetail first = group.First();
@@ -63,21 +63,39 @@ sb.AppendLine("- " + McpLocalization.Get("cell.pickups.groups") + ":");
                     + " (ID=" + first.PrefabId
                     + ", " + McpLocalization.Get("cell.pickups.element") + "=" + first.ElementId
                     + "): count=" + group.Count()
-                    + ", mass=" + group.Sum(item => item.MassKg).ToString("F2") + " kg");
+                    + ", mass=" + CellPickupMassText(group));
             }
 
 sb.AppendLine("- " + McpLocalization.Get("cell.pickups.details") + ":");
-foreach (CellPickupDetail item in entries.OrderByDescending(item => item.MassKg).Take(limit))
+foreach (CellPickupDetail item in entries.OrderByDescending(item => item.MassKg ?? 0f).Take(limit))
             {
                 sb.AppendLine("  - " + item.Name
                     + " | ID=" + item.PrefabId
                     + " | " + McpLocalization.Get("cell.pickups.element") + "=" + item.ElementId
-                    + " | " + item.MassKg.ToString("F2") + " kg"
+                    + " | " + CellPickupMassText(item.MassKg)
                     + " | state=" + (item.Stored ? "stored" : "loose")
                     + " | cachedCell=" + item.CachedCell
                     + " | objectCell=" + item.ObjectCell
                     + " | pos=(" + item.X.ToString("F2") + "," + item.Y.ToString("F2") + ")");
             }
+        }
+
+        private static string CellPickupMassText(float? massKg)
+        {
+            return massKg.HasValue ? massKg.Value.ToString("F2") + " kg"
+                : McpLocalization.Get("cell.pickups.mass_unavailable");
+        }
+
+        private static string CellPickupMassText(IEnumerable<CellPickupDetail> items)
+        {
+            var entries = items.ToList();
+            int missing = entries.Count(item => !item.MassKg.HasValue);
+            if (missing == entries.Count)
+                return McpLocalization.Get("cell.pickups.mass_unavailable");
+            float knownMassKg = entries.Where(item => item.MassKg.HasValue).Sum(item => item.MassKg.Value);
+            if (missing == 0)
+                return CellPickupMassText(knownMassKg);
+            return McpLocalization.Format("cell.pickups.mass_partial", null, knownMassKg.ToString("F2"), missing);
         }
 
         static int CellPickupItemLimit(JObject args)
@@ -99,7 +117,7 @@ foreach (CellPickupDetail item in entries.OrderByDescending(item => item.MassKg)
             public string Name;
             public string PrefabId;
             public string ElementId;
-            public float MassKg;
+            public float? MassKg;
             public bool Stored;
             public int CachedCell;
             public int ObjectCell;

@@ -1417,3 +1417,43 @@ msgstr ""
 msgctxt "OniMcp.MCP.MAP_HTML.LAYER_DESCRIPTION"
 msgid "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings."
 msgstr ""
+
+#. Runtime JSON key: cell.pickups.title
+msgctxt "OniMcp.MCP.CELL.PICKUPS.TITLE"
+msgid "Pickup summary"
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.items
+msgctxt "OniMcp.MCP.CELL.PICKUPS.ITEMS"
+msgid "Dropped items: "
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.count
+msgctxt "OniMcp.MCP.CELL.PICKUPS.COUNT"
+msgid " items, "
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.details
+msgctxt "OniMcp.MCP.CELL.PICKUPS.DETAILS"
+msgid "Details"
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.groups
+msgctxt "OniMcp.MCP.CELL.PICKUPS.GROUPS"
+msgid "Groups"
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.element
+msgctxt "OniMcp.MCP.CELL.PICKUPS.ELEMENT"
+msgid "Element"
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.mass_unavailable
+msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_UNAVAILABLE"
+msgid "mass unavailable"
+msgstr ""
+
+#. Runtime JSON key: cell.pickups.mass_partial
+msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_PARTIAL"
+msgid "{0} kg known; mass unavailable for {1} item(s)"
+msgstr ""

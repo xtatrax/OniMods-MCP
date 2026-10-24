@@ -49,3 +49,18 @@ PO source preparation and runtime loading are separate validation boundaries.
 status/read は候補の生成・画面表示・refresh・requirement delegate を呼ばない。要件を再評価していない候補は `requirementMet=null`、`claimable=null`、`claimabilityStatus=not_evaluated` とする。従来の真偽値を前提とするクライアントはnullを未知として扱う。実際の claim/reject 操作は既存のnative画面経路と確認条件を維持し、候補読取だけで受取可否を断定しない。
 
 候補一覧の `index` と claim の `rewardIndex` は、対象Telepadに一致する同じ `ImmigrantScreen` の既存containers順・同じCarePackageInfoを使用する。古いstatic global候補が残っていても選択元に混ぜない。unknown／未生成／生成途中は候補を生成せず既存の受取拒否を返し、実行時のconfirm・dryRun・native選択／OnProceed・cleanup条件は維持する。
+
+## セルの落下物詳細と欠測質量
+
+| PO context | 現行JSONキー | 状態 |
+|---|---|---|
+| OniMcp.MCP.CELL.PICKUPS.TITLE | cell.pickups.title | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.ITEMS | cell.pickups.items | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.COUNT | cell.pickups.count | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.DETAILS | cell.pickups.details | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.GROUPS | cell.pickups.groups | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.ELEMENT | cell.pickups.element | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.MASS_UNAVAILABLE | cell.pickups.mass_unavailable | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+| OniMcp.MCP.CELL.PICKUPS.MASS_PARTIAL | cell.pickups.mass_partial | セルMarkdownの落下物詳細。PO en/jaとruntime、zh-Hans注記を照合 |
+
+既存6ラベルを変更せずPOへ対応付ける。新2項目はPrimaryElement欠測の質量未取得と、既知質量小計・欠測件数の混在を表す。既知0 kgは0.00 kg、欠測だけは質量未取得、混在は既知小計を明示し全体質量と断定しない。ランタイムはcell-details.{en,ja,zh-Hans}.jsonを使用し、zh-Hantの新規runtime対応は追加しない。対象はWorldEditorCellPickupDetailsのMarkdown経路だけで、非有限値、他のread、分類・同名集計の契約は変更しない。

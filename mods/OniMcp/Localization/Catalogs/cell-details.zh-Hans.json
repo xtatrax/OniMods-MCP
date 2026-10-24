@@ -8,5 +8,7 @@
   "cell.decision.ports.missing": "- 接口：缺少线路 {0}；请检查 `{1}`。",
   "cell.decision.ports.connected": "- 接口：已连接 {0}。",
   "cell.decision.ports.optional": "- 接口：可选信号接口未连接 {0}；原生接口定义不要求显示缺少线路警告。",
-  "cell.decision.ports.unknown": "- 接口：未连接 {0}；连接要求不可用；请检查 `{1}`。"
+  "cell.decision.ports.unknown": "- 接口：未连接 {0}；连接要求不可用；请检查 `{1}`。",
+  "cell.pickups.mass_unavailable": "质量未获取",
+  "cell.pickups.mass_partial": "已知 {0} kg；{1} 件物品的质量未获取"
 }

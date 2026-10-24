@@ -1418,3 +1418,43 @@ msgstr "← レイヤー一覧へ戻る"
 msgctxt "OniMcp.MCP.MAP_HTML.LAYER_DESCRIPTION"
 msgid "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings."
 msgstr "セルにカーソルを重ねると、座標・元素・温度を確認できます。黄色のセルは設備を表します。"
+
+#. Runtime JSON key: cell.pickups.title
+msgctxt "OniMcp.MCP.CELL.PICKUPS.TITLE"
+msgid "Pickup summary"
+msgstr "落下物の概要"
+
+#. Runtime JSON key: cell.pickups.items
+msgctxt "OniMcp.MCP.CELL.PICKUPS.ITEMS"
+msgid "Dropped items: "
+msgstr "落ちている物: "
+
+#. Runtime JSON key: cell.pickups.count
+msgctxt "OniMcp.MCP.CELL.PICKUPS.COUNT"
+msgid " items, "
+msgstr " 件, "
+
+#. Runtime JSON key: cell.pickups.details
+msgctxt "OniMcp.MCP.CELL.PICKUPS.DETAILS"
+msgid "Details"
+msgstr "明細"
+
+#. Runtime JSON key: cell.pickups.groups
+msgctxt "OniMcp.MCP.CELL.PICKUPS.GROUPS"
+msgid "Groups"
+msgstr "集計"
+
+#. Runtime JSON key: cell.pickups.element
+msgctxt "OniMcp.MCP.CELL.PICKUPS.ELEMENT"
+msgid "Element"
+msgstr "元素"
+
+#. Runtime JSON key: cell.pickups.mass_unavailable
+msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_UNAVAILABLE"
+msgid "mass unavailable"
+msgstr "質量未取得"
+
+#. Runtime JSON key: cell.pickups.mass_partial
+msgctxt "OniMcp.MCP.CELL.PICKUPS.MASS_PARTIAL"
+msgid "{0} kg known; mass unavailable for {1} item(s)"
+msgstr "既知分 {0} kg; {1} 件の質量未取得"
