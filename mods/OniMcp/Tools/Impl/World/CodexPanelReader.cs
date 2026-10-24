@@ -68,6 +68,11 @@ namespace OniMcp.Tools
                 var fallback = CodexSublimationReader.Read(widget, issues, ref remainingNodes);
                 if (fallback != null) result["prefabSublimatesFallback"] = fallback;
             }
+            if (IsKnown(widget, "CodexConversionPanel"))
+            {
+                var light = CodexConverterLightReader.Read(widget, issues, ref remainingNodes);
+                if (light != null) result["converterNominalLight"] = light;
+            }
             return result;
         }
 

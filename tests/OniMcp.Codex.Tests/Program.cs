@@ -249,6 +249,85 @@ internal static class Program
   }
  }
 
+ static void ConverterNominalLightRegression()
+ {
+  var oldGame=Game.Instance;var oldEntries=CodexCache.entries;var oldSubs=CodexCache.subEntries;
+  var oldPrefabs=Assets.Prefabs;var oldRequests=Assets.PrefabRequests;bool oldThrow=Assets.ThrowPrefabLookup;
+  int oldIdentity=UnityEngine.GameObject.IdentityReads,oldLight=UnityEngine.GameObject.LightReads;
+  int oldConstructors=Light2D.ConstructorCalls,oldLux=Light2D.LuxReads,oldRange=Light2D.RangeReads;
+  int oldSet=Light2D.SetterCalls,oldDescriptor=Light2D.DescriptorCalls,oldRefresh=Light2D.RefreshCalls,oldSim=Light2D.SimulationCalls;
+  try
+  {
+   Game.Instance=new Game {unlocks=new Unlocks()};CodexCache.entries=new Dictionary<string,CodexEntry>();CodexCache.subEntries=new Dictionary<string,SubEntry>();
+   Assets.Prefabs=new Dictionary<string,UnityEngine.GameObject>();Assets.PrefabRequests=new List<string>();Assets.ThrowPrefabLookup=false;
+   UnityEngine.GameObject.IdentityReads=0;UnityEngine.GameObject.LightReads=0;
+   Light2D.LuxReads=0;Light2D.RangeReads=0;Light2D.SetterCalls=0;Light2D.DescriptorCalls=0;Light2D.RefreshCalls=0;Light2D.SimulationCalls=0;
+   var converter=Prefab("PRIVATE_LIGHT_TAG");converter.name="selected converter";
+   var light=new Light2D {NominalLux=1800,NominalRange=5.5f};converter.Light=light;
+   Assets.Prefabs["PRIVATE_LIGHT_TAG"]=converter;
+   var widget=new CodexConversionPanel {title="conversion title",Converter=converter,ins=new[]{new ElementUsage {tag=new Tag("Phosphorite"),amount=0.25f,continuous=true}}};
+   var box=Box(widget);var entry=new CodexEntry {id="NOMINALLIGHT",StoredContent=new List<ContentContainer>{box}};CodexCache.entries[entry.id]=entry;
+   int constructors=Light2D.ConstructorCalls,warningCalls=Assets.WarningLookupCalls,nameCalls=UnityEngine.GameObject.ProperNameCalls,tagCalls=TagManager.CreateCalls;
+   Func<JToken> panel=()=>Read("{id:'NOMINALLIGHT',maxChars:20000}")["results"][0]["content"]["blocks"][0];
+   var block=panel();var value=block["converterNominalLight"];
+   Check(value!=null && (bool)value["available"] && (string)value["status"]=="observed","exact cached native converter exposes nominal light through actual Read wire");
+   Check((int)value["lux"]["value"]==1800 && (bool)value["lux"]["available"] && (string)value["lux"]["unit"]=="lux" && (float)value["range"]["value"]==5.5f && (string)value["range"]["unit"]=="cells" && (string)value["range"]["semantics"]=="radius","native lux and finite radius are independent raw quantities with explicit units");
+   Check((string)value["source"]=="CodexConversionPanel.Converter/Assets.TryGetPrefab/Light2D.Lux/Range" && (string)value["semantics"]=="nominal_cached_prefab_light" && ((JObject)value).Count==6 && !value.ToString().Contains("PRIVATE_LIGHT_TAG") && !value.ToString().Contains("selected converter"),"nominal source is explicit without publishing new prefab identities");
+   Check((string)block["data"]["title"]=="conversion title" && (float)block["data"]["ins"][0]["amount"]==.25f && (string)block["data"]["Converter"]["assetName"]=="selected converter" && !(bool)block["renderedUiComplete"],"legacy raw conversion values and incomplete native rendering remain intact");
+   light.NominalLux=0;light.NominalRange=0f;value=panel()["converterNominalLight"];
+   Check((bool)value["available"] && (int)value["lux"]["value"]==0 && (float)value["range"]["value"]==0f,"observed zero is known zero rather than missing defaults");
+   light.NominalLux=-7;light.NominalRange=-2.5f;value=panel()["converterNominalLight"];
+   Check((bool)value["available"] && (int)value["lux"]["value"]==-7 && (float)value["range"]["value"]==-2.5f,"finite negative raw values are preserved without validity or coverage prediction");
+   light.NominalLux=18;
+   foreach(float invalid in new[]{float.NaN,float.PositiveInfinity,float.NegativeInfinity})
+   {
+    light.NominalRange=invalid;value=panel()["converterNominalLight"];
+    Check(!(bool)value["available"] && (string)value["status"]=="partial" && (bool)value["lux"]["available"] && (int)value["lux"]["value"]==18 && !(bool)value["range"]["available"] && value["range"]["value"].Type==JTokenType.Null && (string)value["range"]["status"]=="invalid_numeric","nonfinite radius remains missing while observed lux is retained");
+   }
+   light.NominalRange=3f;light.ThrowLuxRead=true;value=panel()["converterNominalLight"];
+   Check((string)value["status"]=="partial" && value["lux"]["value"].Type==JTokenType.Null && (string)value["lux"]["status"]=="read_unavailable" && (float)value["range"]["value"]==3f,"lux getter fault preserves independently observed range");
+   light.ThrowLuxRead=false;light.ThrowRangeRead=true;value=panel()["converterNominalLight"];
+   Check((string)value["status"]=="partial" && (int)value["lux"]["value"]==18 && value["range"]["value"].Type==JTokenType.Null && (string)value["range"]["status"]=="read_unavailable","range getter fault preserves independently observed lux");
+   light.ThrowLuxRead=true;value=panel()["converterNominalLight"];
+   Check(!(bool)value["available"] && (string)value["status"]=="unavailable" && value["lux"]["value"].Type==JTokenType.Null && value["range"]["value"].Type==JTokenType.Null,"both scalar getter faults are unknown rather than constructor defaults");light.ThrowLuxRead=false;light.ThrowRangeRead=false;
+   converter.Light=null;int beforeLux=Light2D.LuxReads,beforeRange=Light2D.RangeReads;block=panel();value=block["converterNominalLight"];
+   Check(((JObject)value).Count==2 && !(bool)value["available"] && (string)value["status"]=="not_present" && value["lux"]==null && value["range"]==null && ((JArray)block["issues"]).Count==0,"ordinary verified nonlight prefab is compact absence without invented zero or an error issue");
+   var foreignLight=new ForeignLight2D {ThrowLuxRead=true,ThrowRangeRead=true};converter.Light=foreignLight;value=panel()["converterNominalLight"];
+   Check((string)value["status"]=="component_type_unavailable" && Light2D.LuxReads==beforeLux && Light2D.RangeReads==beforeRange,"derived light type is rejected before scalar getters");converter.Light=light;
+   converter.ThrowLightRead=true;value=panel()["converterNominalLight"];Check((string)value["status"]=="component_unavailable" && Light2D.LuxReads==beforeLux,"component lookup fault is unavailable without scalar lookup");converter.ThrowLightRead=false;
+   var identity=converter.Identity;converter.Identity=new ForeignKPrefabID {PrefabTag=identity.PrefabTag};int beforeRequests=Assets.PrefabRequests.Count,beforeComponent=UnityEngine.GameObject.LightReads;value=panel()["converterNominalLight"];
+   Check((string)value["status"]=="identity_unavailable" && Assets.PrefabRequests.Count==beforeRequests && UnityEngine.GameObject.LightReads==beforeComponent,"derived identity is refused before cache and component access");converter.Identity=identity;
+   converter.ThrowIdentityRead=true;value=panel()["converterNominalLight"];Check((string)value["status"]=="identity_unavailable" && Assets.PrefabRequests.Count==beforeRequests,"identity getter fault does not fall back to names");converter.ThrowIdentityRead=false;
+   converter.Identity=null;value=panel()["converterNominalLight"];Check((string)value["status"]=="identity_unavailable" && Assets.PrefabRequests.Count==beforeRequests,"missing identity remains unknown");converter.Identity=identity;
+   identity.PrefabTag=default(Tag);value=panel()["converterNominalLight"];Check((string)value["status"]=="identity_unavailable" && Assets.PrefabRequests.Count==beforeRequests,"invalid existing tag does not register or look up replacement names");identity.PrefabTag=new Tag("PRIVATE_LIGHT_TAG");
+   var other=Prefab("PRIVATE_LIGHT_TAG");other.name=converter.name;other.Light=light;Assets.Prefabs["PRIVATE_LIGHT_TAG"]=other;value=panel()["converterNominalLight"];
+   Check((string)value["status"]=="cache_identity_mismatch" && UnityEngine.GameObject.LightReads==beforeComponent && Light2D.LuxReads==beforeLux,"matching prefab tag and name cannot substitute a different cached GameObject reference");
+   Assets.Prefabs.Clear();value=panel()["converterNominalLight"];Check((string)value["status"]=="cached_prefab_unavailable" && UnityEngine.GameObject.LightReads==beforeComponent,"cache miss remains unavailable without factories or constructor defaults");
+   Assets.ThrowPrefabLookup=true;value=panel()["converterNominalLight"];Check((string)value["status"]=="prefab_lookup_unavailable" && UnityEngine.GameObject.LightReads==beforeComponent,"cache exception is distinct from observed absence");Assets.ThrowPrefabLookup=false;Assets.Prefabs["PRIVATE_LIGHT_TAG"]=converter;
+   widget.Converter=new UnityEngine.Object {name=converter.name};beforeRequests=Assets.PrefabRequests.Count;value=panel()["converterNominalLight"];
+   Check((string)value["status"]=="converter_unavailable" && Assets.PrefabRequests.Count==beforeRequests,"asset name alone does not identify a native GameObject");widget.Converter=null;value=panel()["converterNominalLight"];Check((string)value["status"]=="converter_unavailable","null converter is not a zero light");widget.Converter=converter;
+   beforeRequests=Assets.PrefabRequests.Count;Read("{id:'NOMINALLIGHT',includeContent:false}");Read("{action:'search',query:'NOMINALLIGHT'}");
+   box.lockID="not-unlocked";Read("{id:'NOMINALLIGHT'}");box.lockID=null;box.ValidDlc=false;Read("{id:'NOMINALLIGHT'}");box.ValidDlc=true;entry.disabled=true;Read("{id:'NOMINALLIGHT'}");entry.disabled=false;
+   Check(Assets.PrefabRequests.Count==beforeRequests,"metadata-only search locked DLC and disabled gates do not observe converter components");
+   int budget=19,beforeIdentity=UnityEngine.GameObject.IdentityReads;var issues=new List<string>();
+   var limited=CodexConverterLightReader.Read(widget,issues,ref budget);
+   Check(limited==null && budget==19 && issues.Count==1 && issues[0]=="data_limit" && UnityEngine.GameObject.IdentityReads==beforeIdentity && Assets.PrefabRequests.Count==beforeRequests,"shared budget refuses the whole projection before native lookups");
+   budget=20;issues.Clear();var exactBudget=CodexConverterLightReader.Read(widget,issues,ref budget);
+   Check(exactBudget!=null && (bool)exactBudget["available"] && budget==0 && issues.Count==0,"fixed reserve permits the bounded projection at the exact boundary");
+   budget=20;issues.Clear();Check(CodexConverterLightReader.Read(new CodexRecipePanel(),issues,ref budget)==null && budget==20 && issues.Count==0,"nonconversion panels do not receive or reserve a light facet");
+   Game.Instance=null;value=JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(CodexPanelReader.Read(widget),OniMcp.Support.McpJsonUtil.Settings))["converterNominalLight"];
+   Check((string)value["status"]=="cache_unavailable","standalone panel helper does not manufacture readiness when game cache is unavailable");Game.Instance=new Game {unlocks=new Unlocks()};
+   Check(Light2D.ConstructorCalls==constructors+1 && Light2D.SetterCalls==0 && Light2D.DescriptorCalls==0 && Light2D.RefreshCalls==0 && Light2D.SimulationCalls==0,"reader never constructs native light or invokes setters descriptors refresh or simulation");
+   Check(Assets.WarningLookupCalls==warningCalls && UnityEngine.GameObject.ProperNameCalls==nameCalls && TagManager.CreateCalls==tagCalls,"reader does not invoke warning lookups naming callbacks or tag registration");
+  }
+  finally
+  {
+   Game.Instance=oldGame;CodexCache.entries=oldEntries;CodexCache.subEntries=oldSubs;Assets.Prefabs=oldPrefabs;Assets.PrefabRequests=oldRequests;Assets.ThrowPrefabLookup=oldThrow;
+   UnityEngine.GameObject.IdentityReads=oldIdentity;UnityEngine.GameObject.LightReads=oldLight;
+   Light2D.ConstructorCalls=oldConstructors;Light2D.LuxReads=oldLux;Light2D.RangeReads=oldRange;Light2D.SetterCalls=oldSet;Light2D.DescriptorCalls=oldDescriptor;Light2D.RefreshCalls=oldRefresh;Light2D.SimulationCalls=oldSim;
+  }
+ }
+
  static void Main()
  {
   Check(CodexReadTools.Read(null).IsError,"menu blocked without initialization");
@@ -357,6 +436,7 @@ internal static class Program
   CategoryMembersRegression();
   SublimationFallbackRegression();
   PreyAmountSemanticsRegression();
+  ConverterNominalLightRegression();
   Console.WriteLine("PASS: Codex cache-only reads, metadata limits, locks/DLC, native text and unsupported widgets");
  }
 }

@@ -60,17 +60,22 @@ namespace UnityEngine
  {
   public KPrefabID Identity;
   public Sublimates Sublimation;
+  public Light2D Light;
+  public bool ThrowIdentityRead, ThrowLightRead;
+  public static int IdentityReads, LightReads;
   public bool ThrowSublimationRead;
   public static int ProperNameCalls, SublimationReads;
   public T GetComponent<T>() where T : class
   {
    if (typeof(T)==typeof(Sublimates)) { SublimationReads++; if(ThrowSublimationRead)throw new Exception("component read unavailable"); }
-   return (Identity as T) ?? (Sublimation as T);
+   if (typeof(T)==typeof(KPrefabID)) { IdentityReads++; if(ThrowIdentityRead)throw new Exception("identity read unavailable"); }
+   if (typeof(T)==typeof(Light2D)) { LightReads++; if(ThrowLightRead)throw new Exception("light read unavailable"); }
+   return (Identity as T) ?? (Sublimation as T) ?? (Light as T);
   }
   public string GetProperName() { ProperNameCalls++; throw new Exception("Do not invoke prefab naming callbacks"); }
  }
 }
-public sealed class KPrefabID { public Tag PrefabTag; }
+public class KPrefabID { public Tag PrefabTag; }
 public static class Assets
 {
  public static Dictionary<string,List<UnityEngine.GameObject>> Members = new Dictionary<string,List<UnityEngine.GameObject>>();
@@ -203,3 +208,27 @@ public sealed class BoundPreyFormatter
  public string GetFormattedPreyConsumptionValuePerCycle(Tag tag,float value,bool perCycle=true)
  { Calls++;throw new Exception("Read must not execute instance formatter"); }
 }
+
+public sealed class ForeignKPrefabID : KPrefabID { }
+public class Light2D : UnityEngine.Object
+{
+ public int NominalLux;
+ public float NominalRange;
+ public bool ThrowLuxRead, ThrowRangeRead;
+ public static int ConstructorCalls, LuxReads, RangeReads, SetterCalls, DescriptorCalls, RefreshCalls, SimulationCalls;
+ public Light2D() { ConstructorCalls++; }
+ public int Lux
+ {
+  get { LuxReads++; if(ThrowLuxRead)throw new Exception("lux unavailable");return NominalLux; }
+  set { SetterCalls++;throw new Exception("Read must not set native lux"); }
+ }
+ public float Range
+ {
+  get { RangeReads++;if(ThrowRangeRead)throw new Exception("range unavailable");return NominalRange; }
+  set { SetterCalls++;throw new Exception("Read must not set native radius"); }
+ }
+ public virtual object GetDescriptors() { DescriptorCalls++;throw new Exception("Read must not evaluate light descriptors"); }
+ public void FullRefresh() { RefreshCalls++;throw new Exception("Read must not refresh light"); }
+ public void Sim200ms(float dt) { SimulationCalls++;throw new Exception("Read must not simulate light"); }
+}
+public sealed class ForeignLight2D : Light2D { }
