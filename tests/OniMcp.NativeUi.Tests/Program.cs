@@ -15,6 +15,8 @@ internal static class Program
         if (args.Length == 1 && args[0] == "--completion-no-direct-write") { BlueprintParentRegression.VerifyNoDirectFallbackOnly(); return; }
         if (args.Length == 1 && args[0] == "--tile-only") { TileReplacementRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--preview-id-only") { PreviewIdRegression.Run(); return; }
+        if (args.Length == 1 && args[0] == "--background-wall-only") { BackgroundWallRegression.Run(); return; }
+        BackgroundWallRegression.Run();
         PreviewIdRegression.Run();
         TestTargetGuards();
         TestUiReadiness();

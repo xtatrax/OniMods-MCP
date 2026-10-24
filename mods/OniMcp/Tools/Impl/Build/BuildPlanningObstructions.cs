@@ -63,7 +63,7 @@ namespace OniMcp.Tools
                 result.Add(conflict);
 
             var seen = new HashSet<string>();
-            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored))
+            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored, placementDef))
             {
                 string id = obstruction.ContainsKey("id") ? obstruction["id"]?.ToString() : "";
                 if ((utility && !endpointBridge) || IsUtilityPrefab(id))
@@ -324,12 +324,20 @@ namespace OniMcp.Tools
             };
         }
 
-        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null)
+        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null, BuildingDef placementDef = null)
         {
             foreach (var building in Components.BuildingCompletes.Items)
             {
                 if (building == null || building.gameObject == null || ReferenceEquals(building.gameObject, ignored)
                     || !ToolUtil.GameObjectMatchesWorld(building.gameObject, worldId))
+                    continue;
+                // A standard foreground building and a completed background wall use separate native layers.
+                // Keep blueprints, unknown definitions and special layer/rule combinations conservative.
+                if (placementDef != null && placementDef.ObjectLayer == ObjectLayer.Building
+                    && placementDef.TileLayer == ObjectLayer.NumLayers
+                    && placementDef.BuildLocationRule == BuildLocationRule.OnFloor
+                    && building.Def != null && building.Def.ObjectLayer == ObjectLayer.Backwall
+                    && building.Def.TileLayer == ObjectLayer.NumLayers)
                     continue;
                 foreach (var item in ExistingObjectFootprint(building.gameObject, building.Def, "building", footprintCells))
                     yield return item;

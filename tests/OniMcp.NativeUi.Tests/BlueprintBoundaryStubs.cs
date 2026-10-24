@@ -51,7 +51,7 @@ internal class UtilityNetworkLink : Component {public bool isSpawned,visualizeOn
 internal sealed class LogicUtilityNetworkLink : UtilityNetworkLink {}
 internal enum Orientation { Neutral, R90, R180, R270 }
 internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, NumLayers=16 }
-internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge, Tile, Anywhere }
+internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge, Tile, Anywhere, OnFloor }
 internal sealed partial class BuildingDef
 {
     public string PrefabID,Name;
