@@ -43,9 +43,14 @@ public static partial class Grid
 {
     public static int WidthInCells = 128, HeightInCells = 128;
     public static int[] WorldIdx = new int[16384]; public static bool[] Visible = Enumerable.Repeat(true, 16384).ToArray();
-    public static GameObject[,] Objects = new GameObject[16384, 2];
-    public static Element[] Element = new Element[16384];
-    public static float[] Mass = new float[16384], Temperature = new float[16384];
+    private static GameObject[,] objects = new GameObject[16384, 2];
+    public static GameObject[,] Objects { get { LegacyHtmlBoundary.ReadNativeValue("Objects"); return objects; } set { objects = value; } }
+    private static Element[] element = new Element[16384];
+    public static Element[] Element { get { LegacyHtmlBoundary.ReadNativeValue("Element"); return element; } set { element = value; } }
+    public static float[] Mass = new float[16384];
+    private static float[] temperature = new float[16384];
+    public static float[] Temperature { get { LegacyHtmlBoundary.ReadNativeValue("Temperature"); return temperature; } set { temperature = value; } }
+    public static int LegacyInvalidCell = -1;
     public static bool[] Solid = new bool[16384], Foundation = new bool[16384];
     public static bool[] WorldValid = Enumerable.Repeat(true, 16384).ToArray();
     public static int CellColumn(int cell) => cell % WidthInCells;
@@ -55,13 +60,13 @@ public static partial class Grid
     public static int CellLeft(int cell) => cell - 1;
     public static int CellRight(int cell) => cell + 1;
     public static int XYToCell(int x, int y) => y * WidthInCells + x;
-    public static bool IsValidCell(int cell) => cell >= 0 && cell < 16384;
+    public static bool IsValidCell(int cell) => cell >= 0 && cell < 16384 && cell != LegacyInvalidCell;
     public static bool IsWorldValidCell(int cell) => IsValidCell(cell) && WorldValid[cell];
     public static bool IsVisible(int cell) => Visible[cell];
 }
 public enum ObjectLayer { Wire, Minion, WireTile, ReplacementWire, LiquidConduit, LiquidConduitTile, ReplacementLiquidConduit, GasConduit, GasConduitTile, ReplacementGasConduit, SolidConduit, SolidConduitTile, ReplacementSolidConduit, LogicWire, LogicWireTile, ReplacementLogicWire, Building, LogicGate }
 [Flags] public enum UtilityConnections { Left = 1, Right = 2, Up = 4, Down = 8 }
-public sealed class BuildingComplete { }
+public sealed class BuildingComplete { public string name; }
 public sealed class KAnimGraphTileVisualizer
 {
     public bool isPhysicalBuilding; public IUtilityNetworkMgr ConnectionManager;
@@ -129,7 +134,6 @@ namespace OniMcp.Tools
     }
     public static partial class WorldEditorTools
     {
-        private const int VirtualMapLayerSize = 32;
         private static readonly string _cwd = "/active/";
         private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromMilliseconds(100);
         private static readonly Dictionary<string, char> UniqueCharMap = new();
@@ -137,7 +141,6 @@ namespace OniMcp.Tools
         private static string MapTokenPart(string value) => value?.Replace(" ", "") ?? "";
         private static char GetUniqueChar(string id, string name) => UniqueCharMap.TryGetValue(id, out char value) ? value : id[0];
         private static string GetOverlayViewName(HashedString mode) => mode.ToString();
-        private static string ReadFileDirectly(string path) => "HTML:" + path;
         private static string NormalizePath(string path, string cwd) => path ?? "";
         private static string SaveRelativePath(string path) => path.Replace("/active/", "");
         private static string Text(JObject args, params string[] keys) => keys.Select(k => args?[k]?.ToString()).FirstOrDefault(x => x != null) ?? "";

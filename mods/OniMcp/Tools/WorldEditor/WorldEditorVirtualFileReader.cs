@@ -4,6 +4,7 @@ using System.Text;
 using System.Net;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -39,6 +40,12 @@ namespace OniMcp.Tools
                         for (int x = xMin; x <= xMax; x++)
                         {
                             int cell = Grid.XYToCell(x, y);
+                            if (!IsReadableMapCell(cell))
+                            {
+                                sbCells.AppendFormat("<div class=\"cell\" data-state=\"unknown\" style=\"background:#171d29;\" title=\"{0}\"></div>",
+                                    WebUtility.HtmlEncode(McpLocalization.Get("map_html.unreadable")));
+                                continue;
+                            }
                             string elemName = "Vacuum";
                             string color = "#1a202c";
                             float temp = 0f;
@@ -207,6 +214,12 @@ namespace OniMcp.Tools
                                 for (int x = xMin; x <= xMax; x++)
                                 {
                                     int cell = Grid.XYToCell(x, y);
+                                    if (!IsReadableMapCell(cell))
+                                    {
+                                        sbCells.AppendFormat("<div class=\"cell\" data-state=\"unknown\" style=\"background:#171d29;\" title=\"{0}\"></div>",
+                                            WebUtility.HtmlEncode(McpLocalization.Get("map_html.unreadable")));
+                                        continue;
+                                    }
                                     string elemName = "Vacuum";
                                     string color = "#1a202c";
                                     float temp = 0f;

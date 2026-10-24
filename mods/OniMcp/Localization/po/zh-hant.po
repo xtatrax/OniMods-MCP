@@ -1408,3 +1408,9 @@ msgstr "achievementStatus必須為all、completed、incomplete、failed或unknow
 msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.COVERAGE"
 msgid "Colony state, not Steam account unlocks. Disabled/save-incompatible definitions excluded. Missing cached status is unknown; requirement progress is not reevaluated."
 msgstr "殖民地狀態，並非Steam帳戶解鎖狀態。已排除停用或不適用於存檔的定義。缺失的快取狀態為unknown；不會重新評估需求進度。"
+
+#. Runtime JSON key: map_html.unreadable
+#. Runtime zh-Hans msgstr: "未知、未探索或不在当前世界范围内。"
+msgctxt "OniMcp.MCP.MAP_HTML.UNREADABLE"
+msgid "Unknown, hidden, or outside the active world."
+msgstr "未知、未探索或不在目前世界範圍內。"

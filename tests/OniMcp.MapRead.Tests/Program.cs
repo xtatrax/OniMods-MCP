@@ -8,6 +8,7 @@ WorldEditorTools.RunReadRegressions();
 WorldEditorTools.RunMapContractRegressions();
 WorldAnalysisTools.RunTextMapFormattingRegressions();
 WorldEditorTools.RunDupeEnvironmentRegressions();
+WorldEditorTools.RunLegacyHtmlRegressions();
 
 namespace OniMcp.Tools
 {

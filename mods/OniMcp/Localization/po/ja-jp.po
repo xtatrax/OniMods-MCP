@@ -1376,3 +1376,9 @@ msgstr "achievementStatusはall、completed、incomplete、failed、unknownの�
 msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.COVERAGE"
 msgid "Colony state, not Steam account unlocks. Disabled/save-incompatible definitions excluded. Missing cached status is unknown; requirement progress is not reevaluated."
 msgstr "コロニーの状態で、Steamアカウントの解除状態ではありません。無効な定義とセーブに適合しない定義は除外します。キャッシュ済みの状態がない場合はunknownとし、要求の進捗は再評価しません。"
+
+#. Runtime JSON key: map_html.unreadable
+#. Runtime zh-Hans msgstr: "未知、未探索或不在当前世界范围内。"
+msgctxt "OniMcp.MCP.MAP_HTML.UNREADABLE"
+msgid "Unknown, hidden, or outside the active world."
+msgstr "未取得、未探索、または現在のワールドの範囲外です。"
