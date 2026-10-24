@@ -7,5 +7,15 @@
   "map_html.layer_back": "← Back to Layers",
   "map_html.layer_description": "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings.",
   "map_html.show_raw": "Show Raw HTML",
-  "map_html.show_map": "Show Visual Map"
+  "map_html.show_map": "Show Visual Map",
+  "map_html.legend.vacuum_space": "Vacuum / Space",
+  "map_html.legend.building": "Building",
+  "map_html.legend.dirt": "Dirt",
+  "map_html.legend.sandstone": "Sandstone",
+  "map_html.legend.water": "Water",
+  "map_html.legend.polluted_water": "Polluted Water",
+  "map_html.legend.algae": "Algae",
+  "map_html.legend.granite_rock": "Granite / Rock",
+  "map_html.legend.oxygen_gas": "Oxygen Gas",
+  "map_html.legend.carbon_dioxide": "Carbon Dioxide"
 }

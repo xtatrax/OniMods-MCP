@@ -1475,3 +1475,63 @@ msgstr ""
 msgctxt "OniMcp.MCP.MAP_HTML.SHOW_MAP"
 msgid "Show Visual Map"
 msgstr ""
+
+#. Runtime JSON key: map_html.legend.vacuum_space
+#. Runtime zh-Hans msgstr: "真空 / 太空"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.VACUUM_SPACE"
+msgid "Vacuum / Space"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.building
+#. Runtime zh-Hans msgstr: "建筑"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.BUILDING"
+msgid "Building"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.dirt
+#. Runtime zh-Hans msgstr: "泥土"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.DIRT"
+msgid "Dirt"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.sandstone
+#. Runtime zh-Hans msgstr: "砂岩"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.SANDSTONE"
+msgid "Sandstone"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.water
+#. Runtime zh-Hans msgstr: "水"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.WATER"
+msgid "Water"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.polluted_water
+#. Runtime zh-Hans msgstr: "污染水"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.POLLUTED_WATER"
+msgid "Polluted Water"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.algae
+#. Runtime zh-Hans msgstr: "藻类"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.ALGAE"
+msgid "Algae"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.granite_rock
+#. Runtime zh-Hans msgstr: "花岗岩 / 岩石"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.GRANITE_ROCK"
+msgid "Granite / Rock"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.oxygen_gas
+#. Runtime zh-Hans msgstr: "氧气"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.OXYGEN_GAS"
+msgid "Oxygen Gas"
+msgstr ""
+
+#. Runtime JSON key: map_html.legend.carbon_dioxide
+#. Runtime zh-Hans msgstr: "二氧化碳"
+msgctxt "OniMcp.MCP.MAP_HTML.LEGEND.CARBON_DIOXIDE"
+msgid "Carbon Dioxide"
+msgstr ""

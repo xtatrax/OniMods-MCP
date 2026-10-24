@@ -10,7 +10,8 @@ import re
 
 
 KEYS = ("unreadable", "viewport_title", "viewport_back", "viewport_description",
-        "layer_title", "layer_back", "layer_description", "show_raw", "show_map")
+        "layer_title", "layer_back", "layer_description", "show_raw", "show_map",
+        "legend.vacuum_space", "legend.building", "legend.dirt", "legend.sandstone", "legend.water", "legend.polluted_water", "legend.algae", "legend.granite_rock", "legend.oxygen_gas", "legend.carbon_dioxide")
 
 
 def check(root: Path) -> dict:
@@ -61,6 +62,9 @@ def check(root: Path) -> dict:
         if key.endswith("_title"):
             require(source.count('WebUtility.HtmlEncode(McpLocalization.Format("' + runtime + '", null, ') == 1,
                     "Title must format without inline prose fallback and HTML encode: " + runtime)
+        elif key.startswith("legend."):
+            require(source.count('WebUtility.HtmlEncode(McpLocalization.Get("' + runtime + '"))') == 2,
+                    "Default legend must resolve twice without inline fallback and HTML encode: " + runtime)
         elif key in ("show_raw", "show_map"):
             require(shell_source.count('System.Security.SecurityElement.Escape(OniMcp.Support.McpLocalization.Get("' + runtime + '"))') == 1,
                     "Button label must resolve without inline fallback and HTML encode: " + runtime)

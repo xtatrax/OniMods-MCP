@@ -11,6 +11,7 @@ WorldAnalysisTools.RunTextMapFormattingRegressions();
 WorldEditorTools.RunDupeEnvironmentRegressions();
 WorldEditorTools.RunLegacyHtmlRegressions();
 WorldEditorTools.RunLegacyHtmlMetadataRegressions();
+WorldEditorTools.RunDefaultLegendRegressions();
 
 namespace OniMcp.Tools
 {

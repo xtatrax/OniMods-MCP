@@ -7,5 +7,15 @@
   "map_html.layer_back": "← 返回地图层列表",
   "map_html.layer_description": "将鼠标悬停在单元格上可查看坐标、元素和温度。黄色单元格表示建筑。",
   "map_html.show_raw": "显示原始HTML",
-  "map_html.show_map": "显示地图"
+  "map_html.show_map": "显示地图",
+  "map_html.legend.vacuum_space": "真空 / 太空",
+  "map_html.legend.building": "建筑",
+  "map_html.legend.dirt": "泥土",
+  "map_html.legend.sandstone": "砂岩",
+  "map_html.legend.water": "水",
+  "map_html.legend.polluted_water": "污染水",
+  "map_html.legend.algae": "藻类",
+  "map_html.legend.granite_rock": "花岗岩 / 岩石",
+  "map_html.legend.oxygen_gas": "氧气",
+  "map_html.legend.carbon_dioxide": "二氧化碳"
 }

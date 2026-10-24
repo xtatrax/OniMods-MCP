@@ -132,17 +132,17 @@ namespace OniMcp.Tools
                     }
                     else
                     {
-                        legendHtml = @"
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#1a202c;""></div>Vacuum / Space</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#ecc94b;""></div>Building</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#8c5b30;""></div>Dirt</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#a88060;""></div>Sandstone</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#3182ce;""></div>Water</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#4a3728;""></div>Polluted Water</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#38a169;""></div>Algae</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#718096;""></div>Granite / Rock</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#e6fffa;""></div>Oxygen Gas</div>
-                            <div class=""legend-item""><div class=""legend-color"" style=""background:#feb2b2;""></div>Carbon Dioxide</div>";
+                        legendHtml = $@"
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#1a202c;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.vacuum_space"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#ecc94b;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.building"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#8c5b30;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.dirt"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#a88060;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.sandstone"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#3182ce;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.water"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#4a3728;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.polluted_water"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#38a169;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.algae"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#718096;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.granite_rock"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#e6fffa;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.oxygen_gas"))}</div>
+                            <div class=""legend-item""><div class=""legend-color"" style=""background:#feb2b2;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.carbon_dioxide"))}</div>";
                     }
 
                     return GetMapHtml(
@@ -306,17 +306,17 @@ namespace OniMcp.Tools
                             }
                             else
                             {
-                                legendHtml = @"
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#1a202c;""></div>Vacuum / Space</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#ecc94b;""></div>Building</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#8c5b30;""></div>Dirt</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#a88060;""></div>Sandstone</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#3182ce;""></div>Water</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#4a3728;""></div>Polluted Water</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#38a169;""></div>Algae</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#718096;""></div>Granite / Rock</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#e6fffa;""></div>Oxygen Gas</div>
-                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#feb2b2;""></div>Carbon Dioxide</div>";
+                                legendHtml = $@"
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#1a202c;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.vacuum_space"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#ecc94b;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.building"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#8c5b30;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.dirt"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#a88060;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.sandstone"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#3182ce;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.water"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#4a3728;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.polluted_water"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#38a169;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.algae"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#718096;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.granite_rock"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#e6fffa;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.oxygen_gas"))}</div>
+                                    <div class=""legend-item""><div class=""legend-color"" style=""background:#feb2b2;""></div>{WebUtility.HtmlEncode(McpLocalization.Get("map_html.legend.carbon_dioxide"))}</div>";
                             }
 
                             return GetMapHtml(

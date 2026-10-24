@@ -7,5 +7,15 @@
   "map_html.layer_back": "← レイヤー一覧へ戻る",
   "map_html.layer_description": "セルにカーソルを重ねると、座標・元素・温度を確認できます。黄色のセルは設備を表します。",
   "map_html.show_raw": "HTMLソースを表示",
-  "map_html.show_map": "地図を表示"
+  "map_html.show_map": "地図を表示",
+  "map_html.legend.vacuum_space": "真空 / 宇宙",
+  "map_html.legend.building": "設備",
+  "map_html.legend.dirt": "土",
+  "map_html.legend.sandstone": "砂岩",
+  "map_html.legend.water": "水",
+  "map_html.legend.polluted_water": "汚染水",
+  "map_html.legend.algae": "緑藻",
+  "map_html.legend.granite_rock": "花崗岩 / 岩石",
+  "map_html.legend.oxygen_gas": "酸素ガス",
+  "map_html.legend.carbon_dioxide": "二酸化炭素"
 }
