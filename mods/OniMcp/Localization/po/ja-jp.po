@@ -1382,3 +1382,39 @@ msgstr "コロニーの状態で、Steamアカウントの解除状態ではあ�
 msgctxt "OniMcp.MCP.MAP_HTML.UNREADABLE"
 msgid "Unknown, hidden, or outside the active world."
 msgstr "未取得、未探索、または現在のワールドの範囲外です。"
+
+#. Runtime JSON key: map_html.viewport_title
+#. Runtime zh-Hans msgstr: "[视图: {0}] 摄像机视口地图 (X: {1}~{2}, Y: {3}~{4})"
+msgctxt "OniMcp.MCP.MAP_HTML.VIEWPORT_TITLE"
+msgid "[View: {0}] Camera Viewport Map (X: {1}~{2}, Y: {3}~{4})"
+msgstr "[ビュー: {0}] カメラ表示範囲の地図 (X: {1}~{2}, Y: {3}~{4})"
+
+#. Runtime JSON key: map_html.viewport_back
+#. Runtime zh-Hans msgstr: "← 返回地图"
+msgctxt "OniMcp.MCP.MAP_HTML.VIEWPORT_BACK"
+msgid "← Back to Map"
+msgstr "← 地図へ戻る"
+
+#. Runtime JSON key: map_html.viewport_description
+#. Runtime zh-Hans msgstr: "当前显示基于摄像机位置的网格。在游戏中移动摄像机可更新视口范围。"
+msgctxt "OniMcp.MCP.MAP_HTML.VIEWPORT_DESCRIPTION"
+msgid "Currently showing visible grid based on camera view position. Move camera in game to update viewport area."
+msgstr "カメラ位置に基づくグリッドを表示しています。ゲーム内でカメラを動かすと表示範囲が更新されます。"
+
+#. Runtime JSON key: map_html.layer_title
+#. Runtime zh-Hans msgstr: "[视图: {0}] 地图层 Y = {1} 至 {2}"
+msgctxt "OniMcp.MCP.MAP_HTML.LAYER_TITLE"
+msgid "[View: {0}] Map Layer Y = {1} to {2}"
+msgstr "[ビュー: {0}] 地図レイヤー Y = {1}〜{2}"
+
+#. Runtime JSON key: map_html.layer_back
+#. Runtime zh-Hans msgstr: "← 返回地图层列表"
+msgctxt "OniMcp.MCP.MAP_HTML.LAYER_BACK"
+msgid "← Back to Layers"
+msgstr "← レイヤー一覧へ戻る"
+
+#. Runtime JSON key: map_html.layer_description
+#. Runtime zh-Hans msgstr: "将鼠标悬停在单元格上可查看坐标、元素和温度。黄色单元格表示建筑。"
+msgctxt "OniMcp.MCP.MAP_HTML.LAYER_DESCRIPTION"
+msgid "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings."
+msgstr "セルにカーソルを重ねると、座標・元素・温度を確認できます。黄色のセルは設備を表します。"

@@ -164,5 +164,81 @@ namespace OniMcp.Tools
                 CultureInfo.CurrentUICulture = savedUICulture; LegacyHtmlBoundary.Clear();
             }
         }
+
+        internal static void RunLegacyHtmlMetadataRegressions()
+        {
+            int assertions = 0;
+            void Check(bool value, string label) { assertions++; if (!value) throw new InvalidOperationException(label); }
+            const int x = 12, y = 22;
+            int cell = Grid.XYToCell(x, y);
+            var cluster = ClusterManager.Instance; var camera = Camera.main; var overlay = OverlayScreen.Instance;
+            var elements = Grid.Element; var temperatures = Grid.Temperature; var objects = Grid.Objects;
+            var visible = Grid.Visible; var worldIds = Grid.WorldIdx; var worldValid = Grid.WorldValid;
+            int invalid = Grid.LegacyInvalidCell; var languageProvider = McpLocalization.LanguageProvider;
+            var gameLanguageProvider = McpLocalization.GameLanguageProvider;
+            var culture = CultureInfo.CurrentCulture; var uiCulture = CultureInfo.CurrentUICulture;
+            string[] paths = { "/active/map/viewport.html", "/active/map/index.html", "/active/map/layers/layer_0_0.html" };
+            try
+            {
+                CultureInfo.CurrentCulture = new CultureInfo("fr-FR");
+                CultureInfo.CurrentUICulture = new CultureInfo("fr-FR");
+                ClusterManager.Instance = new ClusterManager { activeWorldId = 0,
+                    world = new World { WorldOffset = new(x, y), WorldSize = new(1, 1) } };
+                Camera.main = new Camera { orthographicSize = 0, aspect = 1 };
+                Camera.main.transform.position = new(x, y, 0);
+                const string nativeView = "native <script> & \"view\"";
+                OverlayScreen.Instance = new OverlayScreen { mode = new HashedString(nativeView) };
+                Grid.Element = new Element[16384]; Grid.Temperature = new float[16384];
+                Grid.Objects = new GameObject[16384, Enum.GetValues<ObjectLayer>().Length];
+                Grid.Visible = Enumerable.Repeat(true, 16384).ToArray(); Grid.WorldIdx = new int[16384];
+                Grid.WorldValid = Enumerable.Repeat(true, 16384).ToArray(); Grid.LegacyInvalidCell = -1;
+                Grid.Element[cell] = new Element { id = SimHashes.Oxygen, name = "native_element_name", IsGas = true };
+                Grid.Temperature[cell] = 295.525f;
+                McpLocalization.GameLanguageProvider = () => "ja";
+                int moves = CameraController.Instance.Moves, overlayChanges = OverlayScreen.Instance.Changes;
+                foreach (string path in paths)
+                {
+                    string initialCells = null, initialLegend = null;
+                    bool layer = path.Contains("/layers/");
+                    string prefix = layer ? "map_html.layer_" : "map_html.viewport_";
+                    foreach (string language in new[] { "en", "ja-JP", "zh-cn" })
+                    {
+                        McpLocalization.LanguageProvider = () => language;
+                        Grid.Visible[cell] = true; LegacyHtmlBoundary.Poison = false; LegacyHtmlBoundary.Clear();
+                        string html = ReadFileDirectly(path);
+                        var page = LegacyHtmlBoundary.Pages.Single();
+                        object[] args = layer ? new object[] { nativeView, 0, 0 } : new object[] { nativeView, x, x, y, y };
+                        string title = string.Format(CultureInfo.InvariantCulture,
+                            McpLocalization.GetForLanguage(language, prefix + "title"), args);
+                        Check(page.Title == WebUtility.HtmlEncode(title), "page title resolves requested prose locale and all native bounds " + path + language);
+                        Check(!page.Title.Contains("<script>") && page.Title.Contains("&lt;script&gt;"), "native view name is HTML encoded");
+                        Check(page.BackText == WebUtility.HtmlEncode(McpLocalization.GetForLanguage(language, prefix + "back")), "back label resolves requested locale");
+                        Check(page.Description == WebUtility.HtmlEncode(McpLocalization.GetForLanguage(language, prefix + "description")), "description resolves requested locale");
+                        Check(!page.Title.Contains("map_html.") && !page.Title.Contains("{0}") && !page.Description.Contains("map_html."), "no unresolved key or placeholder");
+                        Check(page.BackUrl == (layer ? "/active/map/layers/" : "/active/map/") && page.Width == 1, "route and grid width stay fixed");
+                        initialCells ??= html; initialLegend ??= page.Legend;
+                        Check(html == initialCells && page.Legend == initialLegend, "changing page prose preserves native cells and legend");
+                        Grid.Visible[cell] = false; LegacyHtmlBoundary.Clear(); LegacyHtmlBoundary.Poison = true;
+                        string hidden = ReadFileDirectly(path);
+                        Check(hidden.Contains("data-state=\"unknown\"") && !hidden.Contains("Element:")
+                            && LegacyHtmlBoundary.NativeValueReads == 0 && LegacyHtmlBoundary.ColorReads == 0,
+                            "translated page does not bypass hidden-cell guard");
+                        Check(LegacyHtmlBoundary.Pages.Single().Title == page.Title, "hidden and visible cells retain same page title");
+                    }
+                }
+                Check(CameraController.Instance.Moves == moves && OverlayScreen.Instance.Changes == overlayChanges
+                    && McpLocalization.GameLanguageProvider() == "ja", "prose reads do not move camera, change overlay or game locale");
+                Console.WriteLine("PASS: " + assertions + " actual legacy HTML metadata localization assertions");
+            }
+            finally
+            {
+                LegacyHtmlBoundary.Poison = false;
+                ClusterManager.Instance = cluster; Camera.main = camera; OverlayScreen.Instance = overlay;
+                Grid.Element = elements; Grid.Temperature = temperatures; Grid.Objects = objects;
+                Grid.Visible = visible; Grid.WorldIdx = worldIds; Grid.WorldValid = worldValid; Grid.LegacyInvalidCell = invalid;
+                McpLocalization.LanguageProvider = languageProvider; McpLocalization.GameLanguageProvider = gameLanguageProvider;
+                CultureInfo.CurrentCulture = culture; CultureInfo.CurrentUICulture = uiCulture; LegacyHtmlBoundary.Clear();
+            }
+        }
     }
 }

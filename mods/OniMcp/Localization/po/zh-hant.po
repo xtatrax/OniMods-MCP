@@ -1414,3 +1414,39 @@ msgstr "殖民地狀態，並非Steam帳戶解鎖狀態。已排除停用或不�
 msgctxt "OniMcp.MCP.MAP_HTML.UNREADABLE"
 msgid "Unknown, hidden, or outside the active world."
 msgstr "未知、未探索或不在目前世界範圍內。"
+
+#. Runtime JSON key: map_html.viewport_title
+#. Runtime zh-Hans msgstr: "[视图: {0}] 摄像机视口地图 (X: {1}~{2}, Y: {3}~{4})"
+msgctxt "OniMcp.MCP.MAP_HTML.VIEWPORT_TITLE"
+msgid "[View: {0}] Camera Viewport Map (X: {1}~{2}, Y: {3}~{4})"
+msgstr "[檢視: {0}] 攝影機視窗地圖 (X: {1}~{2}, Y: {3}~{4})"
+
+#. Runtime JSON key: map_html.viewport_back
+#. Runtime zh-Hans msgstr: "← 返回地图"
+msgctxt "OniMcp.MCP.MAP_HTML.VIEWPORT_BACK"
+msgid "← Back to Map"
+msgstr "← 返回地圖"
+
+#. Runtime JSON key: map_html.viewport_description
+#. Runtime zh-Hans msgstr: "当前显示基于摄像机位置的网格。在游戏中移动摄像机可更新视口范围。"
+msgctxt "OniMcp.MCP.MAP_HTML.VIEWPORT_DESCRIPTION"
+msgid "Currently showing visible grid based on camera view position. Move camera in game to update viewport area."
+msgstr "目前顯示以攝影機位置為基準的網格。在遊戲中移動攝影機可更新視窗範圍。"
+
+#. Runtime JSON key: map_html.layer_title
+#. Runtime zh-Hans msgstr: "[视图: {0}] 地图层 Y = {1} 至 {2}"
+msgctxt "OniMcp.MCP.MAP_HTML.LAYER_TITLE"
+msgid "[View: {0}] Map Layer Y = {1} to {2}"
+msgstr "[檢視: {0}] 地圖層 Y = {1} 至 {2}"
+
+#. Runtime JSON key: map_html.layer_back
+#. Runtime zh-Hans msgstr: "← 返回地图层列表"
+msgctxt "OniMcp.MCP.MAP_HTML.LAYER_BACK"
+msgid "← Back to Layers"
+msgstr "← 返回地圖層清單"
+
+#. Runtime JSON key: map_html.layer_description
+#. Runtime zh-Hans msgstr: "将鼠标悬停在单元格上可查看坐标、元素和温度。黄色单元格表示建筑。"
+msgctxt "OniMcp.MCP.MAP_HTML.LAYER_DESCRIPTION"
+msgid "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings."
+msgstr "將游標停在儲存格上可查看座標、元素和溫度。黃色儲存格表示建築。"

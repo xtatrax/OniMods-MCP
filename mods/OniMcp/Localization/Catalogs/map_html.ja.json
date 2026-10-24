@@ -1,3 +1,9 @@
 {
-  "map_html.unreadable": "未取得、未探索、または現在のワールドの範囲外です。"
+  "map_html.unreadable": "未取得、未探索、または現在のワールドの範囲外です。",
+  "map_html.viewport_title": "[ビュー: {0}] カメラ表示範囲の地図 (X: {1}~{2}, Y: {3}~{4})",
+  "map_html.viewport_back": "← 地図へ戻る",
+  "map_html.viewport_description": "カメラ位置に基づくグリッドを表示しています。ゲーム内でカメラを動かすと表示範囲が更新されます。",
+  "map_html.layer_title": "[ビュー: {0}] 地図レイヤー Y = {1}〜{2}",
+  "map_html.layer_back": "← レイヤー一覧へ戻る",
+  "map_html.layer_description": "セルにカーソルを重ねると、座標・元素・温度を確認できます。黄色のセルは設備を表します。"
 }

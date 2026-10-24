@@ -146,10 +146,10 @@ namespace OniMcp.Tools
                     }
 
                     return GetMapHtml(
-                        $"[ビュー: {viewName}] Camera Viewport Map (X: {xMin}~{xMax}, Y: {yMin}~{yMax})",
+                        WebUtility.HtmlEncode(McpLocalization.Format("map_html.viewport_title", null, viewName, xMin, xMax, yMin, yMax)),
                         "/active/map/",
-                        "← Back to Map",
-                        "Currently showing visible grid based on camera view position. Move camera in game to update viewport area.",
+                        WebUtility.HtmlEncode(McpLocalization.Get("map_html.viewport_back")),
+                        WebUtility.HtmlEncode(McpLocalization.Get("map_html.viewport_description")),
                         width,
                         sbCells.ToString(),
                         legendHtml
@@ -320,10 +320,10 @@ namespace OniMcp.Tools
                             }
 
                             return GetMapHtml(
-                                $"[ビュー: {viewName}] Map Layer Y = {relYMin} to {relYMax}",
+                                WebUtility.HtmlEncode(McpLocalization.Format("map_html.layer_title", null, viewName, relYMin, relYMax)),
                                 "/active/map/layers/",
-                                "← Back to Layers",
-                                "Hover over cells to see coordinates, elements, and temperatures. Yellow cells represent buildings.",
+                                WebUtility.HtmlEncode(McpLocalization.Get("map_html.layer_back")),
+                                WebUtility.HtmlEncode(McpLocalization.Get("map_html.layer_description")),
                                 width,
                                 sbCells.ToString(),
                                 legendHtml

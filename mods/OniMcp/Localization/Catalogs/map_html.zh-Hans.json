@@ -1,3 +1,9 @@
 {
-  "map_html.unreadable": "未知、未探索或不在当前世界范围内。"
+  "map_html.unreadable": "未知、未探索或不在当前世界范围内。",
+  "map_html.viewport_title": "[视图: {0}] 摄像机视口地图 (X: {1}~{2}, Y: {3}~{4})",
+  "map_html.viewport_back": "← 返回地图",
+  "map_html.viewport_description": "当前显示基于摄像机位置的网格。在游戏中移动摄像机可更新视口范围。",
+  "map_html.layer_title": "[视图: {0}] 地图层 Y = {1} 至 {2}",
+  "map_html.layer_back": "← 返回地图层列表",
+  "map_html.layer_description": "将鼠标悬停在单元格上可查看坐标、元素和温度。黄色单元格表示建筑。"
 }
