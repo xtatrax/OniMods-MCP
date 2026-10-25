@@ -325,7 +325,7 @@ namespace OniMcp.Tools
                     ["samples"] = reachable.Samples
                 },
                 ["needs"] = needs.ToDictionary(),
-                ["needsEvidence"] = needs.EvidenceDictionary(),
+                ["needsEvidence"] = needs.EvidenceDictionary(includeDetails),
                 ["bionicNeeds"] = bionicNeeds,
                 ["bionicNeedsAssessmentComplete"] = bionicNeeds == null ? (object)null : bionicCoverageComplete,
                 ["needsAssessmentComplete"] = needs.IsComplete,

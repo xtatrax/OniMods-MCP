@@ -5,12 +5,16 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors><NuGetAudit>true</NuGetAudit>
     <ProductRoot>../../mods/OniMcp</ProductRoot>
     <InfoSource Condition="'$(InfoSource)' == ''">$(ProductRoot)/Tools/Impl/Dupes/DuplicantInfoTools.cs</InfoSource>
+    <KeyNeedsSource Condition="'$(KeyNeedsSource)' == ''">$(ProductRoot)/Tools/Impl/Dupes/NativeKeyNeedsRead.cs</KeyNeedsSource>
+    <EnvironmentSource Condition="'$(EnvironmentSource)' == ''">$(ProductRoot)/Tools/Impl/Dupes/DuplicantEnvironmentDiagnostics.cs</EnvironmentSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(ProductRoot)/Tools/Shared/DupeAmountUtil.cs" Link="Source/DupeAmountUtil.cs" />
     <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/BionicNeedsRead.cs" Link="Source/BionicNeedsRead.cs" />
     <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/DuplicantStatusModels.cs" Link="Source/DuplicantStatusModels.cs" />
     <Compile Include="$(InfoSource)" Link="Source/DuplicantInfoTools.cs" />
+    <Compile Include="$(KeyNeedsSource)" Link="Source/NativeKeyNeedsRead.cs" />
+    <Compile Include="$(EnvironmentSource)" Link="Source/DuplicantEnvironmentDiagnostics.cs" />
     <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/NativeAmountSnapshot.cs" Link="Source/NativeAmountSnapshot.cs" />
     <Compile Include="$(ProductRoot)/Tools/Impl/Dupes/DiagnosticKeyNeeds.cs" Link="Source/DiagnosticKeyNeeds.cs" />
     <Compile Include="$(ProductRoot)/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />

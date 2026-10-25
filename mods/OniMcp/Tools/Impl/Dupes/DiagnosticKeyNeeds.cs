@@ -16,8 +16,10 @@ namespace OniMcp.Tools
         internal string Status = "unknown";
         internal string Reason = "not_read";
         internal string Unit;
+        private Dictionary<string, object> registrationEvidence;
+        internal bool IsResolved => Value.HasValue || Status == "not_applicable";
         internal readonly string AmountId;
-        internal const string Source = "Db.Amounts.Lookup(MinionIdentity).value";
+        internal const string Source = "Db._Instance.Amounts + Modifiers.amounts.ModifierList + AmountInstance.value";
 
         internal NeedReading(string amountId) { AmountId = amountId; }
 
@@ -26,6 +28,7 @@ namespace OniMcp.Tools
             // A retry must not leave an earlier successful value behind.
             Value = null;
             Unit = null;
+            registrationEvidence = null;
             Status = "unknown";
             Reason = "amount_missing";
             try
@@ -48,22 +51,37 @@ namespace OniMcp.Tools
             }
         }
 
+        internal void SetRegistrationEvidence(Dictionary<string, object> evidence, bool notApplicable)
+        {
+            registrationEvidence = evidence;
+            if (notApplicable && !Value.HasValue && Status == "unknown"
+                && (AmountId == "Stamina" || AmountId == "Calories" || AmountId == "Bladder"))
+            {
+                Status = "not_applicable";
+                Reason = "native_initial_amount_not_configured";
+            }
+        }
+
         internal object RoundedValue => Value.HasValue ? (object)Math.Round(Value.Value, 2) : null;
 
-        internal Dictionary<string, object> ToDictionary()
+        internal Dictionary<string, object> ToDictionary(bool includeRegistrationEvidence = false)
         {
-            return new Dictionary<string, object>
+            var result = new Dictionary<string, object>
             {
                 ["status"] = Status,
                 ["available"] = Value.HasValue,
-                ["source"] = Value.HasValue ? Source : null,
+                ["source"] = Value.HasValue ? Source : Status == "not_applicable" ? RegistrationSource : null,
                 ["attemptedSource"] = Source,
                 ["amountId"] = AmountId,
                 ["unit"] = Unit,
                 ["valueFormat"] = "raw_amount",
                 ["reasonCode"] = Reason
             };
+            if (includeRegistrationEvidence && registrationEvidence != null) result["registrationEvidence"] = registrationEvidence;
+            return result;
         }
+
+        internal const string RegistrationSource = "MinionIdentity.model + Modifiers.initialAmounts + Modifiers.amounts.ModifierList";
     }
 
     internal sealed class KeyNeeds
@@ -82,17 +100,17 @@ namespace OniMcp.Tools
         internal float? Stamina => readings["stamina"].Value;
         internal float? Calories => readings["calories"].Value;
         internal float? Breath => readings["breath"].Value;
-        internal bool IsComplete => readings.Values.All(r => r.Value.HasValue);
-        internal string[] UnknownFields => readings.Where(r => !r.Value.Value.HasValue).Select(r => r.Key).ToArray();
+        internal bool IsComplete => readings.Values.All(r => r.IsResolved);
+        internal string[] UnknownFields => readings.Where(r => !r.Value.IsResolved).Select(r => r.Key).ToArray();
 
         internal Dictionary<string, object> ToDictionary()
         {
             return readings.ToDictionary(kv => kv.Key, kv => kv.Value.RoundedValue);
         }
 
-        internal Dictionary<string, object> EvidenceDictionary()
+        internal Dictionary<string, object> EvidenceDictionary(bool includeRegistrationEvidence = false)
         {
-            return readings.ToDictionary(kv => kv.Key, kv => (object)kv.Value.ToDictionary());
+            return readings.ToDictionary(kv => kv.Key, kv => (object)kv.Value.ToDictionary(includeRegistrationEvidence));
         }
 
         internal void AddRiskReasons(List<string> reasons)

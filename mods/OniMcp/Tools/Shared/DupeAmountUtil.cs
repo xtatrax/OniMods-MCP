@@ -19,6 +19,22 @@ namespace OniMcp.Tools
             catch { return null; }
         }
 
+        internal static bool TryGetExistingAmountDefinitions(out Database.Amounts definitions, out string reason)
+        {
+            definitions = null;
+            reason = null;
+            if (ExistingDb == null) { reason = "db_binding_unavailable"; return false; }
+            try
+            {
+                var db = ExistingDb.GetValue(null) as Db;
+                if (db == null) { reason = "db_unavailable"; return false; }
+                definitions = db.Amounts;
+                if (definitions == null) { reason = "amount_definitions_unavailable"; return false; }
+                return true;
+            }
+            catch { reason = "read_failed"; return false; }
+        }
+
         internal static bool TryGetBreathInstance(MinionIdentity dupe, out AmountInstance instance, out string reason)
         {
             instance = null;

@@ -23,7 +23,11 @@ internal static class Program
                 Check(details != null, "explicit " + route + " must expose Breath details");
                 Check(f.Def.Lookups == 1 && f.Instance.MaxReads == 1 && f.Instance.DisplayReads == 1, "explicit route must reach native lookup/max/formatter");
             }
-            else Run();
+            else
+            {
+                Run();
+                NeedsRegistrationRegression.Run();
+            }
             Check(NativeCanary.ForbiddenCalls == 0 && Db.GetCalls == 0, "lazy database/component/write canaries remain zero");
             Console.WriteLine(JsonConvert.SerializeObject(new { status = "pass", checks, fullProductFiles = 4, sourceExtraction = false, forbidden = NativeCanary.ForbiddenCalls, lazyDbCalls = Db.GetCalls }));
             return 0;

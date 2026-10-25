@@ -133,24 +133,7 @@ namespace OniMcp.Tools
 
         private static KeyNeeds KeyNeedValues(MinionIdentity dupe)
         {
-            var result = new KeyNeeds();
-            ReadNeed(result, "stamina", dupe, () => Db.Get()?.Amounts?.Stamina);
-            ReadNeed(result, "calories", dupe, () => Db.Get()?.Amounts?.Calories);
-            ReadNeed(result, "stress", dupe, () => Db.Get()?.Amounts?.Stress);
-            ReadNeed(result, "bladder", dupe, () => Db.Get()?.Amounts?.Bladder);
-            ReadNeed(result, "breath", dupe, () => Db.Get()?.Amounts?.Breath);
-            ReadNeed(result, "bodyTemperature", dupe, () => Db.Get()?.Amounts?.Temperature);
-            return result;
-        }
-
-        private static void ReadNeed(KeyNeeds result, string key, MinionIdentity dupe, Func<Amount> definition)
-        {
-            result[key].Read(() =>
-            {
-                var amount = definition();
-                var instance = dupe == null || amount == null ? null : amount.Lookup(dupe);
-                return instance == null ? null : new RawNeedSample { Value = instance.value, Unit = amount.units.ToString() };
-            });
+            return NativeKeyNeedsRead.Read(dupe);
         }
 
         private static string SafeString(Func<string> getter, string fallback)
