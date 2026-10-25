@@ -1,0 +1,17 @@
+{
+  "schedule_timetables.description": "Schedule management. list reads native timetable metadata; includeTimetables explicitly expands all rows. set_block changes one native block with dryRun and explicit confirm/task. Other actions retain their existing contracts.",
+  "schedule_timetables.action": "list, create, set_block, assign_dupe or optimize.",
+  "schedule_timetables.schedule": "Exact schedule name for list or set_block. Names must resolve uniquely; assign_dupe retains its existing name lookup.",
+  "schedule_timetables.hour": "set_block local hour 0–23 in timetableIndex; row 0 remains the default.",
+  "schedule_timetables.group": "set_block native group ID from list (for example Hygene, Worktime, Recreation or Sleep).",
+  "schedule_timetables.timetable_index": "Zero-based timetable row for list or set_block. Default 0 preserves the first row; this never changes the native current timetable.",
+  "schedule_timetables.include_timetables": "list only: explicitly include every timetable and block. Default false returns only the selected row.",
+  "schedule_timetables.dry_run": "set_block true previews the exact row/hour/group without native writes or notifications. Other actions follow their own preview contracts.",
+  "schedule_timetables.confirm": "set_block requires true when dryRun=false. Other actions retain existing confirmation rules.",
+  "schedule_timetables.list_description": "Read existing schedule metadata. blocks remains the first 24 by default; select timetableIndex or explicitly include all timetables.",
+  "schedule_timetables.set_description": "Set one existing native schedule block. Preview with dryRun=true; execution requires confirm=true and task. timetableIndex defaults to 0.",
+  "schedule_timetables.unavailable": "Schedule request is unavailable ({0}).",
+  "schedule_timetables.preview": "Preview only; no native schedule changes or notifications were invoked.",
+  "schedule_timetables.no_change": "The selected block already has the requested group; no native change was needed.",
+  "schedule_timetables.applied": "Observed the requested block group after one native Schedule.SetBlockGroup call."
+}

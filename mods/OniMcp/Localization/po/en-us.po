@@ -1566,3 +1566,93 @@ msgstr "The native UI operation was invoked, but its final state is not confirme
 msgctxt "OniMcp.MCP.UI_SELECTION.INVALID_REQUEST"
 msgid "The duplicant selection request is invalid. See reasonCode and parameter."
 msgstr "The duplicant selection request is invalid. See reasonCode and parameter."
+
+#. Runtime JSON key: schedule_timetables.description
+#. Runtime zh-Hans msgstr: "日程管理。list读取原生时间表信息；仅显式指定includeTimetables时展开所有行。set_block支持dryRun预览及明确的confirm/task，并修改一个原生时段。其他操作保留原有契约。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.DESCRIPTION"
+msgid "Schedule management. list reads native timetable metadata; includeTimetables explicitly expands all rows. set_block changes one native block with dryRun and explicit confirm/task. Other actions retain their existing contracts."
+msgstr "Schedule management. list reads native timetable metadata; includeTimetables explicitly expands all rows. set_block changes one native block with dryRun and explicit confirm/task. Other actions retain their existing contracts."
+
+#. Runtime JSON key: schedule_timetables.action
+#. Runtime zh-Hans msgstr: "list、create、set_block、assign_dupe或optimize。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.ACTION"
+msgid "list, create, set_block, assign_dupe or optimize."
+msgstr "list, create, set_block, assign_dupe or optimize."
+
+#. Runtime JSON key: schedule_timetables.schedule
+#. Runtime zh-Hans msgstr: "list或set_block使用的准确日程名称，必须唯一匹配。assign_dupe保留原有名称查找。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.SCHEDULE"
+msgid "Exact schedule name for list or set_block. Names must resolve uniquely; assign_dupe retains its existing name lookup."
+msgstr "Exact schedule name for list or set_block. Names must resolve uniquely; assign_dupe retains its existing name lookup."
+
+#. Runtime JSON key: schedule_timetables.hour
+#. Runtime zh-Hans msgstr: "set_block在timetableIndex行内的时刻0–23；默认仍为第0行。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.HOUR"
+msgid "set_block local hour 0–23 in timetableIndex; row 0 remains the default."
+msgstr "set_block local hour 0–23 in timetableIndex; row 0 remains the default."
+
+#. Runtime JSON key: schedule_timetables.group
+#. Runtime zh-Hans msgstr: "set_block使用list返回的原生分组ID（例如Hygene、Worktime、Recreation或Sleep）。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.GROUP"
+msgid "set_block native group ID from list (for example Hygene, Worktime, Recreation or Sleep)."
+msgstr "set_block native group ID from list (for example Hygene, Worktime, Recreation or Sleep)."
+
+#. Runtime JSON key: schedule_timetables.timetable_index
+#. Runtime zh-Hans msgstr: "list或set_block使用的时间表行号，从0开始。默认0保留第一行，不会切换原生当前时间表。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.TIMETABLE_INDEX"
+msgid "Zero-based timetable row for list or set_block. Default 0 preserves the first row; this never changes the native current timetable."
+msgstr "Zero-based timetable row for list or set_block. Default 0 preserves the first row; this never changes the native current timetable."
+
+#. Runtime JSON key: schedule_timetables.include_timetables
+#. Runtime zh-Hans msgstr: "仅用于list：显式为true时包含全部时间表及其时段。默认false只返回选定行。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.INCLUDE_TIMETABLES"
+msgid "list only: explicitly include every timetable and block. Default false returns only the selected row."
+msgstr "list only: explicitly include every timetable and block. Default false returns only the selected row."
+
+#. Runtime JSON key: schedule_timetables.dry_run
+#. Runtime zh-Hans msgstr: "set_block为true时预览准确的行、时刻及分组，不执行原生写入或通知。其他操作遵循各自的预览契约。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.DRY_RUN"
+msgid "set_block true previews the exact row/hour/group without native writes or notifications. Other actions follow their own preview contracts."
+msgstr "set_block true previews the exact row/hour/group without native writes or notifications. Other actions follow their own preview contracts."
+
+#. Runtime JSON key: schedule_timetables.confirm
+#. Runtime zh-Hans msgstr: "set_block在dryRun=false时必须为true。其他操作保留原有确认规则。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.CONFIRM"
+msgid "set_block requires true when dryRun=false. Other actions retain existing confirmation rules."
+msgstr "set_block requires true when dryRun=false. Other actions retain existing confirmation rules."
+
+#. Runtime JSON key: schedule_timetables.list_description
+#. Runtime zh-Hans msgstr: "读取现有日程信息。blocks默认仍为前24个时段；可指定timetableIndex或显式获取全部时间表。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.LIST_DESCRIPTION"
+msgid "Read existing schedule metadata. blocks remains the first 24 by default; select timetableIndex or explicitly include all timetables."
+msgstr "Read existing schedule metadata. blocks remains the first 24 by default; select timetableIndex or explicitly include all timetables."
+
+#. Runtime JSON key: schedule_timetables.set_description
+#. Runtime zh-Hans msgstr: "设置一个现有原生日程时段。dryRun=true可预览；执行必须提供confirm=true及task。timetableIndex默认为0。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.SET_DESCRIPTION"
+msgid "Set one existing native schedule block. Preview with dryRun=true; execution requires confirm=true and task. timetableIndex defaults to 0."
+msgstr "Set one existing native schedule block. Preview with dryRun=true; execution requires confirm=true and task. timetableIndex defaults to 0."
+
+#. Runtime JSON key: schedule_timetables.unavailable
+#. Runtime zh-Hans msgstr: "无法处理日程请求（{0}）。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.UNAVAILABLE"
+msgid "Schedule request is unavailable ({0})."
+msgstr "Schedule request is unavailable ({0})."
+
+#. Runtime JSON key: schedule_timetables.preview
+#. Runtime zh-Hans msgstr: "仅预览，未调用原生日程修改或通知。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.PREVIEW"
+msgid "Preview only; no native schedule changes or notifications were invoked."
+msgstr "Preview only; no native schedule changes or notifications were invoked."
+
+#. Runtime JSON key: schedule_timetables.no_change
+#. Runtime zh-Hans msgstr: "选定时段已是请求的分组，无需原生修改。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.NO_CHANGE"
+msgid "The selected block already has the requested group; no native change was needed."
+msgstr "The selected block already has the requested group; no native change was needed."
+
+#. Runtime JSON key: schedule_timetables.applied
+#. Runtime zh-Hans msgstr: "调用一次原生Schedule.SetBlockGroup后，已观测到请求的时段分组。"
+msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.APPLIED"
+msgid "Observed the requested block group after one native Schedule.SetBlockGroup call."
+msgstr "Observed the requested block group after one native Schedule.SetBlockGroup call."

@@ -18,13 +18,17 @@ namespace OniMcp.Tools
                 Risk = "medium",
                 Aliases = new List<string> { "schedules_control", "schedule_management_control" },
                 Tags = new List<string> { "schedule", "schedules", "shift", "timetable", "dupe", "日程", "作息", "轮班" },
-                Description = "スケジュール管理の集約ツール: action=list/create/set_block/assign_dupe/optimize",
+                Description = McpLocalization.Get("schedule_timetables.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["action"] = new McpToolParameter { Type = "string", Description = "list、create、set_block、assign_dupe、optimize のいずれか", Required = true, EnumValues = new List<string> { "list", "create", "set_block", "assign_dupe", "optimize" } },
-                    ["schedule"] = new McpToolParameter { Type = "string", Description = "action=set_block/assign_dupe の対象スケジュール名", Required = false },
-                    ["hour"] = new McpToolParameter { Type = "integer", Description = "action=set_block の時刻 0-23", Required = false },
-                    ["group"] = new McpToolParameter { Type = "string", Description = "action=set_block の時間枠の種類 ID: Hygene、Worktime、Recreation、Sleep", Required = false },
+                    ["action"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.action"), Required = true, EnumValues = new List<string> { "list", "create", "set_block", "assign_dupe", "optimize" } },
+                    ["schedule"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.schedule"), Required = false },
+                    ["hour"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.hour"), Required = false },
+                    ["group"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.group"), Required = false },
+                    ["timetableIndex"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.timetable_index"), Required = false },
+                    ["includeTimetables"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.include_timetables"), Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.dry_run"), Required = false },
+                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.confirm"), Required = false },
                     ["name"] = new McpToolParameter { Type = "string", Description = "action=create では新しいスケジュール名、action=assign_dupe では複製人間の名前", Required = false },
                     ["id"] = new McpToolParameter { Type = "integer", Description = "action=assign_dupe の複製人間の InstanceID", Required = false },
                     ["sleepStart"] = new McpToolParameter { Type = "integer", Description = "action=create の睡眠開始時刻 0-23。既定は 20", Required = false },
@@ -66,27 +70,14 @@ namespace OniMcp.Tools
                 Group = "schedules",
                 Mode = "read",
                 Risk = "none",
-                Description = "非推奨の警告: 旧ツールは 0.3.0 で削除予定。colony_control domain=management kind=schedule action=list を使用すること",
-                Handler = args =>
+                Description = McpLocalization.Get("schedule_timetables.list_description"),
+                Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    if (ScheduleManager.Instance == null)
-                        return CallToolResult.Error("ScheduleManager not initialized");
-
-                    var result = new Dictionary<string, object>
-                    {
-                        ["currentHour"] = ScheduleManager.GetCurrentHour(),
-                        ["groups"] = Db.Get().ScheduleGroups.allGroups.Select(group => new Dictionary<string, object>
-                        {
-                            ["id"] = group.Id,
-                            ["name"] = group.Name,
-                            ["defaultSegments"] = group.defaultSegments,
-                            ["alarm"] = group.alarm
-                        }).ToList(),
-                        ["schedules"] = ScheduleManager.Instance.GetSchedules().Select(ScheduleToDictionary).ToList()
-                    };
-
-                    return CallToolResult.Text(JsonConvert.SerializeObject(result, McpJsonUtil.Settings));
-                }
+                    ["schedule"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.schedule"), Required = false },
+                    ["timetableIndex"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.timetable_index"), Required = false },
+                    ["includeTimetables"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.include_timetables"), Required = false }
+                },
+                Handler = args => ReadScheduleTimetables(args)
             };
         }
 
@@ -101,28 +92,17 @@ namespace OniMcp.Tools
                 Risk = "medium",
                 Aliases = new List<string> { "set_schedule_block", "schedule_block_set", "change_schedule_block" },
                 Tags = new List<string> { "schedule", "schedules", "shift", "timetable", "blocks", "日程", "作息", "轮班", "时间段" },
-                Description = "非推奨の警告: 旧ツールは 0.3.0 で削除予定。colony_control domain=management kind=schedule action=set_block を使用すること",
+                Description = McpLocalization.Get("schedule_timetables.set_description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["schedule"] = new McpToolParameter { Type = "string", Description = "スケジュール名", Required = true },
-                    ["hour"] = new McpToolParameter { Type = "integer", Description = "時刻 0-23", Required = true },
-                    ["group"] = new McpToolParameter { Type = "string", Description = "時間枠の種類 ID: Hygene、Worktime、Recreation、Sleep", Required = true }
+                    ["schedule"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.schedule"), Required = true },
+                    ["hour"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.hour"), Required = true },
+                    ["group"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.group"), Required = true },
+                    ["timetableIndex"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.timetable_index"), Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.dry_run"), Required = false },
+                    ["confirm"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.confirm"), Required = false }
                 },
-                Handler = args =>
-                {
-                    var schedule = FindSchedule(args["schedule"]?.ToString());
-                    if (schedule == null)
-                        return CallToolResult.Error("Schedule not found");
-                    int? hour = ToolUtil.GetInt(args, "hour");
-                    if (!hour.HasValue || hour.Value < 0 || hour.Value > 23)
-                        return CallToolResult.Error("hour must be 0-23");
-                    var group = FindGroup(args["group"]?.ToString());
-                    if (group == null)
-                        return CallToolResult.Error("Schedule group not found");
-
-                    schedule.SetBlockGroup(hour.Value, group);
-                    return CallToolResult.Text($"Set schedule {schedule.name} hour {hour.Value} to {group.Id}");
-                }
+                Handler = args => SetScheduleTimetableBlock(args)
             };
         }
 

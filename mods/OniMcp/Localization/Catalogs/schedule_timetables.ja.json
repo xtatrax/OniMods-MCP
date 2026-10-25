@@ -1,0 +1,17 @@
+{
+  "schedule_timetables.description": "スケジュール管理。listは本体の時間割情報を読み取り、includeTimetablesを明示した場合だけ全行を展開します。set_blockはdryRunによる予行と明示的なconfirm/taskに対応し、本体の1枠を変更します。他の操作は既存の契約を維持します。",
+  "schedule_timetables.action": "list、create、set_block、assign_dupe、optimize。",
+  "schedule_timetables.schedule": "listまたはset_blockの正確なスケジュール名。名前は一意に特定できる必要があります。assign_dupeは既存の名前検索を維持します。",
+  "schedule_timetables.hour": "set_blockで指定するtimetableIndex内の時刻0～23。既定は行0です。",
+  "schedule_timetables.group": "set_blockで使う、listに返された本体のグループID（例: Hygene、Worktime、Recreation、Sleep）。",
+  "schedule_timetables.timetable_index": "listまたはset_blockで指定する0始まりの時間割の行。既定の0は先頭行を維持し、本体の現在の時間割は切り替えません。",
+  "schedule_timetables.include_timetables": "list専用。trueを明示すると全ての時間割と枠を含めます。既定のfalseでは選択した行だけを返します。",
+  "schedule_timetables.dry_run": "set_blockでtrueにすると、対象の行・時刻・グループを予行し、本体の変更や通知は行いません。他の操作はそれぞれの予行の契約に従います。",
+  "schedule_timetables.confirm": "set_blockはdryRun=falseの場合にtrueが必須です。他の操作は既存の確認規則を維持します。",
+  "schedule_timetables.list_description": "既存スケジュールの情報を読み取ります。blocksは既定で先頭24枠です。timetableIndexで行を選ぶか、全時間割の取得を明示できます。",
+  "schedule_timetables.set_description": "本体の既存スケジュール1枠を設定します。dryRun=trueで予行し、実行にはconfirm=trueとtaskが必須です。timetableIndexの既定は0です。",
+  "schedule_timetables.unavailable": "スケジュールの要求を処理できません（{0}）。",
+  "schedule_timetables.preview": "予行のみです。本体のスケジュール変更や通知は呼び出していません。",
+  "schedule_timetables.no_change": "選択した枠は既に指定したグループです。本体の変更は不要でした。",
+  "schedule_timetables.applied": "本体のSchedule.SetBlockGroupを1回呼び出した後、指定した枠のグループを確認しました。"
+}

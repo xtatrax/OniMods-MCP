@@ -146,6 +146,12 @@ namespace OniMcp.Tools
             d["domain"] = "Colony subsystem: snapshot, read, report, diagnostic, notification, management, or bio. Defaults to read.";
             d["kind"] = "Management or bio subtype, such as schedule, diet, research, medical, farming, or ranching.";
             d["action"] = "Colony action for the selected domain.";
+            d["schedule"] = McpLocalization.GetForLanguage("en", "schedule_timetables.schedule");
+            d["hour"] = McpLocalization.GetForLanguage("en", "schedule_timetables.hour");
+            d["group"] = McpLocalization.GetForLanguage("en", "schedule_timetables.group");
+            d["timetableIndex"] = McpLocalization.GetForLanguage("en", "schedule_timetables.timetable_index");
+            d["includeTimetables"] = McpLocalization.GetForLanguage("en", "schedule_timetables.include_timetables");
+            d["dryRun"] = McpLocalization.GetForLanguage("en", "schedule_timetables.dry_run");
             d["detail"] = "Detail level for snapshot or report output.";
             d["dupeLimit"] = "Maximum number of duplicant details in snapshot output.";
             d["foodLimit"] = "Maximum number of food entries in snapshot output.";

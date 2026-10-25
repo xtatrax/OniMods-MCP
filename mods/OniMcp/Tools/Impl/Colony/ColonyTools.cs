@@ -63,6 +63,12 @@ namespace OniMcp.Tools
                     ["disabled"] = new McpToolParameter { Type = "boolean", Description = "domain=diagnostic action=set_auto_disinfect の場合、true=自動消毒を全体で無効化", Required = false },
                     ["applyNow"] = new McpToolParameter { Type = "boolean", Description = "domain=diagnostic action=set_auto_disinfect の場合、既存のオブジェクトに即時反映するか。既定値は true", Required = false },
                     ["force"] = new McpToolParameter { Type = "boolean", Description = "対応する下位ツールの強制操作を許可。action に応じて解釈", Required = false },
+                    ["schedule"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.schedule"), Required = false },
+                    ["hour"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.hour"), Required = false },
+                    ["group"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.group"), Required = false },
+                    ["timetableIndex"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.timetable_index"), Required = false },
+                    ["includeTimetables"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.include_timetables"), Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.dry_run"), Required = false },
                     ["confirm"] = new McpToolParameter { Type = "boolean", Description = "書き込み操作の確認。action に応じて解釈", Required = false }
                 },
                 Handler = args =>

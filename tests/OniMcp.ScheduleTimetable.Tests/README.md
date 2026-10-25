@@ -1,0 +1,13 @@
+# Schedule timetable host regression
+
+The project links ten whole production files: the schedule caller, timetable reader/writer, unchanged optimization helpers, management and colony routers, the JSON settings and result types, and the world-editor outcome/parser policy. No production source is extracted or copied into a test algorithm.
+
+Native declarations supply independent blocks, progression row, current absolute block index, current hour, cache ownership and assigned references. The native setter records its arguments and changes only the supplied block element. Its notification counter is a fixture canary; it does not prove game notifications, UI painting or rendering. Metadata localization is represented by keys and needs separate catalog/runtime checks.
+
+The executable checks default first-row compatibility, explicit row selection and opt-in complete timetables; native cursor values including real zero; explicit unknown/null fields under the production JSON serializer; strict request types and range checks; cached database/assigned reads without lazy getters; owner/ref changes; preview and no-op with no native call; one exact normal setter call; partial/unknown results with no retry; and unchanged caller arguments and other block slots. The fixture does not reproduce timetable classification or selection policy.
+
+The actual private `NativeOutcome`, `ResultReportsPartial` and `ResultAppliedCount` methods classify real schedule responses through reflection. Known preview/no-op/refusal counters are integer zero; successful observed mutation is one; post-call unknown counters remain absent. The legacy aggregate count's fallback zero is checked separately and is not accepted as a known child counter. Invalid boolean/null/negative/string counters exercise the production parser. This is not a test of the complete operation-file dispatch path.
+
+`--dry-run-probe` directly invokes the real set-block handler. With the previous whole schedule caller substituted via `ScheduleSource`, the old code can compile and reach the native boundary. The probe must fail because a native setter call occurred during dry-run, before parsing the old unstructured response. Compilation or a different earlier exception is not the intended negative result.
+
+Use normal `dotnet restore` with `NuGetAudit=true`, then build and run with all intermediate/output paths outside the checkout. The portable project defaults to repository-relative production paths; private source overrides may be supplied only for controlled negative comparisons. The host substitutes game APIs and cannot prove runtime rendering, native notification internals, load persistence or game-side behavior. Those require separate live verification.

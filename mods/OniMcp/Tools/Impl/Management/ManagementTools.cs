@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -24,6 +25,12 @@ namespace OniMcp.Tools
                     ["name"] = new McpToolParameter { Type = "string", Description = "対象の名前。サブ操作の意味に従って使用する", Required = false },
                     ["query"] = new McpToolParameter { Type = "string", Description = "検索または絞り込みの語句。サブ操作の意味に従って使用する", Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "一覧または一括処理の上限。サブ操作の意味に従って使用する", Required = false },
+                    ["schedule"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.schedule"), Required = false },
+                    ["hour"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.hour"), Required = false },
+                    ["group"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("schedule_timetables.group"), Required = false },
+                    ["timetableIndex"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("schedule_timetables.timetable_index"), Required = false },
+                    ["includeTimetables"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.include_timetables"), Required = false },
+                    ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("schedule_timetables.dry_run"), Required = false },
                     ["confirm"] = new McpToolParameter { Type = "boolean", Description = "書き込みや危険な操作で確認が必要な場合は true を渡す", Required = false }
                 },
                 Handler = args =>
