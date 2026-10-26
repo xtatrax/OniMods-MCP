@@ -151,6 +151,80 @@ namespace OniMcp.Tools
                     Check(first == repeat && !Grid.Visible[cell] && CameraController.Instance.Moves == moves && OverlayScreen.Instance.Changes == changes,
                         "repeat does not reveal or change camera/overlay");
                 }
+                int invalidLayerStartAssertions = assertions;
+                var invalidLayerLocales = new[]
+                {
+                    (Language: "en", Title: "Invalid map layer", Description: "Requested map layer must match a listed 32-cell layer within the active world bounds."),
+                    (Language: "ja-JP", Title: "無効な地図レイヤー", Description: "指定した地図レイヤーは、現在のワールド範囲内で一覧にある32セル単位のレイヤーと一致する必要があります。"),
+                    (Language: "zh-cn", Title: "地图图层无效", Description: "请求的地图图层必须与当前世界范围内按32格分段列出的图层一致。"),
+                };
+                foreach (var locale in invalidLayerLocales) foreach (bool visible in new[] { true, false })
+                foreach (string invalidPath in new[] { "/active/map/layers/layer_1_31.html", "/active/map/layers/layer_0_30.html" })
+                {
+                    Reset(OverlayModes.None.ID);
+                    ClusterManager.Instance.world.WorldSize = new(1, 64);
+                    Array.Fill(Grid.Visible, visible);
+                    McpLocalization.LanguageProvider = () => locale.Language;
+                    int moves = CameraController.Instance.Moves, changes = OverlayScreen.Instance.Changes;
+                    var position = Camera.main.transform.position; float zoom = Camera.main.orthographicSize;
+                    LegacyHtmlBoundary.Clear(); LegacyHtmlBoundary.Poison = true;
+                    string html = ReadFileDirectly(invalidPath);
+                    int nativeReads = LegacyHtmlBoundary.NativeValueReads, colorReads = LegacyHtmlBoundary.ColorReads;
+                    int pageCount = LegacyHtmlBoundary.Pages.Count;
+                    string expected = "<h1>" + WebUtility.HtmlEncode(locale.Title) + "</h1><p>"
+                        + WebUtility.HtmlEncode(locale.Description) + "</p>";
+                    Check(html == expected && !html.Contains("map_html.invalid_layer."),
+                        "invalid_layer_localization_contract: exact encoded error prose for both guards " + locale.Language + visible + invalidPath);
+                    Check(nativeReads == 0 && colorReads == 0 && pageCount == 0,
+                        "invalid_layer_localization_contract: invalid layer must not read native cells, color or construct a page");
+                    Check(CameraController.Instance.Moves == moves && OverlayScreen.Instance.Changes == changes
+                        && Camera.main.transform.position == position && Camera.main.orthographicSize == zoom
+                        && OverlayScreen.Instance.mode == OverlayModes.None.ID && Grid.Visible[cell] == visible
+                        && McpLocalization.GameLanguageProvider() == "ja",
+                        "invalid_layer_localization_contract: rejection preserves camera, overlay, visibility and game locale");
+                }
+                foreach (var locale in invalidLayerLocales) foreach (bool visible in new[] { true, false })
+                foreach (var valid in new[]
+                {
+                    (Path: "/active/map/layers/layer_0_31.html", Height: 64, Cells: 32),
+                    (Path: "/active/map/layers/layer_32_32.html", Height: 33, Cells: 1),
+                })
+                {
+                    Reset(OverlayModes.None.ID);
+                    ClusterManager.Instance.world.WorldSize = new(1, valid.Height);
+                    Array.Fill(Grid.Visible, visible);
+                    var fixtureElements = Grid.Element; var fixtureTemperatures = Grid.Temperature;
+                    var fixtureElement = fixtureElements[cell];
+                    for (int row = 0; row < valid.Height; row++)
+                    {
+                        int fixtureCell = Grid.XYToCell(x, y + row);
+                        fixtureElements[fixtureCell] = fixtureElement; fixtureTemperatures[fixtureCell] = 295.525f;
+                    }
+                    McpLocalization.LanguageProvider = () => locale.Language;
+                    int moves = CameraController.Instance.Moves, changes = OverlayScreen.Instance.Changes;
+                    var position = Camera.main.transform.position; float zoom = Camera.main.orthographicSize;
+                    LegacyHtmlBoundary.Clear(); LegacyHtmlBoundary.Poison = !visible;
+                    string html = ReadFileDirectly(valid.Path);
+                    int nativeReads = LegacyHtmlBoundary.NativeValueReads, colorReads = LegacyHtmlBoundary.ColorReads;
+                    int pageCount = LegacyHtmlBoundary.Pages.Count;
+                    int cells = html.Split(new[] { "<div class=\"cell\" " }, StringSplitOptions.None).Length - 1;
+                    Check(cells == valid.Cells && pageCount == 1 && LegacyHtmlBoundary.Pages[0].Width == 1
+                        && LegacyHtmlBoundary.Pages[0].Cells == html,
+                        "invalid_layer_localization_contract: valid complete and partial-final layers keep exact cell count and page route");
+                    Check(visible ? nativeReads > 0 && colorReads == valid.Cells
+                        : nativeReads == 0 && colorReads == 0,
+                        "invalid_layer_localization_contract: valid layers retain known versus unknown native read boundary");
+                    Check(html.Contains("data-state=\"unknown\"") == !visible && !html.Contains("<h1>")
+                        && !html.Contains("map_html.invalid_layer."),
+                        "invalid_layer_localization_contract: a permitted short final layer is not an invalid-layer error");
+                    Check(CameraController.Instance.Moves == moves && OverlayScreen.Instance.Changes == changes
+                        && Camera.main.transform.position == position && Camera.main.orthographicSize == zoom
+                        && OverlayScreen.Instance.mode == OverlayModes.None.ID && Grid.Visible[cell] == visible
+                        && McpLocalization.GameLanguageProvider() == "ja",
+                        "invalid_layer_localization_contract: valid control preserves camera, overlay, visibility and game locale");
+                }
+                Console.WriteLine("PASS: actual invalid layer HTML localization assertions=" + (assertions - invalidLayerStartAssertions)
+                    + " (included in legacy boundary total)");
                 Console.WriteLine("PASS: " + assertions + " actual legacy HTML boundary assertions");
             }
             finally

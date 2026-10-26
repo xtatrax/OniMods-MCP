@@ -12,7 +12,8 @@ import re
 KEYS = ("unreadable", "viewport_title", "viewport_back", "viewport_description",
         "layer_title", "layer_back", "layer_description", "show_raw", "show_map",
         "legend.vacuum_space", "legend.building", "legend.dirt", "legend.sandstone", "legend.water", "legend.polluted_water", "legend.algae", "legend.granite_rock", "legend.oxygen_gas", "legend.carbon_dioxide",
-        "tooltip.cell", "tooltip.element", "tooltip.temperature", "tooltip.building")
+        "tooltip.cell", "tooltip.element", "tooltip.temperature", "tooltip.building",
+        "invalid_layer.title", "invalid_layer.description")
 
 
 def check(root: Path) -> dict:
@@ -60,7 +61,10 @@ def check(root: Path) -> dict:
         for language, entries in catalogs.items():
             require(sorted(parser.PLACEHOLDERS.findall(entries[runtime])) ==
                     sorted(parser.PLACEHOLDERS.findall(entry["msgid"])), "Runtime placeholder mismatch: " + language + runtime)
-        if key.endswith("_title"):
+        if key in ("invalid_layer.title", "invalid_layer.description"):
+            require(source.count('WebUtility.HtmlEncode(McpLocalization.Get("' + runtime + '"))') == 2,
+                    "Invalid-layer error prose must resolve twice without inline fallback and HTML encode: " + runtime)
+        elif key.endswith("_title"):
             require(source.count('WebUtility.HtmlEncode(McpLocalization.Format("' + runtime + '", null, ') == 1,
                     "Title must format without inline prose fallback and HTML encode: " + runtime)
         elif key.startswith("legend."):

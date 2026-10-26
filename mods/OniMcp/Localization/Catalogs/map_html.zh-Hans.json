@@ -21,5 +21,7 @@
   "map_html.tooltip.cell": "格子",
   "map_html.tooltip.element": "元素",
   "map_html.tooltip.temperature": "温度",
-  "map_html.tooltip.building": "建筑"
+  "map_html.tooltip.building": "建筑",
+  "map_html.invalid_layer.title": "地图图层无效",
+  "map_html.invalid_layer.description": "请求的地图图层必须与当前世界范围内按32格分段列出的图层一致。"
 }

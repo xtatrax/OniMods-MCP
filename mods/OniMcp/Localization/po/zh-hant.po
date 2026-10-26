@@ -1763,3 +1763,19 @@ msgstr "溫度"
 msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.BUILDING"
 msgid "Building"
 msgstr "建築"
+
+#. Runtime JSON key: map_html.invalid_layer.title
+#. Runtime zh-Hans msgstr: "地图图层无效"
+#. MCP-owned virtual map pagination error; the final partial layer remains allowed.
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.INVALID_LAYER.TITLE"
+msgid "Invalid map layer"
+msgstr "地圖圖層無效"
+
+#. Runtime JSON key: map_html.invalid_layer.description
+#. Runtime zh-Hans msgstr: "请求的地图图层必须与当前世界范围内按32格分段列出的图层一致。"
+#. MCP-owned virtual map pagination error; the final partial layer remains allowed.
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.INVALID_LAYER.DESCRIPTION"
+msgid "Requested map layer must match a listed 32-cell layer within the active world bounds."
+msgstr "請求的地圖圖層必須與目前世界範圍內按32格分段列出的圖層一致。"

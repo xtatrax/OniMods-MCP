@@ -21,5 +21,7 @@
   "map_html.tooltip.cell": "Cell",
   "map_html.tooltip.element": "Element",
   "map_html.tooltip.temperature": "Temp",
-  "map_html.tooltip.building": "Building"
+  "map_html.tooltip.building": "Building",
+  "map_html.invalid_layer.title": "Invalid map layer",
+  "map_html.invalid_layer.description": "Requested map layer must match a listed 32-cell layer within the active world bounds."
 }

@@ -198,13 +198,15 @@ namespace OniMcp.Tools
                                 || relYMax >= height
                                 || relYMin % VirtualMapLayerSize != 0)
                             {
-                                return "<h1>Invalid map layer</h1><p>Requested map layer must match a listed 32-cell layer within the active world bounds.</p>";
+                                return "<h1>" + WebUtility.HtmlEncode(McpLocalization.Get("map_html.invalid_layer.title"))
+                                    + "</h1><p>" + WebUtility.HtmlEncode(McpLocalization.Get("map_html.invalid_layer.description")) + "</p>";
                             }
 
                             int expectedRelYMax = Math.Min(relYMin + VirtualMapLayerSize - 1, height - 1);
                             if (relYMax != expectedRelYMax)
                             {
-                                return "<h1>Invalid map layer</h1><p>Requested map layer must match a listed 32-cell layer within the active world bounds.</p>";
+                                return "<h1>" + WebUtility.HtmlEncode(McpLocalization.Get("map_html.invalid_layer.title"))
+                                    + "</h1><p>" + WebUtility.HtmlEncode(McpLocalization.Get("map_html.invalid_layer.description")) + "</p>";
                             }
 
                             int xMin = world.WorldOffset.x;

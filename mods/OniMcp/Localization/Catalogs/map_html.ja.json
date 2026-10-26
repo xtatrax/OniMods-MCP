@@ -21,5 +21,7 @@
   "map_html.tooltip.cell": "セル",
   "map_html.tooltip.element": "元素",
   "map_html.tooltip.temperature": "温度",
-  "map_html.tooltip.building": "設備"
+  "map_html.tooltip.building": "設備",
+  "map_html.invalid_layer.title": "無効な地図レイヤー",
+  "map_html.invalid_layer.description": "指定した地図レイヤーは、現在のワールド範囲内で一覧にある32セル単位のレイヤーと一致する必要があります。"
 }
