@@ -17,6 +17,7 @@ internal static class OperationCommandLimitRegression
         MultipleCommandsAreRejectedBeforeAnyChild();
         CommentsDoNotCountAsCommands();
         EveryBlockIsPreflightedBeforeExecution();
+        CaptureExamplesStayInRelevantOperationFiles();
         LocalizedRejectionAndGuideRemainAvailable();
         Console.WriteLine("Operation command-limit contract checks passed: " + checks);
     }
@@ -95,6 +96,63 @@ internal static class OperationCommandLimitRegression
         // runtime error with changed=true. Its partial/outcome checks run unchanged.
     }
 
+    private static void CaptureExamplesStayInRelevantOperationFiles()
+    {
+        string[] captureExamples =
+        {
+            "捕 小动物@(101,130):7",
+            "捕 x=101 y=130 priority=7 dryRun=true",
+            "抓捕 小动物@(101,130):7 dryRun=true"
+        };
+        var fileField = typeof(WorldEditorTools).GetField("OperationFileTools",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        Require(fileField != null, "operation_capture_example_scope: actual operation-file registry is available.");
+        var files = fileField.GetValue(null) as System.Collections.Generic.IDictionary<string, string>;
+        Require(files != null, "operation_capture_example_scope: actual operation-file registry has the expected contract.");
+        // ops/tools.md uses its separate tool-index reader before ordinary help.
+        string[] normalPaths = files.Keys.Where(path => path != "ops/tools.md")
+            .OrderBy(path => path, StringComparer.Ordinal).ToArray();
+        Require(normalPaths.Length == 23 && normalPaths.Contains("ops/orders.md") && normalPaths.Contains("ops/ranching.md"),
+            "operation_capture_example_scope: cover every existing ordinary operation file and both capture pages.");
+        var preferred = McpLocalization.LanguageProvider;
+        try
+        {
+            McpLocalization.LanguageProvider = () => "en";
+            foreach (string relative in normalPaths)
+            {
+                NativeBoundary.Reset("unused", false);
+                var read = WorldEditorTools.ReadOperationForTest(relative);
+                Require(!read.IsError, "operation_capture_example_scope: actual reader succeeds for " + relative);
+                string text = read.Content[0].Text;
+                string marker = "## Edit Commands" + Environment.NewLine + "```text" + Environment.NewLine;
+                string fence = "```" + Environment.NewLine;
+                int start = text.IndexOf(marker, StringComparison.Ordinal);
+                Require(start >= 0 && start == text.LastIndexOf(marker, StringComparison.Ordinal)
+                    && text.EndsWith(fence, StringComparison.Ordinal),
+                    "operation_capture_example_scope: command heading and fence remain exact for " + relative);
+                string commandBody = text.Substring(start + marker.Length,
+                    text.Length - start - marker.Length - fence.Length);
+                string[] comments = commandBody.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                Require(comments.All(line => line.StartsWith("# ", StringComparison.Ordinal)),
+                    "operation_capture_example_scope: every example remains a comment for " + relative);
+                string[] commands = comments.Select(line => line.Substring(2)).ToArray();
+                bool receivesCaptureExamples = relative == "ops/orders.md" || relative == "ops/ranching.md";
+                foreach (string capture in captureExamples)
+                    Require(commands.Count(line => line == capture) == (receivesCaptureExamples ? 1 : 0),
+                        "operation_capture_example_scope: capture example count differs for " + relative + ": " + capture);
+                Require(commands.Any(line => !captureExamples.Contains(line)),
+                    "operation_capture_example_scope: the ordinary non-capture examples remain available for " + relative);
+                if (receivesCaptureExamples)
+                    Require(commands.Length >= captureExamples.Length
+                        && commands.Skip(commands.Length - captureExamples.Length).SequenceEqual(captureExamples),
+                        "operation_capture_example_scope: capture examples retain their exact tail order for " + relative);
+                Require(NativeBoundary.Calls == 0,
+                    "operation_capture_example_scope: guide reads do not dispatch a native child for " + relative);
+            }
+        }
+        finally { McpLocalization.LanguageProvider = preferred; }
+    }
+
     private static void LocalizedRejectionAndGuideRemainAvailable()
     {
         var preferred = McpLocalization.LanguageProvider;
@@ -139,9 +197,7 @@ internal static class OperationCommandLimitRegression
                 if (language == "en")
                     Require(hints.SequenceEqual(legacyEnglish), "English help lines retain their exact legacy prose and punctuation.");
                 string commands = "## Edit Commands" + Environment.NewLine + "```text" + Environment.NewLine
-                    + "# call domain=speed action=pause" + Environment.NewLine
-                    + "# 捕 x=101 y=130 priority=7 dryRun=true" + Environment.NewLine
-                    + "# 抓捕 小动物@(101,130):7 dryRun=true" + Environment.NewLine + "```" + Environment.NewLine;
+                    + "# call domain=speed action=pause" + Environment.NewLine + "```" + Environment.NewLine;
                 Require(lines.Count(line => line == "## Edit Commands") == 1 && text.EndsWith(commands, StringComparison.Ordinal),
                     "The reserved command heading, fence and commented DSL example remain exact.");
                 string[] jsonParts = text.Split(new[] { "```json" }, StringSplitOptions.None);

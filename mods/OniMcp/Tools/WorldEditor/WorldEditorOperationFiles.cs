@@ -503,9 +503,11 @@ namespace OniMcp.Tools
         if (relative == "ops/dupes.md")
             yield return "移 subject=人@Ran target=\"研究站\" confirm=true";
         if (relative == "ops/orders.md" || relative == "ops/ranching.md")
-                yield return "捕 小动物@(101,130):7";
-                yield return "捕 x=101 y=130 priority=7 dryRun=true";
-        yield return "抓捕 小动物@(101,130):7 dryRun=true";
+        {
+            yield return "捕 小动物@(101,130):7";
+            yield return "捕 x=101 y=130 priority=7 dryRun=true";
+            yield return "抓捕 小动物@(101,130):7 dryRun=true";
+        }
         }
     }
 }
