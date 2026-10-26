@@ -2,8 +2,9 @@
 """Check localization catalog source contracts without starting ONI.
 
 This is a supporting source check, not an ONI or compiled-assembly test. It
-checks catalog key parity, .NET format placeholders, all public metadata keys,
-unchanged existing English descriptions, and embedding declarations. An optional
+checks catalog key parity, .NET format placeholders, canonical public metadata keys,
+unchanged existing English descriptions, and embedding declarations. It resolves constant catalog references across resource
+groups and explicitly audits indexed-parameter shadows. An optional
 saved tools/list response checks the actual emitted parameter inventory. Host
 tests must separately check runtime selection, fallback, cloning, and resources.
 
@@ -19,6 +20,7 @@ import json
 from pathlib import Path
 import re
 import sys
+import warnings
 import xml.etree.ElementTree as ET
 
 
@@ -34,6 +36,22 @@ TOOL_SOURCES = {
     "world_editor": "Tools/WorldEditor/WorldEditorTools.cs",
     "benchmark": "Tools/Entry/BenchmarkTools.cs",
 }
+# Exact observed keys for the non-default-public lifecycle child. These five
+# keys are referenced by ControlGameSave in Tools/Impl/Core/GameSaveTools.cs;
+# game_save_control is not in OniToolRegistry.DefaultPublicToolNames. This is
+# not a wildcard exemption for unknown tools.* namespaces or orphan keys.
+NONPUBLIC_TOOL_CATALOGS = {
+    "game_save_control": {
+        "source": "Tools/Impl/Core/GameSaveTools.cs",
+        "keys": frozenset({
+            "tools.game_save_control.description",
+            "tools.game_save_control.parameters.action",
+            "tools.game_save_control.parameters.limit",
+            "tools.game_save_control.parameters.query",
+            "tools.game_save_control.unsupported_action",
+        }),
+    },
+}
 OVERRIDE_METHODS = {
     "building_control": "Building",
     "game_control": "Game",
@@ -48,11 +66,12 @@ OVERRIDE_METHODS = {
 PARAMETER_WRAPPERS = {
     ("orders_control", "RectParams"): "Tools/Impl/Orders/OrdersPriorityTools.cs",
 }
+# One observed pure parameter factory; unknown calls remain unsupported.
+PARAMETER_FACTORIES = {
+    ("building_control", "storageScope", "StorageTools.StorageScopeParameter"):
+        ("Tools/Impl/Build/StorageComponentDetails.cs", "StorageScopeParameter"),
+}
 CS_STRING = r'"(?:\\.|[^"\\])*"'
-PARAMETER = re.compile(
-    r'\["(\w+)"\]\s*=\s*new McpToolParameter\s*\{[^{}]*?'
-    r'Description\s*=\s*(' + CS_STRING + r')', re.S
-)
 PLACEHOLDER = re.compile(r'(?<!\{)\{(\d+(?:,-?\d+)?(?::[^{}]+)?)\}(?!\})')
 JAPANESE = re.compile(r'[\u3040-\u30ff]')
 
@@ -86,34 +105,269 @@ def read_catalog(path: Path) -> dict[str, str]:
     return data
 
 
+# This remains a bounded source reader, not a C# evaluator. Only regular quoted
+# literals and constant-key McpLocalization.Get/GetForLanguage("en", key) prose
+# expressions are supported. Other expressions must be added deliberately.
+_LEXICAL = re.compile(CS_STRING + '|//[^\\n]*|/\\*.*?\\*/', re.S)
+
+
+class CatalogValues(dict):
+    """Merged values retain their resource origin for the separate source audit."""
+    def __init__(self):
+        super().__init__()
+        self.origins = {}
+
+
+def code_mask(source: str, comments_only: bool = False) -> str:
+    def replace(match):
+        text = match.group(0)
+        if comments_only and not text.startswith(("//", "/*")):
+            return text
+        return "".join("\n" if char == "\n" else " " for char in text)
+    return _LEXICAL.sub(replace, source)
+
+
+def split_top_level(source: str, separator: str) -> list[str]:
+    """Split only outside balanced initializers/calls/indices and literals."""
+    mask = code_mask(source)
+    stack = []
+    opening = {"(": ")", "[": "]", "{": "}"}
+    parts = []
+    start = 0
+    for index, char in enumerate(mask):
+        if char in opening:
+            stack.append(opening[char])
+        elif char in ")]}":
+            require(bool(stack) and stack.pop() == char, "Unbalanced C# expression")
+        elif char == separator and not stack:
+            parts.append(source[start:index])
+            start = index + 1
+    require(not stack, "Unbalanced C# expression")
+    parts.append(source[start:])
+    return parts
+
+
+def leading_expression(source: str, context: str) -> str:
+    mask = code_mask(source)
+    stack = []
+    opening = {"(": ")", "[": "]", "{": "}"}
+    for index, char in enumerate(mask):
+        if char in opening:
+            stack.append(opening[char])
+        elif char in ")]}":
+            require(bool(stack) and stack.pop() == char, "Unbalanced expression: " + context)
+        elif char in ",;" and not stack:
+            return source[:index].strip()
+    require(not stack, "Unbalanced expression: " + context)
+    return source.strip()
+
+
+def merge_catalog(target: CatalogValues, entries: dict[str, str], origin: str) -> None:
+    for key, value in entries.items():
+        require(key not in target, "Duplicate catalog key across resources: " + key
+                + " (" + target.origins.get(key, "") + ", " + origin + ")")
+        target[key] = value
+        target.origins[key] = origin
+
+
+def english_catalogs(mod: Path) -> CatalogValues:
+    result = CatalogValues()
+    files = sorted((mod / "Localization/Catalogs").glob("*.en.json"))
+    require(bool(files), "No English localization catalogs found")
+    for path in files:
+        merge_catalog(result, read_catalog(path), path.name)
+    return result
+
+
+def description_value(expression: str, catalog: dict[str, str], context: str,
+                      audit: dict | None = None) -> str:
+    expression = code_mask(expression, comments_only=True).strip()
+    if re.fullmatch(CS_STRING, expression):
+        return string_literal(expression)
+    reference = re.fullmatch(
+        r'McpLocalization\s*\.\s*(Get|GetForLanguage)\s*\(\s*(' + CS_STRING
+        + r')(?:\s*,\s*(' + CS_STRING + r'))?\s*\)', expression)
+    require(reference is not None, "Unsupported description expression: " + context)
+    method, first, second = reference.groups()
+    require((method == "Get" and second is None)
+            or (method == "GetForLanguage" and second is not None and string_literal(first) == "en"),
+            "Unsupported localization reference shape: " + context)
+    key = string_literal(first if method == "Get" else second)
+    require(bool(key) and key in catalog, "Missing catalog reference: " + context + ":" + key)
+    if audit is not None:
+        audit.setdefault("references", []).append({"context": context, "method": method,
+            "key": key, "baselineLanguage": "en", "catalog": getattr(catalog, "origins", {}).get(key)})
+    return catalog[key]
+
+
+def assigned_description(source: str, context: str) -> str:
+    match = re.search(r'\bDescription\s*=', code_mask(source))
+    require(match is not None, "Missing description assignment: " + context)
+    return leading_expression(source[match.end():], context)
+
+
+def object_description(body: str, context: str) -> str:
+    values = []
+    for item in split_top_level(body, ","):
+        item = code_mask(item, comments_only=True).strip()
+        if not item:
+            continue
+        match = re.match(r'(\w+)\s*=\s*', item)
+        require(match is not None, "Unsupported parameter member: " + context)
+        if match.group(1) == "Description":
+            values.append(item[match.end():])
+    require(len(values) == 1, "Expected one top-level parameter description: " + context)
+    return values[0]
+
+
+def record_shadow(audit: dict | None, context: str, key: str, previous: int,
+                  replacement: int) -> None:
+    event = {"context": context, "parameter": key, "previousIndex": previous,
+             "replacementIndex": replacement, "semantics": "indexed_initializer_last_assignment_wins"}
+    if audit is None:
+        warnings.warn("Indexed parameter shadow audit: " + json.dumps(event, sort_keys=True),
+                      RuntimeWarning, stacklevel=3)
+    else:
+        audit.setdefault("indexedParameterShadows", []).append(event)
+
+
+def public_catalog(catalog: dict[str, str], audit: dict | None = None) -> dict[str, str]:
+    result = {}
+    excluded = {key: (name, entry["source"]) for name, entry in NONPUBLIC_TOOL_CATALOGS.items()
+                for key in entry["keys"]}
+    for key, value in catalog.items():
+        if not key.startswith("tools."):
+            continue
+        if key == "tools.task.description":
+            result[key] = value
+            continue
+        if key in excluded:
+            namespace, source = excluded[key]
+            require(namespace not in TOOL_SOURCES, "Excluded tool namespace is now public; update policy: " + namespace)
+            if audit is not None:
+                audit.setdefault("excludedNonpublicTools", []).append({"key": key,
+                    "namespace": namespace, "source": source,
+                    "catalog": getattr(catalog, "origins", {}).get(key)})
+            continue
+        match = re.fullmatch('tools\\.([A-Za-z_][A-Za-z_0-9]*)\\.(?:description|parameters\\.[A-Za-z_][A-Za-z_0-9]*)', key)
+        require(match is not None, "Malformed tools catalog key: " + key)
+        namespace = match.group(1)
+        require(namespace not in NONPUBLIC_TOOL_CATALOGS, "Unregistered nonpublic tools catalog key: " + key)
+        require(namespace in TOOL_SOURCES, "Unknown tools catalog namespace: " + namespace)
+        result[key] = value
+    return result
+
+
+
+def english_overrides(source: str, catalog: dict[str, str], audit: dict | None = None) -> dict:
+    methods = {}
+    mask = code_mask(source)
+    for name in {"Common", *OVERRIDE_METHODS.values()}:
+        signature = re.search(r'private static Dictionary<string, string> ' + re.escape(name)
+                              + r'Descriptions\(\)\s*\{', mask)
+        require(signature is not None, "Cannot locate English description method: " + name)
+        body, _ = braced_block(source, signature.end() - 1)
+        body = code_mask(body, comments_only=True)
+        if name == "Common":
+            initializer = re.match(r'\s*return new Dictionary<string, string>\s*\{', body)
+            require(initializer is not None, "Unsupported CommonDescriptions initializer")
+            block, end = braced_block(body, initializer.end() - 1)
+            require(re.fullmatch(r'\s*;\s*', body[end:]) is not None, "Unsupported CommonDescriptions tail")
+            values = {}
+            for item in split_top_level(block, ","):
+                if not item.strip():
+                    continue
+                entry = re.fullmatch(r'\s*\[\s*(' + CS_STRING + r')\s*\]\s*=\s*(.*?)\s*', item, re.S)
+                require(entry is not None, "Unsupported CommonDescriptions entry")
+                key = string_literal(entry.group(1))
+                require(key not in values, "Duplicate CommonDescriptions entry: " + key)
+                values[key] = description_value(entry.group(2), catalog, "CommonDescriptions." + key, audit)
+            methods[name] = values
+        else:
+            statements = [part.strip() for part in split_top_level(body, ";") if part.strip()]
+            require(len(statements) >= 2 and re.fullmatch(r'var d\s*=\s*CommonDescriptions\(\)', statements[0]) is not None
+                    and statements[-1] == "return d", "Unsupported English description method: " + name)
+            values = {}
+            for statement in statements[1:-1]:
+                entry = re.fullmatch(r'd\[\s*(' + CS_STRING + r')\s*\]\s*=\s*(.*?)', statement, re.S)
+                require(entry is not None, "Unsupported English description update: " + name)
+                key = string_literal(entry.group(1))
+                values[key] = description_value(entry.group(2), catalog, name + "Descriptions." + key, audit)
+            methods[name] = values
+    return methods
+
+
 def braced_block(source: str, opening: int) -> tuple[str, int]:
     """Return a balanced C# brace block while skipping strings/comments."""
     require(opening >= 0 and source[opening] == "{", "Expected C# opening brace")
     depth = 0
-    tokens = re.compile(CS_STRING + r'|//[^\n]*|/\*.*?\*/|[{}]', re.S)
-    for token in tokens.finditer(source, opening):
-        value = token.group(0)
-        if value == "{":
+    for index, char in enumerate(code_mask(source)[opening:], opening):
+        if char == "{":
             depth += 1
-        elif value == "}":
+        elif char == "}":
             depth -= 1
             if depth == 0:
-                return source[opening + 1:token.start()], token.end()
+                return source[opening + 1:index], index + 1
     raise ValueError("Unbalanced C# brace block")
 
 
-def dictionary_parameters(block: str, context: str) -> dict[str, str]:
-    pairs = PARAMETER.findall(block)
-    require(len(pairs) == block.count("new McpToolParameter"), f"Unsupported parameter declaration: {context}")
-    params = {key: string_literal(value) for key, value in pairs}
-    require(len(params) == len(pairs), f"Duplicate parameter declaration: {context}")
+def parameter_factory(mod: Path | None, context: str, key: str, expression: str,
+                      catalog: dict[str, str], audit: dict | None) -> str:
+    call = re.fullmatch(r"([A-Za-z_][A-Za-z_0-9.]*)\s*\(\s*\)", expression)
+    spec = PARAMETER_FACTORIES.get((context, key, call.group(1))) if call else None
+    require(mod is not None and spec is not None, "Unsupported parameter factory: " + context + "." + key)
+    path, method = spec
+    source = code_mask((mod / path).read_text(encoding="utf-8"), comments_only=True)
+    signature = re.search(r"internal static McpToolParameter " + re.escape(method) + r"\(\)\s*\{", source)
+    require(signature is not None, "Cannot locate parameter factory: " + context + "." + key)
+    body, _ = braced_block(source, signature.end() - 1)
+    initializer = re.match(r"\s*return new McpToolParameter\s*\{", body)
+    require(initializer is not None, "Unsupported parameter factory body: " + context + "." + key)
+    block, end = braced_block(body, initializer.end() - 1)
+    require(re.fullmatch(r"\s*;\s*", body[end:]) is not None, "Unsupported parameter factory tail: " + context + "." + key)
+    if audit is not None:
+        audit.setdefault("parameterFactories", []).append({"context": context, "parameter": key,
+            "call": call.group(1), "source": path, "method": method})
+    return description_value(object_description(block, context + "." + key), catalog,
+                             context + "." + key + ":" + method, audit)
+
+
+def dictionary_parameters(block: str, context: str, catalog: dict[str, str] | None = None,
+                          audit: dict | None = None, mod: Path | None = None) -> dict[str, str]:
+    catalog = {} if catalog is None else catalog
+    params = {}
+    indices = {}
+    parts = split_top_level(block, ",")
+    for index, item in enumerate(parts):
+        item = code_mask(item, comments_only=True).strip()
+        if not item:
+            require(index == len(parts) - 1, "Unsupported empty parameter entry: " + context)
+            continue
+        assignment = re.match(r'\[\s*(' + CS_STRING + r')\s*\]\s*=\s*', item)
+        require(assignment is not None, "Unsupported parameter declaration: " + context)
+        key = string_literal(assignment.group(1))
+        require(re.fullmatch(r'\w+', key) is not None, "Unsupported parameter name: " + context)
+        expression = item[assignment.end():]
+        header = re.match(r'new McpToolParameter\s*\{', expression)
+        if header:
+            body, end = braced_block(expression, header.end() - 1)
+            require(not expression[end:].strip(), "Unsupported parameter declaration tail: " + context)
+            value = description_value(object_description(body, context + "." + key), catalog, context + "." + key, audit)
+        else:
+            value = parameter_factory(mod, context, key, expression, catalog, audit)
+        if key in params:
+            record_shadow(audit, context, key, indices[key], index)
+        params[key] = value
+        indices[key] = index
     return params
 
 
-def wrapper_parameters(mod: Path, tool: str, wrapper: str) -> dict[str, str]:
+
+def wrapper_parameters(mod: Path, tool: str, wrapper: str, catalog: dict[str, str] | None = None,
+                       audit: dict | None = None) -> dict[str, str]:
     path = PARAMETER_WRAPPERS.get((tool, wrapper))
     require(path is not None, f"Unsupported parameter wrapper: {tool}:{wrapper}")
-    source = (mod / path).read_text(encoding="utf-8")
+    source = code_mask((mod / path).read_text(encoding="utf-8"), comments_only=True)
     signature = re.search(
         r'private static Dictionary<string, McpToolParameter> ' + re.escape(wrapper)
         + r'\(Dictionary<string, McpToolParameter> extra\)\s*\{', source
@@ -130,11 +384,14 @@ def wrapper_parameters(mod: Path, tool: str, wrapper: str) -> dict[str, str]:
         r'\s*;\s*foreach\s*\(var item in extra\)\s*'
         r'parameters\[item.Key\]\s*=\s*item.Value;\s*return parameters;\s*', body[end:]
     ) is not None, f"Unsupported parameter wrapper merge: {tool}:{wrapper}")
-    return dictionary_parameters(block, f"{tool}:{wrapper}")
+    return dictionary_parameters(block, f"{tool}:{wrapper}", catalog, audit, mod)
 
 
-def constructor_parameters(mod: Path, source: str, tool: str) -> dict[str, str]:
-    assignment = re.search(r'\bParameters\s*=\s*', source)
+def constructor_parameters(mod: Path, source: str, tool: str, catalog: dict[str, str] | None = None,
+                           audit: dict | None = None) -> dict[str, str]:
+    catalog = english_catalogs(mod) if catalog is None else catalog
+    source = code_mask(source, comments_only=True)
+    assignment = re.search(r'\bParameters\s*=\s*', code_mask(source))
     require(assignment is not None, f"Missing Parameters assignment: {tool}")
     expression = source[assignment.end():]
     helper = re.match(r'Params\(\)\s*,', expression)
@@ -146,19 +403,19 @@ def constructor_parameters(mod: Path, source: str, tool: str) -> dict[str, str]:
         require(initializer is not None, f"Unsupported Params helper: {tool}")
         block, end = braced_block(body, initializer.end() - 1)
         require(re.fullmatch(r'\s*;\s*', body[end:]) is not None, f"Unsupported Params helper tail: {tool}")
-        return dictionary_parameters(block, tool)
+        return dictionary_parameters(block, tool, catalog, audit, mod)
 
     wrapper = re.match(r'(\w+)\s*\(\s*', expression)
     shared = {}
     if wrapper:
-        shared = wrapper_parameters(mod, tool, wrapper.group(1))
+        shared = wrapper_parameters(mod, tool, wrapper.group(1), catalog, audit)
         expression = expression[wrapper.end():]
     initializer = re.match(r'new Dictionary<string, McpToolParameter>\s*\{', expression)
     require(initializer is not None, f"Unsupported Parameters expression: {tool}")
     block, end = braced_block(expression, initializer.end() - 1)
     tail = r'\s*\)\s*,\s*Handler\s*=' if wrapper else r'\s*,\s*Handler\s*='
     require(re.match(tail, expression[end:]) is not None, f"Unsupported Parameters expression tail: {tool}")
-    return shared | dictionary_parameters(block, tool)
+    return shared | dictionary_parameters(block, tool, catalog, audit, mod)
 
 
 def require_metadata_keys(effective: dict[str, str], catalog: dict[str, str]) -> None:
@@ -276,7 +533,9 @@ def self_test(root: Path) -> None:
     rejected(wrong_type, "Task property must have type string")
 
 
-def public_metadata(mod: Path) -> dict[str, str]:
+def public_metadata(mod: Path, catalog: dict[str, str] | None = None,
+                    audit: dict | None = None) -> dict[str, str]:
+    catalog = english_catalogs(mod) if catalog is None else catalog
     registry = (mod / "Tools/Core/OniToolRegistry.cs").read_text(encoding="utf-8")
     names = re.search(r'DefaultPublicToolNames\s*=.*?\{(.*?)\};', registry, re.S)
     require(names is not None, "Cannot locate DefaultPublicToolNames")
@@ -286,27 +545,19 @@ def public_metadata(mod: Path) -> dict[str, str]:
     coordinate_method = registry.split("internal static bool IsCoordinateParameter(", 1)[1].split("default:", 1)[0]
     coordinate_fields = set(re.findall(r'case "(\w+)":', coordinate_method))
     require(bool(coordinate_fields), "Could not extract coordinate parameter exclusions")
-    english = (mod / "Tools/Entry/CoreToolEnglishDescriptions.cs").read_text(encoding="utf-8")
-    overrides = {}
-    for name, body in re.findall(
-        r'private static Dictionary<string, string> (\w+)Descriptions\(\)\s*\{(.*?)\n        \}', english, re.S
-    ):
-        overrides[name] = {
-            key: string_literal(value)
-            for key, value in re.findall(r'(?:d)?\["(\w+)"\]\s*=\s*(' + CS_STRING + r')', body)
-        }
+    english = code_mask((mod / "Tools/Entry/CoreToolEnglishDescriptions.cs").read_text(encoding="utf-8"), comments_only=True)
+    overrides = english_overrides(english, catalog, audit)
 
     result = {}
     for tool, relative in TOOL_SOURCES.items():
         source = (mod / relative).read_text(encoding="utf-8")
-        description = re.search(r'Description\s*=\s*(' + CS_STRING + r')', source)
-        require(description is not None, f"Cannot extract description: {tool}")
-        description = string_literal(description.group(1))
-        params = constructor_parameters(mod, source, tool)
+        description = description_value(assigned_description(source, tool), catalog, tool + ".description", audit)
+        params = constructor_parameters(mod, source, tool, catalog, audit)
         if tool in OVERRIDE_METHODS:
-            match = re.search(r'case "' + tool + r'":\s*tool.Description\s*=\s*(' + CS_STRING + r')', english)
+            match = re.search(r'case "' + tool + r'":\s*tool.Description\s*=\s*', code_mask(english, comments_only=True))
             require(match is not None, f"Missing English override: {tool}")
-            description = string_literal(match.group(1))
+            description = description_value(leading_expression(english[match.end():], tool), catalog,
+                                            "CoreToolEnglishDescriptions." + tool, audit)
             effective = overrides["Common"] | overrides[OVERRIDE_METHODS[tool]]
             params = {key: effective.get(key, value) for key, value in params.items()}
         result[f"tools.{tool}.description"] = description
@@ -345,8 +596,19 @@ def verify(root: Path, tools_list: Path | None = None) -> str:
                     f"Placeholder mismatch: {stem}.{locale}:{key}"
                 )
 
-    effective = public_metadata(mod)
-    tools = groups["tools"]["en"]
+    merged = {locale: CatalogValues() for locale in LOCALES}
+    for stem, locales in groups.items():
+        for locale, entries in locales.items():
+            merge_catalog(merged[locale], entries, stem + "." + locale + ".json")
+    audit = {}
+    effective = public_metadata(mod, merged["en"], audit)
+    shadows = audit.get("indexedParameterShadows", [])
+    if shadows:
+        print("Localization indexed-parameter shadow audit: " + json.dumps(shadows, sort_keys=True), file=sys.stderr)
+    tools = public_catalog(merged["en"], audit)
+    excluded = audit.get("excludedNonpublicTools", [])
+    if excluded:
+        print("Localization known nonpublic catalog audit: " + json.dumps(excluded, sort_keys=True), file=sys.stderr)
     require_metadata_keys(effective, tools)
     if tools_list is not None:
         verify_tools_list(tools_list, tools)
@@ -365,7 +627,7 @@ def verify(root: Path, tools_list: Path | None = None) -> str:
         }
         for locale in LOCALES:
             for token in code_tokens:
-                require(token in groups["tools"][locale][key], f"Code token {token!r} missing: tools.{locale}:{key}")
+                require(token in merged[locale][key], f"Code token {token!r} missing: tools.{locale}:{key}")
 
     project = ET.parse(mod / "OniMcp.csproj").getroot()
     declarations = [item for item in project.iter() if item.tag.rsplit("}", 1)[-1] == "EmbeddedResource"]

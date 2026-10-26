@@ -61,3 +61,5 @@ ID・URI・座標・行順・単位・Prefab名・操作文法は変更しない
 検証: カタログ5群・15ファイルのキー整合、Config 15群（3言語テンプレート・辞書分離・HTMLエスケープを含む）、Tools 97件と関連回帰、ブラウザー相当のDOM代替試験3言語、実DLL参照Releaseビルド（警告0・エラー0）が成功。DOM試験では日本語のゲーム名・Oxygen IDを保持しながら、選択言語の案内・凡例・セル詳細・エラーを使用する。更新DLLを実ゲームへ配置し、実ブラウザー画面も確認済み（下記）。
 
 ブラウザー相当試験: `node scripts/verify_human_map_localization.cjs`。Node.js以外の依存はなく、ゲーム／ブラウザーの実画面を代替する確認ではない。
+
+公開ツールの説明・引数を変更したときは、[限定ソース検査の手順と境界](localization-source-verifier_JP.md)も参照してください。主CLIがcanonical coverageで拒否した場合、その呼出の後段にある保存済みtools/list・英語比較・埋込宣言の照合は未到達です。独立したinventory照合の成功を、全体検査の成功へ読み替えません。
