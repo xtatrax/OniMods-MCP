@@ -73,3 +73,6 @@ Existing same-definition, same-material LogicRibbon cells can now use the native
 
 
 Toilet diagnostic reads now use existing native state without invoking the lazy state-machine initializer. Missing or inconsistent cache values remain explicit null with reasons, and the native localized action name retains legacy query compatibility. This public build passed its own host, game-reference and paused runtime checks and restored the original environment with the game stopped. Cleaning execution and the full early-clean lifecycle remain outside this acceptance; see [the read contract and limits](docs/toilet-passive-read_JP.md). Private runtime records and development history are excluded.
+
+
+The generated storage operation example now uses the supported storage-list route and explicitly retains a maximum of three returned building rows in the operation result. The public source passed its own existing operation regressions, game-reference build and paused guide-to-preview-to-read comparison, with the original environment restored and game stopped. This does not add storage-scope behavior or bound total enumeration work; see [the guidance contract and limits](docs/storage-list-guidance_JP.md). Private runtime records and development history are excluded.

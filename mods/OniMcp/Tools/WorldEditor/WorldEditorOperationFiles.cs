@@ -476,7 +476,7 @@ namespace OniMcp.Tools
             else if (relative == "ops/facilities.md")
                 yield return "call tool=building_control domain=side_surface surface=facility kind=printing_pod action=list_rewards";
             else if (relative == "ops/storage.md")
-                yield return "call tool=building_control domain=side_surface surface=storage action=status";
+                yield return "call tool=building_control domain=storage action=list limit=3 detail=true";
             else if (relative == "ops/power.md")
                 yield return "call tool=read_control domain=infrastructure action=power_summary";
             else if (relative == "ops/automation.md")
