@@ -1698,3 +1698,24 @@ msgstr "無効な地図レイヤー"
 msgctxt "OniMcp.MCP.MAP_HTML.INVALID_LAYER.DESCRIPTION"
 msgid "Requested map layer must match a listed 32-cell layer within the active world bounds."
 msgstr "指定した地図レイヤーは、現在のワールド範囲内で一覧にある32セル単位のレイヤーと一致する必要があります。"
+
+#. Runtime JSON key: operation_files.mode_hint
+#. Runtime zh-Hans msgstr: "- 模式：编辑 `## Edit Commands` 下的命令行，然后提交 SEARCH/REPLACE。"
+#. Virtual operation-file help; keep parser headings and DSL tokens literal.
+msgctxt "OniMcp.MCP.OPERATION_FILES.MODE_HINT"
+msgid "- mode: edit lines under `## Edit Commands`, then submit SEARCH/REPLACE."
+msgstr "- モード: `## Edit Commands` の下にある行を編集し、SEARCH/REPLACE を送信してください。"
+
+#. Runtime JSON key: operation_files.edit_tip
+#. Runtime zh-Hans msgstr: "- 编辑提示：执行新命令时使用空的 SEARCH 块，或精确复制当前片段。"
+#. Virtual operation-file help; keep parser headings and DSL tokens literal.
+msgctxt "OniMcp.MCP.OPERATION_FILES.EDIT_TIP"
+msgid "- edit tip: use an empty SEARCH block to run fresh commands, or copy the current snippet exactly."
+msgstr "- 編集のヒント: 新しいコマンドを実行するには空の SEARCH ブロックを使うか、現在のスニペットを正確にコピーしてください。"
+
+#. Runtime JSON key: operation_files.syntax_hint
+#. Runtime zh-Hans msgstr: "- 语法：`call tool=<tool_name> key=value ...`；在已指定默认工具的操作文件中，`tool=` 可省略。"
+#. Virtual operation-file help; keep parser headings and DSL tokens literal.
+msgctxt "OniMcp.MCP.OPERATION_FILES.SYNTAX_HINT"
+msgid "- syntax: `call tool=<tool_name> key=value ...`; in typed files, `tool=` is optional."
+msgstr "- 構文: `call tool=<tool_name> key=value ...`。既定ツールが指定された操作ファイルでは `tool=` を省略できます。"

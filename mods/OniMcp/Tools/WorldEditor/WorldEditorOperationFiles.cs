@@ -60,11 +60,11 @@ namespace OniMcp.Tools
             AppendOperationSemanticCheatsheet(sb, relative);
             sb.AppendLine();
             sb.AppendLine("- path: `" + path + "`");
-            sb.AppendLine("- mode: edit lines under `## Edit Commands`, then submit SEARCH/REPLACE.");
+            sb.AppendLine(McpLocalization.Get("operation_files.mode_hint"));
             sb.AppendLine(McpLocalization.Get("operation_files.single_command_safety"));
-            sb.AppendLine("- edit tip: use an empty SEARCH block to run fresh commands, or copy the current snippet exactly.");
+            sb.AppendLine(McpLocalization.Get("operation_files.edit_tip"));
             sb.AppendLine(McpLocalization.Get("operation_files.result_contract"));
-            sb.AppendLine("- syntax: `call tool=<tool_name> key=value ...`; in typed files, `tool=` is optional.");
+            sb.AppendLine(McpLocalization.Get("operation_files.syntax_hint"));
             sb.AppendLine();
             sb.AppendLine("## Tool");
             if (string.IsNullOrEmpty(toolName))

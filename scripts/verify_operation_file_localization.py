@@ -12,6 +12,17 @@ import re
 KEY_PREFIX = "operation_files."
 CONTEXT_PREFIX = "OniMcp.MCP.OPERATION_FILES."
 PLACEHOLDERS = re.compile(r"(?<!\{)\{(\d+(?:,-?\d+)?(?::[^{}]+)?)\}(?!\})")
+EXPECTED_SUFFIXES = (
+    "result_contract", "single_command_error", "single_command_guidance", "single_command_safety",
+    "mode_hint", "edit_tip", "syntax_hint",
+)
+EXPECTED_KEYS = {KEY_PREFIX + suffix for suffix in EXPECTED_SUFFIXES}
+EXPECTED_CONTEXTS = {CONTEXT_PREFIX + suffix.upper() for suffix in EXPECTED_SUFFIXES}
+RESERVED_HELP_TOKENS = {
+    "mode_hint": {"## Edit Commands": 1, "SEARCH/REPLACE": 1},
+    "edit_tip": {"SEARCH": 1},
+    "syntax_hint": {"call tool=<tool_name> key=value ...": 1, "tool=": 2},
+}
 
 
 def require(value: bool, message: str) -> None:
@@ -80,14 +91,23 @@ def check(root: Path) -> int:
             if record["msgstr"] and context:
                 require(sorted(PLACEHOLDERS.findall(record["msgstr"])) ==
                         sorted(PLACEHOLDERS.findall(record["msgid"])), "PO placeholders differ: " + context)
+    for name, all_records in files.items():
+        records = {context: record for context, record in all_records.items()
+                   if context.startswith(CONTEXT_PREFIX)}
+        require(set(records) == EXPECTED_CONTEXTS, "Operation-file PO contexts differ: " + name)
+        if name != "onimcp.pot":
+            for context, record in records.items():
+                require(bool(record["msgstr"]), "Missing PO translation: " + name + "/" + context)
     catalogs = {language: json.loads((base / "Catalogs" / ("operation_files." + language + ".json"))
                                     .read_text(encoding="utf-8"), object_pairs_hook=unique_object)
                 for language in ("en", "ja", "zh-Hans")}
     source = "\n".join((root / "mods/OniMcp/Tools/WorldEditor" / name).read_text(encoding="utf-8")
                         for name in ("WorldEditorOperationFiles.cs",))
-    used = set(re.findall(r'McpLocalization.(?:Format|Get)\("(operation_files\.[^" ]+)"', source))
-    keys = {key for key in catalogs["en"] if key.startswith(KEY_PREFIX)}
-    require(used == keys and len(keys) == 1, "Runtime operation-file keys differ from the adapter")
+    used = set(re.findall(r'McpLocalization\.(?:Format|Get)\("(operation_files\.[^" ]+)"', source))
+    keys = EXPECTED_KEYS
+    require(used == keys, "Expected exactly seven operation-file keys in the adapter")
+    for language, catalog in catalogs.items():
+        require(set(catalog) == keys, "Operation-file runtime keys differ: " + language)
     for key in sorted(keys):
         context = CONTEXT_PREFIX + key.removeprefix(KEY_PREFIX).upper()
         require(context in template, "Missing PO source for " + key)
@@ -104,6 +124,22 @@ def check(root: Path) -> int:
             variants = [comment[len(marker):] for comment in records[context]["comments"] if comment.startswith(marker)]
             require(len(variants) == 1 and json.loads(variants[0]) == catalogs["zh-Hans"][key],
                     "Separate zh-Hans source/runtime mismatch: " + key + "/" + name)
+    # These Markdown hints contain parser syntax, not numeric format placeholders.
+    # Keep literal tokens in every runtime language and the provisional Hant source.
+    for suffix, tokens in RESERVED_HELP_TOKENS.items():
+        key = KEY_PREFIX + suffix
+        context = CONTEXT_PREFIX + suffix.upper()
+        require(source.count('sb.AppendLine(McpLocalization.Get("' + key + '"));') == 1,
+                "Help hint must resolve exactly once without inline prose: " + key)
+        texts = [catalog[key] for catalog in catalogs.values()]
+        texts += [template[context]["msgid"], files["zh-hant.po"][context]["msgstr"]]
+        for text in texts:
+            require(text.startswith("- ") and "\n" not in text and "\r" not in text,
+                    "Help hint must remain one Markdown list line: " + key)
+            require(all(text.count(token) == count for token, count in tokens.items()),
+                    "Reserved operation syntax differs: " + key)
+    require(source.count('sb.AppendLine("## Edit Commands");') == 1,
+            "The executable command heading must remain literal and unique")
     return len(keys)
 
 

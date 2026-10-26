@@ -98,6 +98,16 @@ internal static class OperationCommandLimitRegression
     private static void LocalizedRejectionAndGuideRemainAvailable()
     {
         var preferred = McpLocalization.LanguageProvider;
+        string[] helpKeys = { "operation_files.mode_hint", "operation_files.edit_tip", "operation_files.syntax_hint" };
+        string[] legacyEnglish =
+        {
+            "- mode: edit lines under `## Edit Commands`, then submit SEARCH/REPLACE.",
+            "- edit tip: use an empty SEARCH block to run fresh commands, or copy the current snippet exactly.",
+            "- syntax: `call tool=<tool_name> key=value ...`; in typed files, `tool=` is optional."
+        };
+        var selectedHints = new string[3][];
+        int languageIndex = 0;
+        string toolJson = null;
         try
         {
             foreach (string language in new[] { "en", "ja", "zh-Hans" })
@@ -106,14 +116,44 @@ internal static class OperationCommandLimitRegression
                 NativeBoundary.Reset("unused", false);
                 var response = WorldEditorTools.PreflightCommandLimitForTest(Parent(), Relative,
                     OneCommand + "\n" + OneCommand);
-                VerifyLimit(StructuredBody(response), 2);
+                var body = StructuredBody(response);
+                VerifyLimit(body, 2);
+                string error = body["error"].Value<string>();
+                Require(error == McpLocalization.Format("operation_files.single_command_error", null, 2, 1)
+                    && !error.Contains("{0}") && !error.Contains("{1}"),
+                    "Existing numeric refusal placeholders and argument order remain resolved.");
                 Require(NativeBoundary.Calls == 0, "Language selection must not dispatch a child operation.");
                 var read = WorldEditorTools.ReadOperationForTest(Relative);
                 string safety = McpLocalization.Get("operation_files.single_command_safety");
                 Require(!read.IsError && !string.IsNullOrWhiteSpace(safety)
                     && safety != "operation_files.single_command_safety" && read.Content[0].Text.Contains(safety),
                     "The actual operation reader must include the selected-language single-replacement safety contract.");
+                string text = read.Content[0].Text;
+                string[] lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                string[] hints = helpKeys.Select(key => McpLocalization.Get(key)).ToArray();
+                selectedHints[languageIndex++] = hints;
+                for (int index = 0; index < helpKeys.Length; index++)
+                    Require(!string.IsNullOrWhiteSpace(hints[index]) && hints[index] != helpKeys[index]
+                        && lines.Contains(hints[index]),
+                        "operation_help_localization_contract: actual reader uses selected hint " + helpKeys[index] + "/" + language);
+                if (language == "en")
+                    Require(hints.SequenceEqual(legacyEnglish), "English help lines retain their exact legacy prose and punctuation.");
+                string commands = "## Edit Commands" + Environment.NewLine + "```text" + Environment.NewLine
+                    + "# call domain=speed action=pause" + Environment.NewLine
+                    + "# 捕 x=101 y=130 priority=7 dryRun=true" + Environment.NewLine
+                    + "# 抓捕 小动物@(101,130):7 dryRun=true" + Environment.NewLine + "```" + Environment.NewLine;
+                Require(lines.Count(line => line == "## Edit Commands") == 1 && text.EndsWith(commands, StringComparison.Ordinal),
+                    "The reserved command heading, fence and commented DSL example remain exact.");
+                string[] jsonParts = text.Split(new[] { "```json" }, StringSplitOptions.None);
+                Require(jsonParts.Length == 2, "The actual reader retains one Tool JSON block.");
+                string metadata = jsonParts[1].Split(new[] { "```" }, StringSplitOptions.None)[0].Trim();
+                if (toolJson == null) toolJson = metadata;
+                else Require(metadata == toolJson, "Changing the three hints leaves the fixture Tool JSON unchanged.");
+                Require(NativeBoundary.Calls == 0, "Reading localized operation help must dispatch no native child.");
             }
+            for (int index = 0; index < helpKeys.Length; index++)
+                Require(selectedHints.Select(hints => hints[index]).Distinct().Count() == 3,
+                    "Every new help line retains three independently selected runtime translations.");
         }
         finally { McpLocalization.LanguageProvider = preferred; }
     }
