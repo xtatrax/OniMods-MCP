@@ -1,0 +1,11 @@
+# 座標操作ファイルのセル読取例
+
+`/active/ops/coordinate.md` の例1行を、必須targetToolのない未対応inspectから `call targetTool=read_control domain=world action=cell_info x=80 y=145 detail=true` へ揃えた。既存の正式coordinate gatewayがread_controlのcell_infoへ委譲する。新API・getter・座標forwarderは追加しない。コメント付き例を読んだだけでは実行せず、例の固定座標は対象に合わせて置換する。
+
+ここでのdetail=trueはops応答へ子の完全な結果を保持する指定。worldIdやincludeReachabilityを渡す場合はpayloadへ入れる。現在のgatewayはトップレベルのこの2引数を転送しない。cell_infoは指定worldとの一致を検査するが、不可視セルを拒否する窓口ではないので、今回の実機では先にvisibleOnly検索で同worldの可視セルを観測した。不可視ガードの追加・全座標の安全性をこの例修正へ含めない。
+
+開発版と公開版のそれぞれ自身の既存OperationResults回帰、本体参照0警告0エラーと配備DLLの停止実機を確認した。生成例の固定座標は構文予行だけに使い、実読取では観測済みセルへ座標を置換し、明示worldIdとincludeReachability=falseをpayloadへ加えて再度予行した。その条件のcell_info詳細が反復で一致し、別の1セル検索と元素・相・可視性・質量・温度・座標／worldが一致した。温度は元のfloat丸めとKelvin経由の丸めの差を許容範囲内で照合した。異なるworld指定は明示エラーとなった。元の6時計・報告カメラ・セーブと固有設定先／所有パッチを保持し、保存・進行・カメラ移動・地形／設備変更を要求せず通常終了した。元の導入物・設定・保護セーブ・他MOD／DLC・共有データ・既存画像と未起動状態へ復帰した。公開版固有の設定先・所有パッチID・重複なしも独立照合した。切替時のMOD不一致は観測した対象を通常OKへ一回委譲し、停止を保持した。
+
+実機受入はこの可視セルへの座標置換とworld payload付きの条件に限る。固定値をそのまま実読取した証拠、全オブジェクト・植生・インフラの不在や全native cacheの非生成を主張しない。植物の2getterと回路IDlookupは別の固定native版に対する静的な既存field／配列読取の根拠であり、実機内部の呼出計測ではない。MCP自身の設備形状索引の構築とは区別する。既存の他セル・外部Harmony・DLCや全読取窓口へ一般化しない。
+
+opsの編集ブロック数・実行コマンド数・旧カウンターとchanged=nullは、世界変更の完了件数ではない。新ホスト試験は追加せず、既存回帰・実案内の予行と限定実読取を根拠にする。DSL・本体名・IDの既存契約を保ち、新しい表示文やPOキーは追加しない。

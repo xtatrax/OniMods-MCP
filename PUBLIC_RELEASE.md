@@ -76,3 +76,6 @@ Toilet diagnostic reads now use existing native state without invoking the lazy 
 
 
 The generated storage operation example now uses the supported storage-list route and explicitly retains a maximum of three returned building rows in the operation result. The public source passed its own existing operation regressions, game-reference build and paused guide-to-preview-to-read comparison, with the original environment restored and game stopped. This does not add storage-scope behavior or bound total enumeration work; see [the guidance contract and limits](docs/storage-list-guidance_JP.md). Private runtime records and development history are excluded.
+
+
+The generated coordinate example now supplies the required target tool and supported cell-read action. The public source passed its own existing operation regressions and game-reference build. Paused native acceptance used observed visible-cell coordinate substitutions with an explicit world payload; scalar cross-checks, repeated detail and wrong-world refusal passed, and the original environment was restored with the game stopped. Synthetic example coordinates were preflight only. See [the contract and limits](docs/coordinate-cell-guidance_JP.md); private records, native source extracts and development history are excluded.

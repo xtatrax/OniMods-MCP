@@ -470,7 +470,7 @@ namespace OniMcp.Tools
             else if (relative == "ops/navigation.md")
                 yield return "call action=get_view";
             else if (relative == "ops/coordinate.md")
-                yield return "call action=inspect x=80 y=145";
+                yield return "call targetTool=read_control domain=world action=cell_info x=80 y=145 detail=true";
             else if (relative == "ops/server.md")
                 yield return "call domain=catalog action=manifest";
             else if (relative == "ops/facilities.md")

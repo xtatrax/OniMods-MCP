@@ -919,3 +919,10 @@ viewport/indexと高さ別layerのHTML生成に、既存Markdownと同じ読取g
 未対応だった `side_surface/storage/status` の生成例1行を、現行の `storage/list limit=3 detail=true` へ替えた。最大3設備の一覧を子結果へ保持し、opsの結果表示と個別在庫詳細を区別する。既存の収納scope・getter・フィルター設定処理は変更しない。
 
 公開側自身の既存OperationResults回帰と本体参照0W0E、自身の配備DLLで生成案内→予行→例の実行、別の直接一覧と反復の3設備一致を確認した。固有設定先・所有パッチID・6時計／報告カメラを照合し、MOD不一致の通常OKを1回確定した停止状態を保持。保存・進行・フィルター変更・在庫移送を要求せず、通常終了後に元導入物・設定・保護セーブ・他MOD／DLC・共有データ・既存画像と未起動状態へ復帰した。3は返却行数であり、探索量・タグ数・総バイト数の上限ではない。他の案内やnative UIの新たな受入へ広げず、個別保存先・ID・座標・生応答・私有補助と開発履歴は含めない。[案内契約と検証境界](storage-list-guidance_JP.md)を参照する。
+
+
+## 座標操作ファイルのセル読取例を現行経路へ揃える
+
+必須targetToolのないinspect例1行を、正式coordinate gatewayの `read_control world/cell_info` へ替え、ops結果の明示保持を加えた。新API・getter・forwarder変更はない。world指定をpayloadへ渡す現行契約と、cell_info自体が不可視セルを拒否しないことを文書で区別する。
+
+公開側自身の既存OperationResults回帰・本体参照0W0E、配備DLLと専用設定／所有IDで停止実機を確認した。固定座標の例は構文予行のみとし、観測済みの可視セルへ座標を置換しworld payloadを明示した予行／実読取で、独立したセル値検索・詳細反復・world不一致拒否を照合した。6時計と報告カメラ、通常OK後の停止を保持し、保存・進行・カメラ移動・地形／設備変更を要求せず通常終了した。元導入物・設定・保護セーブ・他MOD／DLC・共有データ・既存画像と未起動状態へ復帰した。固定座標の実行、全物体不在、全native cacheや全セルの受入へ一般化しない。[案内契約と検証境界](coordinate-cell-guidance_JP.md)を参照する。個別の保存先・対象ID・座標・生応答・native抽出断片・私有補助と開発履歴は含めない。
