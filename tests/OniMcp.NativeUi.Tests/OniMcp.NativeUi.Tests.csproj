@@ -6,6 +6,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ToiletReaderSource Condition="'$(ToiletReaderSource)' == ''">../../mods/OniMcp/Tools/Impl/Orders/MaintenanceToiletInfo.cs</ToiletReaderSource>
+    <DefineConstants Condition="'$(ToiletLegacyComparison)' == 'true'">$(DefineConstants);TOILET_LEGACY_COMPARISON</DefineConstants>
     <NativeBlueprintSource Condition="'$(NativeBlueprintSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeBlueprintInstantCompletion.cs</NativeBlueprintSource>
     <ExistingBlueprintSource Condition="'$(ExistingBlueprintSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingBlueprintCompletion.cs</ExistingBlueprintSource>
     <BlueprintObstructionsSource Condition="'$(BlueprintObstructionsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningObstructions.cs</BlueprintObstructionsSource>
@@ -22,6 +24,7 @@
     <NativeTileReplacementStateSource Condition="'$(NativeTileReplacementStateSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeTileReplacementState.cs</NativeTileReplacementStateSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(ToiletReaderSource)" Link="Source/MaintenanceToiletInfo.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativePlayerToggleUi.cs" Link="Source/NativePlayerToggleUi.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningExistingMaterialReader.cs" Link="Source/BuildPlanningExistingMaterialReader.cs" />

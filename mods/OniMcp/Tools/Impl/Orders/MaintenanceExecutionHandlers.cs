@@ -163,7 +163,7 @@ namespace OniMcp.Tools
 
             var toilet = go.GetComponent<Toilet>();
             if (toilet != null)
-                actions.Add(ActionInfo("clean_toilet", "Request early toilet cleaning", "maintenance", "Toilet", CanCleanToilet(toilet), ToiletInfo(toilet)));
+                actions.Add(ToiletActionInfo(toilet));
 
             var desalinator = go.GetComponent<Desalinator>();
             if (desalinator != null)

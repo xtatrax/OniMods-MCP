@@ -99,8 +99,7 @@ namespace OniMcp.Tools
 
         private static bool MatchesQuery(Dictionary<string, object> info, string query)
         {
-            return string.IsNullOrWhiteSpace(query)
-                   || JsonConvert.SerializeObject(info).IndexOf(query.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+            return MatchesMaintenanceQueryWithToiletAlias(info, query);
         }
 
         private static bool HasRectInput(JObject args)

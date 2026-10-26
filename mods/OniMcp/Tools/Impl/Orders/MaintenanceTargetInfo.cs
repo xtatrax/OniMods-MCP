@@ -21,27 +21,6 @@ namespace OniMcp.Tools
             };
         }
 
-        private static Dictionary<string, object> ToiletInfo(Toilet toilet)
-        {
-            var info = TargetInfo(toilet.gameObject);
-            info["flushesUsed"] = toilet.FlushesUsed;
-            info["maxFlushes"] = toilet.maxFlushes;
-            info["flushesRemaining"] = toilet.smi?.GetFlushesRemaining() ?? 0;
-            info["isSoiled"] = toilet.smi?.IsSoiled ?? false;
-            info["isCloggedWithGunk"] = toilet.smi?.IsCloggedWithGunk ?? false;
-            info["hasCleanChore"] = toilet.smi?.cleanChore != null;
-            info["canCleanEarly"] = CanCleanToilet(toilet);
-            return info;
-        }
-
-        private static bool CanCleanToilet(Toilet toilet)
-        {
-            return toilet?.smi != null
-                   && toilet.smi.GetCurrentState() != toilet.smi.sm.full
-                   && toilet.smi.IsSoiled
-                   && toilet.smi.cleanChore == null;
-        }
-
         private static Dictionary<string, object> DesalinatorInfo(Desalinator desalinator)
         {
             var info = TargetInfo(desalinator.gameObject);
