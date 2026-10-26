@@ -17,5 +17,9 @@
   "map_html.legend.algae": "Algae",
   "map_html.legend.granite_rock": "Granite / Rock",
   "map_html.legend.oxygen_gas": "Oxygen Gas",
-  "map_html.legend.carbon_dioxide": "Carbon Dioxide"
+  "map_html.legend.carbon_dioxide": "Carbon Dioxide",
+  "map_html.tooltip.cell": "Cell",
+  "map_html.tooltip.element": "Element",
+  "map_html.tooltip.temperature": "Temp",
+  "map_html.tooltip.building": "Building"
 }

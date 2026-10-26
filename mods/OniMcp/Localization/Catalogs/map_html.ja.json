@@ -17,5 +17,9 @@
   "map_html.legend.algae": "緑藻",
   "map_html.legend.granite_rock": "花崗岩 / 岩石",
   "map_html.legend.oxygen_gas": "酸素ガス",
-  "map_html.legend.carbon_dioxide": "二酸化炭素"
+  "map_html.legend.carbon_dioxide": "二酸化炭素",
+  "map_html.tooltip.cell": "セル",
+  "map_html.tooltip.element": "元素",
+  "map_html.tooltip.temperature": "温度",
+  "map_html.tooltip.building": "設備"
 }

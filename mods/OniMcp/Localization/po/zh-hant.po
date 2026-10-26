@@ -1731,3 +1731,35 @@ msgstr "選定時段已是請求的群組，無需原生修改。"
 msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.APPLIED"
 msgid "Observed the requested block group after one native Schedule.SetBlockGroup call."
 msgstr "呼叫一次原生Schedule.SetBlockGroup後，已觀測到請求的時段群組。"
+
+#. Runtime JSON key: map_html.tooltip.cell
+#. Runtime zh-Hans msgstr: "格子"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.CELL"
+msgid "Cell"
+msgstr "格子"
+
+#. Runtime JSON key: map_html.tooltip.element
+#. Runtime zh-Hans msgstr: "元素"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.ELEMENT"
+msgid "Element"
+msgstr "元素"
+
+#. Runtime JSON key: map_html.tooltip.temperature
+#. Runtime zh-Hans msgstr: "温度"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.TEMPERATURE"
+msgid "Temp"
+msgstr "溫度"
+
+#. Runtime JSON key: map_html.tooltip.building
+#. Runtime zh-Hans msgstr: "建筑"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.BUILDING"
+msgid "Building"
+msgstr "建築"

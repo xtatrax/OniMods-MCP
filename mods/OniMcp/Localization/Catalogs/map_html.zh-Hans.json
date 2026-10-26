@@ -17,5 +17,9 @@
   "map_html.legend.algae": "藻类",
   "map_html.legend.granite_rock": "花岗岩 / 岩石",
   "map_html.legend.oxygen_gas": "氧气",
-  "map_html.legend.carbon_dioxide": "二氧化碳"
+  "map_html.legend.carbon_dioxide": "二氧化碳",
+  "map_html.tooltip.cell": "格子",
+  "map_html.tooltip.element": "元素",
+  "map_html.tooltip.temperature": "温度",
+  "map_html.tooltip.building": "建筑"
 }

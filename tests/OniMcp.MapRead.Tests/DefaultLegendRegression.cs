@@ -94,7 +94,8 @@ namespace OniMcp.Tools
                             + ";\"></div>" + WebUtility.HtmlEncode(expectedLabels[i]) + "</div>"));
                         Check(page.Legend == expectedLegend, "default legend exact HTML/color/order/text " + language + " " + path);
                         if (!originalCells.ContainsKey(path)) originalCells[path] = html;
-                        Check(html == originalCells[path], "MCP legend locale preserves exact native cells " + path);
+                        Check(NormalizeOwnedLegacyTooltipLabels(html, language) == originalCells[path],
+                            "MCP legend locale preserves native cells outside four owned tooltip labels " + path);
                         Check(LegacyHtmlBoundary.Colors.Count == 1 && LegacyHtmlBoundary.Colors[0]
                             == (cell, nativeElement, (GameObject)null, OverlayModes.None.ID, 295.525f, ""), "legend locale preserves native color arguments");
                         Check(!page.Legend.Contains("map_html.") && page.Width == 1, "default legend has no unresolved key or grid change");
@@ -111,7 +112,7 @@ namespace OniMcp.Tools
                     Grid.Visible[cell] = true; LegacyHtmlBoundary.Poison = false; LegacyHtmlBoundary.Clear();
                     string html = ReadFileDirectly(path); var page = LegacyHtmlBoundary.Pages.Single();
                     string digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(page.Legend))).ToLowerInvariant();
-                    Check(digest == (path.Contains("/layers/") ? entry.Value.Layer : entry.Value.Viewport) && html == originalCells[path],
+                    Check(digest == (path.Contains("/layers/") ? entry.Value.Layer : entry.Value.Viewport) && NormalizeOwnedLegacyTooltipLabels(html, language) == originalCells[path],
                         "other overlay retains exact pre-change legend and cells " + entry.Key + " " + language + " " + path);
                 }
                 Check(CameraController.Instance.Moves == moves && OverlayScreen.Instance.Changes == changes

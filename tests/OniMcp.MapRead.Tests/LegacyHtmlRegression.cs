@@ -217,8 +217,9 @@ namespace OniMcp.Tools
                         Check(!page.Title.Contains("map_html.") && !page.Title.Contains("{0}") && !page.Description.Contains("map_html."), "no unresolved key or placeholder");
                         Check(page.BackUrl == (layer ? "/active/map/layers/" : "/active/map/") && page.Width == 1, "route and grid width stay fixed");
                         initialCells ??= html; initialLegend ??= page.Legend;
-                        Check(html == initialCells && RemoveDefaultLegendLabelText(page.Legend) == RemoveDefaultLegendLabelText(initialLegend),
-                            "changing page prose preserves native cells and exact legend markup outside its ten label spans");
+                        Check(NormalizeOwnedLegacyTooltipLabels(html, language) == initialCells
+                            && RemoveDefaultLegendLabelText(page.Legend) == RemoveDefaultLegendLabelText(initialLegend),
+                            "changing page prose preserves native cells outside four owned tooltip labels and exact legend markup outside its ten label spans");
                         Grid.Visible[cell] = false; LegacyHtmlBoundary.Clear(); LegacyHtmlBoundary.Poison = true;
                         string hidden = ReadFileDirectly(path);
                         Check(hidden.Contains("data-state=\"unknown\"") && !hidden.Contains("Element:")

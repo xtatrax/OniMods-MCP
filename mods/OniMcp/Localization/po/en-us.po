@@ -1656,3 +1656,31 @@ msgstr "The selected block already has the requested group; no native change was
 msgctxt "OniMcp.MCP.SCHEDULE_TIMETABLES.APPLIED"
 msgid "Observed the requested block group after one native Schedule.SetBlockGroup call."
 msgstr "Observed the requested block group after one native Schedule.SetBlockGroup call."
+
+#. Runtime JSON key: map_html.tooltip.cell
+#. Runtime zh-Hans msgstr: "格子"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.CELL"
+msgid "Cell"
+msgstr "Cell"
+
+#. Runtime JSON key: map_html.tooltip.element
+#. Runtime zh-Hans msgstr: "元素"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.ELEMENT"
+msgid "Element"
+msgstr "Element"
+
+#. Runtime JSON key: map_html.tooltip.temperature
+#. Runtime zh-Hans msgstr: "温度"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.TEMPERATURE"
+msgid "Temp"
+msgstr "Temp"
+
+#. Runtime JSON key: map_html.tooltip.building
+#. Runtime zh-Hans msgstr: "建筑"
+#. Cell tooltip label only; separators, values, units and numeric formatting remain in the Reader.
+msgctxt "OniMcp.MCP.MAP_HTML.TOOLTIP.BUILDING"
+msgid "Building"
+msgstr "Building"

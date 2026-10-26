@@ -34,6 +34,11 @@ namespace OniMcp.Tools
 
                     int width = xMax - xMin + 1;
 
+                    string cellLabel = McpLocalization.Get("map_html.tooltip.cell");
+                    string elementLabel = McpLocalization.Get("map_html.tooltip.element");
+                    string temperatureLabel = McpLocalization.Get("map_html.tooltip.temperature");
+                    string buildingLabel = McpLocalization.Get("map_html.tooltip.building");
+
                     var sbCells = new StringBuilder();
                     for (int y = yMax; y >= yMin; y--)
                     {
@@ -69,10 +74,10 @@ namespace OniMcp.Tools
                                 color = GetHtmlCellColor(cell, elem, go, activeMode, temp, bldName);
                             }
 
-                            string tooltip = $"Cell: {cell} ({x}, {y})\nElement: {elemName}\nTemp: {temp - 273.15f:F1}°C";
+                            string tooltip = $"{cellLabel}: {cell} ({x}, {y})\n{elementLabel}: {elemName}\n{temperatureLabel}: {temp - 273.15f:F1}°C";
                             if (!string.IsNullOrEmpty(bldName))
                             {
-                                tooltip += $"\nBuilding: {bldName}";
+                                tooltip += $"\n{buildingLabel}: {bldName}";
                             }
 
                             sbCells.AppendFormat("<div class=\"cell\" style=\"background:{0};\" title=\"{1}\"></div>", color, WebUtility.HtmlEncode(tooltip));
@@ -208,6 +213,11 @@ namespace OniMcp.Tools
                             int yMax = world.WorldOffset.y + relYMax;
                             int width = world.WorldSize.x;
 
+                            string cellLabel = McpLocalization.Get("map_html.tooltip.cell");
+                            string elementLabel = McpLocalization.Get("map_html.tooltip.element");
+                            string temperatureLabel = McpLocalization.Get("map_html.tooltip.temperature");
+                            string buildingLabel = McpLocalization.Get("map_html.tooltip.building");
+
                             var sbCells = new StringBuilder();
                             for (int y = yMax; y >= yMin; y--)
                             {
@@ -243,10 +253,10 @@ namespace OniMcp.Tools
                                         color = GetHtmlCellColor(cell, elem, go, activeMode, temp, bldName);
                                     }
 
-                                    string tooltip = $"Cell: {cell} ({x}, {y})\nElement: {elemName}\nTemp: {temp - 273.15f:F1}°C";
+                                    string tooltip = $"{cellLabel}: {cell} ({x}, {y})\n{elementLabel}: {elemName}\n{temperatureLabel}: {temp - 273.15f:F1}°C";
                                     if (!string.IsNullOrEmpty(bldName))
                                     {
-                                        tooltip += $"\nBuilding: {bldName}";
+                                        tooltip += $"\n{buildingLabel}: {bldName}";
                                     }
 
                                     sbCells.AppendFormat("<div class=\"cell\" style=\"background:{0};\" title=\"{1}\"></div>", color, WebUtility.HtmlEncode(tooltip));

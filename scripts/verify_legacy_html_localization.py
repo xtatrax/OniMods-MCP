@@ -11,7 +11,8 @@ import re
 
 KEYS = ("unreadable", "viewport_title", "viewport_back", "viewport_description",
         "layer_title", "layer_back", "layer_description", "show_raw", "show_map",
-        "legend.vacuum_space", "legend.building", "legend.dirt", "legend.sandstone", "legend.water", "legend.polluted_water", "legend.algae", "legend.granite_rock", "legend.oxygen_gas", "legend.carbon_dioxide")
+        "legend.vacuum_space", "legend.building", "legend.dirt", "legend.sandstone", "legend.water", "legend.polluted_water", "legend.algae", "legend.granite_rock", "legend.oxygen_gas", "legend.carbon_dioxide",
+        "tooltip.cell", "tooltip.element", "tooltip.temperature", "tooltip.building")
 
 
 def check(root: Path) -> dict:
@@ -65,6 +66,11 @@ def check(root: Path) -> dict:
         elif key.startswith("legend."):
             require(source.count('WebUtility.HtmlEncode(McpLocalization.Get("' + runtime + '"))') == 2,
                     "Default legend must resolve twice without inline fallback and HTML encode: " + runtime)
+        elif key.startswith("tooltip."):
+            require(source.count('McpLocalization.Get("' + runtime + '")') == 2,
+                    "Tooltip labels must resolve in both Reader branches without inline fallback: " + runtime)
+            require(source.count("WebUtility.HtmlEncode(tooltip)") == 2,
+                    "The complete tooltip must retain HTML encoding in both Reader branches")
         elif key in ("show_raw", "show_map"):
             require(shell_source.count('System.Security.SecurityElement.Escape(OniMcp.Support.McpLocalization.Get("' + runtime + '"))') == 1,
                     "Button label must resolve without inline fallback and HTML encode: " + runtime)
