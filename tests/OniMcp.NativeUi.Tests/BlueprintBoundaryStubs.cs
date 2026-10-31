@@ -53,7 +53,7 @@ internal sealed class ConduitBridgeBase : Component {public bool isSpawned;}
 internal class UtilityNetworkLink : Component {public bool isSpawned,visualizeOnly; public void GetCells(int cell,Orientation o,out int a,out int b){a=cell;b=cell+1;}}
 internal sealed class LogicUtilityNetworkLink : UtilityNetworkLink {}
 internal enum Orientation { Neutral, R90, R180, R270, FlipH, FlipV, NumRotations }
-internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, LiquidConduitConnection, NumLayers=16 }
+internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, LiquidConduitConnection, LadderTile, NumLayers=16 }
 internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge, Tile, Anywhere, OnFloor }
 internal sealed partial class BuildingDef
 {

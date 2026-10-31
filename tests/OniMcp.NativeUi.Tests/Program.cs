@@ -18,6 +18,7 @@ internal static class Program
         if (args.Length == 1 && args[0] == "--placement-guidance-only") { PlacementGuidanceRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--liquid-foreground-only") { LiquidBridgeForegroundRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--liquid-foreground-positive-only") { LiquidBridgeForegroundRegression.PositiveOnly(); return; }
+        if (args.Length == 1 && args[0] == "--liquid-ladder-positive-only") { LiquidBridgeForegroundRegression.LadderPositiveOnly(); return; }
         if (args.Length == 1 && args[0] == "--tile-only") { TileReplacementRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--preview-id-only") { PreviewIdRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--background-wall-only") { BackgroundWallRegression.Run(); return; }

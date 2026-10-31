@@ -217,7 +217,8 @@ namespace OniMcp.Tools
         }
 
         // A native-confirmed standard liquid bridge uses its connection layer;
-        // only completed, known ordinary foreground may share its visible cells.
+        // only completed, known ordinary foreground or a canonical ladder may
+        // share its visible cells.
         private static bool CanLiquidBridgeShareCompletedForeground(BuildingDef requested, PlacementDetails placement, GameObject foreground)
         {
             if (requested == null || placement == null || foreground == null
@@ -250,9 +251,19 @@ namespace OniMcp.Tools
                 return false;
             var def = foreground.GetComponent<Building>()?.Def;
             var complete = foreground.GetComponent<BuildingComplete>();
+            bool nativeLadder = def != null && def.PrefabID == "Ladder"
+                && def.ObjectLayer == ObjectLayer.Building && def.TileLayer == ObjectLayer.LadderTile
+                && def.ReplacementLayer == ObjectLayer.ReplacementLadder && def.IsTilePiece && def.DragBuild
+                && def.BuildLocationRule == BuildLocationRule.Anywhere
+                && def.PermittedRotations == PermittedRotations.Unrotatable
+                && def.WidthInCells == 1 && def.HeightInCells == 1
+                && def.PlacementOffsets != null && def.PlacementOffsets.Length == 1
+                && def.PlacementOffsets[0].x == 0 && def.PlacementOffsets[0].y == 0;
             if (def == null || string.IsNullOrWhiteSpace(def.PrefabID) || def.PrefabID == requested.PrefabID
-                || def.ObjectLayer != ObjectLayer.Building || def.TileLayer != ObjectLayer.NumLayers
-                || def.ReplacementLayer != ObjectLayer.NumLayers || def.IsTilePiece || def.BuildingComplete == null
+                || def.ObjectLayer != ObjectLayer.Building
+                || (!nativeLadder && (def.TileLayer != ObjectLayer.NumLayers
+                    || def.ReplacementLayer != ObjectLayer.NumLayers || def.IsTilePiece))
+                || def.BuildingComplete == null
                 || UsesNativeBridgeEndpointRegistration(def) || complete == null || !ReferenceEquals(complete.Def, def)
                 || foreground.GetComponent<Constructable>() != null || !ToolUtil.GameObjectMatchesWorld(foreground, placement.WorldId)
                 || !placement.Footprint.Any(cell => ReferenceEquals(Grid.Objects[cell.Cell, (int)ObjectLayer.Building], foreground)))
@@ -260,7 +271,9 @@ namespace OniMcp.Tools
             var shape = NativeBuildingCellIndex.Geometry(foreground);
             return shape.Available && shape.Origin != null && shape.Origin.Cell.HasValue && shape.Cells != null
                 && shape.Cells.Count > 0 && shape.Cells.All(cell => cell.Cell.HasValue && Grid.IsValidCell(cell.Cell.Value))
-                && shape.Cells.Any(cell => placement.Footprint.Any(target => target.Cell == cell.Cell.Value));
+                && shape.Cells.Any(cell => placement.Footprint.Any(target => target.Cell == cell.Cell.Value))
+                && (!nativeLadder || (shape.Cells.Count == 1 && shape.Cells[0].Cell == shape.Origin.Cell
+                    && ReferenceEquals(Grid.Objects[shape.Origin.Cell.Value, (int)ObjectLayer.LadderTile], foreground)));
         }
 
         private static List<Dictionary<string, object>> FindBuildingLayerConflicts(BuildingDef def, PlacementDetails placement)
