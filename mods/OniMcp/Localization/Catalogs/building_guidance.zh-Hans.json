@@ -1,0 +1,6 @@
+{
+  "building_guidance.anchor_source": "所选建筑锚点是在刚读取的视口地图中，建筑占用范围左下角的标记。它与游戏的基准格不同。",
+  "building_guidance.orientation": "预演参数保留所报告的方向。在外层 world_editor edit 中指定方向；它适用于补丁中的所有建筑。通用定义模板使用 Neutral。请先查看建筑允许的旋转。",
+  "building_guidance.coordinate_contract": "anchor 是地图补丁使用的左下坐标，nativeOrigin 是游戏的基准格。替换标记使用 anchor；旋转后两者可能不同。坐标只提供上下文，不是独立的编辑参数。",
+  "building_guidance.orientation_unavailable": "方向未取得或无效，因此不提供预演模板。请读取形状并确认允许的方向，然后再准备新的地图补丁。"
+}

@@ -196,7 +196,10 @@ namespace OniMcp.Tools
                         y = Math.Round(PlacementPoint.y, 3),
                         z = Math.Round(PlacementPoint.z, 3)
                     },
-                    ["operationGuide"] = BuildingOperationGuidance.MapPlacement(PrefabId),
+                    ["operationGuide"] = BuildingOperationGuidance.MapPlacement(PrefabId, Orientation,
+                        AnchorX, AnchorY, WorldId, GeometryAvailable ? (int?)OriginX : null,
+                        GeometryAvailable ? (int?)OriginY : null, GeometryAvailable ? (int?)OriginCell : null,
+                        GeometryAvailable),
                     ["guidance"] = BuildingOperationGuidance.Placement
                 };
             }

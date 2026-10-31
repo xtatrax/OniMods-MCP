@@ -1,0 +1,6 @@
+{
+  "building_guidance.anchor_source": "The chosen building anchor is the occupied bounds lower-left cell token in the freshly read viewport map; it is not the native reference cell.",
+  "building_guidance.orientation": "The preview arguments retain the reported orientation. Set orientation on the outer world_editor edit; it applies to every build in the patch. Generic definition templates use Neutral. Check the building's permitted rotations first.",
+  "building_guidance.coordinate_contract": "anchor is the map-patch lower-left coordinate; nativeOrigin is ONI's reference cell. Use anchor for the replacement token; the two may differ after rotation. Coordinates are context only, not standalone edit arguments.",
+  "building_guidance.orientation_unavailable": "Orientation is unavailable or invalid; no preview template is provided. Read geometry and choose a permitted orientation before preparing a new map patch."
+}

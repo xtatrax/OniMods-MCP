@@ -52,7 +52,7 @@ internal sealed class LogicGate : Component {public int InputCellOne,InputCellTw
 internal sealed class ConduitBridgeBase : Component {public bool isSpawned;}
 internal class UtilityNetworkLink : Component {public bool isSpawned,visualizeOnly; public void GetCells(int cell,Orientation o,out int a,out int b){a=cell;b=cell+1;}}
 internal sealed class LogicUtilityNetworkLink : UtilityNetworkLink {}
-internal enum Orientation { Neutral, R90, R180, R270 }
+internal enum Orientation { Neutral, R90, R180, R270, FlipH, FlipV, NumRotations }
 internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, LiquidConduitConnection, NumLayers=16 }
 internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge, Tile, Anywhere, OnFloor }
 internal sealed partial class BuildingDef
@@ -191,22 +191,6 @@ namespace OniMcp.Tools
     internal static class NativeBuildingFootprint { internal const string NativeSource="fixture_native_geometry";internal static FixtureGeometry Instance(GameObject go,BuildingDef def){return NativeBuildingCellIndex.Geometry(go);} }
     public static partial class BuildPlanningTools
     {
-        private sealed class PlacementDetails
-        {
-            public string PrefabId,GeometryError;
-            public int AnchorX,AnchorY,OriginX,OriginY,OriginCell,WorldId;
-            public Orientation Orientation;
-            public bool GeometryAvailable=true;
-            public bool FillsBounds;
-            public List<FootprintCell> Footprint=new List<FootprintCell>();
-            public Dictionary<string,object> ToDictionary(){return new Dictionary<string,object>{["anchorX"]=AnchorX,["anchorY"]=AnchorY,["worldId"]=WorldId,["orientation"]=Orientation.ToString()};}
-        }
-        private sealed class FootprintCell
-        {
-            public int Cell,X,Y,WorldId;
-            public bool Valid=true,Visible=true,InWorld=true;
-            public Dictionary<string,object> ToDictionary(){return new Dictionary<string,object>{["cell"]=Cell,["x"]=X,["y"]=Y};}
-        }
         private sealed class FootprintValidation
         {
             public bool Valid;
@@ -239,7 +223,8 @@ namespace OniMcp.Tools
         {object raw;return value!=null&&value.TryGetValue(key,out raw)&&raw is bool&&(bool)raw;}
         private static PlacementDetails BuildPlacementDetails(BuildingDef def,int x,int y,int world,Orientation orientation=Orientation.Neutral)
         {return new PlacementDetails{PrefabId=def.PrefabID,AnchorX=x,AnchorY=y,OriginX=x,OriginY=y,OriginCell=Grid.XYToCell(x,y),WorldId=world,Orientation=orientation,
-            Footprint=new List<FootprintCell>{new FootprintCell{Cell=Grid.XYToCell(x,y),X=x,Y=y,WorldId=world}}};}
+            GeometryAvailable=true,Width=1,Height=1,FillsBounds=true,PlacementPoint=Grid.CellToPosCBC(Grid.XYToCell(x,y),def.SceneLayer),
+            Footprint=new List<FootprintCell>{new FootprintCell{Cell=Grid.XYToCell(x,y),X=x,Y=y,WorldId=world,Valid=true,Visible=true,InWorld=true}}};}
         private static Dictionary<string,object> ErrorResult(string id,int x,int y,string error,Dictionary<string,object> details=null)
         {return new Dictionary<string,object>{["valid"]=false,["error"]=error,["details"]=details};}
         private static Dictionary<string,object> AnchorDictionary(int x,int y,int world)

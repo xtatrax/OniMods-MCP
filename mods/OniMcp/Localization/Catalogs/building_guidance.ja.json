@@ -1,0 +1,6 @@
+{
+  "building_guidance.anchor_source": "選んだ建築アンカーは、新しく読んだビューポート地図で占有範囲の左下に置くトークンです。本体の基準セルとは区別してください。",
+  "building_guidance.orientation": "予行の引数には報告された向きを保持します。向きは外側の world_editor edit に指定し、パッチ内のすべての建築へ適用されます。定義だけの汎用テンプレートは Neutral を使います。先に設備で許可される回転を確認してください。",
+  "building_guidance.coordinate_contract": "anchor は地図パッチの左下座標、nativeOrigin は本体の基準セルです。置換トークンには anchor を使ってください。回転後は両者が異なることがあります。座標は参照用であり、単独の編集引数ではありません。",
+  "building_guidance.orientation_unavailable": "向きが未取得または不正なため、予行テンプレートを返しません。形状を読み、許可される向きを確認してから新しい地図パッチを準備してください。"
+}

@@ -6,6 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PlacementModelsSource Condition="'$(PlacementModelsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningTools.cs</PlacementModelsSource>
     <ToiletReaderSource Condition="'$(ToiletReaderSource)' == ''">../../mods/OniMcp/Tools/Impl/Orders/MaintenanceToiletInfo.cs</ToiletReaderSource>
     <DefineConstants Condition="'$(ToiletLegacyComparison)' == 'true'">$(DefineConstants);TOILET_LEGACY_COMPARISON</DefineConstants>
     <NativeBlueprintSource Condition="'$(NativeBlueprintSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeBlueprintInstantCompletion.cs</NativeBlueprintSource>
@@ -24,6 +25,7 @@
     <NativeTileReplacementStateSource Condition="'$(NativeTileReplacementStateSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeTileReplacementState.cs</NativeTileReplacementStateSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingOperationGuidance.cs" Link="Source/BuildingOperationGuidance.cs" />
     <Compile Include="$(ToiletReaderSource)" Link="Source/MaintenanceToiletInfo.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativePlayerToggleUi.cs" Link="Source/NativePlayerToggleUi.cs" />
@@ -45,7 +47,7 @@
   </ItemGroup>
   <Target Name="GenerateBlueprintSafetySource" BeforeTargets="BeforeCompile">
     <PropertyGroup><BlueprintGeneratedSource>$(IntermediateOutputPath)BlueprintSafety.g.cs</BlueprintGeneratedSource></PropertyGroup>
-    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot; --anchors &quot;$(PreviewAnchorsSource)&quot; --placement &quot;$(PreviewPlacementSource)&quot;" />
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot; --anchors &quot;$(PreviewAnchorsSource)&quot; --placement &quot;$(PreviewPlacementSource)&quot; --models &quot;$(PlacementModelsSource)&quot;" />
     <ItemGroup><Compile Include="$(BlueprintGeneratedSource)" /></ItemGroup>
   </Target>
 </Project>

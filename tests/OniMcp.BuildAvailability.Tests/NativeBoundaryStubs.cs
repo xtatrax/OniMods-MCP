@@ -30,7 +30,7 @@ public struct Tag : IEquatable<Tag>
     public static bool operator !=(Tag a, object b) { return !(a == b); }
     public override string ToString() { return Name; }
 }
-public enum Orientation { Neutral, R90, R180, R270 }
+public enum Orientation { Neutral, R90, R180, R270, FlipH, FlipV, NumRotations }
 public enum BuildLocationRule { Anywhere }
 public class BuildingDef
 {

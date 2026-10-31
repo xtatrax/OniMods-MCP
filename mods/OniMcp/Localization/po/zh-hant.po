@@ -1923,3 +1923,31 @@ msgstr "食物可用性正在初始化，已確認熱量只是下限。請在暫
 msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.UNAVAILABLE"
 msgid "Food availability is incomplete; known food is not a survival reserve. Inspect /active/resources/food.oni with the matching world scope for access evidence."
 msgstr "部分食物的可用性尚未判定。不要將已知食物視為生存儲備；請以相同世界範圍查看/active/resources/food.oni的依據。"
+
+#. Runtime key: building_guidance.anchor_source
+#. Runtime zh-Hans msgstr: "所选建筑锚点是在刚读取的视口地图中，建筑占用范围左下角的标记。它与游戏的基准格不同。"
+#. Provisional Traditional Chinese sample; existing zh-Hans runtime is preserved separately.
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ANCHOR_SOURCE"
+msgid "The chosen building anchor is the occupied bounds lower-left cell token in the freshly read viewport map; it is not the native reference cell."
+msgstr "所選建築錨點是在剛讀取的視口地圖中，建築佔用範圍左下角的標記。它與遊戲的基準格不同。"
+
+#. Runtime key: building_guidance.orientation
+#. Runtime zh-Hans msgstr: "预演参数保留所报告的方向。在外层 world_editor edit 中指定方向；它适用于补丁中的所有建筑。通用定义模板使用 Neutral。请先查看建筑允许的旋转。"
+#. Provisional Traditional Chinese sample; existing zh-Hans runtime is preserved separately.
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ORIENTATION"
+msgid "The preview arguments retain the reported orientation. Set orientation on the outer world_editor edit; it applies to every build in the patch. Generic definition templates use Neutral. Check the building's permitted rotations first."
+msgstr "預演參數保留所報告的方向。在外層 world_editor edit 中指定方向；它適用於補丁中的所有建築。通用定義範本使用 Neutral。請先查看建築允許的旋轉。"
+
+#. Runtime key: building_guidance.coordinate_contract
+#. Runtime zh-Hans msgstr: "anchor 是地图补丁使用的左下坐标，nativeOrigin 是游戏的基准格。替换标记使用 anchor；旋转后两者可能不同。坐标只提供上下文，不是独立的编辑参数。"
+#. Provisional Traditional Chinese sample; existing zh-Hans runtime is preserved separately.
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.COORDINATE_CONTRACT"
+msgid "anchor is the map-patch lower-left coordinate; nativeOrigin is ONI's reference cell. Use anchor for the replacement token; the two may differ after rotation. Coordinates are context only, not standalone edit arguments."
+msgstr "anchor 是地圖補丁使用的左下座標，nativeOrigin 是遊戲的基準格。替換標記使用 anchor；旋轉後兩者可能不同。座標只提供上下文，不是獨立的編輯參數。"
+
+#. Runtime key: building_guidance.orientation_unavailable
+#. Runtime zh-Hans msgstr: "方向未取得或无效，因此不提供预演模板。请读取形状并确认允许的方向，然后再准备新的地图补丁。"
+#. Provisional Traditional Chinese sample; existing zh-Hans runtime is preserved separately.
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ORIENTATION_UNAVAILABLE"
+msgid "Orientation is unavailable or invalid; no preview template is provided. Read geometry and choose a permitted orientation before preparing a new map patch."
+msgstr "方向未取得或無效，因此不提供預演範本。請讀取形狀並確認允許的方向，然後再準備新的地圖補丁。"

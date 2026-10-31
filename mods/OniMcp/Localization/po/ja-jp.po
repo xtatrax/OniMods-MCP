@@ -1831,3 +1831,27 @@ msgstr "食料の利用可否は初期化待ちです。確認済みカロリー
 msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.UNAVAILABLE"
 msgid "Food availability is incomplete; known food is not a survival reserve. Inspect /active/resources/food.oni with the matching world scope for access evidence."
 msgstr "食料の利用可否に未判定があります。確認済み食料を生存余力とみなさず、同じワールド範囲で/active/resources/food.oniの根拠を確認してください。"
+
+#. Runtime key: building_guidance.anchor_source
+#. Runtime zh-Hans msgstr: "所选建筑锚点是在刚读取的视口地图中，建筑占用范围左下角的标记。它与游戏的基准格不同。"
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ANCHOR_SOURCE"
+msgid "The chosen building anchor is the occupied bounds lower-left cell token in the freshly read viewport map; it is not the native reference cell."
+msgstr "選んだ建築アンカーは、新しく読んだビューポート地図で占有範囲の左下に置くトークンです。本体の基準セルとは区別してください。"
+
+#. Runtime key: building_guidance.orientation
+#. Runtime zh-Hans msgstr: "预演参数保留所报告的方向。在外层 world_editor edit 中指定方向；它适用于补丁中的所有建筑。通用定义模板使用 Neutral。请先查看建筑允许的旋转。"
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ORIENTATION"
+msgid "The preview arguments retain the reported orientation. Set orientation on the outer world_editor edit; it applies to every build in the patch. Generic definition templates use Neutral. Check the building's permitted rotations first."
+msgstr "予行の引数には報告された向きを保持します。向きは外側の world_editor edit に指定し、パッチ内のすべての建築へ適用されます。定義だけの汎用テンプレートは Neutral を使います。先に設備で許可される回転を確認してください。"
+
+#. Runtime key: building_guidance.coordinate_contract
+#. Runtime zh-Hans msgstr: "anchor 是地图补丁使用的左下坐标，nativeOrigin 是游戏的基准格。替换标记使用 anchor；旋转后两者可能不同。坐标只提供上下文，不是独立的编辑参数。"
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.COORDINATE_CONTRACT"
+msgid "anchor is the map-patch lower-left coordinate; nativeOrigin is ONI's reference cell. Use anchor for the replacement token; the two may differ after rotation. Coordinates are context only, not standalone edit arguments."
+msgstr "anchor は地図パッチの左下座標、nativeOrigin は本体の基準セルです。置換トークンには anchor を使ってください。回転後は両者が異なることがあります。座標は参照用であり、単独の編集引数ではありません。"
+
+#. Runtime key: building_guidance.orientation_unavailable
+#. Runtime zh-Hans msgstr: "方向未取得或无效，因此不提供预演模板。请读取形状并确认允许的方向，然后再准备新的地图补丁。"
+msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ORIENTATION_UNAVAILABLE"
+msgid "Orientation is unavailable or invalid; no preview template is provided. Read geometry and choose a permitted orientation before preparing a new map patch."
+msgstr "向きが未取得または不正なため、予行テンプレートを返しません。形状を読み、許可される向きを確認してから新しい地図パッチを準備してください。"
