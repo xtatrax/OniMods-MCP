@@ -15,6 +15,8 @@ internal static class Program
         if (args.Length == 1 && args[0] == "--toilet-read-only") { ToiletReadRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--toilet-legacy-missing-only") { ToiletReadRegression.LegacyMissingOnly(); return; }
         if (args.Length == 1 && args[0] == "--completion-no-direct-write") { BlueprintParentRegression.VerifyNoDirectFallbackOnly(); return; }
+        if (args.Length == 1 && args[0] == "--liquid-foreground-only") { LiquidBridgeForegroundRegression.Run(); return; }
+        if (args.Length == 1 && args[0] == "--liquid-foreground-positive-only") { LiquidBridgeForegroundRegression.PositiveOnly(); return; }
         if (args.Length == 1 && args[0] == "--tile-only") { TileReplacementRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--preview-id-only") { PreviewIdRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--background-wall-only") { BackgroundWallRegression.Run(); return; }
@@ -28,6 +30,7 @@ internal static class Program
         TestFailureObservation();
         BlueprintCompletionRegression.Run();
         TileReplacementRegression.Run();
+        LiquidBridgeForegroundRegression.Run();
         Console.WriteLine("Native UI adapter: " + checks + " host checks passed (Unity/game boundary substituted)");
     }
 

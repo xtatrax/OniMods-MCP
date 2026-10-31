@@ -22,7 +22,7 @@ methods = {
     "placement": ["PreviewBuild"],
     "obstructions": ["FindFootprintObstructions", "ResolveBuildingDefForPlacement", "ExistingBuildingFootprintObstructions"],
     "safety": ["FindUtilityLayerConflicts", "UsesNativeBridgeEndpointRegistration", "FindBridgeEndpointLayerConflicts",
-        "PlacementObjectPrefabId", "PlacementSafetyFootprint", "FindBuildingLayerConflicts", "FindLogicEndpointConflicts", "AddLogicEndpointConflicts",
+        "PlacementObjectPrefabId", "PlacementSafetyFootprint", "CanLiquidBridgeShareCompletedForeground", "FindBuildingLayerConflicts", "FindLogicEndpointConflicts", "AddLogicEndpointConflicts",
         "AddLogicPortGroupConflicts", "ExistingBlueprintCompletionSafetyFailure", "HasUnsafeExecutionConflict"],
     "geometry": ["ValidateFootprint", "ActualPlacementDetails", "ComparePlacement"],
     "runtime": ["ExistingObjectFootprint", "FindConstructableAtPlacement", "ExistingMatchingBuildAtPlacement", "ExistingMatchingUtilityAtPlacement", "ExistingUtilityAtCell"],
@@ -32,7 +32,8 @@ methods = {
 # The two newly introduced helpers may be absent only so the exact complete
 # prechange Anchors + ActionPlacement sources can compile for a behavioral
 # negative control. No substitute helper is generated and no test is skipped.
-optional_absences = {("anchors", "TryResolvePreviewPoint"), ("anchors", "PreviewAnchorUnavailable")}
+optional_absences = {("anchors", "TryResolvePreviewPoint"), ("anchors", "PreviewAnchorUnavailable"),
+    ("safety", "CanLiquidBridgeShareCompletedForeground")}
 absences = []
 records = []
 slices = []

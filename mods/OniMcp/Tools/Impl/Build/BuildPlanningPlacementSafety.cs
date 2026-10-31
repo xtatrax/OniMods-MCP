@@ -216,6 +216,53 @@ namespace OniMcp.Tools
             return building?.Def?.PrefabID ?? go.GetComponent<KPrefabID>()?.PrefabTag.Name ?? go.name;
         }
 
+        // A native-confirmed standard liquid bridge uses its connection layer;
+        // only completed, known ordinary foreground may share its visible cells.
+        private static bool CanLiquidBridgeShareCompletedForeground(BuildingDef requested, PlacementDetails placement, GameObject foreground)
+        {
+            if (requested == null || placement == null || foreground == null
+                || requested.PrefabID != "LiquidConduitBridge" || placement.PrefabId != requested.PrefabID
+                || requested.BuildLocationRule != BuildLocationRule.Conduit
+                || requested.ObjectLayer != ObjectLayer.LiquidConduitConnection
+                || requested.TileLayer != ObjectLayer.NumLayers || requested.ReplacementLayer != ObjectLayer.NumLayers
+                || requested.IsTilePiece || requested.DragBuild || requested.WidthInCells != 3 || requested.HeightInCells != 1
+                || requested.PlacementOffsets == null || requested.PlacementOffsets.Length != 3
+                || requested.PlacementOffsets.Any(offset => offset.y != 0 || offset.x < -1 || offset.x > 1)
+                || !requested.PlacementOffsets.Any(offset => offset.x == -1)
+                || !requested.PlacementOffsets.Any(offset => offset.x == 0)
+                || !requested.PlacementOffsets.Any(offset => offset.x == 1)
+                || requested.InputConduitType != ConduitType.Liquid || requested.OutputConduitType != ConduitType.Liquid
+                || requested.UtilityInputOffset.x != -1 || requested.UtilityInputOffset.y != 0
+                || requested.UtilityOutputOffset.x != 1 || requested.UtilityOutputOffset.y != 0
+                || requested.RequiresPowerInput || requested.RequiresPowerOutput
+                || requested.PermittedRotations != PermittedRotations.R360 || requested.BuildingComplete == null
+                || requested.BuildingComplete.GetComponent<LogicPorts>() != null
+                || requested.BuildingComplete.GetComponents<ISecondaryInput>().Length != 0
+                || requested.BuildingComplete.GetComponents<ISecondaryOutput>().Length != 0
+                || !placement.GeometryAvailable || placement.FillsBounds != true || placement.WorldId < 0
+                || placement.Footprint == null || placement.Footprint.Count != 3
+                || placement.Footprint.Select(cell => cell.Cell).Distinct().Count() != 3
+                || !placement.Footprint.Any(cell => cell.Cell == placement.OriginCell)
+                || (placement.Orientation != Orientation.Neutral && placement.Orientation != Orientation.R90
+                    && placement.Orientation != Orientation.R180 && placement.Orientation != Orientation.R270)
+                || placement.Footprint.Any(cell => !cell.Valid || !cell.Visible || !cell.InWorld
+                    || !Grid.IsValidCell(cell.Cell) || !Grid.IsVisible(cell.Cell) || !ToolUtil.CellMatchesWorld(cell.Cell, placement.WorldId)))
+                return false;
+            var def = foreground.GetComponent<Building>()?.Def;
+            var complete = foreground.GetComponent<BuildingComplete>();
+            if (def == null || string.IsNullOrWhiteSpace(def.PrefabID) || def.PrefabID == requested.PrefabID
+                || def.ObjectLayer != ObjectLayer.Building || def.TileLayer != ObjectLayer.NumLayers
+                || def.ReplacementLayer != ObjectLayer.NumLayers || def.IsTilePiece || def.BuildingComplete == null
+                || UsesNativeBridgeEndpointRegistration(def) || complete == null || !ReferenceEquals(complete.Def, def)
+                || foreground.GetComponent<Constructable>() != null || !ToolUtil.GameObjectMatchesWorld(foreground, placement.WorldId)
+                || !placement.Footprint.Any(cell => ReferenceEquals(Grid.Objects[cell.Cell, (int)ObjectLayer.Building], foreground)))
+                return false;
+            var shape = NativeBuildingCellIndex.Geometry(foreground);
+            return shape.Available && shape.Origin != null && shape.Origin.Cell.HasValue && shape.Cells != null
+                && shape.Cells.Count > 0 && shape.Cells.All(cell => cell.Cell.HasValue && Grid.IsValidCell(cell.Cell.Value))
+                && shape.Cells.Any(cell => placement.Footprint.Any(target => target.Cell == cell.Cell.Value));
+        }
+
         private static List<Dictionary<string, object>> FindBuildingLayerConflicts(BuildingDef def, PlacementDetails placement)
         {
             var conflicts = new List<Dictionary<string, object>>();
@@ -233,6 +280,8 @@ namespace OniMcp.Tools
                     continue;
                 string actualPrefabId = PlacementObjectPrefabId(existing);
                 if (EqualsIgnoreCase(actualPrefabId, def.PrefabID))
+                    continue;
+                if (CanLiquidBridgeShareCompletedForeground(def, placement, existing))
                     continue;
                 conflicts.Add(new Dictionary<string, object>
                 {

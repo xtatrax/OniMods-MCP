@@ -43,6 +43,9 @@ internal enum FindObjectsSortMode { None }
 internal enum FindObjectsInactive { Include }
 internal struct CellOffset {public int x,y;}
 internal enum ConduitType {None,Gas,Liquid}
+internal enum PermittedRotations {Unrotatable,R360}
+internal interface ISecondaryInput { }
+internal interface ISecondaryOutput { }
 internal interface ILogicUIElement {int GetLogicUICell();}
 internal sealed class LogicCircuitManager {public List<ILogicUIElement> GetVisElements(){return new List<ILogicUIElement>();}}
 internal sealed class LogicGate : Component {public int InputCellOne,InputCellTwo,InputCellThree,InputCellFour,OutputCellOne,OutputCellTwo,OutputCellThree,OutputCellFour,ControlCellOne,ControlCellTwo;public bool RequiresTwoInputs,RequiresFourInputs,RequiresFourOutputs,RequiresControlInputs;}
@@ -50,7 +53,7 @@ internal sealed class ConduitBridgeBase : Component {public bool isSpawned;}
 internal class UtilityNetworkLink : Component {public bool isSpawned,visualizeOnly; public void GetCells(int cell,Orientation o,out int a,out int b){a=cell;b=cell+1;}}
 internal sealed class LogicUtilityNetworkLink : UtilityNetworkLink {}
 internal enum Orientation { Neutral, R90, R180, R270 }
-internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, NumLayers=16 }
+internal enum ObjectLayer { Building, DigPlacer, Wire, WireConnectors, GasConduit, LiquidConduit, LogicWire, Backwall, Other, FoundationTile, ReplacementTile, ReplacementLadder, LiquidConduitConnection, NumLayers=16 }
 internal enum BuildLocationRule { Other, Conduit, WireBridge, LogicBridge, Tile, Anywhere, OnFloor }
 internal sealed partial class BuildingDef
 {
@@ -59,6 +62,8 @@ internal sealed partial class BuildingDef
     public ObjectLayer ObjectLayer=ObjectLayer.Building;
     public ConduitType InputConduitType,OutputConduitType;
     public CellOffset UtilityInputOffset,UtilityOutputOffset;
+    public bool IsTilePiece,DragBuild,RequiresPowerInput,RequiresPowerOutput;
+    public PermittedRotations PermittedRotations;
     public void RunOnArea(int cell,Orientation orientation,System.Action<int> action){action(cell);}
     public BuildLocationRule BuildLocationRule;
     public GameObject BuildingComplete;
@@ -192,6 +197,7 @@ namespace OniMcp.Tools
             public int AnchorX,AnchorY,OriginX,OriginY,OriginCell,WorldId;
             public Orientation Orientation;
             public bool GeometryAvailable=true;
+            public bool FillsBounds;
             public List<FootprintCell> Footprint=new List<FootprintCell>();
             public Dictionary<string,object> ToDictionary(){return new Dictionary<string,object>{["anchorX"]=AnchorX,["anchorY"]=AnchorY,["worldId"]=WorldId,["orientation"]=Orientation.ToString()};}
         }
@@ -216,13 +222,13 @@ namespace OniMcp.Tools
         internal static readonly Dictionary<string,BuildingDef> FixtureDefs=new Dictionary<string,BuildingDef>();
         internal static readonly List<Tuple<int,ObjectLayer>> FixtureEndpoints=new List<Tuple<int,ObjectLayer>>();
         private static bool EqualsIgnoreCase(string a,string b){return string.Equals(a,b,StringComparison.OrdinalIgnoreCase);}
-        private static bool IsUtilityPrefab(string id){return id=="FixtureBridge"||id=="Wire";}
+        private static bool IsUtilityPrefab(string id){return id=="FixtureBridge"||id=="Wire"||id=="LiquidConduitBridge";}
         private static bool IsLinearUtilityPrefab(string id){return id=="Wire";}
         private static List<ObjectLayer> UtilityLayersForPrefab(string id){return new List<ObjectLayer>{ObjectLayer.Wire};}
         private static BuildingDef ResolveBuildingDef(string id,out string resolved,out string error)
         {resolved=id;error=null;BuildingDef def;return FixtureDefs.TryGetValue(id,out def)?def:null;}
         private static bool IsNaturalDiggableSolidCell(int cell,int world){return Grid.Solid[cell]&&!Grid.Foundation[cell];}
-        private static IEnumerable<Dictionary<string,object>> UprootableObstructionsAtCell(int cell,int world){return Enumerable.Empty<Dictionary<string,object>>();}
+        private static IEnumerable<Dictionary<string,object>> UprootableObstructionsAtCell(int cell,int world){return LiquidBridgePlantsForFixture(cell);}
         private static IEnumerable<Constructable> FindConstructables(int world)
         {return FixtureBlueprints.Where(value=>!value.gameObject.Destroyed&&ToolUtil.GameObjectMatchesWorld(value.gameObject,world));}
         private static IEnumerable<BridgeEndpointTarget> NativeBridgeEndpointTargets(BuildingDef def,PlacementDetails placement)

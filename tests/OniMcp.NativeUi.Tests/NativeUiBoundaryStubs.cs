@@ -32,6 +32,11 @@ namespace UnityEngine
             if (ThrowFixtureComponentRead) throw new InvalidOperationException("Fixture component read unavailable");
             return components.OfType<T>().FirstOrDefault();
         }
+        public T[] GetComponents<T>() where T : class
+        {
+            if (ThrowFixtureComponentRead) throw new InvalidOperationException("Fixture component read unavailable");
+            return components.OfType<T>().ToArray();
+        }
     }
 }
 internal sealed class KPrefabID : UnityEngine.Component { public int InstanceID; public Tag PrefabTag; }

@@ -63,7 +63,7 @@ namespace OniMcp.Tools
                 result.Add(conflict);
 
             var seen = new HashSet<string>();
-            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored, placementDef))
+            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored, placementDef, placement))
             {
                 string id = obstruction.ContainsKey("id") ? obstruction["id"]?.ToString() : "";
                 if ((utility && !endpointBridge) || IsUtilityPrefab(id))
@@ -324,12 +324,14 @@ namespace OniMcp.Tools
             };
         }
 
-        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null, BuildingDef placementDef = null)
+        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null, BuildingDef placementDef = null, PlacementDetails placement = null)
         {
             foreach (var building in Components.BuildingCompletes.Items)
             {
                 if (building == null || building.gameObject == null || ReferenceEquals(building.gameObject, ignored)
                     || !ToolUtil.GameObjectMatchesWorld(building.gameObject, worldId))
+                    continue;
+                if (CanLiquidBridgeShareCompletedForeground(placementDef, placement, building.gameObject))
                     continue;
                 // A standard foreground building and a completed background wall use separate native layers.
                 // Keep blueprints, unknown definitions and special layer/rule combinations conservative.
