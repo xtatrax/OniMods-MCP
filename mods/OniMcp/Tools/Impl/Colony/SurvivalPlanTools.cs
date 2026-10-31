@@ -65,9 +65,9 @@ namespace OniMcp.Tools
 
             if (dupes <= 0)
                 AddBlocker(blockers, "critical", "dupes", "No live duplicants detected.");
-            if (foodAccess.UnknownAvailabilityItems > 0 || foodAccess.UnknownCalorieItems > 0)
+            if (!foodAccess.AssessmentComplete)
                 AddBlocker(blockers, "critical", "food_assessment_incomplete", "Food availability is incomplete; inspect resources/food access evidence before estimating survival margin.");
-            if (foodKcal < foodNeed)
+            if (foodAccess.AssessmentComplete && foodKcal < foodNeed)
             {
                 AddBlocker(blockers, "critical", "food", $"Food stock {Math.Round(foodKcal, 1)} kcal below {Math.Round(foodNeed, 1)} kcal threshold for {dupes} dupes.");
                 nextCalls.Add("read_control domain=resources action=food limit=10");

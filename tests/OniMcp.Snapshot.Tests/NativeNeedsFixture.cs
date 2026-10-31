@@ -14,7 +14,7 @@ namespace OniMcp.Tools
             // Only the unrelated food/building/time inputs are fixtures. Need rows
             // come from the complete linked production BuildDupes and reader.
             var dupes = BuildDupes(worldId);
-            var food = new FoodSnapshot { TotalKcal = 100000, Access = new FoodAccessBreakdown { Available = 100000 } };
+            var food = new FoodSnapshot { TotalKcal = 100000, Access = ReadyFoodAccess(100000, worldId) };
             var buildings = new BuildingSnapshot { Beds = 100, Toilets = 1, ResearchStations = 1, Batteries = 1 };
             var red = new Dictionary<string,object> { ["isRedAlert"] = false, ["isYellowAlert"] = false };
             var alerts = BuildAlerts(dupes, food, buildings, null, red);

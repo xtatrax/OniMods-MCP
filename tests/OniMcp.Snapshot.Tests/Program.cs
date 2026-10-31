@@ -16,6 +16,7 @@ internal static class Program
         EmptyProfiles();
         StressBoundaries();
         ScopedCounts();
+        FoodAssessmentRegression.Run();
         WatchNullAndZero();
         LocalizedSummaries();
         SnapshotTools.AggregateFixture();

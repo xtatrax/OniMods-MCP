@@ -157,7 +157,27 @@ namespace OniMcp.Tools
     }
     internal sealed class FoodAvailabilityReader
     {
+        internal static bool FoodReadinessFixtureEnabled;
+        internal static bool? FixtureInventoryReady;
+        internal static int FixtureWorld, ReadinessReads, NativeRationReads;
+        internal void CaptureReadiness(FoodAccessBreakdown access, int? world)
+        {
+            if (!FoodReadinessFixtureEnabled) throw new NotSupportedException("food boundary outside needs cases");
+            if (world != FixtureWorld) throw new InvalidOperationException("food_initialization_contract: readiness world scope changed");
+            ReadinessReads++;
+            access.MarkInventoryScopeObserved();
+            access.ObserveInventory(new FoodInventoryObservation { WorldId = FixtureWorld,
+                Ready = FixtureInventoryReady, Reason = FixtureInventoryReady == true ? null
+                    : FixtureInventoryReady == false ? "world_inventory_initializing" : "world_inventory_missing" });
+        }
         internal FoodAccessObservation Read(Edible edible,Pickupable pickup,int world,out Dictionary<string,object> evidence) { throw new NotSupportedException("food boundary outside needs cases"); }
-        internal static Dictionary<string,object> NativeRations(int? world) { throw new NotSupportedException("food boundary outside needs cases"); }
+        internal static Dictionary<string,object> NativeRations(int? world)
+        {
+            if (!FoodReadinessFixtureEnabled) throw new NotSupportedException("food boundary outside needs cases");
+            if (world != FixtureWorld) throw new InvalidOperationException("food_initialization_contract: native ration world scope changed");
+            NativeRationReads++;
+            return new Dictionary<string,object> { ["caloriesKcal"] = FixtureInventoryReady == true ? (object)0d : null,
+                ["complete"] = FixtureInventoryReady == true };
+        }
     }
 }

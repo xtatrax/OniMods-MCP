@@ -17,6 +17,7 @@ internal static class Program
         CultureInfo.CurrentCulture=CultureInfo.InvariantCulture;
         McpLocalization.LanguageProvider=()=>"en";
         DiagnosticScope();
+        FoodReadinessContract();
         MissingAndFaults(); ValuesAndBoundaries(); PartialAndGlobalScope(); CriticalAndUnrelatedPreservation(); EmptyAndRepeat(); LocalesAndRoutes();
         Console.WriteLine("Diagnostic/survival stress: "+checks+" host checks passed (native boundaries substituted)");
     }
@@ -40,6 +41,47 @@ internal static class Program
         }
         McpLocalization.LanguageProvider=()=>"en";
     }
+    private static void FoodReadinessContract()
+    {
+        foreach(bool? ready in new bool?[]{false,null,true})
+        foreach(bool measuredUnknown in new[]{false,true})
+        {
+            if(ready==true&&measuredUnknown)continue;
+            Reset();Add(0);
+            var access=new FoodAccessBreakdown();
+            access.ObserveInventory(new FoodInventoryObservation{WorldId=7,Ready=ready,
+                Reason=ready==true?null:ready==false?"world_inventory_initializing":"world_inventory_missing"});
+            if(measuredUnknown)access.Add(new FoodAccessObservation{
+                Inventory=new FoodInventoryObservation{WorldId=7,Ready=ready,
+                    Reason=ready==false?"world_inventory_initializing":"world_inventory_missing"},
+                CaloriesKcal=245837.6,Reachable=null,PermittedReachableConsumer=null,Fetchable=null,
+                StoredPrivate=false,BeingConsumed=false,AutomationOnlyStorage=false,FetchTotalAmount=1,UnreservedFetchAmount=1});
+            FoodAvailabilityReader.Fixture=access;
+            var diagnostic=Diag();var plan=Survival();var legacy=Alerts();
+            bool complete=ready==true;
+            Check(Has(diagnostic["alerts"],"food","critical")==complete,
+                "food_initialization_contract: diagnostics must distinguish pending availability from confirmed zero");
+            Check(Has(plan["blockers"],"food","critical")==complete,
+                "food_initialization_contract: survival must distinguish pending availability from confirmed zero");
+            Check(Has(diagnostic["alerts"],"food_assessment_incomplete","warning")==!complete
+                &&Has(plan["blockers"],"food_assessment_incomplete","critical")==!complete,
+                "incomplete food remains explicit without relabeling its lower bound as a shortage");
+            Check(Has(legacy,"food","critical")==complete&&Has(legacy,"food_assessment_incomplete","warning")==!complete,
+                "legacy array preserves pending-versus-known-zero findings");
+            string state=complete?"complete":ready==false?"initializing":"unavailable";
+            Check((string)diagnostic["foodAccess"]["assessmentState"]==state
+                &&(bool)diagnostic["foodAccess"]["assessmentComplete"]==complete,
+                "diagnostic food evidence preserves the requested native readiness state");
+            Check((double)diagnostic["foodAccess"]["availableCaloriesKcal"]==0
+                &&(double)diagnostic["foodAccess"]["unknownCaloriesKcal"]==(measuredUnknown?245837.6:0),
+                "confirmed lower-bound zero and measured unknown calories remain separate");
+            Check(!(bool)plan["canAttemptLongRun"]&&(string)plan["decision"]=="fix_critical_before_100_cycle_run",
+                "existing incomplete-food or confirmed-shortage long-run blocker remains active");
+            Check(diagnostic["alertCoverage"]!=null&&!(bool)diagnostic["alertCoverage"]["overallComplete"],
+                "No22 coverage remains explicit beside incomplete or known-zero food");
+            CleanCanaries();
+        }
+    }
     private static void Check(bool c,string m) { checks++;if(!c)throw new InvalidOperationException("Diagnostic stress: "+m); }
     private static void Null(JToken p,string k) { Check(p[k]!=null&&p[k].Type==JTokenType.Null,k+" remains explicit serialized null"); }
     private static void Reset()
@@ -50,7 +92,7 @@ internal static class Program
         for(int i=0;i<Grid.CellCount;i++){Grid.WorldIdx[i]=7;Grid.Element[i]=new Element{id=SimHashes.Oxygen};Grid.Mass[i]=2;Grid.Solid[i]=false;Grid.Foundation[i]=false;}
         definition=new Klei.AI.Amount();Db.FixtureSet(new Db{Amounts=new Database.Amounts{Stress=definition}});
         FoodAvailabilityReader.Fixture=new FoodAccessBreakdown();
-        FoodAvailabilityReader.Fixture.Add(new FoodAccessObservation{CaloriesKcal=100000,Reachable=true,PermittedReachableConsumer=true,Fetchable=true,StoredPrivate=false,BeingConsumed=false,AutomationOnlyStorage=false,FetchTotalAmount=1,UnreservedFetchAmount=1});
+        FoodAvailabilityReader.Fixture.Add(new FoodAccessObservation{Inventory=new FoodInventoryObservation{WorldId=0,Ready=true},CaloriesKcal=100000,Reachable=true,PermittedReachableConsumer=true,Fetchable=true,StoredPrivate=false,BeingConsumed=false,AutomationOnlyStorage=false,FetchTotalAmount=1,UnreservedFetchAmount=1});
         Components.Edibles.Items.Add(new Edible{Calories=100000000});
         foreach(string id in new[]{"OxygenDiffuser","Outhouse","ResearchCenter","Battery","Bed","Bed"})
             Components.BuildingCompletes.Items.Add(new BuildingComplete{Def=new BuildingDef{PrefabID=id},transform={Position=new Position{x=Components.BuildingCompletes.Items.Count,y=1}}});
@@ -144,13 +186,23 @@ internal static class Program
         foreach(string key in new[]{"cycle","dupes","foodKcal","foodAccess","foodPolicy","visibleOnly","foodNeedKcal","oxygenProducers","toilets","beds","readyHarvestables","reachableHarvestables"})
             Check(JToken.DeepEquals(knownS["metrics"][key],unknownS["metrics"][key]),"unknown stress preserves survival "+key);
         Check(FoodAvailabilityReader.Calls==4,"real callers retain one independent native food capture each");
-        FoodAvailabilityReader.Fixture.Available=0;FoodAvailabilityReader.Fixture.UnknownAvailabilityItems=1;Components.BuildingCompletes.Items.Clear();
+        FoodAvailabilityReader.Fixture=new FoodAccessBreakdown();
+        FoodAvailabilityReader.Fixture.ObserveInventory(new FoodInventoryObservation{WorldId=7,Ready=true});
+        Components.BuildingCompletes.Items.Clear();
         for(int i=0;i<Grid.CellCount;i++)Grid.Element[i]=null;
         var badD=Diag();var badS=Survival();
-        foreach(string category in new[]{"food","food_assessment_incomplete","oxygen","hygiene","sleep"})
-        { Check(Has(badD["alerts"],category),"diagnostics preserves existing "+category+" alert");Check(Has(badS["blockers"],category),"survival preserves existing "+category+" blocker"); }
+        foreach(string category in new[]{"food","oxygen","hygiene","sleep"})
+        { Check(Has(badD["alerts"],category),"diagnostics preserves existing known "+category+" alert");Check(Has(badS["blockers"],category),"survival preserves existing known "+category+" blocker"); }
+        Check(!Has(badD["alerts"],"food_assessment_incomplete")&&!Has(badS["blockers"],"food_assessment_incomplete"),"confirmed zero remains complete rather than being changed into pending food");
         Check(!(bool)badS["canAttemptLongRun"]&&(string)badS["decision"]=="fix_critical_before_100_cycle_run","known critical food assessment overrides unknown stress with original false/critical decision");
         Null(badS["metrics"],"maxStress");Check(Has(Alerts(),"stress_assessment_incomplete","info"),"known critical does not hide diagnostics data-quality info");CleanCanaries();
+        FoodAvailabilityReader.Fixture=new FoodAccessBreakdown();
+        FoodAvailabilityReader.Fixture.ObserveInventory(new FoodInventoryObservation{WorldId=7,Ready=false,Reason="world_inventory_initializing"});
+        var pendingD=Diag();var pendingS=Survival();
+        foreach(string category in new[]{"food_assessment_incomplete","oxygen","hygiene","sleep"})
+        { Check(Has(pendingD["alerts"],category),"diagnostics preserves pending food and existing "+category+" finding");Check(Has(pendingS["blockers"],category),"survival preserves pending food and existing "+category+" blocker"); }
+        Check(!Has(pendingD["alerts"],"food")&&!Has(pendingS["blockers"],"food"),"pending food does not manufacture a known critical shortage");
+        Null(pendingS["metrics"],"maxStress");Check(Has(Alerts(),"stress_assessment_incomplete","info"),"pending food does not hide independent stress data-quality info");CleanCanaries();
     }
     private static void EmptyAndRepeat()
     {

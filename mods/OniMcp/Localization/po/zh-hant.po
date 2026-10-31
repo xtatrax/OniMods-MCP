@@ -1864,3 +1864,62 @@ msgstr "低上下文 MCP 狀態摘要。警報級別僅涵蓋請求的 MCP 檢�
 msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.SNAPSHOT.INCLUDE_ALERTS"
 msgid "Include MCP-derived findings. This does not query native HUD notifications or daily reports. Default true."
 msgstr "包含 MCP 獨立檢查結果，不查詢原生 HUD 通知或日報。預設 true。"
+
+#. Runtime zh-Hans msgstr: "初始化中"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.STATE.INITIALIZING"
+msgid "initializing"
+msgstr "初始化中"
+
+#. Runtime zh-Hans msgstr: "未判定"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.STATE.UNAVAILABLE"
+msgid "unavailable"
+msgstr "未判定"
+
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力 {1}%，已知食物 {2} kcal，可用性{3}，警报 {4}。暂停时以相同世界范围查看/active/resources/food.oni（所有世界请省略worldId）"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.SUMMARY"
+msgid "{0} dupes, max stress {1}%, known food {2} kcal, availability {3}, alert {4}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused"
+msgstr "{0} 名複製人，最高壓力 {1}%，已知食物 {2} kcal，可用性{3}，警報 {4}。暫停時以相同世界範圍查看/active/resources/food.oni（所有世界則省略worldId）"
+
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力不适用（没有复制人），已知食物 {1} kcal，可用性{2}，警报 {3}。暂停时以相同世界范围查看/active/resources/food.oni（所有世界请省略worldId）"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.SUMMARY.NO_DUPES"
+msgid "{0} dupes, max stress not applicable (no duplicants), known food {1} kcal, availability {2}, alert {3}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused"
+msgstr "{0} 名複製人，最高壓力不適用（沒有複製人），已知食物 {1} kcal，可用性{2}，警報 {3}。暫停時以相同世界範圍查看/active/resources/food.oni（所有世界則省略worldId）"
+
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力未获取，已知食物 {1} kcal，可用性{2}，警报 {3}。暂停时以相同世界范围查看/active/resources/food.oni（所有世界请省略worldId）"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.SUMMARY.STRESS_UNAVAILABLE"
+msgid "{0} dupes, max stress unavailable, known food {1} kcal, availability {2}, alert {3}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused"
+msgstr "{0} 名複製人，最高壓力未取得，已知食物 {1} kcal，可用性{2}，警報 {3}。暫停時以相同世界範圍查看/active/resources/food.oni（所有世界則省略worldId）"
+
+#. Runtime zh-Hans msgstr: "已确认的未预留可用食物低于阈值：{0} kcal，复制人 {1} 名。"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotAlertReadTools.cs
+#: mods/OniMcp/Tools/Impl/Colony/DiagnosticsTools.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.SHORTAGE"
+msgid "Confirmed unreserved available food below threshold: {0} kcal for {1} dupes."
+msgstr "已確認的未預留可用食物低於門檻：{0} kcal，複製人 {1} 名。"
+
+#. Runtime zh-Hans msgstr: "食物可用性正在初始化，已确认热量只是下限。请在暂停时以相同世界范围查看/active/resources/food.oni。"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotAlertReadTools.cs
+#: mods/OniMcp/Tools/Impl/Colony/DiagnosticsTools.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.INITIALIZING"
+msgid "Food availability is initializing; confirmed calories are only a lower bound. Inspect /active/resources/food.oni with the matching world scope while paused."
+msgstr "食物可用性正在初始化，已確認熱量只是下限。請在暫停時以相同世界範圍查看/active/resources/food.oni。"
+
+#. Runtime zh-Hans msgstr: "部分食物的可用性尚未判定。不要将已知食物视为生存储备；请以相同世界范围查看/active/resources/food.oni的依据。"
+#. Provisional Traditional sample; separate existing zh-Hans source is retained above.
+#: mods/OniMcp/Tools/Impl/World/SnapshotAlertReadTools.cs
+#: mods/OniMcp/Tools/Impl/Colony/DiagnosticsTools.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.UNAVAILABLE"
+msgid "Food availability is incomplete; known food is not a survival reserve. Inspect /active/resources/food.oni with the matching world scope for access evidence."
+msgstr "部分食物的可用性尚未判定。不要將已知食物視為生存儲備；請以相同世界範圍查看/active/resources/food.oni的依據。"

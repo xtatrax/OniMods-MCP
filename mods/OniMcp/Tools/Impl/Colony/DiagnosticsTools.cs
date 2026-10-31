@@ -306,9 +306,12 @@ namespace OniMcp.Tools
             int batteries = CountByPrefab(buildingCounts, "Battery") + CountByPrefab(buildingCounts, "BatterySmart");
 
             var alerts = new List<Dictionary<string, object>>();
-            AddAlert(alerts, foodAccess.Available < dupes * 2000f, "critical", "food", $"確認済みの未予約・利用可能食料が基準未満です: {Math.Round(foodAccess.Available, 1)} kcal、複製人間 {dupes} 人。");
-            AddAlert(alerts, foodAccess.UnknownAvailabilityItems > 0 || foodAccess.UnknownCalorieItems > 0,
-                "warning", "food_assessment_incomplete", "食料の利用可否に未判定があります。可視合計を生存余力とみなさないでください。");
+            AddAlert(alerts, foodAccess.AssessmentComplete && foodAccess.Available < dupes * 2000f, "critical", "food",
+                McpLocalization.Format("food_assessment.alert.shortage", null, Math.Round(foodAccess.Available, 1), dupes));
+            AddAlert(alerts, !foodAccess.AssessmentComplete,
+                "warning", "food_assessment_incomplete", foodAccess.AssessmentState == "initializing"
+                    ? McpLocalization.Get("food_assessment.alert.initializing")
+                    : McpLocalization.Get("food_assessment.alert.unavailable"));
             AddAlert(alerts, oxygenProducers == 0, "warning", "oxygen", "酸素を生成する設備が見つかりません。");
             AddAlert(alerts, breathableCells < dupes * 20, "warning", "oxygen", $"探索済みの呼吸可能なセルが少なくなっています: {breathableCells}。");
             AddAlert(alerts, beds < dupes, "warning", "sleep", $"ベッドが不足しています: {beds}/{dupes}。");

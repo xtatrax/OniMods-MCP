@@ -1780,3 +1780,54 @@ msgstr "低コンテキストのMCP状態要約。警告レベルは要求した
 msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.SNAPSHOT.INCLUDE_ALERTS"
 msgid "Include MCP-derived findings. This does not query native HUD notifications or daily reports. Default true."
 msgstr "MCP独自チェックの指摘を含める。本体HUD通知・日報は取得しない。既定true。"
+
+#. Runtime zh-Hans msgstr: "初始化中"
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.STATE.INITIALIZING"
+msgid "initializing"
+msgstr "初期化待ち"
+
+#. Runtime zh-Hans msgstr: "未判定"
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.STATE.UNAVAILABLE"
+msgid "unavailable"
+msgstr "未判定"
+
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力 {1}%，已知食物 {2} kcal，可用性{3}，警报 {4}。暂停时以相同世界范围查看/active/resources/food.oni（所有世界请省略worldId）"
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.SUMMARY"
+msgid "{0} dupes, max stress {1}%, known food {2} kcal, availability {3}, alert {4}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused"
+msgstr "複製人間{0}人、最大ストレス{1}%、確認済み食料{2} kcal、利用可否{3}、警告{4}。停止のまま同じワールド範囲で/active/resources/food.oniを確認（全惑星ならworldIdを省略）"
+
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力不适用（没有复制人），已知食物 {1} kcal，可用性{2}，警报 {3}。暂停时以相同世界范围查看/active/resources/food.oni（所有世界请省略worldId）"
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.SUMMARY.NO_DUPES"
+msgid "{0} dupes, max stress not applicable (no duplicants), known food {1} kcal, availability {2}, alert {3}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused"
+msgstr "複製人間{0}人、最大ストレスは対象外（複製人間なし）、確認済み食料{1} kcal、利用可否{2}、警告{3}。停止のまま同じワールド範囲で/active/resources/food.oniを確認（全惑星ならworldIdを省略）"
+
+#. Runtime zh-Hans msgstr: "{0} 名复制人，最高压力未获取，已知食物 {1} kcal，可用性{2}，警报 {3}。暂停时以相同世界范围查看/active/resources/food.oni（所有世界请省略worldId）"
+#: mods/OniMcp/Tools/Impl/World/SnapshotMetrics.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.SUMMARY.STRESS_UNAVAILABLE"
+msgid "{0} dupes, max stress unavailable, known food {1} kcal, availability {2}, alert {3}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused"
+msgstr "複製人間{0}人、最大ストレス未取得、確認済み食料{1} kcal、利用可否{2}、警告{3}。停止のまま同じワールド範囲で/active/resources/food.oniを確認（全惑星ならworldIdを省略）"
+
+#. Runtime zh-Hans msgstr: "已确认的未预留可用食物低于阈值：{0} kcal，复制人 {1} 名。"
+#: mods/OniMcp/Tools/Impl/World/SnapshotAlertReadTools.cs
+#: mods/OniMcp/Tools/Impl/Colony/DiagnosticsTools.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.SHORTAGE"
+msgid "Confirmed unreserved available food below threshold: {0} kcal for {1} dupes."
+msgstr "確認済みの未予約・利用可能食料が基準未満です: {0} kcal、複製人間{1}人。"
+
+#. Runtime zh-Hans msgstr: "食物可用性正在初始化，已确认热量只是下限。请在暂停时以相同世界范围查看/active/resources/food.oni。"
+#: mods/OniMcp/Tools/Impl/World/SnapshotAlertReadTools.cs
+#: mods/OniMcp/Tools/Impl/Colony/DiagnosticsTools.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.INITIALIZING"
+msgid "Food availability is initializing; confirmed calories are only a lower bound. Inspect /active/resources/food.oni with the matching world scope while paused."
+msgstr "食料の利用可否は初期化待ちです。確認済みカロリーは下限値です。停止のまま同じワールド範囲で/active/resources/food.oniを確認してください。"
+
+#. Runtime zh-Hans msgstr: "部分食物的可用性尚未判定。不要将已知食物视为生存储备；请以相同世界范围查看/active/resources/food.oni的依据。"
+#: mods/OniMcp/Tools/Impl/World/SnapshotAlertReadTools.cs
+#: mods/OniMcp/Tools/Impl/Colony/DiagnosticsTools.cs
+msgctxt "OniMcp.MCP.FOOD_ASSESSMENT.ALERT.UNAVAILABLE"
+msgid "Food availability is incomplete; known food is not a survival reserve. Inspect /active/resources/food.oni with the matching world scope for access evidence."
+msgstr "食料の利用可否に未判定があります。確認済み食料を生存余力とみなさず、同じワールド範囲で/active/resources/food.oniの根拠を確認してください。"

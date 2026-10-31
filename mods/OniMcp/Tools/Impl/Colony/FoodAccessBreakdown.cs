@@ -5,8 +5,27 @@ namespace OniMcp.Tools
 {
     // The five primary buckets partition measured calories. Reachability and
     // reservation observations are separate, overlapping dimensions.
+    internal sealed class FoodInventoryObservation
+    {
+        internal int WorldId;
+        internal bool? Ready;
+        internal string Reason;
+
+        internal Dictionary<string, object> ToDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                ["worldId"] = WorldId >= 0 ? (object)WorldId : null,
+                ["ready"] = Ready,
+                ["reason"] = Reason,
+                ["source"] = "WorldInventory.HasValidCount"
+            };
+        }
+    }
+
     internal sealed class FoodAccessObservation
     {
+        internal FoodInventoryObservation Inventory;
         internal double? CaloriesKcal;
         internal bool? Reachable;
         internal bool? PermittedReachableConsumer;
@@ -45,10 +64,94 @@ namespace OniMcp.Tools
         internal int UnknownCalorieItems;
         internal int UnknownAvailabilityItems;
         internal int Items;
+        private bool inventoryScopeObserved;
+        private readonly Dictionary<int, FoodInventoryObservation> inventories =
+            new Dictionary<int, FoodInventoryObservation>();
+
+        internal void MarkInventoryScopeObserved() { inventoryScopeObserved = true; }
+
+        internal void ObserveInventory(FoodInventoryObservation observation)
+        {
+            inventoryScopeObserved = true;
+            if (observation == null) return;
+            FoodInventoryObservation previous;
+            if (!inventories.TryGetValue(observation.WorldId, out previous))
+                inventories.Add(observation.WorldId, new FoodInventoryObservation
+                { WorldId = observation.WorldId, Ready = observation.Ready, Reason = observation.Reason });
+            else if (previous.Ready != observation.Ready
+                || !string.Equals(previous.Reason, observation.Reason, StringComparison.Ordinal))
+                inventories[observation.WorldId] = new FoodInventoryObservation
+                {
+                    WorldId = observation.WorldId, Ready = null,
+                    Reason = "inventory_readiness_changed_within_observation"
+                };
+        }
+
+        internal void CopyInventoryTo(FoodAccessBreakdown target)
+        {
+            if (!inventoryScopeObserved) return;
+            target.MarkInventoryScopeObserved();
+            foreach (var observation in inventories.Values) target.ObserveInventory(observation);
+        }
+
+        internal int InventoryInitializingWorlds
+        {
+            get
+            {
+                int count = 0;
+                foreach (var observation in inventories.Values) if (observation.Ready == false) count++;
+                return count;
+            }
+        }
+
+        internal int InventoryUnavailableWorlds
+        {
+            get
+            {
+                int count = 0;
+                foreach (var observation in inventories.Values) if (observation.WorldId >= 0 && !observation.Ready.HasValue) count++;
+                return count;
+            }
+        }
+
+        internal bool? InventoryReady
+        {
+            get
+            {
+                if (!inventoryScopeObserved || inventories.Count == 0) return null;
+                bool unavailable = false;
+                foreach (var observation in inventories.Values)
+                {
+                    if (observation.Ready == false) return false;
+                    if (!observation.Ready.HasValue) unavailable = true;
+                }
+                return unavailable ? (bool?)null : true;
+            }
+        }
+
+        internal bool AssessmentComplete
+        {
+            get { return InventoryReady == true && UnknownAvailabilityItems == 0 && UnknownCalorieItems == 0; }
+        }
+
+        internal string AssessmentState
+        {
+            get { return AssessmentComplete ? "complete" : InventoryInitializingWorlds > 0 ? "initializing" : "unavailable"; }
+        }
+
+        private List<Dictionary<string, object>> InventoryEvidence()
+        {
+            var keys = new List<int>(inventories.Keys);
+            keys.Sort();
+            var result = new List<Dictionary<string, object>>();
+            foreach (int key in keys) result.Add(inventories[key].ToDictionary());
+            return result;
+        }
 
         internal void Add(FoodAccessObservation item)
         {
             Items++;
+            if (item.Inventory != null) ObserveInventory(item.Inventory);
             if (!FiniteNonnegative(item.CaloriesKcal))
             {
                 UnknownCalorieItems++;
@@ -95,8 +198,13 @@ namespace OniMcp.Tools
                 ["unknownCalorieItems"] = UnknownCalorieItems,
                 ["unknownAvailabilityItems"] = UnknownAvailabilityItems,
                 ["items"] = Items,
-                ["assessmentComplete"] = UnknownAvailabilityItems == 0 && UnknownCalorieItems == 0,
+                ["assessmentComplete"] = AssessmentComplete,
+                ["assessmentState"] = AssessmentState,
+                ["inventoryReady"] = InventoryReady,
+                ["inventoryInitializingWorlds"] = InventoryInitializingWorlds,
+                ["inventoryUnavailableWorlds"] = InventoryUnavailableWorlds,
             };
+            if (includePolicy) result["inventoryReadiness"] = InventoryEvidence();
             if (includePolicy) result["policy"] = "available is the unreserved fraction of fetchable food reachable by at least one same-world permitted consumer; excludes private storage and food being consumed. Five primary calorie buckets partition measured food; reachable is an overlapping observation. Not a per-duplicant survival guarantee or cooking forecast.";
             return result;
         }

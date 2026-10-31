@@ -79,11 +79,71 @@ internal static class FoodAccessRegression
         Check(zero.UnknownCalorieItems == 0 && (bool)zero.ToDictionary()["assessmentComplete"], "real zero is a valid observation");
         var blockedUnknown = Ready(100); blockedUnknown.Reachable = false; blockedUnknown.Fetchable = null;
         Expect(blockedUnknown, "unreachableCaloriesKcal", 100, "confirmed blocker independent of missing monitor");
+        ReadinessBoundaries();
         Console.WriteLine("Food access regression: " + checks + " checks passed");
     }
+    private static void ReadinessBoundaries()
+    {
+        var unobserved = new FoodAccessBreakdown();
+        Check(!unobserved.AssessmentComplete && unobserved.AssessmentState == "unavailable",
+            "food_initialization_contract: an unobserved inventory is not a confirmed zero");
+        Check(unobserved.InventoryReady == null, "unobserved inventory stays null");
+        var pending = new FoodAccessBreakdown();
+        pending.ObserveInventory(new FoodInventoryObservation { WorldId = 7, Ready = false,
+            Reason = "world_inventory_initializing" });
+        Check(!pending.AssessmentComplete && pending.AssessmentState == "initializing"
+            && pending.InventoryInitializingWorlds == 1 && pending.Items == 0,
+            "food_initialization_contract: pending empty inventory remains initializing");
+        Check(!pending.ToDictionary().ContainsKey("inventoryReadiness")
+            && pending.ToDictionary(true).ContainsKey("inventoryReadiness"),
+            "world readiness evidence is only present in explicit detail");
+        var missingScope = new FoodAccessBreakdown();
+        missingScope.ObserveInventory(new FoodInventoryObservation { WorldId = -1, Reason = "cluster_manager_missing" });
+        Check(missingScope.InventoryReady == null && !missingScope.AssessmentComplete
+            && missingScope.InventoryUnavailableWorlds == 0,
+            "unavailable global scope does not manufacture a number of unknown worlds");
+        var zero = new FoodAccessBreakdown();
+        zero.ObserveInventory(new FoodInventoryObservation { WorldId = 7, Ready = true });
+        Check(zero.AssessmentComplete && zero.AssessmentState == "complete" && zero.Available == 0,
+            "confirmed ready empty inventory remains a measured zero");
+        var absent = new FoodAccessBreakdown();
+        absent.ObserveInventory(new FoodInventoryObservation { WorldId = 7, Ready = null,
+            Reason = "world_inventory_missing" });
+        Check(!absent.AssessmentComplete && absent.AssessmentState == "unavailable"
+            && absent.InventoryReady == null && absent.InventoryInitializingWorlds == 0,
+            "missing inventory must not be inferred to be initializing");
+        var mixed = new FoodAccessBreakdown();
+        mixed.ObserveInventory(new FoodInventoryObservation { WorldId = 7, Ready = true });
+        mixed.ObserveInventory(new FoodInventoryObservation { WorldId = 8, Ready = false,
+            Reason = "world_inventory_initializing" });
+        Check(!mixed.AssessmentComplete && mixed.AssessmentState == "initializing",
+            "one pending requested world prevents a complete all-world assessment");
+        mixed.ObserveInventory(new FoodInventoryObservation { WorldId = 8, Ready = false,
+            Reason = "world_inventory_initializing" });
+        Check(mixed.InventoryInitializingWorlds == 1, "repeated item evidence does not count a world twice");
+        var perType = new FoodAccessBreakdown();
+        mixed.CopyInventoryTo(perType);
+        Check(perType.AssessmentState == "initializing" && perType.InventoryInitializingWorlds == 1
+            && perType.Items == 0 && perType.Available == 0,
+            "type readiness inherits requested worlds without copying or duplicating calories");
+        var conflict = new FoodAccessBreakdown();
+        conflict.ObserveInventory(new FoodInventoryObservation { WorldId = 7, Ready = true });
+        conflict.ObserveInventory(new FoodInventoryObservation { WorldId = 7, Ready = false,
+            Reason = "world_inventory_initializing" });
+        Check(conflict.InventoryReady == null && conflict.AssessmentState == "unavailable",
+            "contradictory same-observation evidence is not promoted to ready");
+        var missingItem = Ready(0);
+        missingItem.Fetchable = null;
+        var readyButMissing = new FoodAccessBreakdown(); readyButMissing.Add(missingItem);
+        Check(readyButMissing.InventoryReady == true && !readyButMissing.AssessmentComplete
+            && readyButMissing.AssessmentState == "unavailable" && readyButMissing.UnknownAvailabilityItems == 1,
+            "ready inventory does not conceal unknown zero-calorie item availability");
+    }
+
     private static FoodAccessObservation Ready(double kcal)
     {
-        return new FoodAccessObservation { CaloriesKcal = kcal, Reachable = true,
+        return new FoodAccessObservation { Inventory = new FoodInventoryObservation { WorldId = 0, Ready = true },
+            CaloriesKcal = kcal, Reachable = true,
             PermittedReachableConsumer = true, Fetchable = true, StoredPrivate = false,
             BeingConsumed = false, AutomationOnlyStorage = false, FetchTotalAmount = 1, UnreservedFetchAmount = 1 };
     }

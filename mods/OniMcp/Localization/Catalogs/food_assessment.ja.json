@@ -1,0 +1,10 @@
+{
+  "food_assessment.state.initializing": "初期化待ち",
+  "food_assessment.state.unavailable": "未判定",
+  "food_assessment.summary": "複製人間{0}人、最大ストレス{1}%、確認済み食料{2} kcal、利用可否{3}、警告{4}。停止のまま同じワールド範囲で/active/resources/food.oniを確認（全惑星ならworldIdを省略）",
+  "food_assessment.summary.no_dupes": "複製人間{0}人、最大ストレスは対象外（複製人間なし）、確認済み食料{1} kcal、利用可否{2}、警告{3}。停止のまま同じワールド範囲で/active/resources/food.oniを確認（全惑星ならworldIdを省略）",
+  "food_assessment.summary.stress_unavailable": "複製人間{0}人、最大ストレス未取得、確認済み食料{1} kcal、利用可否{2}、警告{3}。停止のまま同じワールド範囲で/active/resources/food.oniを確認（全惑星ならworldIdを省略）",
+  "food_assessment.alert.shortage": "確認済みの未予約・利用可能食料が基準未満です: {0} kcal、複製人間{1}人。",
+  "food_assessment.alert.initializing": "食料の利用可否は初期化待ちです。確認済みカロリーは下限値です。停止のまま同じワールド範囲で/active/resources/food.oniを確認してください。",
+  "food_assessment.alert.unavailable": "食料の利用可否に未判定があります。確認済み食料を生存余力とみなさず、同じワールド範囲で/active/resources/food.oniの根拠を確認してください。"
+}

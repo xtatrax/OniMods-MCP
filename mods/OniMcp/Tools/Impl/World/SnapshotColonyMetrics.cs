@@ -13,6 +13,7 @@ namespace OniMcp.Tools
             double totalKcal = 0d;
             var access = new FoodAccessBreakdown();
             var reader = new FoodAvailabilityReader();
+            reader.CaptureReadiness(access, worldId >= 0 ? (int?)worldId : null);
             foreach (var edible in Components.Edibles.Items)
             {
                 if (edible == null || edible.gameObject == null)
@@ -35,6 +36,7 @@ namespace OniMcp.Tools
                         Name = ToolUtil.CleanName(edible.GetProperName()),
                         Quality = edible.GetQuality()
                     };
+                    access.CopyInventoryTo(aggregate.Access);
                     groups[id] = aggregate;
                 }
 

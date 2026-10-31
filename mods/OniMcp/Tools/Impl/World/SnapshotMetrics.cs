@@ -158,6 +158,7 @@ namespace OniMcp.Tools
                     ["foodUnreachableKcal"] = metrics["food_unreachable_kcal"],
                     ["foodUnknownKcal"] = metrics["food_unknown_kcal"],
                     ["foodAssessmentComplete"] = metrics["food_assessment_complete"],
+                    ["foodAssessmentState"] = metrics["food_assessment_state"],
                     ["redAlert"] = metrics["red_alert"],
                     ["alerts"] = metrics["alerts"]
                 },
@@ -182,6 +183,7 @@ namespace OniMcp.Tools
                 ["alertCoverage"] = DiagnosticAlertCoverage.Sample(metrics["alertCoverage"], time, worldId),
                 ["summary"] = BuildSummary(metrics),
                 ["needsCoverage"] = metrics["needsCoverage"],
+                ["foodAssessmentState"] = metrics["food_assessment_state"],
                 ["watch"] = watch
             };
         }
@@ -207,7 +209,8 @@ namespace OniMcp.Tools
                 ["food_available_kcal"] = food?.Access != null ? (object)Math.Round(food.Access.Available, 1) : null,
                 ["food_unreachable_kcal"] = food?.Access != null ? (object)Math.Round(food.Access.Unreachable, 1) : null,
                 ["food_unknown_kcal"] = food?.Access != null ? (object)Math.Round(food.Access.Unknown, 1) : null,
-                ["food_assessment_complete"] = food?.Access != null && food.Access.UnknownAvailabilityItems == 0 && food.Access.UnknownCalorieItems == 0,
+                ["food_assessment_complete"] = food?.Access?.AssessmentComplete == true,
+                ["food_assessment_state"] = food?.Access != null ? food.Access.AssessmentState : "unavailable",
                 ["food_types"] = food?.FoodTypes ?? 0,
                 ["red_alert"] = red,
                 ["yellow_alert"] = yellow,
@@ -266,7 +269,22 @@ namespace OniMcp.Tools
         private static string BuildSummary(Dictionary<string, object> metrics)
         {
             string summary;
-            if (Convert.ToInt32(metrics["dupes"]) == 0)
+            if (!Convert.ToBoolean(metrics["food_assessment_complete"]))
+            {
+                string state = string.Equals(metrics["food_assessment_state"]?.ToString(), "initializing", StringComparison.Ordinal)
+                    ? McpLocalization.Get("food_assessment.state.initializing")
+                    : McpLocalization.Get("food_assessment.state.unavailable");
+                if (Convert.ToInt32(metrics["dupes"]) == 0)
+                    summary = McpLocalization.Format("food_assessment.summary.no_dupes", null,
+                        metrics["dupes"], metrics["food_kcal"], state, metrics["alertLevel"]);
+                else if (metrics["stress"] == null)
+                    summary = McpLocalization.Format("food_assessment.summary.stress_unavailable", null,
+                        metrics["dupes"], metrics["food_kcal"], state, metrics["alertLevel"]);
+                else
+                    summary = McpLocalization.Format("food_assessment.summary", null,
+                        metrics["dupes"], metrics["stress"], metrics["food_kcal"], state, metrics["alertLevel"]);
+            }
+            else if (Convert.ToInt32(metrics["dupes"]) == 0)
                 summary = McpLocalization.Format("snapshot.summary.no_dupes", null,
                     metrics["dupes"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
             else if (metrics["stress"] == null)

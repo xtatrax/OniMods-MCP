@@ -1,0 +1,10 @@
+{
+  "food_assessment.state.initializing": "initializing",
+  "food_assessment.state.unavailable": "unavailable",
+  "food_assessment.summary": "{0} dupes, max stress {1}%, known food {2} kcal, availability {3}, alert {4}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused",
+  "food_assessment.summary.no_dupes": "{0} dupes, max stress not applicable (no duplicants), known food {1} kcal, availability {2}, alert {3}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused",
+  "food_assessment.summary.stress_unavailable": "{0} dupes, max stress unavailable, known food {1} kcal, availability {2}, alert {3}. Inspect /active/resources/food.oni with the matching world scope (omit worldId for all worlds) while paused",
+  "food_assessment.alert.shortage": "Confirmed unreserved available food below threshold: {0} kcal for {1} dupes.",
+  "food_assessment.alert.initializing": "Food availability is initializing; confirmed calories are only a lower bound. Inspect /active/resources/food.oni with the matching world scope while paused.",
+  "food_assessment.alert.unavailable": "Food availability is incomplete; known food is not a survival reserve. Inspect /active/resources/food.oni with the matching world scope for access evidence."
+}

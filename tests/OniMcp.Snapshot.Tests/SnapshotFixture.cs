@@ -9,7 +9,8 @@ namespace OniMcp.Tools
     public static partial class SnapshotTools
     {
         internal static JObject Fixture(float[] stresses, int worldId = 7,
-            double available = 0, int beds = 0, string profile = "full")
+            double available = 0, int beds = 0, string profile = "full",
+            FoodAccessBreakdown foodAccess = null, bool nativeRedAlert = false)
         {
             var dupes = stresses.Select((stress, i) => new DupeSnapshot
             {
@@ -20,7 +21,7 @@ namespace OniMcp.Tools
             var food = new FoodSnapshot
             {
                 TotalKcal = available, FoodTypes = available > 0 ? 1 : 0,
-                Access = new FoodAccessBreakdown { Available = available },
+                Access = foodAccess ?? ReadyFoodAccess(available, worldId),
                 NativeRations = new Dictionary<string, object> { ["caloriesKcal"] = null, ["complete"] = false }
             };
             var buildings = new BuildingSnapshot
@@ -29,7 +30,7 @@ namespace OniMcp.Tools
                 ResearchStations = 1, Batteries = 1, Generators = 1, OxygenProducers = 1
             };
             var redAlert = new Dictionary<string, object>
-            { ["isRedAlert"] = false, ["isYellowAlert"] = false };
+            { ["isRedAlert"] = nativeRedAlert, ["isYellowAlert"] = false };
             var alerts = BuildAlerts(dupes, food, buildings, null, redAlert);
             var metrics = BuildMetrics(dupes, food, buildings, null, redAlert, alerts);
             var time = new Dictionary<string, object> { ["cycle"] = 42, ["isPaused"] = true, ["speed"] = 1 };
@@ -93,6 +94,7 @@ namespace OniMcp.Tools
             item.AddLocation(new UnityEngine.GameObject(), 0, 0);
             var observation = new FoodAccessObservation
             {
+                Inventory = new FoodInventoryObservation { WorldId = 0, Ready = true },
                 CaloriesKcal = 0, Reachable = false, PermittedReachableConsumer = false,
                 Fetchable = false, StoredPrivate = false, BeingConsumed = false,
                 AutomationOnlyStorage = false, FetchTotalAmount = 0, UnreservedFetchAmount = 0

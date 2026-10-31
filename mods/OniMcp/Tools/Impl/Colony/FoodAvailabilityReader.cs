@@ -10,6 +10,70 @@ namespace OniMcp.Tools
             Components.LiveMinionIdentities.Items.Where(d => d != null)
                 .GroupBy(d => d.GetMyWorldId()).ToDictionary(g => g.Key, g => g.ToList());
 
+        // An instance belongs to one request; never retain readiness across requests.
+        private readonly Dictionary<int, FoodInventoryObservation> inventories =
+            new Dictionary<int, FoodInventoryObservation>();
+
+        private FoodInventoryObservation ReadInventory(int worldId)
+        {
+            FoodInventoryObservation observation;
+            if (inventories.TryGetValue(worldId, out observation)) return observation;
+            observation = new FoodInventoryObservation { WorldId = worldId };
+            try
+            {
+                var manager = ClusterManager.Instance;
+                var world = manager != null ? manager.GetWorld(worldId) : null;
+                var inventory = world != null ? world.worldInventory : null;
+                if (manager == null) observation.Reason = "cluster_manager_missing";
+                else if (world == null) observation.Reason = "world_missing";
+                else if (inventory == null) observation.Reason = "world_inventory_missing";
+                else
+                {
+                    observation.Ready = inventory.HasValidCount;
+                    if (observation.Ready == false) observation.Reason = "world_inventory_initializing";
+                }
+            }
+            catch { observation.Reason = "inventory_readiness_failed"; }
+            inventories.Add(worldId, observation);
+            return observation;
+        }
+
+        internal void CaptureReadiness(FoodAccessBreakdown access, int? worldId)
+        {
+            access.MarkInventoryScopeObserved();
+            if (worldId.HasValue)
+            {
+                access.ObserveInventory(ReadInventory(worldId.Value));
+                return;
+            }
+            var manager = ClusterManager.Instance;
+            if (manager == null)
+            {
+                access.ObserveInventory(new FoodInventoryObservation
+                    { WorldId = -1, Reason = "cluster_manager_missing" });
+                return;
+            }
+            bool any = false;
+            try
+            {
+                foreach (var world in manager.WorldContainers)
+                {
+                    if (world == null) continue;
+                    any = true;
+                    access.ObserveInventory(ReadInventory(world.id));
+                }
+            }
+            catch
+            {
+                access.ObserveInventory(new FoodInventoryObservation
+                    { WorldId = -1, Reason = "world_inventory_scope_read_failed" });
+                return;
+            }
+            if (!any)
+                access.ObserveInventory(new FoodInventoryObservation
+                    { WorldId = -1, Reason = "world_inventory_scope_empty" });
+        }
+
         internal FoodAccessObservation Read(Edible edible, Pickupable pickup, int worldId,
             out Dictionary<string, object> evidence, bool includeEvidence = true)
         {
@@ -32,14 +96,10 @@ namespace OniMcp.Tools
             if (pickup != null && Grid.IsValidCell(cell) && Grid.IsWorldValidCell(cell))
             {
                 var consumerAccess = new FoodConsumerAccess();
-                bool inventoryReady = false;
-                try
-                {
-                    var inventory = ClusterManager.Instance?.GetWorld(worldId)?.worldInventory;
-                    inventoryReady = inventory != null && inventory.HasValidCount;
-                }
-                catch { reasons.Add("inventory_readiness_failed"); }
-                if (!inventoryReady) reasons.Add("world_inventory_initializing");
+                var inventoryObservation = ReadInventory(worldId);
+                result.Inventory = inventoryObservation;
+                bool inventoryReady = inventoryObservation.Ready == true;
+                if (!inventoryReady) reasons.Add(inventoryObservation.Reason);
                 List<MinionIdentity> candidates;
                 if (!dupes.TryGetValue(worldId, out candidates)) candidates = new List<MinionIdentity>();
                 foreach (var dupe in candidates)
@@ -136,6 +196,7 @@ namespace OniMcp.Tools
         {
             var reader = new FoodAvailabilityReader();
             var access = new FoodAccessBreakdown();
+            reader.CaptureReadiness(access, worldId);
             foreach (var edible in Components.Edibles.Items)
             {
                 if (edible == null || edible.gameObject == null) continue;

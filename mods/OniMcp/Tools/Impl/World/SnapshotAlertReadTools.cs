@@ -15,9 +15,12 @@ namespace OniMcp.Tools
 
             AddAlert(alerts, redAlert != null && redAlert.ContainsKey("isRedAlert") && Convert.ToBoolean(redAlert["isRedAlert"]), "critical", "red_alert", "Red alert is active.");
             AddAlert(alerts, redAlert != null && redAlert.ContainsKey("isYellowAlert") && Convert.ToBoolean(redAlert["isYellowAlert"]), "warning", "yellow_alert", "Yellow alert is active.");
-            AddAlert(alerts, food != null && foodKcal < dupeCount * 2000f, "critical", "food", $"Confirmed unreserved available food below threshold: {Math.Round(foodKcal, 1)} kcal for {dupeCount} dupes.");
-            AddAlert(alerts, food?.Access != null && (food.Access.UnknownAvailabilityItems > 0 || food.Access.UnknownCalorieItems > 0),
-                "warning", "food_assessment_incomplete", "Some food availability is unknown; known food total is not a survival reserve.");
+            AddAlert(alerts, food?.Access?.AssessmentComplete == true && foodKcal < dupeCount * 2000f, "critical", "food",
+                McpLocalization.Format("food_assessment.alert.shortage", null, Math.Round(foodKcal, 1), dupeCount));
+            AddAlert(alerts, food != null && food.Access?.AssessmentComplete != true,
+                "warning", "food_assessment_incomplete", food.Access?.AssessmentState == "initializing"
+                    ? McpLocalization.Get("food_assessment.alert.initializing")
+                    : McpLocalization.Get("food_assessment.alert.unavailable"));
             AddAlert(alerts, buildings != null && buildings.Beds < dupeCount, "warning", "sleep", $"Beds short: {buildings.Beds}/{dupeCount}.");
             AddAlert(alerts, buildings != null && buildings.Toilets == 0, "warning", "hygiene", "No toilet detected.");
             AddAlert(alerts, buildings != null && buildings.ResearchStations == 0, "info", "research", "No research station detected.");
