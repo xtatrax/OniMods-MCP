@@ -114,8 +114,6 @@ namespace OniMcp.Tools
     {
         internal static CallToolResult BatchForCountTest(JObject args) => Batch(args);
         private static CallToolResult HandleWorldEditorScoped(JObject args) => HandleWorldEditorCommand(args);
-        private static CallToolResult Cd(JObject args) => throw new NotSupportedException();
-        private static CallToolResult Ls(JObject args) => throw new NotSupportedException();
         private static CallToolResult Zoom(JObject args) => throw new NotSupportedException();
         private static CallToolResult Search(JObject args) => throw new NotSupportedException();
         private static CallToolResult Grep(JObject args) => throw new NotSupportedException();
@@ -127,13 +125,16 @@ namespace OniMcp.Tools
         internal static CallToolResult ApplyMapForCountTest(JObject args, string search, string replacement) => ApplyMapEdit(args, search, replacement);
         private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromMilliseconds(100);
         private static readonly Dictionary<string,char> UniqueCharMap = new Dictionary<string,char>();
-        private static string SaveRelativePath(string path) => path.StartsWith("/active/", StringComparison.Ordinal) ? path.Substring(8) : path;
         private static bool IsInfrastructureMapMarkdown(string relative) => false;
         private static bool IsReadableMapCell(int cell) => Grid.IsValidCell(cell);
         private static char GetUniqueChar(string id, string name) => id[0];
         private static string MapTokenPart(string token) => token;
         private static bool IsConnectionGlyph(char glyph) => "─│┼一|十●┌┐└┘┬┴├┤←→↑↓".IndexOf(glyph) >= 0;
-        private static CallToolResult Read(JObject args) => CallToolResult.Text(MapNativeBoundary.Snapshot);
+        private static CallToolResult Read(JObject args)
+        {
+            DirectoryListingBoundary.FileReads++;
+            return CallToolResult.Text(MapNativeBoundary.Snapshot);
+        }
         private static bool IsBlueprintMarkdown(string relative) => false;
         private static bool IsDupeDetailMarkdown(string relative) => false;
         private static bool IsBuildingDetailMarkdown(string relative) => false;

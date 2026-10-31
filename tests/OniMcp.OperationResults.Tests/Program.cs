@@ -11,6 +11,7 @@ internal static partial class Program
 
     private static void Main()
     {
+        DirectoryListingRegression.Run();
         ScreenshotProjectionRegression.Run();
         MoveGuidanceRegression.Run();
         MetadataSchemaRegression.Run();

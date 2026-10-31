@@ -61,3 +61,29 @@ then fail the default-result assertion. Known-bad variants must also compile
 before their behavioral failures count. Direct native-read equivalence, actual
 query/limit behavior and live preservation under each mod identity require
 separate deployed-game acceptance.
+
+
+The directory-listing regression links the complete production listing and browser
+files alongside the existing production command dispatcher and normalizer. The
+only behavior change under test is recognition of `/active/objects/` and
+`/active/buildings/instances/`, which were already advertised as directories. It
+checks parent-to-child listings, absolute/relative navigation, missing trailing
+slashes, empty/nonempty building inputs, browser parent/child links, every current
+map/ops listing entry, all advertised active directories and rejection of missing,
+similar-prefix and file paths with cwd preservation. The existing browser-only
+map link remains outside the MCP directory whitelist. Native object enumeration,
+native naming and file reads are input boundaries; no native rules or directory
+classification are implemented in the fixture. The fixture verifies that directory
+browser/list/navigation paths do not dispatch the substituted file reader.
+
+`WorldEditorListingSource` accepts a full production source path for semantic
+negative runs. The known-bad full source must compile and then fail the advertised
+directory navigation assertion. Host results do not establish live enumeration,
+child detail content, unknown-file read rejection, Unity/Mono behavior or game-state
+preservation. Each deployed mod identity requires separate paused runtime
+acceptance and restoration.
+
+The same directory regression verifies both existing object descriptions through
+the real runtime localization lookup against each unchanged embedded
+food_freshness catalog (en, ja, zh-Hans), plus existing auto-language normalization
+and English fallback. Language providers are restored after the check.
