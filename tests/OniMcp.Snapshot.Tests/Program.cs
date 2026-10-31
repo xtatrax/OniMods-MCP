@@ -11,6 +11,7 @@ internal static class Program
     private static void Main()
     {
         McpLocalization.LanguageProvider = () => "en";
+        DiagnosticScope();
         EmptyWorld();
         EmptyProfiles();
         StressBoundaries();
@@ -23,6 +24,42 @@ internal static class Program
         Check((bool)delta["second"]["unchanged"], "repeated empty scoped snapshot is an unchanged delta");
         Console.WriteLine("Snapshot adapters: " + checks + " host checks passed (native game boundaries substituted)");
         Console.WriteLine("Native snapshot needs: " + NativeNeedsRegression.Run() + " host checks passed (native game boundaries substituted)");
+    }
+
+    private static void DiagnosticScope()
+    {
+        foreach (string language in new[] { "en", "ja", "zh-Hans" })
+        {
+            McpLocalization.LanguageProvider = () => language;
+            var healthy = SnapshotTools.Fixture(new[] { 0f }, available: 4000, beds: 1);
+            var coverage = healthy["minimal"]["alertCoverage"];
+            Check(coverage != null, "diagnostic_scope_contract: minimal output exposes alert coverage");
+            Check((string)coverage["source"] == "mcp_rule_checks" && (string)coverage["model"] == "snapshot", "MCP source is explicit");
+            Check((bool)coverage["evaluated"] && !(bool)coverage["overallComplete"], "rule completion never claims full HUD coverage");
+            Null(coverage, "hudWarningCount", "unread HUD warnings remain null, including when MCP findings are zero");
+            Null(coverage, "dailyOxygenBalanceKg", "unread oxygen balance remains null");
+            Check((string)coverage["oxygenCellCheck"] == "not_evaluated", "default minimal does not claim an atmosphere scan");
+            Check((int)coverage["sampledCycle"] == 42 && (int)coverage["worldId"] == 7, "coverage is tied to the actual fixture sample and scope");
+            Null(coverage, "sampledTimeOfDayPercent", "unobserved subcycle time remains unknown");
+            Check((string)healthy["minimal"]["alertLevel"] == "green" && (int)healthy["minimal"]["metrics"]["alerts"] == 0, "legacy MCP level and count remain compatible");
+            string suffix = McpLocalization.Get("diagnostic_scope.summary.suffix");
+            Check(!suffix.Contains("diagnostic_scope.") && ((string)healthy["summary"]).EndsWith(suffix, StringComparison.Ordinal), "summary states the unassessed native sources in the selected language");
+            Check(JToken.DeepEquals(healthy["watchOnly"]["alertCoverage"], coverage), "watch-only keeps the same qualified scope");
+            Check(healthy["metrics"]["alertCoverage"]["sampledCycle"] == null, "sampling clones coverage rather than mutating metric input");
+            var global = SnapshotTools.Fixture(new[] { 0f }, worldId: -1, available: 4000, beds: 1);
+            Check((int)global["minimal"]["alertCoverage"]["worldId"] == -1
+                && (string)global["minimal"]["alertCoverage"]["populationScope"] == "all_worlds"
+                && (string)global["minimal"]["alertCoverage"]["buildingScope"] == "all_worlds", "negative world scope is explicitly all worlds");
+            var critical = SnapshotTools.Fixture(new[] { 0f }, available: 0, beds: 1);
+            Check((string)critical["minimal"]["alertLevel"] == "red" && HasAlert(critical, "food"), "scope qualification never hides a known critical finding");
+            var sampled = SnapshotTools.CoverageFixture(true, true);
+            Check((string)sampled["alertCoverage"]["oxygenCellCheck"] == "visible_stock_only", "atmosphere collection is stock, not production balance");
+            Check((double)sampled["alertCoverage"]["sampledTimeOfDayPercent"] == 12.3, "known subcycle sample is retained");
+            var skipped = SnapshotTools.CoverageFixture(false, false);
+            Check(!(bool)skipped["alertCoverage"]["evaluated"], "unrequested checks are explicitly unassessed");
+            Check(((string)skipped["summary"]).EndsWith(McpLocalization.Get("diagnostic_scope.summary.not_evaluated_suffix"), StringComparison.Ordinal), "skipped check summary does not claim evaluation");
+        }
+        McpLocalization.LanguageProvider = () => "en";
     }
 
     private static void EmptyWorld()
@@ -44,7 +81,7 @@ internal static class Program
             Check((int)result["minimal"]["worldId"] == 7, "minimal snapshot retains requested unvisited world");
             Check((int)result["minimal"]["colony"]["activeWorldId"] == 0, "active world metadata stays separate from requested scope");
             Check((bool)result["minimal"]["paused"], "minimal snapshot preserves pause metadata");
-            Check((string)result["summary"] == "0 dupes, max stress not applicable (no duplicants), known food 0 kcal (available 0 kcal), alert green", "empty summary explicitly marks stress not applicable");
+            Check((string)result["summary"] == "0 dupes, max stress not applicable (no duplicants), known food 0 kcal (available 0 kcal), alert green" + McpLocalization.Get("diagnostic_scope.summary.suffix"), "empty summary explicitly marks stress not applicable");
             Check(!((string)result["summary"]).Contains("0%"), "empty summary never claims normal zero-percent stress");
             Check((string)result["watchOnly"]["summary"] == (string)result["summary"], "watch-only summary uses same empty semantics");
             Null(result["watchOnly"]["watch"]["values"], "stress", "watch-only values preserve stress null");

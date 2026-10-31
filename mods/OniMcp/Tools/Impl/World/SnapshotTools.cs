@@ -21,7 +21,7 @@ namespace OniMcp.Tools
                 Risk = "none",
                 Aliases = new List<string> { "state_snapshot", "colony_snapshot" },
                 Tags = new List<string> { "snapshot", "colony", "status", "diagnostics", "dupes", "food", "research", "performance", "快照", "状态" },
-                Description = "互換用の入口。colony_control domain=snapshot action=get を優先してください。少ないトークンでコロニーの状態を一括取得し、通常の game_control domain=speed action=time + colony_status + colony_diagnostics + colony_alerts + resources_food + dupes_list + research_status の組み合わせを置き換えます。既定では全マップの大気を走査しません。酸素の統計が必要な場合は includeAtmosphere=true を明示してください。",
+                Description = McpLocalization.Get("diagnostic_scope.snapshot.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["profile"] = new McpToolParameter { Type = "string", Description = "minimal/brief/standard/full。minimal はサイクル、一時停止状態、警告レベル、主要指標、1文の要約のみを返す", Required = false, EnumValues = new List<string> { "minimal", "brief", "standard", "full" } },
@@ -30,7 +30,7 @@ namespace OniMcp.Tools
                     ["includeFood"] = new McpToolParameter { Type = "boolean", Description = "食料の要約を含めるか。既定は true", Required = false },
                     ["includeResearch"] = new McpToolParameter { Type = "boolean", Description = "研究の状態を含めるか。既定は true", Required = false },
                     ["includeBuildings"] = new McpToolParameter { Type = "boolean", Description = "主要設備の数を含めるか。既定は true", Required = false },
-                    ["includeAlerts"] = new McpToolParameter { Type = "boolean", Description = "スナップショットの警告を含めるか。既定は true", Required = false },
+                    ["includeAlerts"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("diagnostic_scope.snapshot.include_alerts"), Required = false },
                     ["includeAtmosphere"] = new McpToolParameter { Type = "boolean", Description = "可視の大気セルを走査するか。全マップの走査となる。既定は false", Required = false },
                     ["visibleOnly"] = new McpToolParameter { Type = "boolean", Description = "発見済みセル内の資源・食料だけを集計するか。既定は true。デバッグでは false を指定可能", Required = false },
                     ["dupeLimit"] = new McpToolParameter { Type = "integer", Description = "詳細を返す複製人間の人数上限。既定は brief=0 standard=12 full=50", Required = false },
@@ -88,6 +88,9 @@ namespace OniMcp.Tools
                             ["colony"] = colony
                         };
 
+                    if (!minimal)
+                        snapshot["alertCoverage"] = DiagnosticAlertCoverage.Sample(metrics["alertCoverage"], time, worldId);
+
                     if (!minimal && includeDupes)
                         snapshot["dupes"] = BuildDupeResult(dupes, dupeLimit, profile);
                     if (!minimal && includeFood && food != null)
@@ -111,8 +114,10 @@ namespace OniMcp.Tools
                         ["singleTool"] = true,
                         ["deltaAvailable"] = true,
                         ["watchOnly"] = watchOnly,
-                        ["replaces"] = new[] { "game_control domain=speed action=time", "colony_control domain=read action=status", "colony_control domain=diagnostic action=diagnostics", "colony_control domain=diagnostic action=alerts", "read_control domain=resources action=food", "colony_control domain=read action=dupes", "colony_control domain=management kind=research action=status" },
-                        ["fullGridScan"] = needAtmosphere
+                        ["replaces"] = new[] { "game_control domain=speed action=time", "colony_control domain=read action=status", "read_control domain=resources action=food", "colony_control domain=read action=dupes", "colony_control domain=management kind=research action=status" },
+                        ["fullGridScan"] = needAtmosphere,
+                        ["alertReplacementScope"] = "mcp_rule_checks_only",
+                        ["notReplaced"] = new[] { "oni://colony/notifications", "oni://colony/report" }
                     };
                     if (needAtmosphere)
                         ((Dictionary<string, object>)snapshot["cost"])["atmosphereNote"] = "Atmosphere is a full visible-grid aggregate and can mask local pockets; use world_area_snapshot on suspected rooms for local oxygen/temperature.";

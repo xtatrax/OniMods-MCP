@@ -171,8 +171,8 @@ This directly creates a continuous line, with no separate follow-up connection s
 | URI | 说明 |
 |-----|------|
 | `oni://colony/status` | 周期、复制人数、速度、暂停状态 |
-| `oni://colony/diagnostics` | 缺氧、断粮、过热等诊断 |
-| `oni://colony/alerts` | 当前警报和通知 |
+| `oni://colony/diagnostics` | 明确覆盖范围的MCP规则检查；不包含原生HUD通知、每日氧气收支或过热诊断 |
+| `oni://colony/alerts` | MCP规则检查的原有数组；空数组不代表没有HUD警告。原生通知通过 `oni://colony/notifications`、日报通过 `oni://colony/report` 单独读取 |
 | `oni://colony/summary` | 面向行动规划的殖民地摘要 |
 | `oni://resources/inventory` | 资源库存 |
 | `oni://resources/food` | 食物库存和保质信息 |

@@ -1,0 +1,12 @@
+{
+  "diagnostic_scope.summary.suffix": ". MCP checks only; HUD notifications and daily oxygen balance were not assessed.",
+  "diagnostic_scope.summary.not_evaluated_suffix": ". MCP rule checks, HUD notifications and daily oxygen balance were not assessed.",
+  "diagnostic_scope.diagnostics.description": "Deprecated compatibility alias, scheduled for removal in 0.3.0. Compatibility read: colony_control domain=diagnostic action=diagnostics. MCP rule checks over live duplicants and completed buildings across worlds, plus visible atmosphere in the active world. HUD notifications and daily oxygen balance are separate reads.",
+  "diagnostic_scope.alerts.description": "Deprecated compatibility alias, scheduled for removal in 0.3.0. Compatibility read: colony_control domain=diagnostic action=alerts. Returns the legacy array of MCP rule-check findings, not native HUD notifications; an empty array does not establish their absence. Read oni://colony/diagnostics for coverage and oni://colony/notifications for native notifications.",
+  "diagnostic_scope.resource.diagnostics.title": "MCP rule-check diagnostics",
+  "diagnostic_scope.resource.diagnostics.description": "Derived MCP checks with explicit coverage. This does not read native HUD notifications, native daily oxygen balance, or overheat diagnostics.",
+  "diagnostic_scope.resource.alerts.title": "MCP rule-check findings",
+  "diagnostic_scope.resource.alerts.description": "Legacy array of MCP findings; not the native HUD notification list. An empty array is not evidence of no HUD warnings. Coverage: oni://colony/diagnostics. Native notifications: oni://colony/notifications. Daily reports: oni://colony/report.",
+  "diagnostic_scope.snapshot.description": "Low-context MCP snapshot. The alert level covers only the requested MCP checks and the native emergency-mode flag, not all HUD warnings or daily oxygen balance. Native notifications and reports remain separate reads. includeAtmosphere=true adds visible oxygen stock, not oxygen production balance.",
+  "diagnostic_scope.snapshot.include_alerts": "Include MCP-derived findings. This does not query native HUD notifications or daily reports. Default true."
+}

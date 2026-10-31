@@ -1718,3 +1718,64 @@ msgstr ""
 msgctxt "OniMcp.MCP.OPERATION_FILES.SYNTAX_HINT"
 msgid "- syntax: `call tool=<tool_name> key=value ...`; in typed files, `tool=` is optional."
 msgstr ""
+
+
+#. Runtime JSON key: diagnostic_scope.summary.suffix
+#. Runtime zh-Hans msgstr: "。仅为 MCP 独立检查；未读取 HUD 通知或每日氧气收支。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.SUMMARY.SUFFIX"
+msgid ". MCP checks only; HUD notifications and daily oxygen balance were not assessed."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.summary.not_evaluated_suffix
+#. Runtime zh-Hans msgstr: "。未进行 MCP 独立检查，也未读取 HUD 通知或每日氧气收支。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.SUMMARY.NOT_EVALUATED_SUFFIX"
+msgid ". MCP rule checks, HUD notifications and daily oxygen balance were not assessed."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.diagnostics.description
+#. Runtime zh-Hans msgstr: "已弃用的兼容入口，计划在 0.3.0 移除。兼容读取：colony_control domain=diagnostic action=diagnostics。MCP 检查全部世界的存活复制人和已建成建筑，以及当前世界的可见大气。HUD 通知和每日氧气收支需另外读取。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.DIAGNOSTICS.DESCRIPTION"
+msgid "Deprecated compatibility alias, scheduled for removal in 0.3.0. Compatibility read: colony_control domain=diagnostic action=diagnostics. MCP rule checks over live duplicants and completed buildings across worlds, plus visible atmosphere in the active world. HUD notifications and daily oxygen balance are separate reads."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.alerts.description
+#. Runtime zh-Hans msgstr: "已弃用的兼容入口，计划在 0.3.0 移除。兼容读取：colony_control domain=diagnostic action=alerts。保留 MCP 独立检查结果的数组格式；空数组不表示没有原生 HUD 通知。检查范围见 oni://colony/diagnostics，原生通知见 oni://colony/notifications。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.ALERTS.DESCRIPTION"
+msgid "Deprecated compatibility alias, scheduled for removal in 0.3.0. Compatibility read: colony_control domain=diagnostic action=alerts. Returns the legacy array of MCP rule-check findings, not native HUD notifications; an empty array does not establish their absence. Read oni://colony/diagnostics for coverage and oni://colony/notifications for native notifications."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.resource.diagnostics.title
+#. Runtime zh-Hans msgstr: "MCP 独立检查诊断"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.RESOURCE.DIAGNOSTICS.TITLE"
+msgid "MCP rule-check diagnostics"
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.resource.diagnostics.description
+#. Runtime zh-Hans msgstr: "明确标示范围的 MCP 独立检查，不读取原生 HUD 通知、每日氧气收支或过热诊断。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.RESOURCE.DIAGNOSTICS.DESCRIPTION"
+msgid "Derived MCP checks with explicit coverage. This does not read native HUD notifications, native daily oxygen balance, or overheat diagnostics."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.resource.alerts.title
+#. Runtime zh-Hans msgstr: "MCP 独立检查结果"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.RESOURCE.ALERTS.TITLE"
+msgid "MCP rule-check findings"
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.resource.alerts.description
+#. Runtime zh-Hans msgstr: "MCP 检查结果的兼容数组，并非原生 HUD 通知列表；空数组不能证明没有 HUD 警告。范围：oni://colony/diagnostics；原生通知：oni://colony/notifications；日报：oni://colony/report。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.RESOURCE.ALERTS.DESCRIPTION"
+msgid "Legacy array of MCP findings; not the native HUD notification list. An empty array is not evidence of no HUD warnings. Coverage: oni://colony/diagnostics. Native notifications: oni://colony/notifications. Daily reports: oni://colony/report."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.snapshot.description
+#. Runtime zh-Hans msgstr: "低上下文 MCP 状态摘要。警报级别仅涵盖请求的 MCP 检查和原生紧急模式，不包含全部 HUD 警告或每日氧气收支。原生通知和日报需另外读取。includeAtmosphere=true 只增加可见氧气库存。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.SNAPSHOT.DESCRIPTION"
+msgid "Low-context MCP snapshot. The alert level covers only the requested MCP checks and the native emergency-mode flag, not all HUD warnings or daily oxygen balance. Native notifications and reports remain separate reads. includeAtmosphere=true adds visible oxygen stock, not oxygen production balance."
+msgstr ""
+
+#. Runtime JSON key: diagnostic_scope.snapshot.include_alerts
+#. Runtime zh-Hans msgstr: "包含 MCP 独立检查结果，不查询原生 HUD 通知或日报。默认 true。"
+msgctxt "OniMcp.MCP.DIAGNOSTIC_SCOPE.SNAPSHOT.INCLUDE_ALERTS"
+msgid "Include MCP-derived findings. This does not query native HUD notifications or daily reports. Default true."
+msgstr ""

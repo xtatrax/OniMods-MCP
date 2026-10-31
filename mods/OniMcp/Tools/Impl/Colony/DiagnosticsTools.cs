@@ -18,7 +18,7 @@ namespace OniMcp.Tools
                 Mode = "read",
                 Risk = "none",
                 Hidden = true,
-                Description = "非推奨の警告: 旧ツールは 0.3.0 で削除予定。colony_control domain=diagnostic action=diagnostics を使用してください",
+                Description = McpLocalization.Get("diagnostic_scope.diagnostics.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["visibleOnly"] = new McpToolParameter { Type = "boolean", Description = "探索済みセル内の食料のみを集計するか。既定値は true。デバッグ時は false を指定可能", Required = false }
@@ -43,7 +43,7 @@ namespace OniMcp.Tools
                 Mode = "read",
                 Risk = "none",
                 Hidden = true,
-                Description = "非推奨の警告: 旧ツールは 0.3.0 で削除予定。colony_control domain=diagnostic action=alerts を使用してください",
+                Description = McpLocalization.Get("diagnostic_scope.alerts.description"),
                 Handler = args =>
                 {
                     var diagnostics = BuildDiagnostics(args);
@@ -322,6 +322,9 @@ namespace OniMcp.Tools
 
             return new Dictionary<string, object>
             {
+                ["alertCoverage"] = DiagnosticAlertCoverage.Sample(
+                    DiagnosticAlertCoverage.Create("diagnostics", true, true),
+                    new Dictionary<string, object> { ["cycle"] = GameUtil.GetCurrentCycle() }, activeWorldId),
                 ["cycle"] = GameUtil.GetCurrentCycle(),
                 ["duplicants"] = dupes,
                 ["foodKcal"] = Math.Round(caloriesKcal, 1),

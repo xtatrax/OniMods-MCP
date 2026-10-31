@@ -145,6 +145,7 @@ namespace OniMcp.Tools
                 ["paused"] = time["isPaused"],
                 ["speed"] = time["speed"],
                 ["alertLevel"] = metrics["alertLevel"],
+                ["alertCoverage"] = DiagnosticAlertCoverage.Sample(metrics["alertCoverage"], time, worldId),
                 ["summary"] = BuildSummary(metrics),
                 ["metrics"] = new Dictionary<string, object>
                 {
@@ -178,6 +179,7 @@ namespace OniMcp.Tools
                 ["cycle"] = time["cycle"],
                 ["paused"] = time["isPaused"],
                 ["alertLevel"] = metrics["alertLevel"],
+                ["alertCoverage"] = DiagnosticAlertCoverage.Sample(metrics["alertCoverage"], time, worldId),
                 ["summary"] = BuildSummary(metrics),
                 ["needsCoverage"] = metrics["needsCoverage"],
                 ["watch"] = watch
@@ -210,6 +212,7 @@ namespace OniMcp.Tools
                 ["red_alert"] = red,
                 ["yellow_alert"] = yellow,
                 ["alerts"] = alertCount,
+                ["alertCoverage"] = alerts.ContainsKey("coverage") ? alerts["coverage"] : DiagnosticAlertCoverage.Create("snapshot", false, false),
                 ["alertLevel"] = alertLevel
             };
 
@@ -272,8 +275,11 @@ namespace OniMcp.Tools
             else
                 summary = McpLocalization.Format("snapshot.summary", null,
                     metrics["dupes"], metrics["stress"], metrics["food_kcal"], metrics["food_available_kcal"], metrics["alertLevel"]);
-            return Convert.ToBoolean(metrics["needsAssessmentComplete"]) ? summary
-                : summary + McpLocalization.Get("snapshot_needs.summary.incomplete_suffix");
+            if (!Convert.ToBoolean(metrics["needsAssessmentComplete"]))
+                summary += McpLocalization.Get("snapshot_needs.summary.incomplete_suffix");
+            var coverage = metrics["alertCoverage"] as Dictionary<string, object>;
+            bool evaluated = coverage != null && Convert.ToBoolean(coverage["evaluated"]);
+            return summary + McpLocalization.Get(evaluated ? "diagnostic_scope.summary.suffix" : "diagnostic_scope.summary.not_evaluated_suffix");
         }
     }
 }

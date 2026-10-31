@@ -169,8 +169,8 @@
 | URI | 説明 |
 |-----|------|
 | `oni://colony/status` | サイクル、複製人間の人数、速度、一時停止の状態 |
-| `oni://colony/diagnostics` | 酸素不足、食料不足、過熱などの診断 |
-| `oni://colony/alerts` | 現在の警告と通知 |
+| `oni://colony/diagnostics` | 取得範囲を明示したMCP独自チェック。本体HUD通知・日次酸素収支・過熱診断は取得しない |
+| `oni://colony/alerts` | MCP独自チェックの既存配列。空配列でもHUD警告なしとは判断しない。本体通知は `oni://colony/notifications`、日報は `oni://colony/report` で別取得 |
 | `oni://colony/summary` | 行動計画用のコロニー概要 |
 | `oni://resources/inventory` | 資源の在庫 |
 | `oni://resources/food` | 食料の在庫と保存状態 |

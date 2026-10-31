@@ -50,6 +50,23 @@ namespace OniMcp.Tools
             return JObject.FromObject(result, Newtonsoft.Json.JsonSerializer.Create(McpJsonUtil.Settings));
         }
 
+        internal static JObject CoverageFixture(bool atmosphereRead, bool evaluate)
+        {
+            var dupes = new List<DupeSnapshot>();
+            var food = new FoodSnapshot { Access = new FoodAccessBreakdown() };
+            var buildings = new BuildingSnapshot { Toilets = 1, Batteries = 1, ResearchStations = 1 };
+            var red = new Dictionary<string, object> { ["isRedAlert"] = false, ["isYellowAlert"] = false };
+            var atmosphere = atmosphereRead ? new Dictionary<string, object>
+                { ["oxygenKg"] = 10d, ["pollutedOxygenKg"] = 0d, ["breathableCells"] = 100 } : null;
+            var alerts = evaluate ? BuildAlerts(dupes, food, buildings, atmosphere, red)
+                : new Dictionary<string, object> { ["count"] = 0, ["items"] = new List<Dictionary<string, object>>() };
+            var metrics = BuildMetrics(dupes, food, buildings, atmosphere, red, alerts);
+            var time = new Dictionary<string, object> { ["cycle"] = 42, ["timeOfDayPercent"] = 12.3, ["isPaused"] = true, ["speed"] = 1 };
+            var colony = new Dictionary<string, object> { ["activeWorldId"] = 0, ["worldCount"] = 8 };
+            return JObject.FromObject(BuildMinimalSnapshot("minimal", 7, time, colony, metrics),
+                Newtonsoft.Json.JsonSerializer.Create(McpJsonUtil.Settings));
+        }
+
         internal static JObject ThresholdsFixture(object stress)
         {
             var metrics = new Dictionary<string, object> { ["stress"] = stress };

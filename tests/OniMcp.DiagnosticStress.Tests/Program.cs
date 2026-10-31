@@ -16,8 +16,29 @@ internal static class Program
     {
         CultureInfo.CurrentCulture=CultureInfo.InvariantCulture;
         McpLocalization.LanguageProvider=()=>"en";
+        DiagnosticScope();
         MissingAndFaults(); ValuesAndBoundaries(); PartialAndGlobalScope(); CriticalAndUnrelatedPreservation(); EmptyAndRepeat(); LocalesAndRoutes();
         Console.WriteLine("Diagnostic/survival stress: "+checks+" host checks passed (native boundaries substituted)");
+    }
+    private static void DiagnosticScope()
+    {
+        foreach(string language in new[]{"en","ja","zh-Hans"})
+        {
+            Reset();Add(0);McpLocalization.LanguageProvider=()=>language;
+            var diagnostic=Diag();var scope=diagnostic["alertCoverage"];
+            Check(scope!=null,"diagnostic_scope_contract: diagnostics exposes source coverage");
+            Check((string)scope["source"]=="mcp_rule_checks"&&(string)scope["model"]=="diagnostics","diagnostics identifies its own rule model");
+            Check((string)scope["populationScope"]=="all_live_worlds"&&(string)scope["buildingScope"]=="all_completed_worlds","legacy global population and building scope remain explicit");
+            Check((int)scope["sampledCycle"]==(int)diagnostic["cycle"],"scope records the same evaluated cycle");
+            Null(scope,"sampledTimeOfDayPercent");Null(scope,"hudWarningCount");Null(scope,"dailyOxygenBalanceKg");
+            Check(!(bool)scope["overallComplete"]&&(bool)scope["evaluated"],"successful MCP checks do not imply HUD coverage");
+            Check((string)scope["oxygenCellCheck"]=="visible_stock_only","visible oxygen inventory is distinct from daily balance");
+            Check(Alerts().Count==0,"legacy empty array is retained without inventing native warnings");
+            string description=DiagnosticsTools.GetColonyAlerts().Description;
+            Check(description==McpLocalization.Get("diagnostic_scope.alerts.description")&&!description.Contains("diagnostic_scope."),"legacy alert description is localized and defines the source");
+            CleanCanaries();
+        }
+        McpLocalization.LanguageProvider=()=>"en";
     }
     private static void Check(bool c,string m) { checks++;if(!c)throw new InvalidOperationException("Diagnostic stress: "+m); }
     private static void Null(JToken p,string k) { Check(p[k]!=null&&p[k].Type==JTokenType.Null,k+" remains explicit serialized null"); }

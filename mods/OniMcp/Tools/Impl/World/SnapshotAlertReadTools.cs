@@ -41,6 +41,7 @@ namespace OniMcp.Tools
 
             return new Dictionary<string, object>
             {
+                ["coverage"] = DiagnosticAlertCoverage.Create("snapshot", true, atmosphere != null),
                 ["count"] = alerts.Count,
                 ["items"] = alerts
             };

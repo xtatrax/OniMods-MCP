@@ -1,0 +1,12 @@
+{
+  "diagnostic_scope.summary.suffix": "。MCP独自チェックの結果です。HUD通知・日次酸素収支は未取得です。",
+  "diagnostic_scope.summary.not_evaluated_suffix": "。MCP独自チェック・HUD通知・日次酸素収支は未取得です。",
+  "diagnostic_scope.diagnostics.description": "非推奨の互換入口（0.3.0で削除予定）。互換読取: colony_control domain=diagnostic action=diagnostics。全ワールドの生存複製人間・完成設備とアクティブ世界の可視大気によるMCP独自チェック。HUD通知・日次酸素収支は別読取です。",
+  "diagnostic_scope.alerts.description": "非推奨の互換入口（0.3.0で削除予定）。互換読取: colony_control domain=diagnostic action=alerts。MCP独自チェックの指摘を既存の配列形式で返します。空配列は本体HUD通知の不存在を示しません。範囲はoni://colony/diagnostics、本体通知はoni://colony/notificationsで別取得します。",
+  "diagnostic_scope.resource.diagnostics.title": "MCP独自チェックの診断",
+  "diagnostic_scope.resource.diagnostics.description": "取得範囲を明示したMCP独自チェック。本体HUD通知・日次酸素収支・過熱診断は取得しません。",
+  "diagnostic_scope.resource.alerts.title": "MCP独自チェックの指摘",
+  "diagnostic_scope.resource.alerts.description": "MCP独自チェックの既存配列。本体HUD通知一覧ではなく、空配列でもHUD警告なしとは判断できません。範囲: oni://colony/diagnostics、本体通知: oni://colony/notifications、日報: oni://colony/report。",
+  "diagnostic_scope.snapshot.description": "低コンテキストのMCP状態要約。警告レベルは要求したMCP独自チェックと本体非常モードだけを対象とし、HUD警告全体や日次酸素収支は含みません。本体通知・日報は別取得します。includeAtmosphere=trueは可視酸素の在庫を追加し、生産収支は取得しません。",
+  "diagnostic_scope.snapshot.include_alerts": "MCP独自チェックの指摘を含める。本体HUD通知・日報は取得しない。既定true。"
+}

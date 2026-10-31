@@ -304,8 +304,8 @@ namespace OniMcp.Tools
         private static readonly List<OniResource> _resources = new List<OniResource>
                 {
                     Resource("oni://colony/status", "colony_control", "コロニーの状態", "サイクル、複製人間の数、ワールド数、速度、一時停止の状態。", new JObject { ["domain"] = "read", ["action"] = "status" }),
-                    Resource("oni://colony/diagnostics", "colony_control", "コロニーの診断", "酸素不足、食料不足、オーバーヒートなど、コロニーの診断結果。", new JObject { ["domain"] = "diagnostic", ["action"] = "diagnostics" }),
-                    Resource("oni://colony/alerts", "colony_control", "コロニーの警報", "現在のゲームの警報と通知。", new JObject { ["domain"] = "diagnostic", ["action"] = "alerts" }),
+                    Resource("oni://colony/diagnostics", "colony_control", McpLocalization.Get("diagnostic_scope.resource.diagnostics.title"), McpLocalization.Get("diagnostic_scope.resource.diagnostics.description"), new JObject { ["domain"] = "diagnostic", ["action"] = "diagnostics" }),
+                    Resource("oni://colony/alerts", "colony_control", McpLocalization.Get("diagnostic_scope.resource.alerts.title"), McpLocalization.Get("diagnostic_scope.resource.alerts.description"), new JObject { ["domain"] = "diagnostic", ["action"] = "alerts" }),
                     Resource("oni://colony/diagnostic-settings", "colony_control", "コロニーの診断設定", "AllDiagnosticsScreen の診断表示モード、個別条件の有効状態、Debug 通知の無効状態。", new JObject { ["domain"] = "diagnostic", ["action"] = "list_settings" }),
                     Resource("oni://colony/report", "colony_control", "コロニーレポート", "コロニーのレポート。", new JObject { ["domain"] = "report", ["action"] = "report" }),
                     Resource("oni://colony/summary", "colony_control", "コロニーの概要", "行動計画に役立つコロニーの概要。", new JObject { ["domain"] = "report", ["action"] = "summary" }),
