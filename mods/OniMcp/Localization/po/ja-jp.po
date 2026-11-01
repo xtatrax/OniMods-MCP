@@ -1915,3 +1915,27 @@ msgstr "対象の ChoreConsumer は取得できません。"
 msgctxt "OniMcp.MCP.MINION_TODO_READ.UNKNOWN_NOTE"
 msgid "Some potential results are unknown because the native precondition cache is pending or unavailable. Unknown blocked chores remain included even with includePotentialOnly=true; no cache refresh was requested."
 msgstr "本体の前提条件キャッシュが準備待ち、または取得不能なため、一部の潜在成功は未取得です。includePotentialOnly=true でも未取得の作業は残します。キャッシュ更新は要求していません。"
+
+#. Runtime JSON key: building_availability.error.definition_missing
+#. Runtime zh-Hans msgstr: "建筑定义缺失"
+msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.ERROR.DEFINITION_MISSING"
+msgid "Building def is missing"
+msgstr "設備定義が見つかりません"
+
+#. Runtime JSON key: building_availability.error.research_locked
+#. Runtime zh-Hans msgstr: "建筑被研究条件锁定: {0}"
+msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.ERROR.RESEARCH_LOCKED"
+msgid "Building is locked by research: {0}"
+msgstr "研究でロックされている設備です: {0}"
+
+#. Runtime JSON key: building_availability.error.definition_unavailable
+#. Runtime zh-Hans msgstr: "建筑在当前环境中不可用: {0}"
+msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.ERROR.DEFINITION_UNAVAILABLE"
+msgid "Building is not available in current context: {0}"
+msgstr "現在の環境では利用できない設備です: {0}"
+
+#. Runtime JSON key: building_availability.error.unknown
+#. Runtime zh-Hans msgstr: "建筑可用性未知: {0}（原因: {1}）"
+msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.ERROR.UNKNOWN"
+msgid "Building availability is unknown for {0}: {1}"
+msgstr "設備の利用可否は未取得です: {0}（理由: {1}）"

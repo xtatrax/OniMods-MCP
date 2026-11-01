@@ -17,7 +17,7 @@ namespace OniMcp.Tools
     }
     internal static class BuildingControlTools
     {
-        internal static bool IsVirtualFileEditContext { get { Boundary.UiCalls++; throw Boundary.Forbidden("virtual edit context"); } }
+        internal static bool IsVirtualFileEditContext { get { Boundary.VirtualContextReads++; return Boundary.VirtualEditContext; } }
     }
     public static partial class BuildPlanningTools
     {
@@ -26,6 +26,25 @@ namespace OniMcp.Tools
         internal static JArray HostCandidates(string prefab, string text, bool includeUnavailable)
         { return (JArray)JToken.Parse(JsonConvert.SerializeObject(ResolveBuildingCandidates(prefab, text, SplitPlanTerms(text).ToList(), includeUnavailable).Select(x => x.ToDictionary()).ToList(), McpJsonUtil.Settings)); }
         internal static JObject HostCatalog(BuildingDef def) { return HostJson(BuildingDefToDictionary(def)); }
+        internal static string HostAvailabilityError(BuildingDef def, JObject args = null)
+        { return BuildAvailabilityError(def, args); }
+        internal static JObject HostCapturedAvailabilityError(BuildingDef def, JObject args = null)
+        {
+            // Reflection only locates the production out-parameter overload, so
+            // the entire old Catalog still compiles for the negative control.
+            var method = typeof(BuildPlanningTools).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                .Single(m => m.Name == "BuildAvailabilityError" && m.GetParameters().Length == 3);
+            var values = new object[] { def, args, null };
+            var error = method.Invoke(null, values);
+            var observation = (BuildingAvailabilityReader.Observation)values[2];
+            return HostJson(new Dictionary<string, object> {
+                ["error"] = error ?? (object)JValue.CreateNull(),
+                ["unlocked"] = BuildingAvailabilityReader.JsonBoolean(observation.Unlocked),
+                ["availableNow"] = BuildingAvailabilityReader.JsonBoolean(observation.Value),
+                ["definitionAvailable"] = BuildingAvailabilityReader.JsonBoolean(observation.DefinitionAvailable),
+                ["availability"] = observation.ToDictionary()
+            });
+        }
         internal static JObject HostJson(object value) { return JObject.Parse(JsonConvert.SerializeObject(value, McpJsonUtil.Settings)); }
 
         // Material, placement and utility-write collaborators are outside this bounded read contract.
@@ -35,7 +54,7 @@ namespace OniMcp.Tools
         private static List<Tag> DefaultBuildElements(BuildingDef def) { return new List<Tag>(); }
         private static IEnumerable<Tag> MaterialCategoryTags(BuildingDef def) { return new Tag[0]; }
         private static object BuildDefPlacementToDictionary(BuildingDef def) { return new Dictionary<string, object>(); }
-        private static bool IsExactConnectionUtilityPrefab(string id) { Boundary.UiCalls++; throw Boundary.Forbidden("utility write guard"); }
+        private static bool IsExactConnectionUtilityPrefab(string id) { Boundary.UtilityGuardCalls++; return Boundary.ExactUtility; }
         private static bool Contains(string value, string query) { return value != null && value.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0; }
         private sealed class BuildMaterialInfo
         {

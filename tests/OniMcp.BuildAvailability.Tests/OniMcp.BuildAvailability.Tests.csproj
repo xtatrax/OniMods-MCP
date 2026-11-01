@@ -3,13 +3,14 @@
     <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
     <LangVersion>7.3</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <BuildSourceRoot Condition="'$(BuildSourceRoot)' == ''">../../mods/OniMcp/Tools/Impl/Build</BuildSourceRoot>
+    <BuildCatalogSource Condition="'$(BuildCatalogSource)' == ''">$(BuildSourceRoot)/BuildPlanningCatalog.cs</BuildCatalogSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(BuildSourceRoot)/BuildingAvailabilityReader.cs" Link="Source/BuildingAvailabilityReader.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextModels.cs" Link="Source/BuildPlanTextModels.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextParser.cs" Link="Source/BuildPlanTextParser.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextSequenceParser.cs" Link="Source/BuildPlanTextSequenceParser.cs" />
-    <Compile Include="$(BuildSourceRoot)/BuildPlanningCatalog.cs" Link="Source/BuildPlanningCatalog.cs" />
+    <Compile Include="$(BuildCatalogSource)" Link="Source/BuildPlanningCatalog.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextAliases.cs" Link="Source/BuildPlanTextAliases.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanExecutionPlanner.cs" Link="Source/BuildPlanExecutionPlanner.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingOperationGuidance.cs" Link="Source/BuildingOperationGuidance.cs" />

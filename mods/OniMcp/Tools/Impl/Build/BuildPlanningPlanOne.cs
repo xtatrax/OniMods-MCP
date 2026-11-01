@@ -19,11 +19,11 @@ namespace OniMcp.Tools
                 return ErrorResult(prefabId, x, y, resolveError);
 prefabId = resolvedPrefabId;
 
-            string availabilityError = BuildAvailabilityError(def, args);
+            BuildingAvailabilityReader.Observation availability;
+            string availabilityError = BuildAvailabilityError(def, args, out availability);
             if (availabilityError != null)
             {
                 // Geometry remains inspectable while research/availability still prevents placement.
-                var availability = BuildingAvailabilityReader.Read(def);
                 var unavailablePlacement = BuildPlacementDetails(def, x, y, ToolUtil.ResolveWorldId(args),
                     ParseOrientation(args["orientation"]?.ToString()));
                 return ErrorResult(prefabId, x, y, availabilityError, new Dictionary<string, object>

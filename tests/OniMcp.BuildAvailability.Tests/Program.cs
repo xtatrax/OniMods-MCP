@@ -40,6 +40,98 @@ internal static class Program
         Equal(seeded?.Techs?.PredicateCalls ?? 0, 0, label + " no legacy Techs eligibility predicate");
         Equal(Boundary.GetOrAddCalls, 0, label + " no GetOrAdd");
         Equal(Boundary.UiCalls, 0, label + " no UI/write");
+        Equal(Boundary.UtilityGuardCalls, 0, label + " no utility bypass lookup");
+        Equal(Boundary.VirtualContextReads, 0, label + " no virtual write context lookup");
+    }
+    private static void GateDidNotMutate(string label)
+    {
+        Equal(Boundary.DbInitializationAttempts, 0, label + " no database initialization attempt");
+        Equal(seeded?.Techs?.PredicateCalls ?? 0, 0, label + " no legacy Techs eligibility predicate");
+        Equal(Boundary.GetOrAddCalls, 0, label + " no GetOrAdd");
+        Equal(Boundary.UiCalls, 0, label + " no UI/write");
+    }
+    private static void AvailabilityGateCases()
+    {
+        // This first case is the semantic old-full-Catalog negative control:
+        // its old Db.Get() attempts initialization and throws after compilation.
+        Reset(false); var def = Def();
+        Equal(BuildPlanningTools.HostAvailabilityError(def),
+            "Building availability is unknown for Tile: database_cache_missing", "missing cache stays unknown");
+        Equal(Boundary.DbGetCalls, 0, "missing cache gate never calls lazy getter");
+        Check(Db.CachedForFixture == null, "gate does not create or replace database cache");
+        Equal(def.AvailabilityCalls, 1, "gate captures native definition once");
+        GateDidNotMutate("missing cache gate");
+
+        Reset(false); def = Def();
+        var captured = BuildPlanningTools.HostCapturedAvailabilityError(def);
+        NullProperty(captured, "unlocked", "unknown gate research");
+        NullProperty(captured, "availableNow", "unknown gate availability");
+        Equal((bool)captured["definitionAvailable"], true, "independent known definition retained");
+        Equal((string)captured["availability"]["reasonCode"], "database_cache_missing", "captured missing-cache provenance");
+        Equal(def.AvailabilityCalls, 1, "metadata reuses original gate capture");
+        GateDidNotMutate("captured missing cache");
+
+        Reset(); def = Def(); seeded.TechItems.Predicate = _ => false;
+        Equal(BuildPlanningTools.HostAvailabilityError(def), "Building is locked by research: Tile", "known locked gate");
+        Equal(seeded.TechItems.PredicateCalls, 1, "gate uses native TechItems once");
+        Equal(Boundary.UtilityGuardCalls, 0, "ordinary locked gate avoids utility bypass lookup");
+        GateDidNotMutate("known locked gate");
+        Reset(); def = Def(); Required("Tile", false); seeded.TechItems.resources[0].isPOIUnlock = true;
+        Research.Instance.Existing[0].UnlockedPOITechIds.Add("Tile");
+        Equal(BuildPlanningTools.HostAvailabilityError(def), null, "native individual POI unlock permits gate");
+        GateDidNotMutate("individual POI gate");
+        Reset(); def = Def();
+        Equal(BuildPlanningTools.HostAvailabilityError(def), null, "known available gate");
+        Equal(def.AvailabilityCalls, 1, "available gate one native definition read");
+        GateDidNotMutate("known available gate");
+
+        Reset(); def = Def(); def.NativeAvailable = false;
+        Equal(BuildPlanningTools.HostAvailabilityError(def), "Building is not available in current context: Tile", "definition unavailable gate");
+        GateDidNotMutate("definition unavailable gate");
+        Reset(false); def = Def(); def.NativeAvailable = false;
+        captured = BuildPlanningTools.HostCapturedAvailabilityError(def);
+        Equal((string)captured["error"], "Building is not available in current context: Tile", "known native refusal is sufficient despite unknown research");
+        NullProperty(captured, "unlocked", "native refusal retains independent unknown research");
+        Equal((bool)captured["availableNow"], false, "known native refusal retains false aggregate");
+        GateDidNotMutate("independent definition false/research unknown gate");
+        Reset(); def = Def(); Research.Instance = null;
+        Equal(BuildPlanningTools.HostAvailabilityError(def), "Building availability is unknown for Tile: research_controller_missing", "missing controller distinct from locked");
+        GateDidNotMutate("missing controller gate");
+        Reset(); def = Def(); def.AvailabilityPredicate = () => { throw new InvalidOperationException("fixture definition unavailable"); };
+        Equal(BuildPlanningTools.HostAvailabilityError(def), "Building availability is unknown for Tile: definition_read_failed", "definition exception distinct from false");
+        Equal(def.AvailabilityCalls, 1, "failed getter not retried");
+        GateDidNotMutate("definition exception gate");
+        Reset();
+        Equal(BuildPlanningTools.HostAvailabilityError(null), "Building def is missing", "missing definition gate");
+        GateDidNotMutate("missing definition gate");
+
+        foreach (bool sandbox in new[] { false, true })
+        {
+            Reset(false); def = Def(); Research.Instance = null;
+            if (sandbox) Game.Instance.SandboxModeActive = true; else DebugHandler.InstantBuildMode = true;
+            Equal(BuildPlanningTools.HostAvailabilityError(def), null, "authorized free-build context bypasses missing research");
+            Equal(seeded.TechItems.PredicateCalls, 0, "free-build gate does not evaluate research");
+            def.NativeAvailable = false;
+            Equal(BuildPlanningTools.HostAvailabilityError(def), "Building is not available in current context: Tile", "free-build still requires native definition");
+            GateDidNotMutate("free-build gate");
+        }
+        for (int mask = 0; mask < 16; mask++)
+        {
+            Reset(); def = Def("Wire"); seeded.TechItems.Predicate = _ => false;
+            Boundary.VirtualEditContext = (mask & 4) != 0; Boundary.ExactUtility = (mask & 8) != 0;
+            var args = new JObject { ["instantBuild"] = (mask & 1) != 0, ["allowSandbox"] = (mask & 2) != 0 };
+            Equal(BuildPlanningTools.HostAvailabilityError(def, args), mask == 15 ? null : "Building is locked by research: Wire", "exact utility bypass guard " + mask);
+            Equal(Boundary.VirtualContextReads, (mask & 3) == 3 ? 1 : 0, "consent before context read " + mask);
+            Equal(Boundary.UtilityGuardCalls, (mask & 7) == 7 ? 1 : 0, "context before native utility read " + mask);
+            GateDidNotMutate("utility bypass " + mask);
+        }
+        Reset(false); def = Def("Wire"); Boundary.VirtualEditContext = Boundary.ExactUtility = true;
+        captured = BuildPlanningTools.HostCapturedAvailabilityError(def, new JObject { ["instantBuild"] = true, ["allowSandbox"] = true });
+        NullProperty(captured, "error", "explicit utility bypass allowed");
+        NullProperty(captured, "unlocked", "bypass does not fabricate research true");
+        NullProperty(captured, "availableNow", "bypass preserves unknown aggregate");
+        Equal((string)captured["availability"]["status"], "unknown", "bypassed missing cache still unknown");
+        GateDidNotMutate("unknown utility bypass");
     }
     private static JObject Observe(BuildingDef def, bool? definition, bool? unlocked, bool? available, string status, string label)
     {
@@ -317,9 +409,29 @@ internal static class Program
             Check(text.Contains(language == "en" ? "materials" : language == "ja" ? "素材" : "材料"), language + " preserves limited scope");
         }
         Check(McpLocalization.GetForLanguage("en", key) != McpLocalization.GetForLanguage("ja", key), "independent language resources");
+        foreach (string language in new[] { "en", "ja", "zh-Hans" })
+        {
+            foreach (string ownedKey in new[] { "definition_missing", "research_locked", "definition_unavailable", "unknown" })
+            {
+                string fullKey = "building_availability.error." + ownedKey;
+                string value = McpLocalization.GetForLanguage(language, fullKey);
+                Check(value != fullKey && !string.IsNullOrWhiteSpace(value), language + " gate error resolves " + ownedKey);
+                Check((ownedKey == "definition_missing") == !value.Contains("{0}"), language + " prefab placeholder scope " + ownedKey);
+                Check((ownedKey == "unknown") == value.Contains("{1}"), language + " unknown reason placeholder scope " + ownedKey);
+            }
+            McpLocalization.LanguageProvider = () => language;
+            Reset(false); var def = Def();
+            string unknown = BuildPlanningTools.HostAvailabilityError(def);
+            Check(unknown.Contains("Tile") && unknown.Contains("database_cache_missing"), language + " gate formats prefab and exact reason code");
+            Check(unknown.Contains(language == "en" ? "unknown" : language == "ja" ? "未取得" : "未知"), language + " error distinguishes unknown");
+            GateDidNotMutate(language + " localized gate");
+        }
+        McpLocalization.LanguageProvider = () => "en";
     }
     private static void Main()
     {
+        McpLocalization.LanguageProvider = () => "en";
+        AvailabilityGateCases();
         NativeUiPoiCases(); ReaderCases(); CandidateCases(); CatalogCases(); LocalizationCases();
         Console.WriteLine("Build availability: " + checks + " checks PASS");
     }

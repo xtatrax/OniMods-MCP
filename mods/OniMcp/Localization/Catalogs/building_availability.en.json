@@ -1,3 +1,7 @@
 {
-  "building_availability.include_unavailable": "Include building definitions that are unavailable or whose definition/research availability is unknown. Defaults to false, which returns only observed available definitions. This does not assess build-menu visibility, placement or materials."
+  "building_availability.include_unavailable": "Include building definitions that are unavailable or whose definition/research availability is unknown. Defaults to false, which returns only observed available definitions. This does not assess build-menu visibility, placement or materials.",
+  "building_availability.error.definition_missing": "Building def is missing",
+  "building_availability.error.research_locked": "Building is locked by research: {0}",
+  "building_availability.error.definition_unavailable": "Building is not available in current context: {0}",
+  "building_availability.error.unknown": "Building availability is unknown for {0}: {1}"
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
+using OniMcp.Support;
 using UnityEngine;
 
 namespace OniMcp.Tools
@@ -97,54 +98,39 @@ private static bool IsUnlockedAndAvailable(BuildingDef def)
 return BuildingAvailabilityReader.Read(def).Value == true;
 }
 
-private static bool IsTechUnlocked(BuildingDef def)
-{
-if (def == null)
-return false;
-try
-{
-if (DebugHandler.InstantBuildMode || (Game.Instance != null && Game.Instance.SandboxModeActive))
-return true;
-}
-catch { }
-if (Db.Get() == null || Db.Get().Techs == null)
-return false;
-try
-{
-return Db.Get().Techs.IsTechItemComplete(def.PrefabID);
-}
-catch
-{
-return false;
-}
-}
-
 private static string BuildAvailabilityError(BuildingDef def, JObject args = null)
 {
-if (def == null)
-return "Building def is missing";
-if (!IsTechUnlocked(def) && !CanBypassUtilityResearch(def, args))
-return "Building is locked by research: " + def.PrefabID;
-try
-{
-if (!def.IsAvailable())
-return "Building is not available in current context: " + def.PrefabID;
+    BuildingAvailabilityReader.Observation availability;
+    return BuildAvailabilityError(def, args, out availability);
 }
-catch
+
+private static string BuildAvailabilityError(BuildingDef def, JObject args,
+    out BuildingAvailabilityReader.Observation availability)
 {
-return "Building availability check failed: " + def.PrefabID;
-}
-return null;
+    // Capture through the same passive reader as discovery. Missing research
+    // caches remain unknown; a preview must never initialize Db.Get().
+    availability = BuildingAvailabilityReader.Read(def);
+    if (def == null)
+        return McpLocalization.Get("building_availability.error.definition_missing");
+    bool researchAllowed = availability.Unlocked == true || CanBypassUtilityResearch(def, args);
+    if (!researchAllowed && availability.Unlocked == false)
+        return McpLocalization.Format("building_availability.error.research_locked", null, def.PrefabID);
+    if (availability.DefinitionAvailable == false)
+        return McpLocalization.Format("building_availability.error.definition_unavailable", null, def.PrefabID);
+    if (!researchAllowed || availability.DefinitionAvailable != true)
+        return McpLocalization.Format("building_availability.error.unknown", null,
+            def.PrefabID, availability.ReasonCode ?? "unknown");
+    return null;
 }
 
 private static bool CanBypassUtilityResearch(BuildingDef def, JObject args)
 {
 return def != null
-&& IsExactConnectionUtilityPrefab(def.PrefabID)
-&& BuildingControlTools.IsVirtualFileEditContext
 && args != null
 && ToolUtil.GetBool(args, "instantBuild", false)
-&& ToolUtil.GetBool(args, "allowSandbox", false);
+&& ToolUtil.GetBool(args, "allowSandbox", false)
+&& BuildingControlTools.IsVirtualFileEditContext
+&& IsExactConnectionUtilityPrefab(def.PrefabID);
 }
 
 private static object AutoMaterialValue(BuildingDef def, int worldId)

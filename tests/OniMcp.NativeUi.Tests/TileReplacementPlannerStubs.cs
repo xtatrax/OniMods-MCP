@@ -34,7 +34,10 @@ namespace OniMcp.Tools
         internal static int FixtureSupportCalls;
         internal static void ResetPlannerFixture()
         {FixtureAvailabilityError=null;FixtureMaterialValid=true;FixtureFacadeValid=true;FixtureSupportValid=true;FixtureSelectCalls=0;FixtureAutoDigCalls=0;FixtureFallbackCalls=0;FixtureSupportCalls=0;}
-        private static string BuildAvailabilityError(BuildingDef def,JObject args){return FixtureAvailabilityError;}
+        private static string BuildAvailabilityError(BuildingDef def,JObject args)
+        {BuildingAvailabilityReader.Observation observed;return BuildAvailabilityError(def,args,out observed);}
+        private static string BuildAvailabilityError(BuildingDef def,JObject args,out BuildingAvailabilityReader.Observation observed)
+        {observed=BuildingAvailabilityReader.Read(def);return FixtureAvailabilityError;}
         private static bool IsTechUnlocked(BuildingDef def){return FixtureAvailabilityError==null;}
         private static bool IsUnlockedAndAvailable(BuildingDef def){return FixtureAvailabilityError==null;}
         private static Orientation ParseOrientation(string value)

@@ -6,8 +6,10 @@ using System.Linq;
 internal static class Boundary
 {
     internal static int DbGetCalls, DbInitializationAttempts, GetOrAddCalls, UiCalls, MaterialCalls;
+    internal static int UtilityGuardCalls, VirtualContextReads;
+    internal static bool ExactUtility, VirtualEditContext;
     internal static Action MaterialRead;
-    internal static void Reset() { DbGetCalls = DbInitializationAttempts = GetOrAddCalls = UiCalls = MaterialCalls = 0; MaterialRead = null; }
+    internal static void Reset() { DbGetCalls = DbInitializationAttempts = GetOrAddCalls = UiCalls = MaterialCalls = 0; UtilityGuardCalls = VirtualContextReads = 0; ExactUtility = VirtualEditContext = false; MaterialRead = null; }
     internal static InvalidOperationException Forbidden(string operation)
     { return new InvalidOperationException("Unexpected native mutation/init/UI boundary: " + operation); }
 }

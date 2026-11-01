@@ -1,3 +1,7 @@
 {
-  "building_availability.include_unavailable": "利用不可、または設備定義・研究による利用可否が未取得の設備も含めるか。既定は false で、利用可能と確認できた定義だけを返します。建設メニューへの表示、配置、素材は判定しません。"
+  "building_availability.include_unavailable": "利用不可、または設備定義・研究による利用可否が未取得の設備も含めるか。既定は false で、利用可能と確認できた定義だけを返します。建設メニューへの表示、配置、素材は判定しません。",
+  "building_availability.error.definition_missing": "設備定義が見つかりません",
+  "building_availability.error.research_locked": "研究でロックされている設備です: {0}",
+  "building_availability.error.definition_unavailable": "現在の環境では利用できない設備です: {0}",
+  "building_availability.error.unknown": "設備の利用可否は未取得です: {0}（理由: {1}）"
 }
