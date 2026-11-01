@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -62,21 +63,21 @@ namespace OniMcp.Tools
                 Hidden = true,
                 Aliases = new List<string> { "dupe_todos_list", "minion_chore_queue_list" },
                 Tags = new List<string> { "dupe", "todo", "chore", "priority", "side-screen" },
-                Description = "互換用の入口。dupes_control domain=side_screen action=todos を使う。MinionTodoSideScreen の現在の作業、実行可能な作業、実行を妨げられている作業、優先度、対象の位置を取得する",
+                Description = McpLocalization.Get("minion_todo_read.description"),
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
-                    ["id"] = new McpToolParameter { Type = "integer", Description = "任意の複製人間の InstanceID", Required = false },
-                    ["name"] = new McpToolParameter { Type = "string", Description = "任意の複製人間の名前", Required = false },
-                    ["includeBlocked"] = new McpToolParameter { Type = "boolean", Description = "失敗・実行を妨げられている作業を含めるか。既定値は true", Required = false },
-                    ["includePotentialOnly"] = new McpToolParameter { Type = "boolean", Description = "実行を妨げられている作業のうち IsPotentialSuccess のものだけを返すか。既定値は true", Required = false },
-                    ["query"] = new McpToolParameter { Type = "string", Description = "複製人間、作業、対象、グループ、妨げられている理由で絞り込む", Required = false },
-                    ["limit"] = new McpToolParameter { Type = "integer", Description = "返す複製人間の人数の上限。既定値は 50、最大 200", Required = false },
-                    ["taskLimit"] = new McpToolParameter { Type = "integer", Description = "複製人間1人あたりの作業の返却件数の上限。既定値は 30、最大 100", Required = false }
+                    ["id"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("minion_todo_read.id"), Required = false },
+                    ["name"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("minion_todo_read.name"), Required = false },
+                    ["includeBlocked"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("minion_todo_read.include_blocked"), Required = false },
+                    ["includePotentialOnly"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("minion_todo_read.include_potential_only"), Required = false },
+                    ["query"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("minion_todo_read.query"), Required = false },
+                    ["limit"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("minion_todo_read.limit"), Required = false },
+                    ["taskLimit"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("minion_todo_read.task_limit"), Required = false }
                 },
                 Handler = args =>
                 {
                     if (Game.Instance == null)
-                        return CallToolResult.Error("Game not initialized");
+                        return CallToolResult.Error(McpLocalization.Get("errors.game_not_initialized"));
                     MinionIdentity specific = ToolUtil.FindDupe(args);
                     string query = args["query"]?.ToString();
                     int limit = ToolUtil.ClampLimit(args, 50, 200);
@@ -168,7 +169,7 @@ namespace OniMcp.Tools
                 result["current"] = null;
                 result["tasks"] = new List<Dictionary<string, object>>();
                 result["blocked"] = new List<Dictionary<string, object>>();
-                result["note"] = "No ChoreConsumer on target";
+                result["note"] = McpLocalization.Get("minion_todo_read.consumer_missing");
                 return result;
             }
 
@@ -188,12 +189,16 @@ namespace OniMcp.Tools
                 .ToList();
             var blocked = includeBlocked
                 ? failedContexts
-                    .Where(ctx => ctx.chore != null && (!potentialOnly || ctx.IsPotentialSuccess()))
-                    .Select(ctx => ChoreContextInfo(ctx, consumer, success: false))
+                    .Where(ctx => ctx.chore != null)
+                    .Select(ctx => new { Context = ctx, Observation = NativeChorePreconditionObservation.Read(ctx) })
+                    .Where(row => !potentialOnly || row.Observation.PotentialSuccess != false)
+                    .Select(row => ChoreContextInfo(row.Context, consumer, success: false, observation: row.Observation))
                     .Take(taskLimit)
                     .ToList()
                 : new List<Dictionary<string, object>>();
 
+            int unknownPotential = succeeded.Count(info => info["potentialSuccess"] == null)
+                + blocked.Count(info => info["potentialSuccess"] == null);
             result["current"] = CurrentChoreInfo(consumer);
             result["tasks"] = succeeded;
             result["blocked"] = blocked;
@@ -202,8 +207,11 @@ namespace OniMcp.Tools
                 ["succeeded"] = snapshot.succeededContexts.Count,
                 ["blocked"] = snapshot.failedContexts.Count,
                 ["returnedTasks"] = succeeded.Count,
-                ["returnedBlocked"] = blocked.Count
+                ["returnedBlocked"] = blocked.Count,
+                ["returnedUnknownPotential"] = unknownPotential
             };
+            if (unknownPotential > 0)
+                result["note"] = McpLocalization.Get("minion_todo_read.unknown_note");
             return result;
         }
 
@@ -220,17 +228,20 @@ namespace OniMcp.Tools
             return info;
         }
 
-        private static Dictionary<string, object> ChoreContextInfo(Chore.Precondition.Context context, ChoreConsumer consumer, bool success)
+        private static Dictionary<string, object> ChoreContextInfo(Chore.Precondition.Context context, ChoreConsumer consumer, bool success,
+            NativeChorePreconditionObservation.Observation observation = null)
         {
+            observation = observation ?? NativeChorePreconditionObservation.Read(context);
             var info = ChoreInfo(context.chore, consumer, context.data);
             info["success"] = success;
-            info["potentialSuccess"] = context.IsPotentialSuccess();
+            info["potentialSuccess"] = observation.PotentialSuccess.HasValue ? (object)observation.PotentialSuccess.Value : null;
+            info["preconditionState"] = observation.State;
             info["personalPriority"] = context.personalPriority;
             info["typePriority"] = context.priority;
             info["priorityMod"] = context.priorityMod;
             info["consumerPriority"] = context.consumerPriority;
             info["cost"] = context.cost;
-            info["failedPrecondition"] = FailedPreconditionInfo(context);
+            info["failedPrecondition"] = observation.FailedPrecondition;
             return info;
         }
 
@@ -282,28 +293,6 @@ namespace OniMcp.Tools
                     best = group;
             }
             return best;
-        }
-
-        private static Dictionary<string, object> FailedPreconditionInfo(Chore.Precondition.Context context)
-        {
-            if (context.failedPreconditionId < 0)
-                return null;
-            var preconditions = context.chore.GetPreconditions();
-            if (context.failedPreconditionId >= preconditions.Count)
-            {
-                return new Dictionary<string, object>
-                {
-                    ["index"] = context.failedPreconditionId,
-                    ["id"] = "out_of_range"
-                };
-            }
-            var precondition = preconditions[context.failedPreconditionId].condition;
-            return new Dictionary<string, object>
-            {
-                ["index"] = context.failedPreconditionId,
-                ["id"] = precondition.id,
-                ["description"] = precondition.description
-            };
         }
 
         private static T Safe<T>(Func<T> read, T fallback)

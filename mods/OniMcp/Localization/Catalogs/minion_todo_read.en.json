@@ -1,0 +1,12 @@
+{
+  "minion_todo_read.description": "Compatibility entry: use dupes_control domain=side_screen action=todos. Read the current, available and blocked chores, priorities and targets from MinionTodoSideScreen without refreshing native precondition caches.",
+  "minion_todo_read.id": "Optional duplicant InstanceID",
+  "minion_todo_read.name": "Optional duplicant name",
+  "minion_todo_read.include_blocked": "Include failed or blocked chores. Default: true.",
+  "minion_todo_read.include_potential_only": "For blocked chores, exclude only known IsPotentialSuccess=false results; retain unknown results with potentialSuccess=null. Default: true.",
+  "minion_todo_read.query": "Filter by duplicant, chore, target, group or blocked reason",
+  "minion_todo_read.limit": "Maximum duplicants returned. Default: 50; maximum: 200.",
+  "minion_todo_read.task_limit": "Maximum chores returned per duplicant. Default: 30; maximum: 100.",
+  "minion_todo_read.consumer_missing": "No ChoreConsumer on target",
+  "minion_todo_read.unknown_note": "Some potential results are unknown because the native precondition cache is pending or unavailable. Unknown blocked chores remain included even with includePotentialOnly=true; no cache refresh was requested."
+}

@@ -67,24 +67,26 @@ public sealed class ChoreDriver
 public sealed class ChoreGroup { public string Id; public int Priority; }
 public sealed class ChoreType { public string Id; public ChoreGroup[] groups; }
 public struct PrioritySetting { public int priority_class, priority_value; }
-public sealed class Chore
+public abstract class Chore
 {
     public sealed class Target { public GameObject gameObject; }
-    public sealed class Entry { public Condition condition; }
-    public sealed class Condition { public string id, description; }
+    public struct PreconditionInstance { public Precondition condition; }
+    public sealed class Condition : Precondition { }
     public string Name;
     public Target target;
     public GameObject gameObject;
     public ChoreType choreType;
     public PrioritySetting masterPriority;
-    public ChoreDriver driver;
+    public abstract ChoreDriver driver { get; set; }
     public string GetReportName() { return Name; }
-    public readonly List<Entry> Preconditions = new List<Entry>();
+    public abstract List<PreconditionInstance> Preconditions { get; }
     public int PreconditionReads;
-    public List<Entry> GetPreconditions() { PreconditionReads++; return Preconditions; }
+    public abstract List<PreconditionInstance> GetPreconditions();
     public static int CompareReads, PotentialReads;
-    public static class Precondition
+    public class Precondition
     {
+        public string id, description;
+        public int FixtureSortOrder;
         public struct Context : IComparable<Context>
         {
             public Chore chore;
@@ -94,9 +96,85 @@ public sealed class Chore
             public int FixtureOrder;
             public bool FixturePotential;
             public int CompareTo(Context other) { CompareReads++; return FixtureOrder.CompareTo(other.FixtureOrder); }
-            public bool IsPotentialSuccess() { PotentialReads++; return FixturePotential; }
+            // A substituted native decision, with deliberately dangerous cache boundaries.
+            // The fixture bool is not an implementation of ONI eligibility rules.
+            public bool IsPotentialSuccess()
+            {
+                PotentialReads++;
+                if (failedPreconditionId >= 0)
+                {
+                    chore.GetPreconditions();
+                    if (ChorePreconditions.instance == null) throw new InvalidOperationException("fixture singleton");
+                }
+                return FixturePotential;
+            }
         }
     }
+}
+public class StandardChoreBase : Chore
+{
+    // Names, owner and field types match the installed API's passive cache shape.
+    private List<Chore.PreconditionInstance> preconditions = new List<Chore.PreconditionInstance>();
+    private bool arePreconditionsDirty = false;
+    public int CacheSorts, CacheFlagWrites;
+    public bool ThrowOnGetter;
+    public override ChoreDriver driver { get; set; }
+    public override List<Chore.PreconditionInstance> Preconditions { get { return preconditions; } }
+    public bool FixtureDirty { get { return arePreconditionsDirty; } }
+    public void FixtureCache(bool dirty, params Chore.PreconditionInstance[] entries)
+    {
+        preconditions = entries == null ? null : new List<Chore.PreconditionInstance>(entries);
+        arePreconditionsDirty = dirty;
+        PreconditionReads = CacheSorts = CacheFlagWrites = 0;
+    }
+    public override List<Chore.PreconditionInstance> GetPreconditions()
+    {
+        PreconditionReads++;
+        if (ThrowOnGetter) throw new InvalidOperationException("fixture getter failure");
+        if (arePreconditionsDirty)
+        {
+            preconditions.Sort((a,b) => a.condition.FixtureSortOrder.CompareTo(b.condition.FixtureSortOrder));
+            CacheSorts++;
+            arePreconditionsDirty = false;
+            CacheFlagWrites++;
+        }
+        return preconditions;
+    }
+}
+public sealed class CustomOverrideChore : StandardChoreBase
+{
+    public int OverrideReads;
+    public override List<Chore.PreconditionInstance> GetPreconditions()
+    { OverrideReads++; return base.GetPreconditions(); }
+}
+public sealed class CustomDriverChore : StandardChoreBase
+{
+    public int DriverReads;
+    public override ChoreDriver driver { get { DriverReads++; return base.driver; } set { base.driver = value; } }
+}
+public sealed class OtherChore : Chore
+{
+    private readonly List<Chore.PreconditionInstance> entries = new List<Chore.PreconditionInstance>();
+    public override ChoreDriver driver { get; set; }
+    public override List<Chore.PreconditionInstance> Preconditions { get { return entries; } }
+    public override List<Chore.PreconditionInstance> GetPreconditions() { PreconditionReads++; return entries; }
+}
+public sealed class ChorePreconditions
+{
+    private static ChorePreconditions _instance;
+    public static int GetterReads, ConstructionWrites;
+    public static ChorePreconditions instance
+    {
+        get
+        {
+            GetterReads++;
+            if (_instance == null) { _instance = new ChorePreconditions(); ConstructionWrites++; }
+            return _instance;
+        }
+    }
+    public static bool FixtureExists { get { return _instance != null; } }
+    public static void FixtureReset(bool exists)
+    { _instance = exists ? new ChorePreconditions() : null; GetterReads = ConstructionWrites = 0; }
 }
 public static class GameUtil { public static string GetChoreName(Chore chore, object data) { return chore.Name; } }
 

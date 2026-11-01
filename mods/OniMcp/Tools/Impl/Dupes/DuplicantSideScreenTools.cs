@@ -138,7 +138,7 @@ namespace OniMcp.Tools
                 ["slotId"] = new McpToolParameter { Type = "string", Description = "action=equipment で装備スロット ID により絞り込む。例: Suit、Hat", Required = false },
                 ["includeAvailable"] = new McpToolParameter { Type = "boolean", Description = "action=equipment で未割り当ての使用可能な装備一覧を付けるか。既定は true", Required = false },
                 ["includeBlocked"] = new McpToolParameter { Type = "boolean", Description = "action=todos で失敗/停滞した作業を含めるか。既定は true", Required = false },
-                ["includePotentialOnly"] = new McpToolParameter { Type = "boolean", Description = "action=todos で IsPotentialSuccess の停滞した作業だけを返すか。既定は true", Required = false },
+                ["includePotentialOnly"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("minion_todo_read.include_potential_only"), Required = false },
                 ["limit"] = new McpToolParameter { Type = "integer", Description = "返す最大件数。各 action は元の一覧ツールの既定値と上限を引き継ぐ", Required = false },
                 ["taskLimit"] = new McpToolParameter { Type = "integer", Description = "action=todos で複製人間1人あたりに返す作業の最大件数。既定は 30、最大 100", Required = false }
             };

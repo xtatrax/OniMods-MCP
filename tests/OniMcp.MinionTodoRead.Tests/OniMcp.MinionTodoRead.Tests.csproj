@@ -4,9 +4,13 @@
     <LangVersion>7.3</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <TodoReaderSource Condition="'$(TodoReaderSource)' == ''">../../mods/OniMcp/Tools/Impl/Facility/FacilityDupeSideScreenTools.cs</TodoReaderSource>
+    <TodoObservationSource Condition="'$(TodoObservationSource)' == ''">../../mods/OniMcp/Tools/Impl/Facility/NativeChorePreconditionObservation.cs</TodoObservationSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(TodoReaderSource)" Link="Source/FacilityDupeSideScreenTools.cs" />
+    <Compile Include="$(TodoObservationSource)" Link="Source/NativeChorePreconditionObservation.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <Compile Include="../../mods/OniMcp/Core/McpTypes.cs" Link="Source/McpTypes.cs" />
     <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

@@ -1,0 +1,12 @@
+{
+  "minion_todo_read.description": "兼容入口：使用 dupes_control domain=side_screen action=todos。从 MinionTodoSideScreen 读取当前、可执行和受阻工作、优先级及目标，不刷新游戏的前置条件缓存。",
+  "minion_todo_read.id": "可选的复制人 InstanceID",
+  "minion_todo_read.name": "可选的复制人名称",
+  "minion_todo_read.include_blocked": "是否包含失败或受阻的工作。默认 true。",
+  "minion_todo_read.include_potential_only": "对受阻工作，仅排除已知 IsPotentialSuccess=false 的结果；未知结果保留为 potentialSuccess=null。默认 true。",
+  "minion_todo_read.query": "按复制人、工作、目标、组或受阻原因筛选",
+  "minion_todo_read.limit": "返回复制人的数量上限。默认 50，最大 200。",
+  "minion_todo_read.task_limit": "每个复制人返回的工作数量上限。默认 30，最大 100。",
+  "minion_todo_read.consumer_missing": "未取得目标的 ChoreConsumer。",
+  "minion_todo_read.unknown_note": "游戏的前置条件缓存待处理或不可用，部分潜在成功结果未知。即使 includePotentialOnly=true，未知的受阻工作仍会保留；未请求刷新缓存。"
+}

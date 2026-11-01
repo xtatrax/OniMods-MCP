@@ -1951,3 +1951,63 @@ msgstr "anchor 是地圖補丁使用的左下座標，nativeOrigin 是遊戲的�
 msgctxt "OniMcp.MCP.BUILDING_GUIDANCE.ORIENTATION_UNAVAILABLE"
 msgid "Orientation is unavailable or invalid; no preview template is provided. Read geometry and choose a permitted orientation before preparing a new map patch."
 msgstr "方向未取得或無效，因此不提供預演範本。請讀取形狀並確認允許的方向，然後再準備新的地圖補丁。"
+
+#. Runtime key: minion_todo_read.description
+#. Runtime zh-Hans msgstr: "兼容入口：使用 dupes_control domain=side_screen action=todos。从 MinionTodoSideScreen 读取当前、可执行和受阻工作、优先级及目标，不刷新游戏的前置条件缓存。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.DESCRIPTION"
+msgid "Compatibility entry: use dupes_control domain=side_screen action=todos. Read the current, available and blocked chores, priorities and targets from MinionTodoSideScreen without refreshing native precondition caches."
+msgstr "相容入口：使用 dupes_control domain=side_screen action=todos。從 MinionTodoSideScreen 讀取目前、可執行和受阻工作、優先級及目標，不重新整理遊戲的前置條件快取。"
+
+#. Runtime key: minion_todo_read.id
+#. Runtime zh-Hans msgstr: "可选的复制人 InstanceID"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.ID"
+msgid "Optional duplicant InstanceID"
+msgstr "可選的複製人 InstanceID"
+
+#. Runtime key: minion_todo_read.name
+#. Runtime zh-Hans msgstr: "可选的复制人名称"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.NAME"
+msgid "Optional duplicant name"
+msgstr "可選的複製人名稱"
+
+#. Runtime key: minion_todo_read.include_blocked
+#. Runtime zh-Hans msgstr: "是否包含失败或受阻的工作。默认 true。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.INCLUDE_BLOCKED"
+msgid "Include failed or blocked chores. Default: true."
+msgstr "是否包含失敗或受阻的工作。預設 true。"
+
+#. Runtime key: minion_todo_read.include_potential_only
+#. Runtime zh-Hans msgstr: "对受阻工作，仅排除已知 IsPotentialSuccess=false 的结果；未知结果保留为 potentialSuccess=null。默认 true。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.INCLUDE_POTENTIAL_ONLY"
+msgid "For blocked chores, exclude only known IsPotentialSuccess=false results; retain unknown results with potentialSuccess=null. Default: true."
+msgstr "對受阻工作，僅排除已知 IsPotentialSuccess=false 的結果；未知結果保留為 potentialSuccess=null。預設 true。"
+
+#. Runtime key: minion_todo_read.query
+#. Runtime zh-Hans msgstr: "按复制人、工作、目标、组或受阻原因筛选"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.QUERY"
+msgid "Filter by duplicant, chore, target, group or blocked reason"
+msgstr "按複製人、工作、目標、群組或受阻原因篩選"
+
+#. Runtime key: minion_todo_read.limit
+#. Runtime zh-Hans msgstr: "返回复制人的数量上限。默认 50，最大 200。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.LIMIT"
+msgid "Maximum duplicants returned. Default: 50; maximum: 200."
+msgstr "傳回複製人的數量上限。預設 50，最大 200。"
+
+#. Runtime key: minion_todo_read.task_limit
+#. Runtime zh-Hans msgstr: "每个复制人返回的工作数量上限。默认 30，最大 100。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.TASK_LIMIT"
+msgid "Maximum chores returned per duplicant. Default: 30; maximum: 100."
+msgstr "每個複製人傳回的工作數量上限。預設 30，最大 100。"
+
+#. Runtime key: minion_todo_read.consumer_missing
+#. Runtime zh-Hans msgstr: "未取得目标的 ChoreConsumer。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.CONSUMER_MISSING"
+msgid "No ChoreConsumer on target"
+msgstr "未取得目標的 ChoreConsumer。"
+
+#. Runtime key: minion_todo_read.unknown_note
+#. Runtime zh-Hans msgstr: "游戏的前置条件缓存待处理或不可用，部分潜在成功结果未知。即使 includePotentialOnly=true，未知的受阻工作仍会保留；未请求刷新缓存。"
+msgctxt "OniMcp.MCP.MINION_TODO_READ.UNKNOWN_NOTE"
+msgid "Some potential results are unknown because the native precondition cache is pending or unavailable. Unknown blocked chores remain included even with includePotentialOnly=true; no cache refresh was requested."
+msgstr "遊戲的前置條件快取待處理或無法取得，部分潛在成功結果未知。即使 includePotentialOnly=true，未知的受阻工作仍會保留；未要求重新整理快取。"

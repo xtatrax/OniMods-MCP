@@ -1,0 +1,12 @@
+{
+  "minion_todo_read.description": "互換用の入口。dupes_control domain=side_screen action=todos を使う。MinionTodoSideScreen の現在・実行可能・妨げられた作業、優先度、対象を取得する。本体の前提条件キャッシュは更新しない。",
+  "minion_todo_read.id": "任意の複製人間の InstanceID",
+  "minion_todo_read.name": "任意の複製人間の名前",
+  "minion_todo_read.include_blocked": "失敗・実行を妨げられている作業を含めるか。既定値は true。",
+  "minion_todo_read.include_potential_only": "妨げられた作業のうち IsPotentialSuccess=false と取得できたものだけを除く。未取得は potentialSuccess=null のまま残す。既定値は true。",
+  "minion_todo_read.query": "複製人間、作業、対象、グループ、妨げられている理由で絞り込む",
+  "minion_todo_read.limit": "返す複製人間の人数の上限。既定値は 50、最大 200。",
+  "minion_todo_read.task_limit": "複製人間1人あたりの作業の返却件数の上限。既定値は 30、最大 100。",
+  "minion_todo_read.consumer_missing": "対象の ChoreConsumer は取得できません。",
+  "minion_todo_read.unknown_note": "本体の前提条件キャッシュが準備待ち、または取得不能なため、一部の潜在成功は未取得です。includePotentialOnly=true でも未取得の作業は残します。キャッシュ更新は要求していません。"
+}

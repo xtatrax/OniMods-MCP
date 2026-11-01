@@ -22,6 +22,21 @@
 
 共有リストの参照・順序と整理フラグの保持はホストで実メソッドを連結して検証します。実機では正式な `/active/ops/dupes.md` の1コマンドから既存住民の一覧を反復し、ON/OFF・潜在filter・件数と現在作業、時刻、取得できるカメラ状態等を照合します。共有cacheの参照・フラグ、ActiveTool・全selectionには独立した公開読取窓口がないため、それらの実機非変更を観測したとは主張しません。通常画面の完全一致、全read経路や全MOD組合せの純粋性へ一般化しません。個別の保存先・住民ID・座標・生応答・本体の逆コンパイル実装は公開差分へ含めません。
 
-## 別に残るnative getterの整理
+## 前提条件cacheを整理しない追加修正
 
-`Context.CompareTo` は読取比較です。一方、既存の `IsPotentialSuccess` と失敗理由の取得が呼ぶ `chore.GetPreconditions()` には、別の前提条件cacheのdirty時にそのリストをsortし、dirtyフラグを戻すnative lazy getterが含まれます。この限定修正はその経路を変えません。ホストの潜在判定と文脈射影は代替境界であり、native getterまで純粋になった証明ではありません。作業の再評価を足したり、低層への代替書込で状態を戻したりせず、別の読取非変更の残課題へ保持します。
+作業の潜在可否と失敗理由を読む既存の `IsPotentialSuccess` / `GetPreconditions` には、dirtyな共有条件リストのsortとflag解除が含まれていた。また、条件判定のsingleton getterにも未生成時の初期化がある。追加修正は、既存cacheとsingletonを受動reflectionで観測し、準備済みの場合だけ本体の潜在可否判定へ委譲する。
+
+- 本体の型・private fieldの型・getterの実装元が一致しない場合は `unavailable`。dirtyは `pending`、不正な条件indexは `out_of_range` とする。リストの整理・singleton生成・状態の書戻しは行わない。
+- `potentialSuccess` は未取得ならnull。`includePotentialOnly=true`でも未知の行は残し、既知falseの行だけを除外する。行の `preconditionState`、返却行中の `counts.returnedUnknownPotential` と必要時だけの案内を添える。
+- 失敗indexは保持し、未取得の理由id/descriptionを補完しない。準備済みの理由は同じnative cacheから読む。観測は各文脈一回とし、フィルターと射影でgetterを重複呼出ししない。
+- 変更した説明10キーはPO4と既存runtime3へ同時移行した。中国語runtime互換と暫定POファイルの扱いは既存のローカライズ規則に従う。
+
+### 追加修正の検証
+
+実production readerとhelperを連結したホスト337条件（既存197＋追加140）が成功した。dirty保持、singleton未生成、未知override、null cache、不正index、filter・limit・反復、既存理由、実localizerの3言語を扱う。完全旧readerはコンパイル0警告0エラー後、dirty cache保持の意味検査で失敗した。PO/runtimeの対象10キーは349検査成功。開発側の全体ローカライズ検査の不足19キーは変更前HEADと完全一致する既存失敗であり、全体成功とは扱わない。公開側の全体検査成功も主張しない。
+
+開発build.159・公開build.75は、それぞれ本体参照0警告0エラー。両版自身の停止実機で非空のblocked snapshotを使い、通常読取・blocked OFF・potential filter・1件制限・反復の5条件を確認した。潜在可否・理由・返却件数と現在作業、snapshot総数、時計・取得できる視点・保存先を照合した。実機で非空のsucceeded候補は観測していない。公開側は固有IDと設定先を使用し、通常MOD不一致確定後も停止を保持した。通常終了・Steam再起動と停止ロードにより、元版・元設定内容・保護データと開始時の一時画像を復帰照合した。nativeのsession bookkeepingと内容同一のmtimeは観測記録に残し、強制巻戻ししない。
+
+### 検証の境界
+
+実機で観測したのは準備済みcacheの通常読取であり、dirty内部flag/listを独立した公開APIで観測したものではない。内部保持と未生成singleton非初期化の根拠は、本体静的経路とホストの代替境界による。名前・report・既存isCurrent等のgetter、未知MODの全callback、任意の別スレッドからの変更、全read/予行の非変更まで証明した意味ではない。既存の本体AddPreconditionはlock外のdirty代入も持つため、guardだけで任意スレッドの競合安全性を主張しない。親No.03は未完了のまま維持する。
