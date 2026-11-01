@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using OniMcp.Tools;
 
+WorldEditorTools.RunProviderGuardRegressions();
 WorldAnalysisTools.RunPickupableGroupingRegressions();
 WorldEditorTools.RunPickupableDetailRegressions();
 WorldAnalysisTools.RunUtilitySummaryRegressions();
@@ -102,13 +103,13 @@ namespace OniMcp.Tools
             foreach(bool valid in new[]{false,true}) foreach(bool visible in new[]{false,true}) foreach(int cw in new[]{-1,0,1}) foreach(int aw in new[]{-1,0,1})
                 Check(MapTextReadPolicy.CanRead(valid,visible,cw,aw)==(valid&&visible&&aw>=0&&cw==aw), "world visibility policy");
             Check(MapTextReadPolicy.BoundsError(999,0,1000,1,1200,10)!=null, "three-digit map bounds fail rather than wrap");
-            var go=new GameObject(); var manager=new TestManager {Mask=UtilityConnections.Left|UtilityConnections.Right};
-            var graph=new KAnimGraphTileVisualizer {ConnectionManager=manager}; go.Components[typeof(KAnimGraphTileVisualizer)]=graph; Grid.Objects[10,0]=go;
+            var go=new GameObject(); var manager=NativeReadBoundary.Manager(ObjectLayer.Wire); manager.Mask=UtilityConnections.Left|UtilityConnections.Right;
+            var graph=new KAnimGraphTileVisualizer {ConnectionManager=manager,connectionManager=manager}; go.Components[typeof(KAnimGraphTileVisualizer)]=graph; Grid.Objects[10,0]=go;
             string state=UtilityConnectionReadState(10,new[]{ObjectLayer.Wire});
             Check(state.Contains("connectionState=planned")&&state.Contains("plannedDirs=LR")&&state.Contains("physicalConnection=not_built")&&!manager.RequestedPhysical, "plans separately labeled");
             go.Components[typeof(BuildingComplete)]=new BuildingComplete();
             Check(UtilityConnectionReadState(10,new[]{ObjectLayer.Wire}).Contains("connectionSource=unknown"), "completed object without native provider stays unknown");
-            go.Components[typeof(IHaveUtilityNetworkMgr)] = new TestProvider { Manager = manager };
+            go.Components[typeof(IHaveUtilityNetworkMgr)] = new Wire { Manager = manager };
             Check(TryGetUtilityConnections(10,new[]{ObjectLayer.Wire},out var physical) && manager.RequestedPhysical
                 && physical == manager.Mask, "completed native reads use physical bits");
             Check(UtilityConnectionReadState(10,new[]{ObjectLayer.Wire}).Contains("connectionSource=native_physical"), "completed native source reported only when observed");

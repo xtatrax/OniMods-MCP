@@ -1938,3 +1938,9 @@ msgstr ""
 msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.ERROR.UNKNOWN"
 msgid "Building availability is unknown for {0}: {1}"
 msgstr ""
+
+#. Runtime JSON key: utility_read_safety.state_unavailable
+#. Runtime zh-Hans msgstr: "无法读取管线连接状态：{0}。"
+msgctxt "OniMcp.MCP.UTILITY_READ_SAFETY.STATE_UNAVAILABLE"
+msgid "Utility connection state is unavailable: {0}."
+msgstr ""

@@ -2035,3 +2035,9 @@ msgstr "建築在目前環境中不可用: {0}"
 msgctxt "OniMcp.MCP.BUILDING_AVAILABILITY.ERROR.UNKNOWN"
 msgid "Building availability is unknown for {0}: {1}"
 msgstr "建築可用性未知: {0}（原因: {1}）"
+
+#. Runtime JSON key: utility_read_safety.state_unavailable
+#. Runtime zh-Hans msgstr: "无法读取管线连接状态：{0}。"
+msgctxt "OniMcp.MCP.UTILITY_READ_SAFETY.STATE_UNAVAILABLE"
+msgid "Utility connection state is unavailable: {0}."
+msgstr "無法讀取管線連接狀態：{0}。"

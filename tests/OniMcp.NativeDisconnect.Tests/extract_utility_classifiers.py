@@ -12,13 +12,14 @@ parser.add_argument("--repo-root", type=Path, required=True)
 parser.add_argument("--source", type=Path, required=True)
 parser.add_argument("--errors", type=Path, required=True)
 parser.add_argument("--output", type=Path, required=True)
+parser.add_argument("--anchors", type=Path)
 args = parser.parse_args()
 sys.path.insert(0, str(args.repo_root / "scripts"))
 from onimcp_verify_parsing import matching_delimiter
 
 slices, records = [], []
 for path, names in [(args.source, ["IsUtilityPrefab", "IsLinearUtilityPrefab"]),
-                    (args.errors, ["EqualsIgnoreCase"])]:
+                    (args.errors, ["EqualsIgnoreCase"])] + ([(args.anchors,["IsDryRun"])] if args.anchors else []):
     raw = path.read_bytes()
     text = raw.decode("utf-8")
     for name in names:
@@ -37,7 +38,7 @@ for path, names in [(args.source, ["IsUtilityPrefab", "IsLinearUtilityPrefab"]),
             "byteEndExclusive": byte_end, "sliceSha256": hashlib.sha256(data).hexdigest()})
 args.output.parent.mkdir(parents=True, exist_ok=True)
 args.output.write_text("// Exact production method slices; provenance is recorded alongside this file.\n"
-    + "using System;\nnamespace OniMcp.Tools { public static partial class BuildPlanningTools {\n"
+    + "using System;\nusing Newtonsoft.Json.Linq;\nnamespace OniMcp.Tools { public static partial class BuildPlanningTools {\n"
     + "\n\n".join(slices) + "\n} }\n")
 args.output.with_suffix(".ranges.json").write_text(json.dumps(records, indent=2))
 print(f"Linked {len(records)} exact utility classifier methods")

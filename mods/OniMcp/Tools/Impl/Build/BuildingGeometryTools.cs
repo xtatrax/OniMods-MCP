@@ -146,13 +146,21 @@ namespace OniMcp.Tools
             ReadPortGroup(result, "secondary_ports_read_failed", () =>
             {
                 foreach (var p in go.GetComponents<ISecondaryInput>())
+                {
+                    string reason = NativeReadProviderPolicy.SecondaryInputReadFailure(p);
+                    if (reason != null) { result.PortsComplete = false; result.Errors.Add(reason); continue; }
                     foreach (ConduitType type in Enum.GetValues(typeof(ConduitType)))
                         if (type != ConduitType.None && p.HasSecondaryConduitType(type))
                             AddPort(result, type.ToString(), "secondary_input", p.GetType().Name, p.GetSecondaryConduitOffset(type), true, origin, orientation, "ISecondaryInput.GetSecondaryConduitOffset");
+                }
                 foreach (var p in go.GetComponents<ISecondaryOutput>())
+                {
+                    string reason = NativeReadProviderPolicy.SecondaryOutputReadFailure(p);
+                    if (reason != null) { result.PortsComplete = false; result.Errors.Add(reason); continue; }
                     foreach (ConduitType type in Enum.GetValues(typeof(ConduitType)))
                         if (type != ConduitType.None && p.HasSecondaryConduitType(type))
                             AddPort(result, type.ToString(), "secondary_output", p.GetType().Name, p.GetSecondaryConduitOffset(type), true, origin, orientation, "ISecondaryOutput.GetSecondaryConduitOffset");
+                }
             });
         }
 

@@ -29,8 +29,8 @@ internal static class UtilitySummaryRegression
     { Grid.Objects=new GameObject[16384,Enum.GetValues<ObjectLayer>().Length];Game.Instance=new Game{circuitManager=new TestCircuitManager()};UtilitySummaryBoundary.ForbiddenCalls=0; }
     private static (GameObject Go,TestProvider Provider,TestManager Manager) Complete(ObjectLayer layer,UtilityConnections mask,int? cell=null)
     {
-        int c=cell??Cell;var go=new GameObject {name="Utility fixture",NativeCell=c};var manager=new TestManager{Mask=mask};var provider=new TestProvider{Manager=manager};
-        go.Components[typeof(BuildingComplete)]=new BuildingComplete();go.Components[typeof(IHaveUtilityNetworkMgr)]=provider;Grid.Objects[c,(int)layer]=go;return(go,provider,manager);
+        int c=cell??Cell;var go=new GameObject {name="Utility fixture",NativeCell=c};var manager=NativeReadBoundary.Manager(layer);manager.Mask=mask;var provider=NativeReadBoundary.Provider(layer,manager);
+        go.Components[typeof(BuildingComplete)]=new BuildingComplete();go.Components[typeof(IHaveUtilityNetworkMgr)]=provider;go.Components[typeof(KAnimGraphTileVisualizer)]=new KAnimGraphTileVisualizer{ConnectionManager=manager,connectionManager=manager};Grid.Objects[c,(int)layer]=go;return(go,provider,manager);
     }
     private static GameObject Plan(ObjectLayer layer,int? cell=null,TestManager manager=null)
     {
@@ -79,13 +79,13 @@ internal static class UtilitySummaryRegression
         foreach(string kind in new[]{"provider","manager","provider_fault","mask_fault","game","component_fault","unclassified"})
         {
             Reset();var c=Complete(ObjectLayer.GasConduit,UtilityConnections.Right);string reason;
-            if(kind=="provider"){c.Go.Components.Remove(typeof(IHaveUtilityNetworkMgr));reason="provider_unavailable";}
-            else if(kind=="manager"){c.Provider.Manager=null;reason="manager_unavailable";}
+            if(kind=="provider"){c.Go.Components.Remove(typeof(IHaveUtilityNetworkMgr));reason="utility_provider_unsupported";}
+            else if(kind=="manager"){c.Provider.Manager=null;reason="provider_manager_mismatch";}
             else if(kind=="provider_fault"){c.Provider.ManagerReader=()=>throw new InvalidOperationException();reason="physical_mask_read_failed";}
             else if(kind=="mask_fault"){c.Manager.Reader=(_,_)=>throw new InvalidOperationException();reason="physical_mask_read_failed";}
             else if(kind=="game"){Game.Instance=null;reason="game_unavailable";}
             else if(kind=="component_fault"){c.Go.ComponentReader=_=>throw new InvalidOperationException();reason="object_state_read_failed";}
-            else{c.Go.Components.Remove(typeof(BuildingComplete));reason="object_state_unavailable";}
+            else{c.Go.Components.Remove(typeof(BuildingComplete));c.Go.Components.Remove(typeof(KAnimGraphTileVisualizer));reason="object_state_unavailable";}
             var gas=Gas();Unknown(gas,"unknown",reason);Check((bool)gas["hasLayer"],kind+" occupancy retained independently");
             Check(c.Manager.Reads.All(x=>x.Physical),kind+" never requests combined visual/physical mask");
         }
@@ -93,10 +93,10 @@ internal static class UtilitySummaryRegression
         var row=Gas();Unknown(row,"planned",null);Check((bool)row["hasLayer"]&&!(bool)row["hasPhysical"]&&(bool)row["hasPlanned"]&&plannedManager.Reads.Count==0,"planned-only never reads either physical or combined cache");
         var complete=Complete(ObjectLayer.GasConduit,UtilityConnections.Down);Plan(ObjectLayer.ReplacementGasConduit,manager:plannedManager);row=Gas();
         Check((string)row["dirs"]=="D"&&(bool)row["hasPhysical"]&&(bool)row["hasPlanned"]&&plannedManager.Reads.Count==0&&complete.Manager.Reads.Single().Physical,"complete plus replacement keeps planned marker out of physical bits");
-        complete.Go.Components.Remove(typeof(BuildingComplete));complete.Go.Components[typeof(KAnimGraphTileVisualizer)]=new KAnimGraphTileVisualizer{isPhysicalBuilding=true};row=Gas();Check((string)row["connectionState"]=="physical"&&(string)row["dirs"]=="D","native physical graph marker accepted");
+        complete.Go.Components.Remove(typeof(BuildingComplete));complete.Go.Components[typeof(KAnimGraphTileVisualizer)]=new KAnimGraphTileVisualizer{isPhysicalBuilding=true,ConnectionManager=complete.Manager,connectionManager=complete.Manager};row=Gas();Check((string)row["connectionState"]=="physical"&&(string)row["dirs"]=="D","native physical graph marker accepted");
         var first=complete.Go;Grid.Objects[Cell,(int)ObjectLayer.GasConduitTile]=first;int count=complete.Manager.Reads.Count;row=Gas();Check(complete.Manager.Reads.Count==count+1&&(string)row["dirs"]=="D","same native object in two family slots reads mask once");
         Grid.Objects[Cell,(int)ObjectLayer.ReplacementGasConduit]=null;var other=Complete(ObjectLayer.GasConduitTile,UtilityConnections.Down);count=complete.Manager.Reads.Count;row=Gas();Unknown(row,"unknown","manager_ambiguous");Check(complete.Manager.Reads.Count==count&&other.Manager.Reads.Count==0,"distinct managers do not select a first arbitrary mask");
-        Reset();var shared=Complete(ObjectLayer.Wire,UtilityConnections.Right);Grid.Objects[Cell,(int)ObjectLayer.GasConduit]=shared.Go;var all=Summary();Check((string)all["power"]["dirs"]=="R"&&(string)all["gas"]["dirs"]=="R"&&shared.Manager.Reads.Count==2,"same object is not globally deduplicated across families");
+        Reset();var shared=Complete(ObjectLayer.Wire,UtilityConnections.Right);Grid.Objects[Cell,(int)ObjectLayer.GasConduit]=shared.Go;var all=Summary();Check((string)all["power"]["dirs"]=="R"&&(string)all["gas"]["connectionState"]=="unknown"&&all["gas"]["nativePhysicalMask"].Type==JTokenType.Null&&shared.Manager.Reads.Count==1,"wrong native provider family remains unknown, not cross-family connectivity");
     }
     private static void CircuitBoundsAndEndpoints()
     {

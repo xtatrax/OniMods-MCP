@@ -1,15 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+  <PropertyGroup><UtilityPreviewOptionsSource Condition="'$(UtilityPreviewOptionsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningAnchors.cs</UtilityPreviewOptionsSource><UtilityDisconnectSource Condition="'$(UtilityDisconnectSource)' == ''">../../mods/OniMcp/Tools/Impl/Orders/OrdersUtilityDisconnect.cs</UtilityDisconnectSource>
     <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ConnectExistingSource Condition="'$(ConnectExistingSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningConnectExisting.cs</ConnectExistingSource>
     <UtilityClassifierSource Condition="'$(UtilityClassifierSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRuntimePlacement.cs</UtilityClassifierSource>
     <UtilityErrorsSource Condition="'$(UtilityErrorsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningErrors.cs</UtilityErrorsSource>
+    <ReadProviderPolicySource Condition="'$(ReadProviderPolicySource)' == ''">../../mods/OniMcp/Tools/Shared/NativeReadProviderPolicy.cs</ReadProviderPolicySource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(ReadProviderPolicySource)" Link="Source/NativeReadProviderPolicy.cs" />
+    <Compile Include="../OniMcp.ReadProviderBoundary/SecondaryProviderBoundary.cs" Link="Fixtures/SecondaryProviderBoundary.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/OrdersUtilityDisconnect.cs" Link="Source/OrdersUtilityDisconnect.cs" />
+    <Compile Include="$(UtilityDisconnectSource)" Link="Source/OrdersUtilityDisconnect.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeUtilityDisconnect.cs" Link="Source/NativeUtilityDisconnect.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/NativeUtilityConnect.cs" Link="Source/NativeUtilityConnect.cs" />
     <Compile Include="$(ConnectExistingSource)" Link="Source/BuildPlanningConnectExisting.cs" />
@@ -18,7 +21,7 @@
   </ItemGroup>
   <Target Name="GenerateUtilityClassifierSource" BeforeTargets="BeforeCompile">
     <PropertyGroup><UtilityClassifierGeneratedSource>$(IntermediateOutputPath)UtilityClassifier.g.cs</UtilityClassifierGeneratedSource></PropertyGroup>
-    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_utility_classifiers.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --source &quot;$(UtilityClassifierSource)&quot; --errors &quot;$(UtilityErrorsSource)&quot; --output &quot;$(UtilityClassifierGeneratedSource)&quot;" />
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_utility_classifiers.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --source &quot;$(UtilityClassifierSource)&quot; --errors &quot;$(UtilityErrorsSource)&quot; --anchors &quot;$(UtilityPreviewOptionsSource)&quot; --output &quot;$(UtilityClassifierGeneratedSource)&quot;" />
     <ItemGroup><Compile Include="$(UtilityClassifierGeneratedSource)" /></ItemGroup>
   </Target>
-</Project>
+<ItemGroup><EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/utility_read_safety.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" /></ItemGroup><ItemGroup><Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" /></ItemGroup></Project>

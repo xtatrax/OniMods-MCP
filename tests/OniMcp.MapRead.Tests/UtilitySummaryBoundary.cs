@@ -50,7 +50,6 @@ public sealed class Building
     public int GetUtilityInputCell()=>UtilityInput;
     public int GetUtilityOutputCell()=>UtilityOutput;
 }
-public enum ConduitType { Gas,Liquid }
 public sealed class ConduitConsumer { public ConduitType ConduitType; }
 public sealed class ConduitDispenser { public ConduitType ConduitType; }
 public sealed class SolidConduitConsumer { }

@@ -59,7 +59,7 @@ internal static class NativeConnectRegression
         fixture = new ConnectFixture(); Grid.Objects[fixture.B.Cell, (int)fixture.Layer] = null; Reject(fixture, Request(), "target_required");
         fixture = new ConnectFixture(); Grid.Objects[fixture.B.Cell, (int)fixture.Def.ReplacementLayer] = new GameObject(); Reject(fixture, Request(), "target_required");
         fixture = new ConnectFixture(); fixture.B.GetComponent<PrimaryElement>().Element.tag = new Tag(2); Reject(fixture, Request(), "same_required");
-        fixture = new ConnectFixture(); fixture.B.GetComponent<BuildingComplete>().Def = new BuildingDef { BuildingComplete = fixture.Def.BuildingComplete, ObjectLayer = fixture.Def.ObjectLayer, TileLayer = fixture.Layer }; Reject(fixture, Request(), "same_required");
+        fixture = new ConnectFixture(); fixture.B.GetComponent<BuildingComplete>().Def = new BuildingDef { PrefabID = fixture.Def.PrefabID, BuildingComplete = fixture.Def.BuildingComplete, ObjectLayer = fixture.Def.ObjectLayer, TileLayer = fixture.Layer }; Reject(fixture, Request(), "same_required");
         fixture = new ConnectFixture(); fixture.B.ConnectionManager = fixture.OtherManager; Reject(fixture, Request(), "target_required");
         fixture = new ConnectFixture(); fixture.B.connectionManager = null; Reject(fixture, Request(), "target_required");
         fixture = new ConnectFixture(); fixture.Def.BuildingComplete = new GameObject(); Reject(fixture, Request(), "target_required");
@@ -121,7 +121,7 @@ internal static class NativeConnectRegression
 
 internal sealed class ConnectFixture
 {
-    internal readonly Manager Manager = new Manager(), OtherManager = new Manager();
+    internal readonly Manager Manager, OtherManager;
     internal readonly KAnimGraphTileVisualizer A, B;
     internal readonly GameObject Unrelated;
     internal readonly BaseUtilityBuildTool Tool;
@@ -131,13 +131,16 @@ internal sealed class ConnectFixture
     internal readonly UtilityConnections BeforeA, BeforeB, AddA, AddB;
     internal ConnectFixture(string type = "liquid", string direction = "right", string prefabId = null)
     {
+        Manager = NativeManagerFixture.Create(type); OtherManager = NativeManagerFixture.Create(type);
         Grid.Objects = new GameObject[64, (int)ObjectLayer.NumLayers]; Grid.Worlds = new int[64]; Grid.Visible = Enumerable.Repeat(true, 64).ToArray();
         ClusterManager.Instance = new ClusterManager(); SpeedControlScreen.Instance = new SpeedControlScreen { IsPaused = true };
         PlayerController.Instance = new PlayerController(); SelectTool.Instance = new SelectTool();
         UtilityBuildTool.Instance = new UtilityBuildTool(); WireBuildTool.Instance = new WireBuildTool();
         Layer = type switch { "gas" => ObjectLayer.GasConduitTile, "solid" => ObjectLayer.SolidConduitTile, "wire" => ObjectLayer.WireTile, "logic" => ObjectLayer.LogicWireTile, _ => ObjectLayer.LiquidConduitTile };
         Tool = type == "wire" ? WireBuildTool.Instance : UtilityBuildTool.Instance;
-        var prefab = new GameObject(); prefab.Add(new UtilityItem(Manager));
+        var prefab = new GameObject();
+        NativeUtilityProvider provider = type switch { "wire" => new Wire(Manager), "logic" => new LogicWire(Manager), "solid" => new SolidConduit(Manager), _ => new Conduit(Manager) };
+        prefab.Add(provider);
         Def = new BuildingDef { BuildingComplete = prefab, ObjectLayer = (ObjectLayer)((int)Layer - 5), TileLayer = Layer, ReplacementLayer = (ObjectLayer)((int)Layer + 5), PrefabID = prefabId ?? (type switch { "gas" => "GasConduit", "solid" => "SolidConduit", "wire" => "Wire", "logic" => "LogicWire", _ => "LiquidConduit" }) };
         int dx = direction == "right" ? 1 : direction == "left" ? -1 : 0;
         int dy = direction == "up" ? 1 : direction == "down" ? -1 : 0;

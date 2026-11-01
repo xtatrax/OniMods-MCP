@@ -18,11 +18,12 @@ namespace OniMcp.Tools
                     return TryGetUtilityConnections(cell, layers, out _)
                         ? "connectionState=complete connectionSource=native_physical flowVerified=false"
                         : "connectionState=complete connectionSource=unknown physicalConnection=unknown flowVerified=false";
-                if (graph == null || graph.ConnectionManager == null)
-                    return "connectionState=planned plannedMask=? physicalConnection=not_built";
                 try
                 {
-                    var bits = graph.ConnectionManager.GetConnections(cell, is_physical_building: false);
+                    if (!NativeReadProviderPolicy.TryGetCachedUtilityManager(graph, layer,
+                        out IUtilityNetworkMgr manager, out _))
+                        return "connectionState=planned plannedMask=? physicalConnection=not_built";
+                    var bits = manager.GetConnections(cell, is_physical_building: false);
                     string dirs = ((bits & UtilityConnections.Up) != 0 ? "U" : "")
                         + ((bits & UtilityConnections.Down) != 0 ? "D" : "")
                         + ((bits & UtilityConnections.Left) != 0 ? "L" : "")

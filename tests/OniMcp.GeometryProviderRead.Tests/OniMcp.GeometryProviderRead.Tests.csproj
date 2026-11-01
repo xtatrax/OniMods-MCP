@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GeometrySource Condition="'$(GeometrySource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildingGeometryTools.cs</GeometrySource>
+    <ReadProviderPolicySource Condition="'$(ReadProviderPolicySource)' == ''">../../mods/OniMcp/Tools/Shared/NativeReadProviderPolicy.cs</ReadProviderPolicySource>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="$(GeometrySource)" Link="Source/BuildingGeometryTools.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingGeometrySnapshot.cs" Link="Source/BuildingGeometrySnapshot.cs" />
+    <Compile Include="$(ReadProviderPolicySource)" Link="Source/NativeReadProviderPolicy.cs" />
+    <Compile Include="../OniMcp.ReadProviderBoundary/SecondaryProviderBoundary.cs" Link="Fixtures/SecondaryProviderBoundary.cs" />
+  </ItemGroup>
+</Project>

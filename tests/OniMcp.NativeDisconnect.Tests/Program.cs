@@ -23,8 +23,12 @@ internal static class Program
         Check(f.Tool.Calls.Count == 0, "Rejected requests must not invoke the native action");
         Check(before.All(p => f.Manager.Bits[p.Key] == p.Value), "Rejected requests must not change connection state");
     }
-    public static void Main()
+    public static void Main(string[] args)
     {
+        if(args.Length==1&&args[0]=="--validate-only-confirm-false"){ValidateOnlySafetyRegression.RunCase(false);return;}
+        if(args.Length==1&&args[0]=="--validate-only-confirm-true"){ValidateOnlySafetyRegression.RunCase(true);return;}
+        ValidateOnlySafetyRegression.Run();
+        DisconnectReadSafetyRegression.Run();
         // The native callback is a substituted boundary. Tests supply observed
         // outcomes rather than reimplementing the game's connection algorithm.
         var f = new Fixture();
@@ -65,7 +69,7 @@ internal static class Program
         f = new Fixture(); DisconnectTool.Instance = new WrongReturn(); Rejected(f, Request(), "unavailable");
         f = new Fixture(); f.B.gameObject.GetComponent<Building>().Def.BuildingComplete = new GameObject();
         Rejected(f, Request(), "target is unavailable");
-        f = new Fixture(); f.B.connectionManager = null; Rejected(f, Request(), "target is unavailable");
+        f = new Fixture(); f.B.connectionManager = null; Rejected(f, Request(), "utility_preflight_read_unavailable");
         f = new Fixture(); f.B.Cell = Grid.XYToCell(4, 2); Rejected(f, Request(), "moved outside");
 
         f = new Fixture(); f.Tool.OnDisconnect = _ => throw new InvalidOperationException("game refused the operation");
@@ -122,12 +126,13 @@ internal static class Program
         Console.WriteLine($"Native disconnect production-boundary tests passed: {checks} checks");
         NativeConnectRegression.Run();
         RibbonConnectRegression.Run();
+        ProviderReadSafetyRegression.Run();
     }
 }
 
 internal sealed class Fixture
 {
-    internal readonly Manager Manager = new Manager();
+    internal readonly Manager Manager = NativeManagerFixture.Create("wire");
     internal readonly DisconnectTool Tool = new DisconnectTool();
     internal readonly Dictionary<int, UtilityConnections> Expected = new Dictionary<int, UtilityConnections>();
     internal readonly KAnimGraphTileVisualizer A, B, Unrelated;
@@ -210,7 +215,7 @@ namespace OniMcp.Core
         public static CallToolResult Error(string value) => new CallToolResult { TextValue = value, IsError = true };
     }
 }
-namespace OniMcp.Support { public static class McpJsonUtil { public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings(); } }
+
 namespace UnityEngine
 {
     public class Component
@@ -239,15 +244,19 @@ public sealed class UtilityItem : IHaveUtilityNetworkMgr
     public IUtilityNetworkMgr GetNetworkManager() => manager;
 }
 public interface IUtilityNetworkMgr { UtilityConnections GetConnections(int cell, bool physical); }
-public sealed class Manager : IUtilityNetworkMgr
+public class Manager : IUtilityNetworkMgr
 {
     public readonly Dictionary<int, UtilityConnections> Bits = new Dictionary<int, UtilityConnections>();
     public bool ReadError;
-    public UtilityConnections GetConnections(int cell, bool physical) => ReadError ? throw new Exception("native read failed") : Bits.GetValueOrDefault(cell);
+    public int ReadCalls;
+    public UtilityConnections GetConnections(int cell, bool physical) { ReadCalls++; return ReadError ? throw new Exception("native read failed") : Bits.GetValueOrDefault(cell); }
 }
 public sealed class KAnimGraphTileVisualizer : Component
 {
-    public int Cell; public IUtilityNetworkMgr ConnectionManager, connectionManager;
+    public int Cell; public IUtilityNetworkMgr connectionManager;
+    private IUtilityNetworkMgr resolved;
+    public int ManagerGetterCalls;
+    public IUtilityNetworkMgr ConnectionManager { get { ManagerGetterCalls++; return resolved; } set { resolved = value; } }
     public void UpdateConnections(UtilityConnections value) => throw new Exception("MOD must not write connection masks directly");
     public void Refresh() => throw new Exception("MOD must not refresh native disconnect state directly");
 }
@@ -265,3 +274,13 @@ public static class Grid
 
 // ONI also defines a global Action enum; production delegates must be qualified.
 public enum Action { None }
+
+public class FlowUtilityNetwork{} public class ElectricalUtilityNetwork{} public class LogicCircuitNetwork{} public class Vent{}
+public class UtilityNetworkManager<TNetwork,TLink>:Manager{}
+public static class NativeManagerFixture {
+ public static Manager Create(string family)=>family switch {
+  "wire"=>new UtilityNetworkManager<ElectricalUtilityNetwork,Wire>(),
+  "logic"=>new UtilityNetworkManager<LogicCircuitNetwork,LogicWire>(),
+  "solid"=>new UtilityNetworkManager<FlowUtilityNetwork,SolidConduit>(),
+  _=>new UtilityNetworkManager<FlowUtilityNetwork,Vent>()};
+}

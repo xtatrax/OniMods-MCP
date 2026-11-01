@@ -69,18 +69,20 @@ public enum ObjectLayer { Wire, Minion, WireTile, ReplacementWire, LiquidConduit
 public sealed class BuildingComplete { public string name; }
 public sealed class KAnimGraphTileVisualizer
 {
-    public bool isPhysicalBuilding; public IUtilityNetworkMgr ConnectionManager;
+    public bool isPhysicalBuilding; public IUtilityNetworkMgr connectionManager;
+    private IUtilityNetworkMgr current; public int CurrentReads;
+    public IUtilityNetworkMgr ConnectionManager { get { CurrentReads++;return current; } set { current=value; } }
 }
 public interface IHaveUtilityNetworkMgr { IUtilityNetworkMgr GetNetworkManager(); }
 public interface IUtilityNetworkMgr { UtilityConnections GetConnections(int cell, bool is_physical_building); }
-public sealed class TestProvider : IHaveUtilityNetworkMgr
+public class TestProvider : IHaveUtilityNetworkMgr
 {
     public IUtilityNetworkMgr Manager;
     public Func<IUtilityNetworkMgr> ManagerReader;
     public int Reads;
     public IUtilityNetworkMgr GetNetworkManager() { Reads++; return ManagerReader == null ? Manager : ManagerReader(); }
 }
-public sealed class TestManager : IUtilityNetworkMgr
+public class TestManager : IUtilityNetworkMgr
 {
     public UtilityConnections Mask;
     public UtilityConnections? PhysicalRead, NonPhysicalRead;

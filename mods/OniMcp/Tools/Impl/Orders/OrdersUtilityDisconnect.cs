@@ -11,6 +11,19 @@ namespace OniMcp.Tools
 {
     public static partial class OrdersTools
     {
+        private static CallToolResult DisconnectReadUnavailable(bool dryRun, string reason)
+        {
+            return CallToolResult.Error(JsonConvert.SerializeObject(new Dictionary<string, object>
+            {
+                ["mode"] = "disconnect", ["dryRun"] = dryRun, ["success"] = false,
+                ["reasonCode"] = "utility_preflight_read_unavailable", ["readReasonCode"] = reason,
+                ["wouldDisconnectEdges"] = null, ["disconnectedEdges"] = 0,
+                ["connectionVerified"] = null, ["nativeCalls"] = 0, ["partial"] = false,
+                ["deconstructionQueued"] = false,
+                ["error"] = McpLocalization.Format("utility_read_safety.state_unavailable", null, reason)
+            }, McpJsonUtil.Settings));
+        }
+
         private static CallToolResult DisconnectUtilityEdges(JObject args)
         {
             string mode = args["mode"]?.ToString() ?? "disconnect";
@@ -70,13 +83,29 @@ namespace OniMcp.Tools
                     var seen = new HashSet<KAnimGraphTileVisualizer>();
                     foreach (var layer in layers)
                     {
-                        var first = Grid.Objects[a, (int)layer]?.GetComponent<KAnimGraphTileVisualizer>();
-                        var second = Grid.Objects[b, (int)layer]?.GetComponent<KAnimGraphTileVisualizer>();
-                        if (first == null || second == null || !seen.Add(first)) continue;
-                        var manager = first.ConnectionManager;
-                        if (manager == null || !ReferenceEquals(manager, second.ConnectionManager)) continue;
-                        var beforeA = requested.TryGetValue(first, out var va) ? va : manager.GetConnections(a, false);
-                        var beforeB = requested.TryGetValue(second, out var vb) ? vb : manager.GetConnections(b, false);
+                        var firstObject = Grid.Objects[a, (int)layer];
+                        var secondObject = Grid.Objects[b, (int)layer];
+                        if (firstObject == null || secondObject == null) continue;
+                        var first = firstObject.GetComponent<KAnimGraphTileVisualizer>();
+                        var second = secondObject.GetComponent<KAnimGraphTileVisualizer>();
+                        if (first == null || second == null)
+                            return DisconnectReadUnavailable(dryRun, "spawned_manager_unavailable");
+                        if (!seen.Add(first)) continue;
+                        UtilityConnections beforeA, beforeB;
+                        try
+                        {
+                            if (!NativeReadProviderPolicy.TryGetCachedUtilityManager(first, layer,
+                                out IUtilityNetworkMgr manager, out string reason))
+                                return DisconnectReadUnavailable(dryRun, reason);
+                            if (!NativeReadProviderPolicy.TryGetCachedUtilityManager(second, layer,
+                                out IUtilityNetworkMgr secondManager, out reason))
+                                return DisconnectReadUnavailable(dryRun, reason);
+                            if (!ReferenceEquals(manager, secondManager))
+                                return DisconnectReadUnavailable(dryRun, "utility_manager_mismatch");
+                            beforeA = requested.TryGetValue(first, out var va) ? va : manager.GetConnections(a, false);
+                            beforeB = requested.TryGetValue(second, out var vb) ? vb : manager.GetConnections(b, false);
+                        }
+                        catch { return DisconnectReadUnavailable(dryRun, "utility_mask_read_failed"); }
                         if ((beforeA & from) == 0 && (beforeB & to) == 0) continue;
                         if ((targetCells.TryGetValue(first, out int firstCell) && firstCell != a)
                             || (targetCells.TryGetValue(second, out int secondCell) && secondCell != b))

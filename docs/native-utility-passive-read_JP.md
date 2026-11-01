@@ -1,0 +1,36 @@
+# 設備接続・ポートの受動読取
+
+接続の読取は、隣接・完成設備の存在・計画マスク・物理マスク・実流量を別の観測として返す。取得できないマスクを接続0や未設置へ補わない。
+
+`NativeReadProviderPolicy`は、準備済みのgraph cache、対象familyに対応する既知の本体manager型、現在のmanagerとの同一性を、interface呼出より前に確認する。物理読取では既知の本体provider型とmanagerの一致も確認する。未知の派生型・interface再実装、欠測・古いcacheを読取のために初期化しない。本体`ConnectionManager`自体は確認対象の版では既存fieldの読取であり、遅延初期化の修正とは呼ばない。
+
+対象は既存接続の対象検査、地図・セル詳細の物理接続、計画接続、切断予行である。計画マスクと切断予行のcache検査には、完成設備や物理providerを要求しない。切断予行の未取得は明示拒否と未知の辺数になり、本体操作を呼ばない。物理mask未取得でも、独立して確認できた設備・計画の存在は残す。
+
+設備形状のsecondary portは、調べた9種類の本体実装と必要なportInfo fieldだけを読む。未知のproviderや未準備fieldはcallbackを呼ばず、`portsComplete=false`とreasonを返す。primary portや独立した既知portは残し、compact/fullとも同じ観測を表す。
+
+## 既存接続の予行エイリアス
+
+`connect_existing`も共通の`IsDryRun`を使い、公開されている`validateOnly=true`を予行として扱う。修正前はこのエイリアスを無視し、confirm=trueなら本体UI操作へ進む可能性があった。確認済みのホスト旧全文負対照は、その危険を代替境界上で検出するもので、実ゲームで事故を起こした記録ではない。
+
+通常のcoordinate opsは、外側や行自体のdryRun=trueでは子を実行せず、構文の確認に留まる。修正後は通常dispatch側を実行し、payloadで`validateOnly=true`を指定して子の対象予行を選べる。payloadのdryRun=trueと実行wrapperの矛盾拒否は維持する。予行の受付は接続操作・工事・流量の成功ではない。
+
+## 検証の区別
+
+実ソースを結んだホストは、既知の5系統、未知provider・managerの再実装、欠測・古いcache、既知0と未知、計画と完成、port readinessと回転、validateOnlyによる本体操作0を確認する。旧実装全文はコンパイル後の意味的な負対照で確認する。本体参照ビルドと各版自身の実機受入は別に記録する。
+
+公開側には存在する経路の修正だけを反映し、開発側だけの地図レイヤー機能を追加しない。実機の観測セル・停止時計・視点保持を、native内部のcallback回数や任意スレッド更新の独立観測へ拡張しない。未知のHarmony patch、別の本体版、未調査native実装を一括して安全と保証しない。
+
+切断読取の案内は`utility_read_safety.state_unavailable`をPO4とruntime3に揃える。暫定zh-hant POと既存zh-Hans runtimeは、それぞれの文字体系と互換を保持する。
+
+## 公開側自身の限定受入
+
+公開ソース自身の接続ホストは新10＋12条件と従来69＋253＋47＋99条件、地図は新29条件と公開側の既存一式、実形状reader278条件を通過した。全てNuGetAudit=true、接続も実製品のJSON設定を使用する。公開側固有のlegacy JSON回帰とfixtureの差は保持した。旧全文の意味的負対照は、未知callbackと予行alias無視を代替境界上で検出する。本体参照ビルドは0警告0エラー。
+
+公開版自身の配備DLL・固有ID・専用設定を確認し、既に接続済みの同一Wireの隣接実体を正式geometry読取から選んだ。通常opsのvalidateOnlyでdryRun=true、対象一致、本体操作未試行・UI再対象化なし・接続辺変更0・工事なし・接続検証未実施・流量未検証を確認した。切断中の端点で操作を抑止する条件はhost根拠であり、この実機対象へ置き換えない。
+
+12セルの配電文書を生成時刻だけ区別して反復照合し、GasFilter／LiquidFilterのNeutral/R90 secondary output、実体full geometryの反復、周囲セルのutilitiesと停止時計・報告視点を保持した。施工・進行は要求していない。開発専用autoLayersの実装・試験・個別記録は取り込んでいない。
+
+未知MODの実機注入やcallback回数の独立実測、全接続familyの新規通電・流量や工事完了は含めない。共通ラッパーによるInstant Build一時変更の別修正は、この受入から完了としない。個別保存先・ID・座標・生応答・私有補助・開発履歴は含めない。
+
+
+通常終了・元の導入物への復元・Steam起動・元チェックポイントの停止ロード後に、元の版・DEV設定先・6時計・視点・Sandboxを照合した。保護セーブ・両版の導入物・設定内容・有効MOD・既存画像の保持を確認した。ロードで戻ったSandboxだけを通常APIで復元し、欠落した初期画像1枚だけを開始時の控えから排他的に復元した。画像フォルダーの時刻は書き戻していない。ゲーム起動が更新する既知のsession情報と、同内容ファイルのmtime変化は区別して記録した。開始時に独立採取していないDebugフラグ全体の復元までは主張しない。

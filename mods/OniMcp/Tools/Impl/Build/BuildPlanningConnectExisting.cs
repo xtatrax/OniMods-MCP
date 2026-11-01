@@ -35,21 +35,21 @@ namespace OniMcp.Tools
             var element = target?.GetComponent<PrimaryElement>();
             var def = complete?.Def;
             if (def == null || graph == null || element?.Element == null
+                || !IsConnectExistingUtilityPrefab(def.PrefabID)
                 || def.TileLayer != layer || Grid.Objects[cell, (int)def.ObjectLayer] != target || Grid.PosToCell(target) != cell
                 || (def.ReplacementLayer != ObjectLayer.NumLayers
-                    && Grid.Objects[cell, (int)def.ReplacementLayer] != null)
-                || graph.ConnectionManager == null
-                || !ReferenceEquals(graph.connectionManager, graph.ConnectionManager)
-                || !ReferenceEquals(def.BuildingComplete?.GetComponent<IHaveUtilityNetworkMgr>()?.GetNetworkManager(), graph.ConnectionManager))
+                    && Grid.Objects[cell, (int)def.ReplacementLayer] != null))
+                throw new InvalidOperationException(McpLocalization.Get("connect_existing.target_required"));
+            if (!NativeReadProviderPolicy.TryGetUtilityManager(graph, def.BuildingComplete, layer, out var manager, out _))
                 throw new InvalidOperationException(McpLocalization.Get("connect_existing.target_required"));
             return new ExistingUtilityEndpoint { Cell = cell, Target = target, Def = def, Graph = graph,
-                Manager = graph.ConnectionManager, Material = element.Element.tag,
-                Before = graph.ConnectionManager.GetConnections(cell, false), Id = target.GetComponent<KPrefabID>()?.InstanceID };
+                Manager = manager, Material = element.Element.tag,
+                Before = manager.GetConnections(cell, false), Id = target.GetComponent<KPrefabID>()?.InstanceID };
         }
 
         private static CallToolResult ConnectExistingUtility(JObject args)
         {
-            bool dryRun = ToolUtil.GetBool(args, "dryRun", false);
+            bool dryRun = IsDryRun(args);
             if (!dryRun && !ToolUtil.GetBool(args, "confirm", false))
                 return CallToolResult.Error(McpLocalization.Get("connect_existing.confirm_required"));
             // Deliberately a single edge. Area/path/build options must not be

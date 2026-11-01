@@ -21,12 +21,13 @@ namespace OniMcp.Tools
             if (!Grid.IsValidCell(cell)) return Unknown(result, "cell_invalid");
             if (layers == null || layers.Length == 0) return Unknown(result, "layers_unavailable");
             var objects = new HashSet<GameObject>();
+            var objectLayers = new Dictionary<GameObject, ObjectLayer>();
             try
             {
                 foreach (var layer in layers)
                 {
                     var go = Grid.Objects[cell, (int)layer];
-                    if (go != null) objects.Add(go);
+                    if (go != null && objects.Add(go)) objectLayers.Add(go, layer);
                 }
             }
             catch { return Unknown(result, "layer_read_failed"); }
@@ -68,10 +69,9 @@ namespace OniMcp.Tools
             {
                 foreach (var go in physical)
                 {
-                    var provider = go.GetComponent<IHaveUtilityNetworkMgr>();
-                    if (provider == null) return Unknown(result, "provider_unavailable");
-                    var manager = provider.GetNetworkManager();
-                    if (manager == null) return Unknown(result, "manager_unavailable");
+                    var graph = go.GetComponent<KAnimGraphTileVisualizer>();
+                    if (!NativeReadProviderPolicy.TryGetUtilityManager(graph, go, objectLayers[go],
+                        out IUtilityNetworkMgr manager, out string reason)) return Unknown(result, reason);
                     if (selected != null && !ReferenceEquals(selected, manager))
                         return Unknown(result, "manager_ambiguous");
                     selected = manager;
