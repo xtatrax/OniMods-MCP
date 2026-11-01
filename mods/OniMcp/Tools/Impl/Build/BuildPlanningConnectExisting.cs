@@ -47,9 +47,26 @@ namespace OniMcp.Tools
                 Before = manager.GetConnections(cell, false), Id = target.GetComponent<KPrefabID>()?.InstanceID };
         }
 
+        private static PreviewValidationObservation ExistingUtilityObservation(JObject args, string scope, string coverage)
+        {
+            bool executionRequested = !IsDryRun(args);
+            return new PreviewValidationObservation("existing_utility_connection", scope, coverage,
+                executionRequested, executionRequested, "dryRun", "success", "worldId", "layer", "prefabId",
+                "firstId", "secondId", "alreadyConnected", "wouldConnectEdges", "uiRetargeted", "actionAttempted",
+                "partial", "connectedEdges", "connectionVerified", "flowVerified", "constructionQueued", "executionPath");
+        }
+
         private static CallToolResult ConnectExistingUtility(JObject args)
         {
+            PreviewValidationObservation observation;
+            var result = ConnectExistingUtilityWithObservation(args, out observation);
+            return observation.Attach(result);
+        }
+
+        private static CallToolResult ConnectExistingUtilityWithObservation(JObject args, out PreviewValidationObservation observation)
+        {
             bool dryRun = IsDryRun(args);
+            observation = ExistingUtilityObservation(args, "request_rejected", "not_evaluated");
             if (!dryRun && !ToolUtil.GetBool(args, "confirm", false))
                 return CallToolResult.Error(McpLocalization.Get("connect_existing.confirm_required"));
             // Deliberately a single edge. Area/path/build options must not be
@@ -93,6 +110,7 @@ namespace OniMcp.Tools
             if (SpeedControlScreen.Instance == null || !SpeedControlScreen.Instance.IsPaused)
                 return CallToolResult.Error(McpLocalization.Get("connect_existing.pause_required"));
 
+            observation = ExistingUtilityObservation(args, "existing_utility_target_preflight", "partial");
             ExistingUtilityEndpoint first, second;
             try
             {
@@ -113,6 +131,7 @@ namespace OniMcp.Tools
             NativeUtilityConnect native = null;
             string error = null;
             bool? verified = dryRun ? (bool?)null : alreadyConnected;
+            if (!dryRun) observation = ExistingUtilityObservation(args, "existing_utility_connection_execution_observation", "partial");
             if (!dryRun && !alreadyConnected)
             {
                 try
@@ -167,7 +186,7 @@ namespace OniMcp.Tools
                 ["connectionVerified"] = verified, ["flowVerified"] = false,
                 ["constructionQueued"] = dryRun || alreadyConnected || success ? (object)false : null, ["executionPath"] = NativeUtilityConnect.ExecutionPath, ["error"] = error
             };
-            string json = JsonConvert.SerializeObject(result, McpJsonUtil.Settings);
+            string json = JsonConvert.SerializeObject(observation.AttachPayload(result), McpJsonUtil.Settings);
             return success ? CallToolResult.Text(json) : CallToolResult.Error(json);
         }
     }

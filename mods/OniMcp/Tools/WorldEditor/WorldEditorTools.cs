@@ -240,12 +240,12 @@ namespace OniMcp.Tools
                             && !ValidateWorldEditorSandboxPolicy(step, out string sandboxError))
                             return CallToolResult.Error(sandboxError);
                         return GameControlEntryTools.ControlGame().Handler(step);
-                    });
+                    }, "game_control");
                 case "navigation_control":
                 case "camera":
                 case "view":
                     return RunWithWorldEditorInstantBuildScope(step,
-                        () => NavigationControlTools.ControlNavigation().Handler(step));
+                        () => NavigationControlTools.ControlNavigation().Handler(step), "navigation_control");
                 default:
                     return CallToolResult.Error("batch tool must be world_editor, game_control, or navigation_control");
             }

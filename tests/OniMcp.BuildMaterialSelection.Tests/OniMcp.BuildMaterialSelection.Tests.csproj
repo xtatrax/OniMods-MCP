@@ -5,12 +5,17 @@
     <LangVersion>7.3</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors><NoWarn>CS0649</NoWarn>
+    <DefineConstants Condition="'$(OldFacadeComparison)' == 'true'">$(DefineConstants);OLD_FACADE_COMPARISON</DefineConstants>
     <BuildMaterialsSource Condition="'$(BuildMaterialsSource)' == ''">$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/BuildPlanningMaterials.cs</BuildMaterialsSource>
     <MaterialQuantitySource>$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/MaterialQuantityDiagnostics.cs</MaterialQuantitySource>
     <McpJsonSource>$(MSBuildThisFileDirectory)../../mods/OniMcp/Support/McpJsonUtil.cs</McpJsonSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPreviewReadContext.cs" Link="Source/BuildPlanningPreviewReadContext.cs" Condition="'$(OldFacadeComparison)' != 'true'" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingFacadeReader.cs" Link="Source/BuildingFacadeReader.cs" />
+    <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <Compile Include="$(BuildMaterialsSource)" Link="Source/BuildPlanningMaterials.cs" />
     <Compile Include="$(MaterialQuantitySource)" Link="Source/MaterialQuantityDiagnostics.cs" />
     <Compile Include="$(McpJsonSource)" Link="Source/McpJsonUtil.cs" />

@@ -1,0 +1,10 @@
+{
+  "building_facade.default_name": "既定",
+  "building_facade.not_available": "外観 '{0}' は {1} に定義されていません。",
+  "building_facade.unknown": "外観 '{0}' の利用可否は未取得です ({1})。配置操作は行っていません。",
+  "building_facade.locked": "外観 '{0}' は未解禁です。",
+  "placement_candidates.discovery_unknown": "この予行範囲では既存オブジェクトを取得できません。未観測のセルを空きと判断しないでください。",
+  "placement_candidates.material_inventory_unknown": "建材在庫の準備状態は未取得です ({0})。この予行では在庫ゼロと判断できません。",
+  "placement_candidates.include_rejected": "既知の有効候補の後に、未判別・拒否された予行結果も返します。既定falseでは、既知の有効候補がない場合だけ返します。",
+  "tools.building_control.parameters.includeRejected": "既知の有効候補の後に、未判別・拒否された予行結果も返します。既定falseでは、既知の有効候補がない場合だけ返します。"
+}

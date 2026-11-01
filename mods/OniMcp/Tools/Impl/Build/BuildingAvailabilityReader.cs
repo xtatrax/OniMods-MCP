@@ -99,6 +99,23 @@ namespace OniMcp.Tools
                 var techItems = db.TechItems;
                 if (techItems == null) { reason = "tech_item_catalog_missing"; return; }
                 if (techItems.resources == null) { reason = "tech_item_resources_missing"; return; }
+                // Native completion resolves matching TechItem.ParentTech through
+                // ResourceSet.Get, which logs when the parent is absent. Observe
+                // the existing parent first; never manufacture research readiness.
+                foreach (var item in techItems.resources)
+                {
+                    if (item == null) { reason = "tech_item_resource_missing"; return; }
+                    if (item.Id != def.PrefabID)
+                        continue;
+                    bool parentFound = false;
+                    foreach (var parent in techs.resources)
+                    {
+                        if (parent == null) { reason = "tech_resource_missing"; return; }
+                        if (parent.Id == item.parentTechId) { parentFound = true; break; }
+                    }
+                    if (!parentFound) { reason = "tech_item_parent_missing"; return; }
+                    break;
+                }
                 observation.Unlocked = techItems.IsTechItemComplete(def.PrefabID);
                 observation.ResearchSource = "native_tech_items";
             }

@@ -6,16 +6,7 @@ using UnityEngine;
 // Metadata, query/area lookup and passive layer presentation are explicit
 // boundaries. The actual preview handler and both anchor resolvers are sliced;
 // the existing harness still links the actual TryPlanOne and native adapters.
-namespace OniMcp.Core
-{
-    public sealed class CallToolResult
-    {
-        public bool IsError;
-        public string Body;
-        public static CallToolResult Text(string value) { return new CallToolResult { Body = value }; }
-        public static CallToolResult Error(string value) { return new CallToolResult { IsError = true, Body = value }; }
-    }
-}
+
 internal static partial class Grid { public const int InvalidCell = -1; }
 namespace OniMcp.Tools
 {
@@ -28,7 +19,7 @@ namespace OniMcp.Tools
         public Dictionary<string, McpToolParameter> Parameters;
         public Func<JObject, OniMcp.Core.CallToolResult> Handler;
     }
-    internal sealed class PreviewFixtureArea { internal int X, Y; }
+    internal sealed class PreviewFixtureArea { internal int X,Y; internal string Id {get{return "fixture-area";}} internal int X1 {get{return X;}} internal int Y1 {get{return Y;}} }
     internal static class WorldEditor
     {
         internal sealed class AbsoluteCell { internal int x, y; }
@@ -62,8 +53,8 @@ namespace OniMcp.Tools
         { return new Dictionary<string, McpToolParameter>(); }
         private static string ValidateLayerContextOptions(JObject args) { return null; }
         private static Dictionary<string, object> PlanOneWithoutLayerContext(string prefab, int x, int y,
-            JObject args, HashSet<int> supports = null, AutoDigContext dig = null)
-        { return TryPlanOne(prefab, x, y, args, supports, dig); }
+            JObject args, HashSet<int> supports = null, AutoDigContext dig = null, PlacementPreviewReadContext previewReads = null)
+        { return TryPlanOne(prefab, x, y, args, supports, dig, previewReads); }
         private static Dictionary<string, object> CaptureLayerContext(BuildingDef def, JObject args,
             IEnumerable<CellCoord> anchors = null, IEnumerable<CellCoord> path = null,
             IEnumerable<Dictionary<string, object>> previews = null)

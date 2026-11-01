@@ -41,3 +41,5 @@ filtering evidence here is specifically the production candidate filter. Search
 query/category routing and write-guard equivalence require separate source/runtime
 evidence. Unmatched candidate queries are checked to perform no native availability
 read for either `includeUnavailable` setting.
+
+PassiveReaderCases adds native-field-only category discovery, missing-parent readiness, and existing facade/ownership cache cases. The actual reader/catalog/facade source and production serializer remain linked. Missing cache and known false stay distinct; arbitrary runtime property getters and lazy database initialization are forbidden fixture boundaries. Existing original availability assertions remain active.

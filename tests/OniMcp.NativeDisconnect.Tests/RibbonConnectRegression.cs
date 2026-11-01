@@ -10,13 +10,13 @@ internal static class RibbonConnectRegression
     { checks++; if (!condition) throw new Exception(message); }
     private static JObject Request(string direction = "right") => new JObject
         { ["x"] = 2, ["y"] = 2, ["type"] = "logic", ["direction"] = direction, ["confirm"] = true };
-    private static JObject Data(OniMcp.Core.CallToolResult result) => JObject.Parse(result.TextValue);
+    private static JObject Data(OniMcp.Core.CallToolResult result) => JObject.Parse(result.Content[0].Text);
     private static ConnectFixture Fixture(string direction = "right", string id = LogicRibbonConfig.ID)
         => new ConnectFixture("logic", direction, id);
     private static void Reject(ConnectFixture fixture, string reason)
     {
         var result = BuildPlanningTools.ConnectForTest(Request());
-        Check(result.IsError && result.TextValue.Contains(McpLocalization.Get("connect_existing." + reason)), reason);
+        Check(result.IsError && result.Content[0].Text.Contains(McpLocalization.Get("connect_existing." + reason)), reason);
         Check(fixture.Tool.Events.Count == 0 && fixture.Manager.Bits[fixture.A.Cell] == fixture.BeforeA
             && fixture.Manager.Bits[fixture.B.Cell] == fixture.BeforeB, "rejected ribbon request is read-only before native UI");
     }

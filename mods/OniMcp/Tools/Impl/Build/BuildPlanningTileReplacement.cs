@@ -9,15 +9,18 @@ namespace OniMcp.Tools
 {
     public static partial class BuildPlanningTools
     {
-        private static Dictionary<string, object> TryReuseNativeTileReplacementQueue(BuildingDef def, PlacementDetails placement, JObject args)
+        private static Dictionary<string, object> TryReuseNativeTileReplacementQueue(BuildingDef def, PlacementDetails placement, JObject args,
+            PlacementPreviewReadContext previewReads = null)
         {
             if (!IsNativeTileReplacementCandidateScope(def, placement)
                 || Grid.Objects[placement.OriginCell, (int)ObjectLayer.ReplacementTile] == null) return null;
             var queue = Grid.Objects[placement.OriginCell, (int)ObjectLayer.ReplacementTile];
             var elements = queue.GetComponent<Constructable>()?.SelectedElementsTags;
             Tag material = elements != null && elements.Count == 1 ? elements[0] : Tag.Invalid;
-            var facade = ResolveFacade(def, args["facade"]?.ToString() ?? args["facadeId"]?.ToString());
-            if (!facade.Valid) return ErrorResult(def.PrefabID, placement.AnchorX, placement.AnchorY, facade.Error);
+            var facade = previewReads == null ? ResolveFacade(def, args["facade"]?.ToString() ?? args["facadeId"]?.ToString())
+                : previewReads.Facade();
+            if (!facade.Valid) return ErrorResult(def.PrefabID, placement.AnchorX, placement.AnchorY,
+                facade.Error, FacadeSelectionErrorDetails(facade));
             bool materialMatches = material.IsValid && ExistingMaterialRequestSatisfied(def,
                 new Dictionary<string, object> { ["material"] = material.Name }, args["material"]?.ToString());
             return ProcessNativeTileReplacement(def, placement, args, material, facade.TryPlaceId,
@@ -161,7 +164,11 @@ namespace OniMcp.Tools
                 result["actualPlacement"] = actual; result["actualAnchor"] = ActualAnchorArray(actual);
                 result["placementCheck"] = ComparePlacement(placement, actual);
             }
-            return result;
+            return new PreviewValidationObservation("placement", details["validationScope"].ToString(),
+                (dryRun ? previewValidated : queueVerified) ? "complete" : "partial", !dryRun, !dryRun,
+                "valid", "dryRun", "queueVerified", "partial", "applied",
+                "tileReplacement.nativeCandidateValidated", "tileReplacement.nativePlacementValidated",
+                "tileReplacement.persistentTargetLinkVerified").AttachPayload(result);
         }
     }
 }

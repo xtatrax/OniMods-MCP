@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup>
+<PropertyGroup><AreaSource Condition="'$(AreaSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningActionBuildArea.cs</AreaSource><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup>
 <ItemGroup>
+<Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="McpJsonUtil.cs" />
+<Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="McpContentTypes.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Shared/PreviewValidationObservation.cs" Link="PreviewValidationObservation.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningObservationScopes.cs" Link="BuildPlanningObservationScopes.cs" />
+
 <Compile Include="../../mods/OniMcp/Tools/Impl/Build/ConstructionSupportGeometry.cs" Link="ConstructionSupportGeometry.cs" />
 <Compile Include="../../mods/OniMcp/Tools/Impl/Build/ConstructionSupportInspection.cs" Link="ConstructionSupportInspection.cs" />
 <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningSupport.cs" Link="BuildPlanningSupport.cs" />
 <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningSupportModels.cs" Link="BuildPlanningSupportModels.cs" />
 </ItemGroup>
-</Project>
+<ItemGroup><PackageReference Include="Newtonsoft.Json" Version="13.0.3" /><Compile Include="$(AreaSource)" Link="BuildPlanningActionBuildArea.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRequestSupport.cs" Link="BuildPlanningRequestSupport.cs" /></ItemGroup></Project>

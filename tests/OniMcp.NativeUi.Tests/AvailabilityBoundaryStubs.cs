@@ -33,10 +33,11 @@ internal sealed class Db
 }
 internal class FixtureTechCatalog
 {
-    public List<object> resources = new List<object>();
+    public List<FixtureTech> resources = new List<FixtureTech>();
 }
-internal sealed class FixtureTechItems : FixtureTechCatalog
+internal sealed class FixtureTechItems
 {
+    public List<FixtureTechItem> resources = new List<FixtureTechItem>();
     public bool Complete = true;
     public int Reads;
     public string LastPrefabId;
@@ -48,3 +49,6 @@ internal sealed class FixtureTechItems : FixtureTechCatalog
     }
 }
 internal sealed class Research { public static Research Instance; }
+
+internal sealed class FixtureTech {public string Id;}
+internal sealed class FixtureTechItem {public string Id,parentTechId;}

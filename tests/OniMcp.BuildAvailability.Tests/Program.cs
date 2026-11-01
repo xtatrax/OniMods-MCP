@@ -254,7 +254,7 @@ internal static class Program
         Equal(seeded.TechItems.PredicateCalls, 0, "missing identity no native predicate");
         Reset(); def = Def(); seeded.TechItems.resources.Add(null);
         meta = Observe(def, true, null, null, "unknown", "malformed native resource entry");
-        Equal((string)meta["reasonCode"], "research_read_failed", "native resource fault remains unknown");
+        Equal((string)meta["reasonCode"], "tech_item_resource_missing", "native resource fault remains unknown");
         Equal(seeded.TechItems.resources.Count, 1, "malformed resource not repaired");
         Reset(); meta = Observe(null, null, null, null, "unknown", "missing definition");
         Equal((string)meta["reasonCode"], "definition_missing", "missing definition reason");
@@ -389,12 +389,10 @@ internal static class Program
         NoMutation("catalog capture order");
 
         Reset(); var cosmetic = Def(); cosmetic.AvailableFacades = new[] { "fixture-facade" };
-        bool cosmeticCanary = false;
-        try { BuildPlanningTools.HostCatalog(cosmetic); }
-        catch (InvalidOperationException error) { cosmeticCanary = error.Message.Contains("Permit lookup"); }
-        Check(cosmeticCanary, "nonempty cosmetic catalog branch acknowledged as existing eager boundary");
-        Equal(Boundary.DbGetCalls, 1, "cosmetic cached Db.Get observed once");
-        Equal(Boundary.DbInitializationAttempts, 0, "cosmetic cached Get is not initialization");
+        var cosmeticRow=BuildPlanningTools.HostCatalog(cosmetic);
+        NullProperty((JObject)cosmeticRow["facades"][1],"unlocked","missing permit remains unknown");
+        Equal(Boundary.DbGetCalls,0,"cosmetic branch never invokes lazy database getter");
+        Equal(Boundary.DbInitializationAttempts,0,"cosmetic branch never initializes database");
         Equal(cosmetic.AvailabilityCalls, 1, "availability captured before cosmetic boundary");
     }
     private static void LocalizationCases()
@@ -428,9 +426,12 @@ internal static class Program
         }
         McpLocalization.LanguageProvider = () => "en";
     }
-    private static void Main()
+    private static void Main(string[] args)
     {
         McpLocalization.LanguageProvider = () => "en";
+        if(args.Length>0&&args[0]=="category") {PassiveReaderCases.Category();return;}
+        if(args.Length>0&&args[0]=="parent") {PassiveReaderCases.MissingParent();return;}
+        PassiveReaderCases.Run();
         AvailabilityGateCases();
         NativeUiPoiCases(); ReaderCases(); CandidateCases(); CatalogCases(); LocalizationCases();
         Console.WriteLine("Build availability: " + checks + " checks PASS");

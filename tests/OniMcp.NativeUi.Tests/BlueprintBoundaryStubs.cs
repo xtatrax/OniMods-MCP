@@ -12,11 +12,11 @@ namespace UnityEngine
     internal class Object
     {
         public static readonly List<BuildingComplete> DetachedCompletes=new List<BuildingComplete>();
-        public static bool ThrowEnumeration;
+        public static bool ThrowEnumeration; public static int EnumerationCalls;
         public static T[] FindObjectsByType<T>(FindObjectsSortMode mode) where T:class
-        {if(ThrowEnumeration)throw new InvalidOperationException("fixture enumeration unavailable");return All().Where(value=>value.gameObject.Active).OfType<T>().ToArray();}
+        {EnumerationCalls++;if(ThrowEnumeration)throw new InvalidOperationException("fixture enumeration unavailable");return All().Where(value=>value.gameObject.Active).OfType<T>().ToArray();}
         public static T[] FindObjectsByType<T>(FindObjectsInactive inactive,FindObjectsSortMode mode) where T:class
-        {if(ThrowEnumeration)throw new InvalidOperationException("fixture enumeration unavailable");return All().OfType<T>().ToArray();}
+        {EnumerationCalls++;if(ThrowEnumeration)throw new InvalidOperationException("fixture enumeration unavailable");return All().OfType<T>().ToArray();}
         private static IEnumerable<Component> All()
         {return global::Components.BuildingCompletes.Items.Cast<Component>().Concat(DetachedCompletes).Concat(OniMcp.Tools.BuildPlanningTools.FixtureBlueprints).Distinct().Where(value=>!value.gameObject.Destroyed);}
     }
@@ -201,6 +201,9 @@ namespace OniMcp.Tools
             public static FootprintValidation Invalid(string error,List<Dictionary<string,object>> invalid,List<Dictionary<string,object>> obstructions)
             {return new FootprintValidation{Error=error,InvalidCells=invalid,Obstructions=obstructions};}
         }
+        internal static int FixtureUncachedDiscoveries;
+        internal static int FixtureResolveCalls;
+        internal static string FixtureGeometryReason;
         private sealed class BridgeEndpointTarget{public int Cell;public ObjectLayer Layer;public string Role;}
         internal static readonly List<Constructable> FixtureBlueprints=new List<Constructable>();
         internal static readonly Dictionary<string,BuildingDef> FixtureDefs=new Dictionary<string,BuildingDef>();
@@ -210,11 +213,11 @@ namespace OniMcp.Tools
         private static bool IsLinearUtilityPrefab(string id){return id=="Wire";}
         private static List<ObjectLayer> UtilityLayersForPrefab(string id){return new List<ObjectLayer>{ObjectLayer.Wire};}
         private static BuildingDef ResolveBuildingDef(string id,out string resolved,out string error)
-        {resolved=id;error=null;BuildingDef def;return FixtureDefs.TryGetValue(id,out def)?def:null;}
+        {FixtureResolveCalls++;resolved=id;error=null;BuildingDef def;return FixtureDefs.TryGetValue(id,out def)?def:null;}
         private static bool IsNaturalDiggableSolidCell(int cell,int world){return Grid.Solid[cell]&&!Grid.Foundation[cell];}
         private static IEnumerable<Dictionary<string,object>> UprootableObstructionsAtCell(int cell,int world){return LiquidBridgePlantsForFixture(cell);}
         private static IEnumerable<Constructable> FindConstructables(int world)
-        {return FixtureBlueprints.Where(value=>!value.gameObject.Destroyed&&ToolUtil.GameObjectMatchesWorld(value.gameObject,world));}
+        {FixtureUncachedDiscoveries++;return FixtureBlueprints.Where(value=>!value.gameObject.Destroyed&&ToolUtil.GameObjectMatchesWorld(value.gameObject,world));}
         private static IEnumerable<BridgeEndpointTarget> NativeBridgeEndpointTargets(BuildingDef def,PlacementDetails placement)
         {return FixtureEndpoints.Select(value=>new BridgeEndpointTarget{Cell=value.Item1,Layer=value.Item2,Role="fixture_endpoint"});}
         private static void AddBackwallFoundationFailure(PlacementDetails placement,List<Dictionary<string,object>> obstructions){}
@@ -222,7 +225,7 @@ namespace OniMcp.Tools
         private static bool GetBool(Dictionary<string,object> value,string key)
         {object raw;return value!=null&&value.TryGetValue(key,out raw)&&raw is bool&&(bool)raw;}
         private static PlacementDetails BuildPlacementDetails(BuildingDef def,int x,int y,int world,Orientation orientation=Orientation.Neutral)
-        {return new PlacementDetails{PrefabId=def.PrefabID,AnchorX=x,AnchorY=y,OriginX=x,OriginY=y,OriginCell=Grid.XYToCell(x,y),WorldId=world,Orientation=orientation,
+        {if(FixtureGeometryReason!=null)return new PlacementDetails{PrefabId=def.PrefabID,AnchorX=x,AnchorY=y,OriginX=x,OriginY=y,OriginCell=Grid.XYToCell(x,y),WorldId=world,Orientation=orientation,GeometryAvailable=false,GeometryError=FixtureGeometryReason,Footprint=new List<FootprintCell>()};return new PlacementDetails{PrefabId=def.PrefabID,AnchorX=x,AnchorY=y,OriginX=x,OriginY=y,OriginCell=Grid.XYToCell(x,y),WorldId=world,Orientation=orientation,
             GeometryAvailable=true,Width=1,Height=1,FillsBounds=true,PlacementPoint=Grid.CellToPosCBC(Grid.XYToCell(x,y),def.SceneLayer),
             Footprint=new List<FootprintCell>{new FootprintCell{Cell=Grid.XYToCell(x,y),X=x,Y=y,WorldId=world,Valid=true,Visible=true,InWorld=true}}};}
         private static Dictionary<string,object> ErrorResult(string id,int x,int y,string error,Dictionary<string,object> details=null)

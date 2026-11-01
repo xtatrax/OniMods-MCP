@@ -65,12 +65,12 @@ namespace OniMcp.Tools
             }
         }
 
-        private static GameObject FindConstructableAtPlacement(BuildingDef def, PlacementDetails placement)
+        private static GameObject FindConstructableAtPlacement(BuildingDef def, PlacementDetails placement, PlacementPreviewReadContext previewReads = null)
         {
             if (def == null || placement == null)
                 return null;
 
-            foreach (var constructable in FindConstructables(placement.WorldId))
+            foreach (var constructable in previewReads == null ? FindConstructables(placement.WorldId) : previewReads.Constructables())
             {
                 var go = constructable?.gameObject;
                 if (go == null)
@@ -90,14 +90,14 @@ namespace OniMcp.Tools
             return null;
         }
 
-        private static Dictionary<string, object> ExistingMatchingBuildAtPlacement(BuildingDef def, PlacementDetails placement)
+        private static Dictionary<string, object> ExistingMatchingBuildAtPlacement(BuildingDef def, PlacementDetails placement, PlacementPreviewReadContext previewReads = null)
         {
             if (def == null || placement == null)
                 return null;
 
-            foreach (var complete in Components.BuildingCompletes.Items)
+            foreach (var go in previewReads == null
+                ? Components.BuildingCompletes.Items.Select(value => value?.gameObject) : previewReads.CompletedObjects())
             {
-                var go = complete?.gameObject;
                 if (go == null || !ToolUtil.GameObjectMatchesWorld(go, placement.WorldId))
                     continue;
 
@@ -127,7 +127,7 @@ namespace OniMcp.Tools
                 };
             }
 
-            var blueprint = FindConstructableAtPlacement(def, placement);
+            var blueprint = FindConstructableAtPlacement(def, placement, previewReads);
             if (blueprint == null)
                 return null;
 

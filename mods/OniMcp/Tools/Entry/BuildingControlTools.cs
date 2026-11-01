@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -12,7 +13,9 @@ namespace OniMcp.Tools
 
         internal static bool IsVirtualFileEditContext => virtualFileEditDepth > 0;
 
-        public static McpTool ControlBuilding()
+        public static McpTool ControlBuilding() => ControlBuilding(null);
+
+        internal static McpTool ControlBuilding(BuildPlanningRequestSupportContext requestSupport)
         {
             return new McpTool
             {
@@ -69,6 +72,9 @@ namespace OniMcp.Tools
                     ["areaId"] = new McpToolParameter { Type = "string", Description = "Area handle interpreted by the selected sub-action.", Required = false },
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "World ID interpreted by the selected sub-action.", Required = false },
                     ["limit"] = new McpToolParameter { Type = "number", Description = "Return limit or numeric limit value interpreted by the selected sub-action.", Required = false },
+                    ["maxEvaluations"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("placement_candidates.max_evaluations"), Required = false },
+                    ["scanOffset"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("placement_candidates.scan_offset"), Required = false },
+                    ["includeRejected"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("placement_candidates.include_rejected"), Required = false },
                     ["itemId"] = new McpToolParameter { Type = "string", Description = "Target prefab, tag, or ID for side_surface/facility/printing_pod claim and item selection actions.", Required = false },
                     ["rewardIndex"] = new McpToolParameter { Type = "integer", Description = "Reward index for side_surface surface=facility kind=printing_pod action=claim.", Required = false },
                     ["confirm"] = new McpToolParameter { Type = "boolean", Description = "Confirmation for dangerous or batch writes, following each child tool's rules.", Required = false },
@@ -107,7 +113,7 @@ namespace OniMcp.Tools
                         case "plan":
                         case "build":
                         case "placement":
-                            return Forward(args, BuildPlanningTools.ControlBuildPlanning());
+                            return Forward(args, BuildPlanningTools.ControlBuildPlanning(requestSupport));
                         case "config":
                         case "configuration":
                         case "side_screen":
@@ -148,13 +154,13 @@ namespace OniMcp.Tools
             };
         }
 
-        internal static CallToolResult ControlBuildingFromVirtualFile(JObject args)
+        internal static CallToolResult ControlBuildingFromVirtualFile(JObject args, BuildPlanningRequestSupportContext requestSupport = null)
         {
             var forwarded = args == null ? new JObject() : (JObject)args.DeepClone();
             virtualFileEditDepth++;
             try
             {
-                return ControlBuilding().Handler(forwarded);
+                return ControlBuilding(requestSupport).Handler(forwarded);
             }
             finally
             {

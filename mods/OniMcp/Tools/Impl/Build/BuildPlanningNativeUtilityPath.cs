@@ -11,6 +11,15 @@ namespace OniMcp.Tools
     {
         private static Dictionary<string, object> TryPlaceUtilityPathNative(BuildingDef def, List<CellCoord> path, JObject args)
         {
+            PreviewValidationObservation observation;
+            var result = TryPlaceUtilityPathNativeWithObservation(def, path, args, out observation);
+            return observation.AttachPayload(result);
+        }
+
+        private static Dictionary<string, object> TryPlaceUtilityPathNativeWithObservation(BuildingDef def,
+            List<CellCoord> path, JObject args, out PreviewValidationObservation observation)
+        {
+            observation = UtilityPathObservation(args, "native_utility_path_not_invoked", "not_evaluated");
             var result = new Dictionary<string, object>
             {
                 ["attempted"] = true,
@@ -33,6 +42,7 @@ namespace OniMcp.Tools
                 return result;
             }
 
+            observation = UtilityPathObservation(args, "utility_path_preflight");
             int worldId = ToolUtil.ResolveWorldId(args);
             var terrainConflict = UtilityTerrainConflict(def,
                 path.Select(p => Grid.XYToCell(p.x, p.y)), worldId,
@@ -107,6 +117,7 @@ namespace OniMcp.Tools
                 return result;
             }
 
+            observation = UtilityPathObservation(args, "utility_path_execution_observation");
             try
             {
                 InvokeBest(tool, "Activate", new object[] { def, materialResult.Elements, facadeResult.ResponseId });

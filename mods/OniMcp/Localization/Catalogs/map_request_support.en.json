@@ -1,0 +1,3 @@
+{
+  "map_request_support.preflight_failed": "The map request was not executed because a group failed placement preflight. Inspect each preflightResult before retrying."
+}

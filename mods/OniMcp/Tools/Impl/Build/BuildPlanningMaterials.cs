@@ -1,8 +1,10 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -314,14 +316,12 @@ namespace OniMcp.Tools
                 return FacadeSelection.Default();
 
             if (def.AvailableFacades == null || !def.AvailableFacades.Contains(facadeId))
-                return FacadeSelection.Invalid($"Facade '{facadeId}' is not available for {def.PrefabID}");
-
-            var permit = Db.Get().Permits.TryGet(facadeId);
-            if (permit == null)
-                return FacadeSelection.Invalid($"Facade '{facadeId}' has no permit resource");
-
-            if (!permit.IsUnlocked())
-                return FacadeSelection.Invalid($"Facade '{facadeId}' is locked");
+                return FacadeSelection.Invalid(McpLocalization.Format("building_facade.not_available", null, facadeId, def.PrefabID));
+            var observed = BuildingFacadeReader.Read(facadeId);
+            if (!observed.Unlocked.HasValue)
+                return FacadeSelection.Unknown(McpLocalization.Format("building_facade.unknown", null, facadeId, observed.ReasonCode ?? "unknown"), observed.ReasonCode);
+            if (observed.Unlocked == false)
+                return FacadeSelection.Invalid(McpLocalization.Format("building_facade.locked", null, facadeId));
 
             return FacadeSelection.Custom(facadeId);
         }
@@ -331,13 +331,34 @@ namespace OniMcp.Tools
             public readonly string TryPlaceId;
             public readonly string ResponseId;
             public readonly string Error;
+            public readonly string AssessmentState;
+            public readonly string ReasonCode;
 
-            private FacadeSelection(bool valid, string tryPlaceId, string responseId, string error)
+            private FacadeSelection(bool valid, string tryPlaceId, string responseId, string error,
+                string assessmentState = "known", string reasonCode = null)
             {
                 Valid = valid;
                 TryPlaceId = tryPlaceId;
                 ResponseId = responseId;
                 Error = error;
+                AssessmentState = assessmentState;
+                ReasonCode = reasonCode;
+            }
+
+            public Dictionary<string, object> ToDictionary()
+            {
+                return new Dictionary<string, object>
+                {
+                    ["valid"] = Valid,
+                    ["status"] = AssessmentState == "unknown" ? "unknown" : Valid ? "selected" : "rejected",
+                    ["assessmentState"] = AssessmentState,
+                    ["reasonCode"] = ReasonCode == null ? (object)JValue.CreateNull() : ReasonCode
+                };
+            }
+
+            public static FacadeSelection Unknown(string error, string reasonCode)
+            {
+                return new FacadeSelection(false, null, null, error, "unknown", reasonCode);
             }
 
             public static FacadeSelection Default()
@@ -414,6 +435,27 @@ namespace OniMcp.Tools
                     Available = available ?? new List<BuildMaterialInfo>(),
                     Candidates = candidates ?? new List<BuildMaterialInfo>(),
                     RequiredKg = 0f
+                };
+            }
+
+            public MaterialSelection CloneForPreview()
+            {
+                return new MaterialSelection
+                {
+                    Valid = Valid, Mode = Mode, Requested = Requested, Error = Error, RequiredKg = RequiredKg,
+                    Elements = new List<Tag>(Elements),
+                    Selected = CloneMaterialInfo(Selected),
+                    Available = Available.Select(CloneMaterialInfo).ToList(),
+                    Candidates = Candidates.Select(CloneMaterialInfo).ToList()
+                };
+            }
+
+            private static BuildMaterialInfo CloneMaterialInfo(BuildMaterialInfo value)
+            {
+                return value == null ? null : new BuildMaterialInfo
+                {
+                    Tag = value.Tag, Name = value.Name, AvailableKg = value.AvailableKg,
+                    ValidForBuilding = value.ValidForBuilding, Categories = new List<Tag>(value.Categories)
                 };
             }
 

@@ -1,0 +1,10 @@
+{
+  "building_facade.default_name": "Default",
+  "building_facade.not_available": "Facade '{0}' is not defined for {1}.",
+  "building_facade.unknown": "Facade '{0}' availability is unknown ({1}); no placement was issued.",
+  "building_facade.locked": "Facade '{0}' is locked.",
+  "placement_candidates.discovery_unknown": "Existing-object discovery is unavailable for this preview window; do not treat unobserved cells as clear.",
+  "placement_candidates.material_inventory_unknown": "Material inventory readiness is unknown ({0}); this preview does not establish zero stock.",
+  "placement_candidates.include_rejected": "Include unknown and refused preview rows after known valid candidates. Default false: return them only when no known valid candidate exists.",
+  "tools.building_control.parameters.includeRejected": "Include unknown and refused preview rows after known valid candidates. Default false: return them only when no known valid candidate exists."
+}

@@ -46,7 +46,8 @@ namespace OniMcp.Tools
                     ["autoLayout"] = new McpToolParameter { Type = "boolean", Description = "When true and no area/x/query is supplied, select the best layout candidate automatically. Starter templates auto-layout by default.", Required = false },
                     ["dryRun"] = new McpToolParameter { Type = "boolean", Description = "Preview without writing orders/blueprints.", Required = false }
                 },
-                Handler = HandleRoomTemplate
+                Handler = args => PreviewValidationObservation.Rejected(HandleRoomTemplate(args), "room_template",
+                    args != null && ToolUtil.GetBool(args, "execute", false) && !IsDryRun(args))
             };
         }
 
@@ -66,7 +67,7 @@ namespace OniMcp.Tools
             int priority = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "priority") ?? 7, 9));
             bool topPriority = ToolUtil.GetBool(args, "topPriority", false);
             bool execute = ToolUtil.GetBool(args, "execute", false);
-            bool dryRun = ToolUtil.GetBool(args, "dryRun", false);
+            bool dryRun = IsDryRun(args);
             if (execute && !dryRun && !ToolUtil.GetBool(args, "confirm", false))
                 return CallToolResult.Error("confirm=true required with execute=true dryRun=false.");
 
@@ -87,10 +88,43 @@ namespace OniMcp.Tools
                 ["calls"] = new JArray(calls.Select(c => c.Call))
             };
 
-            response[execute ? "results" : "next"] = execute
-                ? (JToken)ExecuteRoomTemplateCalls(calls)
-                : "Re-run with execute=true confirm=true, or send calls through server_control batch.";
-            return CallToolResult.Text(JsonConvert.SerializeObject(response, McpJsonUtil.Settings));
+            if (execute)
+            {
+                var results = ExecuteRoomTemplateCalls(calls);
+                int succeeded = results.Count(row => row["ok"]?.Value<bool>() == true);
+                bool failed = results.Any(row => row["ok"]?.Value<bool>() == false);
+                bool childPartial = results.Any(row => row["partial"]?.Value<bool>() == true);
+                int unknown = results.Count(row => row["resultState"]?.Value<string>() == "unknown");
+                response["results"] = results;
+                response["requestedCalls"] = calls.Count;
+                response["attemptedCalls"] = results.Count;
+                response["succeededCalls"] = succeeded;
+                response["failedCalls"] = results.Count - succeeded - unknown;
+                response["unknownCalls"] = unknown;
+                response["remainingCalls"] = calls.Count - results.Count;
+                response["dispatchComplete"] = !failed && !childPartial && results.Count == calls.Count;
+                response["ok"] = response["dispatchComplete"].DeepClone();
+                response["dispatchInterrupted"] = !response["dispatchComplete"].Value<bool>();
+                response["partial"] = childPartial || unknown > 0 || failed && succeeded > 0;
+                if (unknown > 0)
+                {
+                    response["assessmentState"] = "unknown";
+                    response["reasonCode"] = "child_result_unobserved";
+                    response["changed"] = JValue.CreateNull();
+                    response["possiblePartial"] = !dryRun;
+                }
+            }
+            else
+                response["next"] = "Re-run with execute=true confirm=true, or send calls through server_control batch.";
+            bool ok = response["ok"].Value<bool>();
+            var result = ok ? CallToolResult.Text(JsonConvert.SerializeObject(response, McpJsonUtil.Settings))
+                : CallToolResult.Error(JsonConvert.SerializeObject(response, McpJsonUtil.Settings));
+            string scope = !execute ? "template_generation" : dryRun ? "composite_preflight" : "composite_execution_observation";
+            bool childCoverageComplete = !execute || ((JArray)response["results"]).All(row =>
+                (row["validation"] as JObject)?["coverage"]?.Value<string>() == "complete");
+            return new PreviewValidationObservation("room_template", scope, ok && childCoverageComplete ? "complete" : "partial",
+                execute && !dryRun, false, "ok", "partial", "dispatchComplete", "requestedCalls", "attemptedCalls",
+                "succeededCalls", "failedCalls", "unknownCalls", "remainingCalls", "assessmentState", "reasonCode", "dispatchInterrupted", "changed", "possiblePartial").Attach(result);
         }
 
         private static RoomTemplateAnchor ResolveRoomTemplateAnchor(JObject args, string kind, out string error)
@@ -331,22 +365,72 @@ namespace OniMcp.Tools
             var results = new JArray();
             foreach (RoomTemplateCall call in calls)
             {
-                CallToolResult result = OniToolRegistry.CallTool(call.Tool, call.Args);
-                string text = result.Content?.FirstOrDefault()?.Text ?? string.Empty;
-                results.Add(new JObject
+                CallToolResult result;
+                try { result = OniToolRegistry.CallTool(call.Tool, call.Args); }
+                catch (Exception ex) { result = CallToolResult.Error(ex.Message); }
+                var resultContent = result?.Content?.FirstOrDefault(content => content != null && content.Type == "text"
+                    && !content.IsOwnedPrintingPodPolicy
+                    && (content.Meta == null || !content.Meta.ContainsKey(ToolContent.ContentKindMetadataKey)
+                        || content.Meta[ToolContent.ContentKindMetadataKey] as string == ToolContent.ToolResultKind));
+                string text = resultContent?.Text ?? string.Empty;
+                JObject payload = null;
+                try { payload = JObject.Parse(text); } catch { }
+                bool failed = result == null || result.IsError;
+                foreach (string key in new[] { "ok", "success", "valid", "actionable" })
+                    if (payload?[key]?.Type == JTokenType.Boolean && !payload[key].Value<bool>()) failed = true;
+                foreach (string key in new[] { "failed", "hardFailed" })
+                    if (RoomTemplateCount(payload, key) > 0) failed = true;
+                bool partial = payload?["partial"]?.Type == JTokenType.Boolean && payload["partial"].Value<bool>()
+                    || RoomTemplateCount(payload, "deferred") > 0 || RoomTemplateCount(payload, "remainingCells") > 0
+                    || RoomTemplateCount(payload, "pendingBuildAfterDig") > 0
+                    || payload?["remainingAnchors"] is JArray remainingAnchors && remainingAnchors.Count > 0
+                    || payload?["allRequestedSatisfied"]?.Type == JTokenType.Boolean && !payload["allRequestedSatisfied"].Value<bool>()
+                    || payload?["throttled"]?.Type == JTokenType.Boolean && payload["throttled"].Value<bool>();
+                bool unknown = !failed && !partial && !RoomTemplateSuccessObserved(call, payload);
+                var row = new JObject
                 {
                     ["tool"] = call.Tool,
                     ["action"] = call.Args["action"]?.ToString(),
-                    ["ok"] = !result.IsError,
+                    ["ok"] = !failed && !partial && !unknown,
+                    ["resultState"] = unknown ? "unknown" : failed ? "refused" : partial ? "partial" : "accepted",
+                    ["partial"] = partial,
                     ["summary"] = SummarizeRoomTemplateResult(text),
-                    ["diagnostic"] = DiagnoseRoomTemplateResult(text, result.IsError),
-                    ["error"] = result.IsError ? TrimRoomTemplateText(text, 1200) : null
-                });
-                if (result.IsError)
-                    break;
+                    ["diagnostic"] = DiagnoseRoomTemplateResult(text, failed || partial),
+                    ["error"] = failed || partial || unknown ? TrimRoomTemplateText(text, 1200) : null
+                };
+                if (payload?["validation"] != null) row["validation"] = payload["validation"].DeepClone();
+                else
+                {
+                    var childValidation = resultContent?.Meta != null
+                        && resultContent.Meta.ContainsKey(PreviewValidationObservation.MetadataKey)
+                        ? resultContent.Meta[PreviewValidationObservation.MetadataKey] as JToken : null;
+                    if (childValidation != null) row["validation"] = childValidation.DeepClone();
+                }
+                results.Add(row);
+                if (failed || partial || unknown) break;
             }
+            return results;
+        }
 
-        return results;
+        private static bool RoomTemplateSuccessObserved(RoomTemplateCall call, JObject payload)
+        {
+            if (payload == null) return false;
+            foreach (string key in new[] { "ok", "success", "valid", "actionable", "allRequestedSatisfied" })
+                if (payload[key]?.Type == JTokenType.Boolean && payload[key].Value<bool>()) return true;
+            // Dig has a count-based acknowledgement; zero is a valid observed result.
+            return call.Tool == "orders_control" && call.Args["domain"]?.Value<string>() == "area"
+                && call.Args["action"]?.Value<string>() == "dig"
+                && payload["dryRun"]?.Type == JTokenType.Boolean
+                && payload["marked"]?.Type == JTokenType.Integer && payload["marked"].Value<long>() >= 0
+                && payload["worldId"]?.Type == JTokenType.Integer
+                && payload["rect"] is JObject && payload["execution"] is JObject;
+        }
+
+        private static int RoomTemplateCount(JObject payload, string key)
+        {
+            JToken value = payload?[key];
+            return value?.Type == JTokenType.Integer && value.Value<long>() > 0
+                ? (int)Math.Min(value.Value<long>(), int.MaxValue) : 0;
         }
 
         private static string ResolveRoomTemplateKind(JObject args)

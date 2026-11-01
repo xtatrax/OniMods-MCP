@@ -6,6 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PreviewMaterialSource Condition="'$(PreviewMaterialSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningMaterials.cs</PreviewMaterialSource>
     <PlacementModelsSource Condition="'$(PlacementModelsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningTools.cs</PlacementModelsSource>
     <ToiletReaderSource Condition="'$(ToiletReaderSource)' == ''">../../mods/OniMcp/Tools/Impl/Orders/MaintenanceToiletInfo.cs</ToiletReaderSource>
     <DefineConstants Condition="'$(ToiletLegacyComparison)' == 'true'">$(DefineConstants);TOILET_LEGACY_COMPARISON</DefineConstants>
@@ -25,6 +26,14 @@
     <NativeTileReplacementStateSource Condition="'$(NativeTileReplacementStateSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/NativeTileReplacementState.cs</NativeTileReplacementStateSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../mods/OniMcp/Tools/Shared/ConstructionModeObservation.cs" Link="Source/ConstructionModeObservation.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Shared/PreviewValidationObservation.cs" Link="Source/PreviewValidationObservation.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningObservationScopes.cs" Link="Source/BuildPlanningObservationScopes.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningUnknownReadObservations.cs" Link="Source/BuildPlanningUnknownReadObservations.cs" />
+
+    <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPreviewReadContext.cs" Link="Source/BuildPlanningPreviewReadContext.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialQuantityDiagnostics.cs" Link="Source/MaterialQuantityDiagnostics.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingOperationGuidance.cs" Link="Source/BuildingOperationGuidance.cs" />
     <Compile Include="$(ToiletReaderSource)" Link="Source/MaintenanceToiletInfo.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Orders/NativeBuildingToggle.cs" Link="Source/NativeBuildingToggle.cs" />
@@ -47,7 +56,7 @@
   </ItemGroup>
   <Target Name="GenerateBlueprintSafetySource" BeforeTargets="BeforeCompile">
     <PropertyGroup><BlueprintGeneratedSource>$(IntermediateOutputPath)BlueprintSafety.g.cs</BlueprintGeneratedSource></PropertyGroup>
-    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot; --anchors &quot;$(PreviewAnchorsSource)&quot; --placement &quot;$(PreviewPlacementSource)&quot; --models &quot;$(PlacementModelsSource)&quot;" />
+    <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --materials &quot;$(PreviewMaterialSource)&quot; --candidate-models &quot;$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/BuildPlanningModels.cs&quot; --candidate-results &quot;$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlanResults.cs&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot; --anchors &quot;$(PreviewAnchorsSource)&quot; --placement &quot;$(PreviewPlacementSource)&quot; --models &quot;$(PlacementModelsSource)&quot;" />
     <ItemGroup><Compile Include="$(BlueprintGeneratedSource)" /></ItemGroup>
   </Target>
 </Project>

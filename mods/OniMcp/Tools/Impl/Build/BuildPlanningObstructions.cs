@@ -9,7 +9,7 @@ namespace OniMcp.Tools
     public static partial class BuildPlanningTools
     {
         private static List<Dictionary<string, object>> FindFootprintObstructions(
-            PlacementDetails placement, GameObject ignored = null)
+            PlacementDetails placement, GameObject ignored = null, PlacementPreviewReadContext previewReads = null)
         {
             var result = new List<Dictionary<string, object>>();
             var placementDef = ResolveBuildingDefForPlacement(placement);
@@ -59,11 +59,11 @@ namespace OniMcp.Tools
                 result.Add(conflict);
             foreach (var conflict in FindBuildingLayerConflicts(placementDef, placement))
                 result.Add(conflict);
-            foreach (var conflict in FindLogicEndpointConflicts(placementDef, placement))
+            foreach (var conflict in FindLogicEndpointConflicts(placementDef, placement, previewReads))
                 result.Add(conflict);
 
             var seen = new HashSet<string>();
-            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored, placementDef, placement))
+            foreach (var obstruction in ExistingBuildingFootprintObstructions(placement.WorldId, footprintCells, ignored, placementDef, placement, previewReads))
             {
                 string id = obstruction.ContainsKey("id") ? obstruction["id"]?.ToString() : "";
                 if ((utility && !endpointBridge) || IsUtilityPrefab(id))
@@ -324,9 +324,9 @@ namespace OniMcp.Tools
             };
         }
 
-        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null, BuildingDef placementDef = null, PlacementDetails placement = null)
+        private static IEnumerable<Dictionary<string, object>> ExistingBuildingFootprintObstructions(int worldId, HashSet<int> footprintCells, GameObject ignored = null, BuildingDef placementDef = null, PlacementDetails placement = null, PlacementPreviewReadContext previewReads = null)
         {
-            foreach (var building in Components.BuildingCompletes.Items)
+            foreach (var building in previewReads == null ? Components.BuildingCompletes.Items : previewReads.CompletedBuildings())
             {
                 if (building == null || building.gameObject == null || ReferenceEquals(building.gameObject, ignored)
                     || !ToolUtil.GameObjectMatchesWorld(building.gameObject, worldId))
@@ -345,7 +345,7 @@ namespace OniMcp.Tools
                     yield return item;
             }
 
-            foreach (var constructable in FindConstructables(worldId))
+            foreach (var constructable in previewReads == null ? FindConstructables(worldId) : previewReads.Constructables())
             {
                 var go = constructable?.gameObject;
                 if (go == null || ReferenceEquals(go, ignored))

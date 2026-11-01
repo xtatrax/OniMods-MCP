@@ -1,0 +1,6 @@
+{
+  "construction_mode.future_preflight_unavailable": "请求的建造模式或材料规则尚未生效。只读预检不会切换游戏模式，因此该条件下的放置适用性仍未知。",
+  "construction_mode.instant_consent_required": "instantBuild=true 需要 allowSandbox=true 且 confirm=true",
+  "construction_mode.unsupported_preview_action": "不支持的建造预检操作。请选择已公布的 planning action。",
+  "construction_mode.unsupported_sandbox_preview": "所选沙盒操作不支持预检。"
+}

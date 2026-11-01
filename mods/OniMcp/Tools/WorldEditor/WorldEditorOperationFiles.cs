@@ -116,6 +116,15 @@ namespace OniMcp.Tools
 
     private static CallToolResult ApplyOperationMarkdownEdit(JObject parentArgs, string relative, string replacement)
     {
+        var result = ApplyOperationMarkdownEditWithObservation(parentArgs, relative, replacement);
+        // Every dispatch path stamps its count; only parser/capability refusals reach here without one.
+        int? calls = EditorChildCalls(result);
+        return EditorStampChildCalls(PreviewValidationObservation.Rejected(result, "operation",
+            EditorGameplayRequested(parentArgs)), calls ?? 0);
+    }
+
+    private static CallToolResult ApplyOperationMarkdownEditWithObservation(JObject parentArgs, string relative, string replacement)
+    {
         var lines = ExtractOperationCommandLines(replacement).ToList();
         if (lines.Count > 1)
             return OperationCommandLimitRefusal(relative, lines.Count);
@@ -163,9 +172,12 @@ namespace OniMcp.Tools
             ["arguments"] = item.Item3
         }));
         if (!WorldEditorExecutionAllowed(parentArgs))
-            return WorldEditorPreview("operation", "/active/" + relative, previewLines);
+            return EditorSyntaxPreview(WorldEditorPreview("operation", "/active/" + relative, previewLines),
+                "operation", "syntax_and_capability_only", "complete", parentArgs);
 
         var results = new JArray();
+        var observedChildren = new List<CallToolResult>();
+        int childCalls = 0;
         bool anyError = false;
         bool partial = false;
         int executed = 0;
@@ -180,12 +192,25 @@ namespace OniMcp.Tools
             bool semanticCoordinates = item.Item4;
             if (ToolUtil.GetBool(arguments, "dryRun", false) || !ToolUtil.GetBool(arguments, "confirm", false))
             {
-                results.Add(new JObject { ["line"] = line, ["tool"] = toolName, ["ok"] = true, ["preview"] = true, ["arguments"] = arguments });
+                var skipped = EditorObservePayload(new JObject
+                {
+                    ["line"] = line, ["tool"] = toolName, ["ok"] = true, ["preview"] = true,
+                    ["arguments"] = arguments, ["placementValidated"] = false
+                }, "operation", "child_not_invoked", "not_evaluated", 0, EditorGameplayRequested(arguments));
+                observedChildren.Add(skipped);
+                results.Add(ParseWorldEditorResult(skipped));
                 continue;
             }
 
-            CallToolResult result = RunWithWorldEditorInstantBuildScope(arguments,
-                () => OniToolRegistry.CallToolFromWorldEditor(toolName, arguments, semanticCoordinates));
+            bool childInvoked = false;
+            CallToolResult result = RunWithWorldEditorInstantBuildScope(arguments, () =>
+            {
+                childInvoked = true;
+                return OniToolRegistry.CallToolFromWorldEditor(toolName, arguments, semanticCoordinates);
+            }, toolName);
+            if (childInvoked) childCalls++;
+            var observed = EditorObserveChild(result, "operation", childInvoked ? 1 : 0, arguments);
+            observedChildren.Add(observed);
             executedCommands++;
             changes.Add(ResultChanged(result));
             bool failed = WorldEditorResultFailed(result, arguments);
@@ -202,6 +227,9 @@ namespace OniMcp.Tools
                 ["isError"] = failed,
                 ["nativeOutcome"] = NativeOutcome(result)
             };
+            var childValidation = EditorValidation(observed);
+            if (childValidation != null) resultItem["validation"] = childValidation;
+            resultItem["childCalls"] = childInvoked ? 1 : 0;
             if (failed)
                 resultItem["error"] = TrimOperationText(text, 4000);
             else
@@ -232,7 +260,8 @@ namespace OniMcp.Tools
             ["failed"] = anyError ? 1 : 0,
             ["results"] = results
         };
-        return anyError ? CallToolResult.Error(JsonResultText(summary)) : JsonResult(summary);
+        return EditorObservePayload(summary, "operation", "requested_scope_only", "not_evaluated", childCalls,
+            EditorGameplayRequested(parentArgs), observedChildren.Count == 1 ? EditorValidation(observedChildren[0]) : null, anyError);
     }
 
     private static CallToolResult OperationCommandLimitRefusal(string relative, int requestedCommands)
@@ -256,6 +285,13 @@ namespace OniMcp.Tools
 
     private static CallToolResult PreflightOperationMarkdownEdit(JObject parentArgs, string relative, string replacement)
     {
+        return EditorStampChildCalls(PreviewValidationObservation.Rejected(
+            PreflightOperationMarkdownEditWithObservation(parentArgs, relative, replacement), "operation",
+            EditorGameplayRequested(parentArgs)), 0);
+    }
+
+    private static CallToolResult PreflightOperationMarkdownEditWithObservation(JObject parentArgs, string relative, string replacement)
+    {
         var lines = ExtractOperationCommandLines(replacement).ToList();
         if (lines.Count == 0)
             return CallToolResult.Error("No executable operation lines found. Add commands under ## Edit Commands.");
@@ -273,7 +309,10 @@ namespace OniMcp.Tools
                 return CallToolResult.Error("Operation preflight failed for `" + line + "`: task is required");
             compiled.Add(new JObject { ["line"] = line, ["tool"] = toolName, ["arguments"] = arguments });
         }
-        return JsonResult(new JObject { ["ok"] = true, ["phase"] = "preflight", ["commands"] = compiled });
+        return EditorObservePayload(new JObject
+        {
+            ["ok"] = true, ["phase"] = "preflight", ["commands"] = compiled, ["placementValidated"] = false
+        }, "operation", "syntax_and_capability_only", "complete", 0, EditorGameplayRequested(parentArgs));
     }
 
     private static string SummarizeOperationResult(string text)

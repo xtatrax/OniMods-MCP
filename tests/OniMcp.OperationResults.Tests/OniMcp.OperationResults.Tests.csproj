@@ -6,6 +6,9 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);PUBLIC_EDITOR</DefineConstants>
+    <MapEditToolsSource Condition="'$(MapEditToolsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditTools.cs</MapEditToolsSource>
     <ScreenshotProjectionSource Condition="'$(ScreenshotProjectionSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/ScreenshotCaptureProjection.cs</ScreenshotProjectionSource>
     <OperationFilesSource Condition="'$(OperationFilesSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorOperationFiles.cs</OperationFilesSource>
     <ColonyReadResultsSource Condition="'$(ColonyReadResultsSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorColonyReadResults.cs</ColonyReadResultsSource>
@@ -17,12 +20,19 @@
     <WorldEditorListingSource Condition="'$(WorldEditorListingSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorListing.cs</WorldEditorListingSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="*.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Core/SandboxDryRunRoutingPolicy.cs" />
+<Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorObservationScopes.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Shared/PreviewValidationObservation.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningRequestSupport.cs" Link="Source/BuildPlanningRequestSupport.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorBlueprintFiles.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/Shared/ConstructionModeObservation.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorSandboxPolicy.cs" Link="Source/WorldEditorSandboxPolicy.cs" />
+    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorBuildModePolicy.cs" Link="Source/WorldEditorBuildModePolicy.cs" />
     <Compile Include="$(ScreenshotProjectionSource)" Link="Source/ScreenshotCaptureProjection.cs" />
     <Compile Include="$(DirectCommandsSource)" Link="Source/DuplicantSideScreenTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Dupes/DuplicantTools.cs" Link="Source/DuplicantTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateControlTools.cs" Link="Source/CoordinateControlTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateForwardingSafety.cs" Link="Source/CoordinateForwardingSafety.cs" />
-
     <Compile Include="$(OperationFilesSource)" Link="Source/WorldEditorOperationFiles.cs" />
     <Compile Include="$(ColonyReadResultsSource)" Link="Source/WorldEditorColonyReadResults.cs" />
     <Compile Include="$(CommandParsingSource)" Link="Source/WorldEditorCommandParsing.cs" />
@@ -39,20 +49,35 @@
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Source/McpJsonUtil.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Impl/Audit/ToolCatalogManifestTools.cs" Link="Source/ToolCatalogManifestTools.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/construction_mode.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/construction_mode.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/construction_mode.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/food_freshness.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/dupe_move_guidance.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/skill_model.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/achievement_read.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/food_freshness.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/food_freshness.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/food_freshness.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/dupe_move_guidance.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/dupe_move_guidance.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/dupe_move_guidance.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/skill_model.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/skill_model.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/skill_model.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/achievement_read.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/achievement_read.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/achievement_read.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/operation_files.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/command_parsing.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorEdits.cs" Link="Source/WorldEditorEdits.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorSearchReplace.cs" Link="Source/WorldEditorSearchReplace.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditTools.cs" Link="Source/WorldEditorMapEditTools.cs" />
+    <Compile Include="$(MapEditToolsSource)" Link="Source/WorldEditorMapEditTools.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditPreflight.cs" Link="Source/WorldEditorMapEditPreflight.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapPatchCoordinates.cs" Link="Source/WorldEditorMapPatchCoordinates.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditFootprints.cs" Link="Source/WorldEditorMapEditFootprints.cs" />
@@ -60,7 +85,6 @@
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditInputValidation.cs" Link="Source/WorldEditorMapEditInputValidation.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditOrderTokens.cs" Link="Source/WorldEditorMapEditOrderTokens.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditConnections.cs" Link="Source/WorldEditorMapEditConnections.cs" />
-    <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditLayerContext.cs" Link="Source/WorldEditorMapEditLayerContext.cs" Condition="Exists('../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapEditLayerContext.cs')" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/MapTextReadPolicy.cs" Link="Source/MapTextReadPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +95,13 @@
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorResultEvidence.cs" Link="Source/WorldEditorResultEvidence.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapBuildProgress.cs" Link="Source/WorldEditorMapBuildProgress.cs" />
     <Compile Include="../../mods/OniMcp/Tools/WorldEditor/WorldEditorMapBuildEdit.cs" Link="Source/WorldEditorMapBuildEdit.cs" />
-    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/result_progress.*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/result_progress.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/result_progress.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/result_progress.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/map_request_support.en.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/map_request_support.ja.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/map_request_support.zh-Hans.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
 </Project>

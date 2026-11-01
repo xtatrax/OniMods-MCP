@@ -1,0 +1,6 @@
+{
+  "construction_mode.future_preflight_unavailable": "The requested construction or material policy is not active. A read-only preflight does not switch game modes; placement eligibility for that requested policy remains unknown.",
+  "construction_mode.instant_consent_required": "instantBuild=true requires allowSandbox=true and confirm=true",
+  "construction_mode.unsupported_preview_action": "Unknown construction preview action; choose an advertised planning action.",
+  "construction_mode.unsupported_sandbox_preview": "The selected sandbox action does not support preview."
+}

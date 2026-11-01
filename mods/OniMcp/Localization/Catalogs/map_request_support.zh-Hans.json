@@ -1,0 +1,3 @@
+{
+  "map_request_support.preflight_failed": "存在未通过放置预检的分组，未执行此地图请求。重试前请检查各组的 preflightResult。"
+}

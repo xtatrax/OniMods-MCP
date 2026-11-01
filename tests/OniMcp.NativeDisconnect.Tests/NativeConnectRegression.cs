@@ -13,11 +13,11 @@ internal static class NativeConnectRegression
     }
     private static JObject Request(string type = "liquid", string direction = "right") => new JObject
         { ["x"] = 2, ["y"] = 2, ["type"] = type, ["direction"] = direction, ["confirm"] = true };
-    private static JObject Data(OniMcp.Core.CallToolResult result) => JObject.Parse(result.TextValue);
+    private static JObject Data(OniMcp.Core.CallToolResult result) => JObject.Parse(result.Content[0].Text);
     private static void Reject(ConnectFixture f, JObject request, string key)
     {
         var result = BuildPlanningTools.ConnectForTest(request);
-        Check(result.IsError && result.TextValue.Contains(McpLocalization.Get("connect_existing." + key)), key);
+        Check(result.IsError && result.Content[0].Text.Contains(McpLocalization.Get("connect_existing." + key)), key);
         Check(f.Tool.Events.Count == 0, "Preflight rejection must not activate UI");
         Check(f.Manager.Bits[f.A.Cell] == f.BeforeA && f.Manager.Bits[f.B.Cell] == f.BeforeB, "Preflight is read only");
     }

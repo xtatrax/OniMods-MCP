@@ -10,8 +10,45 @@ namespace OniMcp.Tools
 {
     public static partial class BuildPlanningTools
     {
-        private static Dictionary<string, object> TryPlanOne(string prefabId, int x, int y, JObject args, HashSet<int> plannedSupportCells = null, AutoDigContext autoDigContext = null)
+        private static Dictionary<string, object> TryPlanOne(string prefabId, int x, int y, JObject args, HashSet<int> plannedSupportCells = null, AutoDigContext autoDigContext = null, PlacementPreviewReadContext previewReads = null)
         {
+            PreviewValidationObservation observation;
+            var result = TryPlanOneWithObservation(prefabId, x, y, args, out observation,
+                plannedSupportCells, autoDigContext, previewReads);
+            return observation.AttachPayload(result);
+        }
+
+        private static PreviewValidationObservation PlacementObservation(JObject args, string scope, string coverage)
+        {
+            return new PreviewValidationObservation("placement", scope, coverage, !IsDryRun(args), false,
+                "valid", "dryRun", "reasonCode", "availableNow", "unlocked", "details.availableNow", "details.unlocked",
+                "details.assessmentState", "details.reasonCode", "details.geometryReasonCode", "details.facadeSelection.status", "details.facadeSelection.reasonCode", "details.availability.status", "details.availability.reasonCode",
+                "details.requestedInstantBuild", "details.currentInstantBuildMode", "details.normalMaterialRules",
+                "details.modeMatches", "details.materialPolicyMatches", "details.requestModeOrigin", "details.nativePlacementValid",
+                "support.status", "support.currentValid", "support.nativeFoundationValid", "details.support.status",
+                "details.support.currentValid", "details.support.nativeFoundationValid",
+                "materialSelection.quantityStatus", "materialSelection.selectedAvailableKg",
+                "details.selectedAvailableKg", "details.satisfied", "details.shortageKg",
+                "alreadyPresent", "planned", "blueprintPlaced");
+        }
+
+        private static Dictionary<string, object> TryPlanOneWithObservation(string prefabId, int x, int y, JObject args,
+            out PreviewValidationObservation observation, HashSet<int> plannedSupportCells = null,
+            AutoDigContext autoDigContext = null, PlacementPreviewReadContext previewReads = null)
+        {
+            observation = PlacementObservation(args, "request_rejected", "not_evaluated");
+            if (IsDryRun(args))
+            {
+                var mode = ConstructionModeObservation.Read(args);
+                if (!mode.MatchesRequestedPolicy)
+                {
+                    observation = PlacementObservation(args, "placement_mode_observation", "partial");
+                    var details = mode.Details();
+                    details["nativePlacementValid"] = JValue.CreateNull();
+                    details["availableNow"] = JValue.CreateNull();
+                    return ErrorResult(prefabId, x, y, mode.ErrorText, details);
+                }
+            }
             string resolvedPrefabId;
             string resolveError;
             var def = ResolveBuildingDef(prefabId, out resolvedPrefabId, out resolveError);
@@ -19,8 +56,18 @@ namespace OniMcp.Tools
                 return ErrorResult(prefabId, x, y, resolveError);
 prefabId = resolvedPrefabId;
 
+            observation = PlacementObservation(args, "placement_preflight", "partial");
+
+            if (previewReads != null && !previewReads.Matches(def, args)) previewReads = null;
             BuildingAvailabilityReader.Observation availability;
-            string availabilityError = BuildAvailabilityError(def, args, out availability);
+            string availabilityError;
+            if (previewReads == null)
+                availabilityError = BuildAvailabilityError(def, args, out availability);
+            else
+            {
+                availability = previewReads.Availability();
+                availabilityError = BuildAvailabilityErrorFromObservation(def, args, availability);
+            }
             if (availabilityError != null)
             {
                 // Geometry remains inspectable while research/availability still prevents placement.
@@ -49,7 +96,8 @@ prefabId = resolvedPrefabId;
             var earlyPlacement = BuildPlacementDetails(def, x, y, worldId, orientation);
             if (!earlyPlacement.GeometryAvailable)
                 return ErrorResult(prefabId, x, y, "Native footprint unavailable: " + earlyPlacement.GeometryError,
-                    ValidateFootprint(earlyPlacement).ToDictionary(earlyPlacement));
+                    GeometryObservationFailureDetails(earlyPlacement,
+                        ValidateFootprint(earlyPlacement, previewReads: previewReads).ToDictionary(earlyPlacement)));
             var terrainConflict = UtilityTerrainConflict(def,
                 earlyPlacement.Footprint.Select(c => c.Cell), ToolUtil.ResolveWorldId(args),
                 ToolUtil.GetBool(args, "allowUtilityTerrainDig", false),
@@ -57,10 +105,12 @@ prefabId = resolvedPrefabId;
                 ToolUtil.GetBool(args, "autoDigObstructions", true));
             if (terrainConflict != null && !GetBool(terrainConflict, "allowed"))
                 return ErrorResult(prefabId, x, y, terrainConflict["error"].ToString(), terrainConflict);
-            var replacementReuse = TryReuseNativeTileReplacementQueue(def, earlyPlacement, args);
+            var replacementReuse = TryReuseNativeTileReplacementQueue(def, earlyPlacement, args, previewReads);
             if (replacementReuse != null)
                 return replacementReuse;
-            var earlyExistingBuild = ExistingMatchingBuildAtPlacement(def, earlyPlacement);
+            var earlyExistingBuild = ExistingMatchingBuildAtPlacement(def, earlyPlacement, previewReads);
+            if (previewReads != null && previewReads.DiscoveryError != null)
+                return PreviewDiscoveryUnknown(prefabId, x, y, previewReads.DiscoveryError);
             if (earlyExistingBuild != null && !IsNativeTileReplacementCandidateScope(def, earlyPlacement)
                 && ExistingMaterialRequestSatisfied(def, earlyExistingBuild, args["material"]?.ToString()))
             {
@@ -68,6 +118,7 @@ prefabId = resolvedPrefabId;
                 if (instantRetry != null)
                     return instantRetry;
                 RegisterSupportBlueprint(prefabId, x, y, plannedSupportCells);
+                observation = PlacementObservation(args, "existing_object_reuse", "complete");
                 return new Dictionary<string, object>
                 {
                     ["planned"] = false,
@@ -95,14 +146,25 @@ prefabId = resolvedPrefabId;
                     }
                 };
             }
-            var materialResult = SelectElements(def, args["material"]?.ToString(), worldId);
+            var materialResult = previewReads == null ? SelectElements(def, args["material"]?.ToString(), worldId) : previewReads.Material();
             materialResult.RequiredKg = RequiredMaterialKg(def);
             if (!materialResult.Valid)
-                return ErrorResult(prefabId, x, y, materialResult.Error, materialResult.ToDictionary());
+            {
+                var materialDetails = materialResult.ToDictionary();
+                if (previewReads != null && previewReads.MaterialReadinessReason != null)
+                {
+                    materialDetails["assessmentState"] = "unknown";
+                    materialDetails["reasonCode"] = previewReads.MaterialReadinessReason;
+                    materialDetails["selectedAvailableKg"] = JValue.CreateNull();
+                    materialDetails["satisfied"] = JValue.CreateNull();
+                    materialDetails["shortageKg"] = JValue.CreateNull();
+                }
+                return ErrorResult(prefabId, x, y, materialResult.Error, materialDetails);
+            }
 
-            var facadeResult = ResolveFacade(def, args["facade"]?.ToString() ?? args["facadeId"]?.ToString());
+            var facadeResult = previewReads == null ? ResolveFacade(def, args["facade"]?.ToString() ?? args["facadeId"]?.ToString()) : previewReads.Facade();
             if (!facadeResult.Valid)
-                return ErrorResult(prefabId, x, y, facadeResult.Error);
+                return ErrorResult(prefabId, x, y, facadeResult.Error, FacadeSelectionErrorDetails(facadeResult));
 
             var tileReplacement = TryPlanNativeTileReplacement(def, earlyPlacement, args, materialResult, facadeResult);
             if (tileReplacement != null)
@@ -118,8 +180,10 @@ prefabId = resolvedPrefabId;
                 });
 
             var placement = BuildPlacementDetails(def, x, y, worldId, orientation);
-            var footprintResult = ValidateFootprint(placement);
-            var existingBuild = ExistingMatchingBuildAtPlacement(def, placement);
+            var footprintResult = ValidateFootprint(placement, previewReads: previewReads);
+            var existingBuild = ExistingMatchingBuildAtPlacement(def, placement, previewReads);
+            if (previewReads != null && previewReads.DiscoveryError != null)
+                return PreviewDiscoveryUnknown(prefabId, x, y, previewReads.DiscoveryError);
             if (existingBuild != null)
             {
                 var materialMismatch = ExistingMaterialMismatchResult(
@@ -130,6 +194,7 @@ prefabId = resolvedPrefabId;
                 if (instantRetry != null)
                     return instantRetry;
                 RegisterSupportBlueprint(prefabId, x, y, plannedSupportCells);
+                observation = PlacementObservation(args, "existing_object_reuse", "complete");
                 return new Dictionary<string, object>
                 {
                     ["planned"] = false,
@@ -174,6 +239,7 @@ prefabId = resolvedPrefabId;
                 if (materialMismatch != null)
                     return materialMismatch;
                 RegisterSupportBlueprint(prefabId, x, y, plannedSupportCells);
+                observation = PlacementObservation(args, "existing_object_reuse", "complete");
                 return ExistingPlacementResult(def, placement, existingUtility, utility: true);
             }
 
@@ -207,6 +273,7 @@ prefabId = resolvedPrefabId;
                 };
             }
 
+            observation = PlacementObservation(args, "placement_execution_observation", "partial");
             var executionExistingBuild = ExistingMatchingBuildAtPlacement(def, placement);
             if (executionExistingBuild != null)
             {
@@ -217,6 +284,7 @@ prefabId = resolvedPrefabId;
                 var instantRetry = TryCompleteExistingVirtualFileBlueprint(def, placement, args, executionExistingBuild);
                 if (instantRetry != null)
                     return instantRetry;
+                observation = PlacementObservation(args, "existing_object_reuse", "complete");
                 return ExistingPlacementResult(def, placement, executionExistingBuild, utility: false);
             }
 
@@ -227,6 +295,7 @@ prefabId = resolvedPrefabId;
                     prefabId, x, y, executionExistingUtility, materialResult, args["material"]?.ToString());
                 if (materialMismatch != null)
                     return materialMismatch;
+                observation = PlacementObservation(args, "existing_object_reuse", "complete");
                 return ExistingPlacementResult(def, placement, executionExistingUtility, utility: true);
             }
 

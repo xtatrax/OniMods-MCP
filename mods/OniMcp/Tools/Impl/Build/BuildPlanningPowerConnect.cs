@@ -16,6 +16,17 @@ namespace OniMcp.Tools
             HashSet<int> plannedSupportCells,
             AutoDigContext autoDigContext)
         {
+            PreviewValidationObservation observation;
+            var result = TryAutoConnectPowerWithObservation(def, anchorX, anchorY, orientation, args,
+                plannedSupportCells, autoDigContext, out observation);
+            return observation.AttachPayload(result);
+        }
+
+        private static Dictionary<string, object> TryAutoConnectPowerWithObservation(
+            BuildingDef def, int anchorX, int anchorY, Orientation orientation, JObject args,
+            HashSet<int> plannedSupportCells, AutoDigContext autoDigContext, out PreviewValidationObservation observation)
+        {
+            observation = PowerWiringObservation(args, "automatic_power_wiring_not_invoked", "not_evaluated", enabled: false);
             bool enabled = def != null
                 && def.RequiresPowerInput
                 && ToolUtil.GetBool(args, "autoConnectPower", true);
@@ -28,6 +39,7 @@ namespace OniMcp.Tools
                 };
             }
 
+            observation = PowerWiringObservation(args, "automatic_power_wiring_selection");
             int worldId = ToolUtil.ResolveWorldId(args);
             int inputCell = PowerInputCell(def, anchorX, anchorY, orientation);
             if (!Grid.IsValidCell(inputCell) || !ToolUtil.CellMatchesWorld(inputCell, worldId))
@@ -118,6 +130,7 @@ namespace OniMcp.Tools
                 ["points"] = new JArray(path.Select(p => new JArray(p.x, p.y)))
             };
 
+            observation = PowerWiringObservation(args, "automatic_power_wiring_child_dispatch");
             var connectResult = AutoConnectUtility().Handler(wireArgs);
             var result = AutoConnectPowerResultProjection.Project(connectResult, IsDryRun(args));
             result["input"] = CellCoordDictionary(inputCell);

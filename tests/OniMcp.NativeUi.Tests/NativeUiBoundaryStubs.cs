@@ -50,6 +50,8 @@ internal sealed class ClusterManager
 {
     public static ClusterManager Instance;
     public int activeWorldId;
+    public FixtureWorldContainer World=new FixtureWorldContainer();
+    public FixtureWorldContainer GetWorld(int id){return World;}
 }
 internal enum Action { NativeGameAction }
 internal enum KKeyCode { Mouse0 }
@@ -136,3 +138,5 @@ namespace OniMcp.Tools
         { return Grid.IsValidCell(go.Cell) && Grid.WorldIdx[go.Cell] == world; }
     }
 }
+
+internal sealed class FixtureWorldContainer {public object worldInventory=new object();}

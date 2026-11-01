@@ -13,8 +13,8 @@ internal static class ValidateOnlySafetyRegression
         var result=BuildPlanningTools.ConnectForTest(args);
         Check(f.Tool.Events.Count==0,"alias confirm="+confirm+" nativeActions must be zero; observed "+f.Tool.Events.Count);
         Check(f.Manager.Bits[f.A.Cell]==f.BeforeA&&f.Manager.Bits[f.B.Cell]==f.BeforeB,"validateOnly never changes either mask");
-        Check(!result.IsError,"advertised alias accepts read-only preflight without write confirmation: "+result.TextValue);
-        var data=JObject.Parse(result.TextValue);
+        Check(!result.IsError,"advertised alias accepts read-only preflight without write confirmation: "+result.Content[0].Text);
+        var data=JObject.Parse(result.Content[0].Text);
         Check((bool)data["dryRun"]&&!(bool)data["actionAttempted"]&&data["connectionVerified"].Type==JTokenType.Null,"alias returns truthful preview, not verified connection");
     }
     internal static void Run()

@@ -11,6 +11,12 @@ namespace OniMcp.Tools
     {
         private static CallToolResult Edit(JObject args)
         {
+            return PreviewValidationObservation.Rejected(EditWithObservation(args), "virtual_file_edit",
+                EditorGameplayRequested(args));
+        }
+
+        private static CallToolResult EditWithObservation(JObject args)
+        {
             string path = NormalizePath(Text(args, "path"), _cwd);
             if (!path.StartsWith("/active/", StringComparison.Ordinal))
             {
@@ -28,33 +34,46 @@ namespace OniMcp.Tools
                 return CallToolResult.Error("Multiple write blocks require allowPartial=true because game mutations cannot be rolled back transactionally.");
 
             var preflight = new JArray();
+            var observedPreflights = new List<CallToolResult>();
             for (int i = 0; i < edits.Count; i++)
             {
                 var result = PreflightSingleEditBlock(args, path, relative, edits[i].Key, edits[i].Value);
+                observedPreflights.Add(result);
                 if (WorldEditorResultFailed(result))
-                    return CallToolResult.Error(JsonResultText(new JObject
+                    return EditorObservePayload(new JObject
                     {
-                        ["ok"] = false,
-                        ["phase"] = "preflight",
-                        ["block"] = i,
+                        ["ok"] = false, ["phase"] = "preflight", ["block"] = i,
                         ["error"] = result?.Content?.FirstOrDefault()?.Text ?? "preflight failed",
-                        ["applied"] = 0,
-                        ["appliedUnit"] = "edit_blocks",
-                        ["changed"] = false
-                    }));
+                        ["applied"] = 0, ["appliedUnit"] = "edit_blocks", ["changed"] = false
+                    }, "virtual_file_edit", "request_rejected", "not_evaluated", EditorChildCalls(observedPreflights),
+                        EditorGameplayRequested(args), EditorValidation(result), error: true);
                 preflight.Add(new JObject { ["block"] = i, ["result"] = result?.Content?.FirstOrDefault()?.Text ?? string.Empty });
             }
 
             if (!WorldEditorExecutionAllowed(args))
-                return WorldEditorPreview("search_replace", path, preflight);
+            {
+                var preview = WorldEditorPreview("search_replace", path, preflight);
+                var payload = ParseWorldEditorResult(preview);
+                if (observedPreflights.Count == 1)
+                {
+                    var childPayload = ParseWorldEditorResult(observedPreflights[0]);
+                    if (childPayload?["placementValidated"]?.Type == JTokenType.Boolean)
+                        payload["placementValidated"] = childPayload["placementValidated"].DeepClone();
+                }
+                return EditorObservePayload(payload, "virtual_file_edit", "requested_scope_only", "not_evaluated",
+                    EditorChildCalls(observedPreflights), EditorGameplayRequested(args),
+                    observedPreflights.Count == 1 ? EditorValidation(observedPreflights[0]) : null);
+            }
 
             var results = new JArray();
+            var observedResults = new List<CallToolResult>();
             int applied = 0;
             bool partial = false;
             var changes = new List<bool?>();
             for (int i = 0; i < edits.Count; i++)
             {
                 var result = ApplySingleEditBlock(args, path, relative, edits[i].Key, edits[i].Value);
+                observedResults.Add(result);
                 results.Add(new JObject
                 {
                     ["block"] = i,
@@ -64,12 +83,22 @@ namespace OniMcp.Tools
                 changes.Add(ResultChanged(result));
                 partial = partial || ResultProgressPartial(result);
                 if (WorldEditorResultFailed(result))
-                    return WorldEditorExecutionFailure("search_replace", path, applied, results,
+                {
+                    var failure = WorldEditorExecutionFailure("search_replace", path, applied, results,
                         partial || applied > 0 || MergeOutcomeChanged(changes) == true, MergeOutcomeChanged(changes));
+                    return EditorObservePayload(ParseWorldEditorResult(failure), "virtual_file_edit", "requested_scope_only",
+                        "not_evaluated", EditorChildCalls(observedResults), EditorGameplayRequested(args),
+                        EditorValidation(result), error: true);
+                }
                 applied++;
             }
 
-            return JsonResult(new JObject { ["ok"] = true, ["partial"] = partial, ["applied"] = applied, ["appliedUnit"] = "edit_blocks", ["changed"] = MergeOutcomeChanged(changes), ["failed"] = 0, ["results"] = results });
+            return EditorObservePayload(new JObject
+            {
+                ["ok"] = true, ["partial"] = partial, ["applied"] = applied, ["appliedUnit"] = "edit_blocks",
+                ["changed"] = MergeOutcomeChanged(changes), ["failed"] = 0, ["results"] = results
+            }, "virtual_file_edit", "requested_scope_only", "not_evaluated", EditorChildCalls(observedResults),
+                EditorGameplayRequested(args), observedResults.Count == 1 ? EditorValidation(observedResults[0]) : null);
         }
 
         private static CallToolResult PreflightSingleEditBlock(JObject args, string path, string relative, string search, string replace)
@@ -135,7 +164,8 @@ namespace OniMcp.Tools
                 args["action"] = "auto_connect";
             else
                 args["action"] = ToolUtil.GetBool(args, "confirm", false) ? "build_area" : "parse_plan";
-            return BuildingControlTools.ControlBuildingFromVirtualFile(args);
+            return RunWithWorldEditorInstantBuildScope(args,
+                () => BuildingControlTools.ControlBuildingFromVirtualFile(args), "building_control");
         }
 
         private static CallToolResult PreflightBuildEdit(JObject args, string relative, string replacement)
@@ -149,7 +179,16 @@ namespace OniMcp.Tools
                 && !TryApplyInfrastructurePlan(preview, relative, replacement, out string error))
                 return CallToolResult.Error(error);
             preview["action"] = relative == "buildings/plans.oni" ? "build_area" : "auto_connect";
-            return PromoteWorldEditorFailure(BuildingControlTools.ControlBuildingFromVirtualFile(preview));
+            int childCalls = 0;
+            var child = RunWithWorldEditorInstantBuildScope(preview, () =>
+            {
+                childCalls++;
+                return BuildingControlTools.ControlBuildingFromVirtualFile(preview);
+            }, "building_control");
+            var observed = EditorObserveChild(child, "placement", childCalls, preview, passive: true);
+            if (observed != null && WorldEditorResultFailed(observed) && !observed.IsError)
+                observed.IsError = true;
+            return observed;
         }
 
         private static bool IsEditableBuildCommandFile(string relative)

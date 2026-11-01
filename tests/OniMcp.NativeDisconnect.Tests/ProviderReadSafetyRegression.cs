@@ -83,8 +83,8 @@ internal static class ProviderReadSafetyRegression
             f = new ConnectFixture(entry.Item1, prefabId: entry.Item2);
             var provider = f.Def.BuildingComplete.GetComponent<NativeUtilityProvider>();
             var result = BuildPlanningTools.ConnectForTest(Request(entry.Item1));
-            Check(!result.IsError, entry.Item2 + ": ready known native provider preview remains supported: " + result.TextValue);
-            var data = JObject.Parse(result.TextValue);
+            Check(!result.IsError, entry.Item2 + ": ready known native provider preview remains supported: " + result.Content[0].Text);
+            var data = JObject.Parse(result.Content[0].Text);
             Check((bool)data["success"] && (bool)data["dryRun"] && !(bool)data["actionAttempted"]
                 && data["connectionVerified"].Type == JTokenType.Null, entry.Item2 + ": honest passive preview result");
             Check(provider.Calls == 2 && f.A.ManagerGetterCalls == 1 && f.B.ManagerGetterCalls == 1

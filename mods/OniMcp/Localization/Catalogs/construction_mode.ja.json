@@ -1,0 +1,6 @@
+{
+  "construction_mode.future_preflight_unavailable": "要求した建設モードまたは素材ルールは適用されていません。読取だけの予行ではゲームのモードを切り替えないため、その条件での配置適合性は未判別です。",
+  "construction_mode.instant_consent_required": "instantBuild=true には allowSandbox=true と confirm=true が必要です",
+  "construction_mode.unsupported_preview_action": "未対応の建設予行操作です。公開されている planning action を指定してください。",
+  "construction_mode.unsupported_sandbox_preview": "指定したサンドボックス操作は予行に対応していません。"
+}

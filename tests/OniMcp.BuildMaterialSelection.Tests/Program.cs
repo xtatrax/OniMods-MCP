@@ -21,13 +21,17 @@ internal static class Program
         "fallbackMaterial", "next", "suggestion", "error"
     };
 
-    private static int Main()
+    private static int Main(string[] args)
     {
+        if(args.Length>0&&args[0]=="facade-readiness-only"){FacadeReadinessRegression.Run();return 0;}
+        if(args.Length>0&&args[0]=="facade-only"){PreviewMaterialContextCases.FacadeOnly();return 0;}
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
         try
         {
+            FacadeReadinessRegression.Run();
             Cases();
+            PreviewMaterialContextCases.Run();
             int behaviorChecks = checks;
             // All fixed-input behavior cases run before the baseline-negative budget check.
             foreach (JObject budget in countBudgets)

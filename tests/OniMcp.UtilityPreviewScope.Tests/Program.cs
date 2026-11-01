@@ -1,0 +1,30 @@
+using Newtonsoft.Json;using Newtonsoft.Json.Linq;using OniMcp.Tools;using OniMcp.Support;
+internal static class Program
+{
+ private static int checks;private static void Check(bool v,string reason){checks++;if(!v)throw new Exception("Utility path scope: "+reason);}
+ private static JObject Wire(Dictionary<string,object> value)=>JObject.Parse(JsonConvert.SerializeObject(value,McpJsonUtil.Settings));
+ private static JObject Scope(JObject value,string name,string coverage="partial"){Check(value["validation"] is JObject,"actual utility handler/helper returns authoritative scope");var scope=(JObject)value["validation"];Check((string)scope["validationScope"]==name&&(string)scope["coverage"]==coverage,"scope follows observed source stage without success inference");return scope;}
+ private static JObject Args()=>new JObject{["type"]="wire",["worldId"]=0,["dryRun"]=true};
+ private static void Setup(){BuildPlanningTools.Reset();}
+ public static void Main(string[] args)
+ {
+  if(args.Length==0||args[0]=="native")NativeCases();if(args.Length==0||args[0]=="factory")FactoryCases();if(args.Length==0||args[0]=="mode")UtilityConstructionModeRegression.Run();Console.WriteLine("Utility path scope: "+checks+" full native helper/exact actual factory method checks PASS (game/child collaborators supplied)");
+ }
+ private static void NativeCases()
+ {
+  Setup();var args=Args();var before=args.DeepClone();var value=Wire(BuildPlanningTools.NativeForTest(args));var scope=Scope(value,"native_utility_path_not_invoked","not_evaluated");Check(!(bool)value["attempted"]&&BuildPlanningTools.TerrainCalls==0&&BuildPlanningTools.SafetyCalls==0,"native drag dryRun is non-invocation, not a native path validator");Check(NativeTool.Calls==0&&BuildPlanningTools.RefreshCalls==0&&JToken.DeepEquals(args,before)&&!(bool)scope["uiInteractionRequested"],"direct passive helper performs no UI/network or caller mutation");
+  Setup();args=Args();args["dryRun"]=false;args["validateOnly"]=true;value=Wire(BuildPlanningTools.NativeForTest(args));Scope(value,"native_utility_path_not_invoked","not_evaluated");Check(NativeTool.Calls==0&&BuildPlanningTools.TerrainCalls==0,"native helper preserves validateOnly alias");
+  Setup();args=Args();args["dryRun"]=false;WireBuildTool.Instance=null;value=Wire(BuildPlanningTools.NativeForTest(args));Scope(value,"utility_path_preflight");Check(!((bool)value["success"])&&NativeTool.Calls==0,"missing native UI observes only path preflight, no completion");
+  Setup();args=Args();args["dryRun"]=false;BuildPlanningTools.SeedPath();value=Wire(BuildPlanningTools.NativeForTest(args));scope=Scope(value,"utility_path_execution_observation");Check((bool)value["success"]&&(bool)value["networkConnected"]&&!(bool)value["flowVerified"]&&(bool)scope["uiInteractionRequested"],"successful supplied native callback retains partial scope and separate unobserved flow");
+ }
+ private static void FactoryCases()
+ {
+  Setup();var args=Args();var report=BuildPlanningTools.AutoConnectUtility().Handler(args);var value=JObject.Parse(report.Content[0].Text);var scope=Scope(value,"utility_path_preflight");Check(!report.IsError&&(bool)value["complete"]&&(int)value["valid"]==3,"known valid child preview preserves compatibility counts");Check(value["networkConnected"].Type==JTokenType.Null&&scope["reportedFacts"]["networkConnected"].Type==JTokenType.Null&&!(bool)scope["uiInteractionRequested"],"preview native network stays unknown in payload and scalar scope facts");Check(NativeTool.Calls==0&&BuildPlanningTools.RefreshCalls==0&&BuildPlanningTools.PlanCalls==3,"factory preview calls each supplied parent validation but no UI/network mutation");
+  Setup();args=Args();BuildPlanningTools.FailPlan=true;report=BuildPlanningTools.AutoConnectUtility().Handler(args);value=JObject.Parse(report.Content[0].Text);Scope(value,"utility_path_preflight");Check(report.IsError&&!(bool)value["success"]&&(int)value["failed"]==3,"all failed parent previews remain failed/partial observation");
+  Setup();args=Args();BuildPlanningTools.PathConflict=true;report=BuildPlanningTools.AutoConnectUtility().Handler(args);value=JObject.Parse(report.Content[0].Text);Scope(value,"utility_path_preflight");Check(report.IsError&&(string)value["reasonCode"]=="utility_path_conflict"&&BuildPlanningTools.PlanCalls==0&&NativeTool.Calls==0,"early exact-path refusal has preflight scope and no child/native action");
+  Setup();args=Args();BuildPlanningTools.FailPlan=true;BuildPlanningTools.PlanConflict=true;report=BuildPlanningTools.AutoConnectUtility().Handler(args);value=JObject.Parse(report.Content[0].Text);Scope(value,"utility_path_preflight");Check(report.IsError&&(string)value["reasonCode"]=="utility_path_conflict"&&(int)value["failed"]==3,"final placement-conflict branch retains actual parent refusal and partial scope");
+  Setup();args=Args();BuildPlanningTools.TerrainBlocked=true;report=BuildPlanningTools.AutoConnectUtility().Handler(args);value=JObject.Parse(report.Content[0].Text);Scope(value,"utility_path_preflight");Check(report.IsError&&(string)value["reasonCode"]=="utility_terrain_dig_requires_consent"&&BuildPlanningTools.PlanCalls==0,"terrain refusal has source preflight scope without any child dispatch");
+  Setup();args=Args();BuildPlanningTools.FallbackConflict=true;report=BuildPlanningTools.AutoConnectUtility().Handler(args);value=JObject.Parse(report.Content[0].Text);Scope(value,"utility_path_preflight");Check(report.IsError&&(string)value["phase"]=="cell_fallback_pre_commit"&&BuildPlanningTools.PlanCalls==0,"fallback recheck refusal keeps its source phase and partial scope");
+  Setup();args=Args();args["dryRun"]=false;args["confirm"]=false;report=BuildPlanningTools.AutoConnectUtility().Handler(args);Check(report.IsError&&report.Content[0].Text=="confirm=true is required unless dryRun=true","factory preserves exact early plain error text");var meta=(JObject)report.Content[0].Meta[PreviewValidationObservation.MetadataKey];Check((string)meta["validationScope"]=="request_rejected"&&(string)meta["coverage"]=="not_evaluated"&&NativeTool.Calls==0,"factory fallback is explicit rejected request, not preflight proof");
+ }
+}

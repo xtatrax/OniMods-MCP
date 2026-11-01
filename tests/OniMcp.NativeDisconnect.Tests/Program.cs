@@ -12,19 +12,21 @@ internal static class Program
         checks++;
         if (!condition) throw new Exception(message);
     }
-    private static JObject Result(CallToolResult result) => JObject.Parse(result.TextValue);
+    private static JObject Result(CallToolResult result) => JObject.Parse(result.Content[0].Text);
     private static JObject Request() => new JObject { ["x"] = 2, ["y"] = 2,
         ["direction"] = "right", ["type"] = "wire", ["confirm"] = true, ["worldId"] = 0 };
     private static void Rejected(Fixture f, JObject request, string expected)
     {
         var before = f.Manager.Bits.ToDictionary(p => p.Key, p => p.Value);
         var result = OrdersTools.Disconnect(request);
-        Check(result.IsError && result.TextValue.Contains(expected, StringComparison.OrdinalIgnoreCase), expected + ": " + result.TextValue);
+        Check(result.IsError && result.Content[0].Text.Contains(expected, StringComparison.OrdinalIgnoreCase), expected + ": " + result.Content[0].Text);
         Check(f.Tool.Calls.Count == 0, "Rejected requests must not invoke the native action");
         Check(before.All(p => f.Manager.Bits[p.Key] == p.Value), "Rejected requests must not change connection state");
     }
     public static void Main(string[] args)
     {
+        UtilityConnectionScopeRegression.Run();
+        if (args.Length == 1 && args[0] == "--utility-scope-only") return;
         if(args.Length==1&&args[0]=="--validate-only-confirm-false"){ValidateOnlySafetyRegression.RunCase(false);return;}
         if(args.Length==1&&args[0]=="--validate-only-confirm-true"){ValidateOnlySafetyRegression.RunCase(true);return;}
         ValidateOnlySafetyRegression.Run();
@@ -206,16 +208,6 @@ namespace OniMcp.Tools
         }
     }
 }
-namespace OniMcp.Core
-{
-    public sealed class CallToolResult
-    {
-        public bool IsError; public string TextValue;
-        public static CallToolResult Text(string value) => new CallToolResult { TextValue = value };
-        public static CallToolResult Error(string value) => new CallToolResult { TextValue = value, IsError = true };
-    }
-}
-
 namespace UnityEngine
 {
     public class Component

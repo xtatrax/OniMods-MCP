@@ -77,6 +77,8 @@ namespace OniMcp.Tools
                 ["buildLocationRule"] = def.BuildLocationRule.ToString(),
                 ["placement"] = BuildDefPlacementToDictionary(def),
                 ["categories"] = BuildingCategories(def),
+                ["categoryScope"] = "native_definition_fields_and_material_categories",
+                ["runtimeCategoryProperties"] = "not_evaluated",
                 ["materialCategories"] = def.MaterialCategory,
                 ["resolvedMaterialCategories"] = MaterialCategoryTags(def).Select(tag => tag.Name).ToList(),
                 ["defaultMaterials"] = filteredDefaults.Select(tag => tag.Name).ToList(),
@@ -110,6 +112,12 @@ private static string BuildAvailabilityError(BuildingDef def, JObject args,
     // Capture through the same passive reader as discovery. Missing research
     // caches remain unknown; a preview must never initialize Db.Get().
     availability = BuildingAvailabilityReader.Read(def);
+    return BuildAvailabilityErrorFromObservation(def, args, availability);
+}
+
+private static string BuildAvailabilityErrorFromObservation(BuildingDef def, JObject args,
+    BuildingAvailabilityReader.Observation availability)
+{
     if (def == null)
         return McpLocalization.Get("building_availability.error.definition_missing");
     bool researchAllowed = availability.Unlocked == true || CanBypassUtilityResearch(def, args);
@@ -172,24 +180,21 @@ private static object AutoMaterialValue(BuildingDef def, int worldId)
 
         private static string ReadMemberString(BuildingDef def, string name)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var type = def.GetType();
-            var property = type.GetProperty(name, flags);
-            if (property != null)
-                return MemberValueToString(property.GetValue(def, null));
-
-            var field = type.GetField(name, flags);
-            return field == null ? null : MemberValueToString(field.GetValue(def));
-        }
-
-        private static string MemberValueToString(object value)
-        {
-            if (value == null)
+            if (def == null)
                 return null;
-            var tag = value as Tag?;
-            if (tag.HasValue)
-                return tag.Value.Name;
-            return value.ToString();
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+            var field = typeof(BuildingDef).GetField(name, flags);
+            if (field == null || field.DeclaringType != typeof(BuildingDef)
+                || field.IsStatic || (field.FieldType != typeof(string) && field.FieldType != typeof(Tag)))
+                return null;
+            try
+            {
+                object value = field.GetValue(def);
+                if (field.FieldType == typeof(string))
+                    return value as string;
+                return value == null ? null : ((Tag)value).Name;
+            }
+            catch { return null; }
         }
 
         private static void AddCategory(List<string> categories, string value)
@@ -205,32 +210,27 @@ private static object AutoMaterialValue(BuildingDef def, int worldId)
                 new Dictionary<string, object>
                 {
                     ["id"] = "DEFAULT_FACADE",
-                    ["name"] = "Default",
+                    ["name"] = McpLocalization.Get("building_facade.default_name"),
                     ["unlocked"] = true,
                     ["default"] = true
                 }
             };
-
             if (def.AvailableFacades == null)
                 return facades;
-
             foreach (var facadeId in def.AvailableFacades)
             {
-                var permit = Db.Get().Permits.TryGet(facadeId);
-                bool unlocked = permit != null && permit.IsUnlocked();
-                if (!unlocked)
+                var observed = BuildingFacadeReader.Read(facadeId);
+                if (observed.Unlocked == false)
                     continue;
-
-                var facade = Db.GetBuildingFacades().TryGet(facadeId);
                 facades.Add(new Dictionary<string, object>
                 {
                     ["id"] = facadeId,
-                    ["name"] = facade != null ? ToolUtil.CleanName(facade.Name) : facadeId,
-                    ["unlocked"] = true,
-                    ["default"] = false
+                    ["name"] = observed.Name,
+                    ["unlocked"] = BuildingAvailabilityReader.JsonBoolean(observed.Unlocked),
+                    ["default"] = false,
+                    ["availability"] = observed.ToDictionary()
                 });
             }
-
             return facades;
         }
 

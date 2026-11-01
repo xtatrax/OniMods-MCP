@@ -74,7 +74,7 @@ namespace OniMcp.Tools
             }
         }
 
-        private static FootprintValidation ValidateFootprint(PlacementDetails placement, GameObject ignored = null)
+        private static FootprintValidation ValidateFootprint(PlacementDetails placement, GameObject ignored = null, PlacementPreviewReadContext previewReads = null)
         {
             if (!placement.GeometryAvailable && placement.GeometryError != "occupied_cell_invalid")
                 return FootprintValidation.Invalid("Native footprint unavailable: " + placement.GeometryError,
@@ -85,7 +85,7 @@ namespace OniMcp.Tools
                 .Select(cell => cell.ToDictionary())
                 .ToList();
 
-            var obstructions = FindFootprintObstructions(placement, ignored);
+            var obstructions = FindFootprintObstructions(placement, ignored, previewReads);
             AddBackwallFoundationFailure(placement, obstructions);
 
             if (invalid.Count == 0 && obstructions.Count == 0)

@@ -101,7 +101,7 @@ internal static class PreviewIdRegression
     {
         var result = Invoke(args);
         Check(!result.IsError, "ID preview resolver must accept the exact visible completed instance");
-        var body = JObject.Parse(result.Body);
+        var body = JObject.Parse(result.Content[0].Text);
         Check(body["valid"]?.Value<bool>() == true && body["dryRun"]?.Value<bool>() == true
             && body["planned"]?.Value<bool>() == false && body["blueprintPlaced"]?.Value<bool>() == false,
             "actual parent/child force dry-run and never claim construction");
@@ -112,8 +112,8 @@ internal static class PreviewIdRegression
     private static void Refusal(JObject args, string reason, string displayId)
     {
         var result = Invoke(args);
-        Check(result.IsError && result.Body.Contains(reason) && result.Body.Contains(displayId)
-            && result.Body != "build.preview_anchor.unavailable", "localized refusal retains canonical reason/ID without fallback");
+        Check(result.IsError && result.Content[0].Text.Contains(reason) && result.Content[0].Text.Contains(displayId)
+            && result.Content[0].Text != "build.preview_anchor.unavailable", "localized refusal retains canonical reason/ID without fallback");
         Check(BuildPlanningTools.FixtureSelectCalls == 0 && ToolUtil.PreviewQueryCalls == 0,
             "invalid explicit ID cannot reach name search or child material/planning work");
     }
@@ -224,7 +224,7 @@ internal static class PreviewIdRegression
         ToolUtil.PreviewQuerySuccess = true; Success(args, 4, 4);
         Check(ToolUtil.PreviewQueryCalls == 1, "absent ID keeps legacy partial-coordinate query behavior");
         Setup(); args = Args(); var result = Invoke(args);
-        Check(result.IsError && result.Body == ToolUtil.PreviewQueryError && ToolUtil.PreviewQueryCalls == 1,
+        Check(result.IsError && result.Content[0].Text == ToolUtil.PreviewQueryError && ToolUtil.PreviewQueryCalls == 1,
             "absent ID retains exact legacy error rather than new ID text");
     }
     private static void ActualAvailabilityInputs()

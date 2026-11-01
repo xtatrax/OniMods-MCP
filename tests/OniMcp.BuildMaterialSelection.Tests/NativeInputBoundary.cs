@@ -190,7 +190,7 @@ internal sealed class CountingPickupables : IEnumerable<Pickupable>
     public IEnumerator<Pickupable> GetEnumerator() { Boundary.PickupEnumerations++; return Raw.GetEnumerator(); }
     IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
 }
-internal static class Components
+internal static partial class Components
 {
     internal static class Pickupables { internal static readonly CountingPickupables Items = new CountingPickupables(); }
 }
@@ -223,8 +223,10 @@ public sealed class Game { public static Game Instance; public bool SandboxModeA
 public static class DebugHandler { public static bool InstantBuildMode; }
 public sealed class Db
 {
+    private static Db _Instance;
+    internal static void Seed(Db db){_Instance=db;}
     public PermitSet Permits;
     public static Db Get() { throw Boundary.Forbidden("Db.Get / facade initialization"); }
 }
-public sealed class PermitSet { public Permit TryGet(string id) { throw Boundary.Forbidden("permit lookup"); } }
-public sealed class Permit { public bool IsUnlocked() { throw Boundary.Forbidden("permit eligibility"); } }
+public sealed class PermitSet { public List<Permit> resources=new List<Permit>(); public FacadeSet BuildingFacades=new FacadeSet(); public Permit TryGet(string id) { FacadeReadinessInputs.Lookups++;return resources.FirstOrDefault(value=>value.Id==id); } }
+public sealed class Permit { public string Id;public Database.PermitRarity Rarity;public bool NativeUnlocked; public bool IsUnlocked() { FacadeReadinessInputs.EligibilityCalls++;return NativeUnlocked; } }

@@ -66,7 +66,9 @@ namespace OniMcp.Tools
             };
         }
 
-        public static McpTool ControlBuildPlanning()
+        public static McpTool ControlBuildPlanning() => ControlBuildPlanning(null);
+
+        internal static McpTool ControlBuildPlanning(BuildPlanningRequestSupportContext requestSupport)
         {
             return new McpTool
             {
@@ -120,7 +122,7 @@ namespace OniMcp.Tools
  case "build_area":
  case "area":
  case "batch_build":
- return BuildArea().Handler(forwardArgs);
+ return BuildArea(requestSupport).Handler(forwardArgs);
  case "room_template":
  case "room_plan":
  case "quick_room":

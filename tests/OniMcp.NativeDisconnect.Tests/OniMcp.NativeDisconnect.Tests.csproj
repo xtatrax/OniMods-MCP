@@ -8,7 +8,7 @@
     <UtilityErrorsSource Condition="'$(UtilityErrorsSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningErrors.cs</UtilityErrorsSource>
     <ReadProviderPolicySource Condition="'$(ReadProviderPolicySource)' == ''">../../mods/OniMcp/Tools/Shared/NativeReadProviderPolicy.cs</ReadProviderPolicySource>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup><Compile Include="../../mods/OniMcp/Tools/Shared/PreviewValidationObservation.cs" Link="Source/PreviewValidationObservation.cs" /><Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
     <Compile Include="$(ReadProviderPolicySource)" Link="Source/NativeReadProviderPolicy.cs" />
     <Compile Include="../OniMcp.ReadProviderBoundary/SecondaryProviderBoundary.cs" Link="Fixtures/SecondaryProviderBoundary.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

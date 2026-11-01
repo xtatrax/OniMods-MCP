@@ -31,10 +31,13 @@ public class Rotatable
         Orientation.R270 => new CellOffset(-c.y,c.x), Orientation.FlipH => new CellOffset(-c.x,c.y),
         Orientation.FlipV => new CellOffset(c.x,-c.y), _ => c };
 }
-public enum BuildLocationRule { OnFloor, OnCeiling, OnFoundationRotatable, OnWall, WallFloor, InCorner, OnBackWall, Anywhere }
+public enum BuildLocationRule { OnFloor, OnCeiling, OnFoundationRotatable, OnWall, WallFloor, InCorner, OnBackWall, Anywhere, Tile }
 public class BuildingDef
 {
     public string PrefabID="Building";
+    public bool IsFoundation;
+    public ObjectLayer TileLayer=ObjectLayer.Building;
+    public CellOffset[] PlacementOffsets=new[]{new CellOffset(0,0)};
     public int WidthInCells=1,HeightInCells=1;
     public BuildLocationRule BuildLocationRule;
     public static int GetXOffset(int width) => -(width-1)/2;
@@ -42,29 +45,30 @@ public class BuildingDef
     public static int NativeCalls;
     public static bool CheckFoundation(int c,Orientation o,BuildLocationRule r,int w,int h) { NativeCalls++;return NativeResult; }
 }
-public enum ObjectLayer { DigPlacer, Building }
+public enum ObjectLayer { DigPlacer, Building, FoundationTile }
 public static class Grid
 {
     public const int InvalidCell=-1, Width=40, Height=45;
     public static bool[] Solid = new bool[Width*Height],Foundation = new bool[Width*Height],Visible = Enumerable.Repeat(true,Width*Height).ToArray();
     public static byte[] WorldIdx=new byte[Width*Height];
-    public static GameObject[,] Objects=new GameObject[Width*Height,2];
+    public static GameObject[,] Objects=new GameObject[Width*Height,3];
     public static bool IsValidCell(int c)=>c>=0&&c<Width*Height;
     public static bool IsWorldValidCell(int c)=>IsValidCell(c);
     public static bool IsVisible(int c)=>Visible[c];
     public static int CellColumn(int c)=>c%Width;
     public static int CellRow(int c)=>c/Width;
+    public static int XYToCell(int x,int y)=>x+y*Width;
     public static int PosToCell(GameObject go)=>go.cell;
 }
 namespace OniMcp.Tools
 {
-    public static class ToolUtil { public static bool CellMatchesWorld(int c,int w)=>Grid.IsValidCell(c)&&(w<0||Grid.WorldIdx[c]==w); }
+    public static partial class ToolUtil { public static bool CellMatchesWorld(int c,int w)=>Grid.IsValidCell(c)&&(w<0||Grid.WorldIdx[c]==w); }
     public class Position { public bool Valid; public int? Cell; }
-    public class Shape { public bool Available=true; public Position Origin; }
+    public class Shape { public bool Available=true; public Position Origin; public List<Position> Cells; }
     public static class NativeBuildingFootprint
     {
         public static Position AbsoluteCell(int x,int y)=>new Position{Valid=x>=0&&x<Grid.Width&&y>=0&&y<Grid.Height,Cell=x>=0&&x<Grid.Width&&y>=0&&y<Grid.Height?y*Grid.Width+x:(int?)null};
-        public static Shape FromLowerLeft(BuildingDef d,int x,int y,Orientation o)=>new Shape{Origin=AbsoluteCell(x,y)};
+        public static Shape FromLowerLeft(BuildingDef d,int x,int y,Orientation o)=>new Shape{Origin=AbsoluteCell(x,y),Cells=new List<Position>{AbsoluteCell(x,y)}};
     }
     public static partial class BuildPlanningTools
     {
@@ -112,5 +116,5 @@ class Program
         r=BuildPlanningTools.Support(d,10,10,o:Orientation.R90);var cells=(List<Dictionary<string,object>>)r["supportCells"];
         Check(cells.Select(v=>(int)v["cell"]).SequenceEqual(new[]{C(9,10),C(9,9)}),"Rotated floor support cells exposed");
     }
-    static void Main(){Geometry();Support();Console.WriteLine($"Construction support: {checks} checks passed");}
+    static void Main(){AreaSupportRegression.Run();AreaScopeRegression.Run();Geometry();Support();Console.WriteLine($"Construction support: {checks} checks passed");}
 }

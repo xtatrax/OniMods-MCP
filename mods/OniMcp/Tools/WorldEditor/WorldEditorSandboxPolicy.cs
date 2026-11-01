@@ -1,12 +1,15 @@
 using System;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
     public static partial class WorldEditorTools
     {
-        internal static bool EnforceNormalMaterialRules { get; private set; }
+        private static ConstructionModeRequest activeConstructionRequest;
+        internal static ConstructionModeRequest ActiveConstructionRequest => activeConstructionRequest;
+        internal static bool EnforceNormalMaterialRules => activeConstructionRequest == null || !activeConstructionRequest.InstantBuild;
         private static readonly string[] WorldEditorSandboxFlags =
         {
             "allowSandbox", "instantBuild", "allowForce", "allowTerrainMutation",
@@ -15,31 +18,87 @@ namespace OniMcp.Tools
 
         private static CallToolResult HandleWorldEditorScoped(JObject rawArgs)
         {
-            return RunWithWorldEditorInstantBuildScope(rawArgs, () => HandleWorldEditorCommand(rawArgs ?? new JObject()));
+            JObject args = rawArgs ?? new JObject();
+            if (!ValidateInstantBuildConsent(args, out string error)) return CallToolResult.Error(error);
+            // A command may only read or compile a preview. Its eventual write
+            // adapter owns any temporary construction-mode scope.
+            return HandleWorldEditorCommand(args);
         }
 
-        private static CallToolResult RunWithWorldEditorInstantBuildScope(JObject rawArgs, Func<CallToolResult> action)
+        private static bool ValidateInstantBuildConsent(JObject args, out string error)
+        {
+            error = null;
+            if (ToolUtil.GetBool(args, "instantBuild", false) && (!ToolUtil.GetBool(args, "allowSandbox", false)
+                || !ToolUtil.GetBool(args, "confirm", false)))
+                error = McpLocalization.Get("construction_mode.instant_consent_required");
+            return error == null;
+        }
+
+        private static CallToolResult RunWithWorldEditorInstantBuildScope(JObject rawArgs, Func<CallToolResult> action,
+            string toolName = null)
         {
             JObject args = rawArgs ?? new JObject();
+            var sandboxPreview = WorldEditorBuildModePolicy.SandboxPreviewArguments(toolName, args);
+            if (sandboxPreview != null && !WorldEditorBuildModePolicy.IsKnownSandboxPreview(sandboxPreview))
+            {
+                string existingError;
+                SandboxDryRunRoutingPolicy.TryRejectUnsupported(sandboxPreview["kind"]?.ToString(),
+                    sandboxPreview["action"]?.ToString(), true, out existingError);
+                return new PreviewValidationObservation("sandbox_preview", "request_rejected", "not_evaluated", false, false)
+                    .Attach(CallToolResult.Error(existingError ?? McpLocalization.Get("construction_mode.unsupported_sandbox_preview")));
+            }
+            if (WorldEditorBuildModePolicy.IsUnsupportedConstructionPreview(toolName, args))
+            {
+                var body = new JObject
+                {
+                    ["ok"] = false,
+                    ["reasonCode"] = "unsupported_preview_action",
+                    ["nativePlacementValid"] = JValue.CreateNull(),
+                    ["availableNow"] = JValue.CreateNull(),
+                    ["error"] = McpLocalization.Get("construction_mode.unsupported_preview_action")
+                };
+                return new PreviewValidationObservation("construction_preview", "request_rejected", "not_evaluated", false, false,
+                    "reasonCode", "nativePlacementValid", "availableNow")
+                    .Attach(CallToolResult.Error(body.ToString(Newtonsoft.Json.Formatting.None)));
+            }
+            if (!WorldEditorBuildModePolicy.RequiresScope(toolName, args))
+            {
+                // Requested future mode is not simulated by changing native flags.
+                // Internal preflight inside an authorized active write scope may
+                // observe the mode that the actual write has already established.
+                var preflightArgs = WorldEditorBuildModePolicy.ConstructionPreflightArguments(toolName, args);
+                if (preflightArgs != null)
+                {
+                    var mode = ConstructionModeObservation.Read(preflightArgs);
+                    if (!mode.MatchesRequestedPolicy) return UnknownConstructionModePreflight(mode);
+                }
+                return action();
+            }
+            if (!ValidateInstantBuildConsent(args, out string error)) return CallToolResult.Error(error);
             bool previous = DebugHandler.InstantBuildMode;
-            bool previousMaterialRules = EnforceNormalMaterialRules;
+            var previousRequest = activeConstructionRequest;
+            var request = ConstructionModeRequest.Resolve(args, previousRequest);
+            bool instantBuild = request.InstantBuild;
             try
             {
-                DebugHandler.InstantBuildMode = false;
-                EnforceNormalMaterialRules = true;
-                bool instantBuild = ToolUtil.GetBool(args, "instantBuild", false);
-                if (instantBuild && (!ToolUtil.GetBool(args, "allowSandbox", false)
-                    || !ToolUtil.GetBool(args, "confirm", false)))
-                    return CallToolResult.Error("instantBuild=true requires allowSandbox=true and confirm=true");
-                DebugHandler.InstantBuildMode = instantBuild;
-                EnforceNormalMaterialRules = !instantBuild;
+                if (DebugHandler.InstantBuildMode != instantBuild) DebugHandler.InstantBuildMode = instantBuild;
+                activeConstructionRequest = request;
                 return action();
             }
             finally
             {
-                DebugHandler.InstantBuildMode = previous;
-                EnforceNormalMaterialRules = previousMaterialRules;
+                if (DebugHandler.InstantBuildMode != previous) DebugHandler.InstantBuildMode = previous;
+                activeConstructionRequest = previousRequest;
             }
+        }
+
+        private static CallToolResult UnknownConstructionModePreflight(ConstructionModeObservation mode)
+        {
+            var body = JObject.FromObject(mode.Details());
+            body["ok"] = false;
+            body["valid"] = JValue.CreateNull();
+            body["error"] = mode.ErrorText;
+            return CallToolResult.Error(body.ToString(Newtonsoft.Json.Formatting.None));
         }
 
         private static JObject InheritWorldEditorSandboxPolicy(JObject parent, JObject child)
@@ -74,7 +133,8 @@ namespace OniMcp.Tools
             forwarded["sandboxMaxCells"] = SandboxCellLimit(args);
             if (!ValidateWorldEditorSandboxPolicy(forwarded, out string error))
                 return CallToolResult.Error(error);
-            return GameControlTools.ControlGame().Handler(forwarded);
+            return RunWithWorldEditorInstantBuildScope(forwarded,
+                () => GameControlTools.ControlGame().Handler(forwarded), "game_control");
         }
 
         private static bool ValidateWorldEditorSandboxPolicy(JObject args, out string error)
@@ -90,7 +150,7 @@ namespace OniMcp.Tools
             int requestedMax = Math.Max(1, ToolUtil.GetInt(args, "maxCells") ?? policyMax);
             args["maxCells"] = Math.Min(policyMax, requestedMax);
 
-            bool read = kind == "read" && (action == "list_actions"
+            bool read = (kind == "read" || kind == "info") && (action == "list_actions"
                 || action == "sample_cell" || action == "list_story_traits");
             if (ToolUtil.GetBool(args, "force", false) && !ToolUtil.GetBool(args, "allowForce", false))
             {

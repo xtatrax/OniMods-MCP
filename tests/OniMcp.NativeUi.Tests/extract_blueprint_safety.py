@@ -13,13 +13,16 @@ parser.add_argument("--repo-root", required=True, type=Path)
 parser.add_argument("--output", required=True, type=Path)
 for name in ("obstructions", "safety", "geometry", "runtime", "instant", "anchors", "placement", "models"):
     parser.add_argument("--" + name, required=True, type=Path)
+parser.add_argument("--materials", required=True, type=Path)
+parser.add_argument("--candidate-results",required=True,type=Path)
+parser.add_argument("--candidate-models",required=True,type=Path)
 args = parser.parse_args()
 sys.path.insert(0, str(args.repo_root / "scripts"))
 from onimcp_verify_parsing import matching_delimiter
 
 methods = {
     "anchors": ["TryResolvePreviewPoint", "PreviewAnchorUnavailable", "TryResolvePoint", "ApplyAnchorOffset"],
-    "placement": ["PreviewBuild"],
+    "placement": ["PreviewBuild","ParseBuildPlan","FindPlacementCandidates","HasExplicitUnknownPlacementEvidence","HasPlacementToken"],
     "obstructions": ["FindFootprintObstructions", "ResolveBuildingDefForPlacement", "ExistingBuildingFootprintObstructions"],
     "safety": ["FindUtilityLayerConflicts", "UsesNativeBridgeEndpointRegistration", "FindBridgeEndpointLayerConflicts",
         "PlacementObjectPrefabId", "PlacementSafetyFootprint", "CanLiquidBridgeShareCompletedForeground", "FindBuildingLayerConflicts", "FindLogicEndpointConflicts", "AddLogicEndpointConflicts",
@@ -84,6 +87,35 @@ for class_name in ("PlacementDetails", "FootprintCell"):
         "byteEndExclusive": byte_end, "startLine": text.count("\n", 0, start) + 1,
         "endLine": text.count("\n", 0, end) + 1,
         "sliceSha256": hashlib.sha256(piece.encode("utf-8")).hexdigest()})
+# Exact production material DTO classes, including clone behavior. Native
+# selection/support remain substituted inputs, not handwritten clone algorithms.
+path = args.materials
+data = path.read_bytes(); text = data.decode("utf-8")
+for class_name in ("BuildMaterialInfo", "MaterialSelection"):
+    matches = list(re.finditer(r"(?m)^        private sealed class " + re.escape(class_name) + r"\b", text))
+    if len(matches) != 1: raise SystemExit("Expected one real material DTO: " + class_name)
+    start = matches[0].start(); opening = text.index("{", matches[0].end())
+    end = matching_delimiter(text, opening, "{", "}") + 1
+    piece = text[start:end]; byte_start = len(text[:start].encode("utf-8")); byte_end = len(text[:end].encode("utf-8"))
+    assert data[byte_start:byte_end] == piece.encode("utf-8")
+    slices.append(piece)
+    records.append({"group":"materials", "class":class_name, "sourceFile":str(path), "sourceSha256":hashlib.sha256(data).hexdigest(), "byteStart":byte_start, "byteEndExclusive":byte_end, "startLine":text.count("\n",0,start)+1, "endLine":text.count("\n",0,end)+1, "sliceSha256":hashlib.sha256(piece.encode("utf-8")).hexdigest()})
+
+# PlacementCandidate is in the public model partial while placement geometry
+# DTOs stay in public BuildPlanningTools; preserve both actual layouts.
+path=args.candidate_models;data=path.read_bytes();text=data.decode("utf-8")
+matches=list(re.finditer(r"(?m)^        private sealed class PlacementCandidate\b",text))
+if len(matches)!=1:raise SystemExit("Expected exact public candidate DTO")
+start=matches[0].start();opening=text.index("{",matches[0].end());end=matching_delimiter(text,opening,"{","}")+1;piece=text[start:end];lo=len(text[:start].encode());hi=len(text[:end].encode());assert data[lo:hi]==piece.encode();slices.append(piece);records.append({"group":"public_projection","class":"PlacementCandidate","sourceFile":str(path),"sourceSha256":hashlib.sha256(data).hexdigest(),"byteStart":lo,"byteEndExclusive":hi,"sliceSha256":hashlib.sha256(piece.encode()).hexdigest()})
+
+# Exact public inline candidate projection helpers, source byte provenance.
+path=args.candidate_results;data=path.read_bytes();text=data.decode("utf-8")
+for name in ("ScorePlacementCandidate","GetObject","GetObjectList","GetDictionaryBool","GetNestedBool","AddAnchorInfo"):
+    matches=list(re.finditer(r"(?m)^        private static[^\n]*\b"+name+r"\s*\(",text))
+    if len(matches)!=1:raise SystemExit("Expected exact public projection helper: "+name)
+    start=matches[0].start();opening=text.index("{",matches[0].end());end=matching_delimiter(text,opening,"{","}")+1
+    piece=text[start:end];lo=len(text[:start].encode());hi=len(text[:end].encode());assert data[lo:hi]==piece.encode();slices.append(piece);records.append({"group":"public_projection","method":name,"sourceFile":str(path),"sourceSha256":hashlib.sha256(data).hexdigest(),"byteStart":lo,"byteEndExclusive":hi,"sliceSha256":hashlib.sha256(piece.encode()).hexdigest()})
+
 header = "// Generated exact production slices. See adjacent ranges JSON for byte provenance.\n"
 header += "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Reflection;\nusing Newtonsoft.Json;\nusing Newtonsoft.Json.Linq;\nusing OniMcp.Core;\nusing OniMcp.Support;\nusing UnityEngine;\nnamespace OniMcp.Tools { public static partial class BuildPlanningTools {\n"
 output = header + "\n\n".join(slices) + "\n} }\n"

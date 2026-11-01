@@ -9,7 +9,8 @@ namespace OniMcp.Support
 namespace OniMcp.Tools
 {
     // The complete canonical building_control router is linked. These unrelated domains cannot run.
-    public static class BuildPlanningTools { public static McpTool ControlBuildPlanning() { throw new NotSupportedException(); } }
+    internal sealed class BuildPlanningRequestSupportContext { }
+    public static class BuildPlanningTools { public static McpTool ControlBuildPlanning() { throw new NotSupportedException(); } internal static McpTool ControlBuildPlanning(BuildPlanningRequestSupportContext context) { throw new NotSupportedException(); } }
     public static class BuildingConfigTools { public static McpTool ControlBuildingConfig() { throw new NotSupportedException(); } }
     public static class ProductionTools { public static McpTool ControlQueue() { throw new NotSupportedException(); } }
     public static class GenericSideSurfaceTools { public static McpTool ControlSideSurface() { throw new NotSupportedException(); } }

@@ -312,7 +312,7 @@ namespace OniMcp.Tools
             return conflicts;
         }
 
-        private static List<Dictionary<string, object>> FindLogicEndpointConflicts(BuildingDef def, PlacementDetails placement)
+        private static List<Dictionary<string, object>> FindLogicEndpointConflicts(BuildingDef def, PlacementDetails placement, PlacementPreviewReadContext previewReads = null)
         {
             var conflicts = new List<Dictionary<string, object>>();
             if (def?.BuildingComplete?.GetComponent<LogicPorts>() == null || placement == null)
@@ -322,9 +322,9 @@ namespace OniMcp.Tools
 
             var footprintCells = new HashSet<int>(placement.Footprint.Where(item => item.Valid).Select(item => item.Cell));
             var seenObjects = new HashSet<int>();
-            foreach (var complete in Components.BuildingCompletes.Items)
+            foreach (var complete in previewReads == null ? Components.BuildingCompletes.Items : previewReads.CompletedBuildings())
                 AddLogicEndpointConflicts(complete?.gameObject, def, footprintCells, seenObjects, conflicts);
-            foreach (var constructable in FindConstructables(placement.WorldId))
+            foreach (var constructable in previewReads == null ? FindConstructables(placement.WorldId) : previewReads.Constructables())
                 AddLogicEndpointConflicts(constructable?.gameObject, def, footprintCells, seenObjects, conflicts);
             return conflicts;
         }

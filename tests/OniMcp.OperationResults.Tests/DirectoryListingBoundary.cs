@@ -29,7 +29,6 @@ namespace OniMcp.Tools
             return DirectoryListingBoundary.Buildings.ToArray();
         }
         private static string GetBuildingDetailFileName(DirectoryListingBuilding building) => building.FileName;
-        private static IEnumerable<object> BlueprintEntries(string path) => throw new NotSupportedException();
     }
 
     // These native branches are outside this host test; accidental calls must fail.

@@ -228,14 +228,17 @@ namespace OniMcp.Tools
 
             if (!ValidateBlueprintIoPath(path, out string pathError))
                 return CallToolResult.Error(pathError);
-            if (!InvokeBlueprintsExpandedUse(path, x.Value, y.Value, out string error))
-                return CallToolResult.Error(error);
-            return JsonResult(new JObject
+            return RunWithWorldEditorInstantBuildScope(args, () =>
             {
-                ["ok"] = true,
-                ["placed"] = Path.GetFileName(path),
-                ["origin"] = new JObject { ["x"] = x.Value, ["y"] = y.Value },
-                ["buildings"] = count
+                if (!InvokeBlueprintsExpandedUse(path, x.Value, y.Value, out string error))
+                    return CallToolResult.Error(error);
+                return JsonResult(new JObject
+                {
+                    ["ok"] = true,
+                    ["placed"] = Path.GetFileName(path),
+                    ["origin"] = new JObject { ["x"] = x.Value, ["y"] = y.Value },
+                    ["buildings"] = count
+                });
             });
         }
     }

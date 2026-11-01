@@ -150,9 +150,15 @@ namespace OniMcp.Tools
 
         private static CallToolResult PreflightMapEdit(JObject args, string search, string replacement)
         {
+            return EditorStampChildCalls(PreviewValidationObservation.Rejected(
+                PreflightMapEditWithObservation(args, search, replacement), "map_edit", EditorGameplayRequested(args)), 0);
+        }
+
+        private static CallToolResult PreflightMapEditWithObservation(JObject args, string search, string replacement)
+        {
             if (!TryCompileMapEdit(args, search, replacement, out List<MapEditCell> changes, out string error))
                 return CallToolResult.Error(error);
-            return JsonResult(new JObject
+            var payload = new JObject
             {
                 ["ok"] = true,
                 ["phase"] = "preflight",
@@ -168,7 +174,9 @@ namespace OniMcp.Tools
                     ["kind"] = group.Key,
                     ["cells"] = group.Count()
                 }))
-            });
+            };
+            return EditorObservePayload(payload, "map_edit", "syntax_and_footprint_shape",
+                "partial", 0, EditorGameplayRequested(args));
         }
     }
 }

@@ -3,10 +3,13 @@
     <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
     <LangVersion>7.3</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <BuildSourceRoot Condition="'$(BuildSourceRoot)' == ''">../../mods/OniMcp/Tools/Impl/Build</BuildSourceRoot>
+    <AvailabilitySource Condition="'$(AvailabilitySource)' == ''">$(BuildSourceRoot)/BuildingAvailabilityReader.cs</AvailabilitySource>
     <BuildCatalogSource Condition="'$(BuildCatalogSource)' == ''">$(BuildSourceRoot)/BuildPlanningCatalog.cs</BuildCatalogSource>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(BuildSourceRoot)/BuildingAvailabilityReader.cs" Link="Source/BuildingAvailabilityReader.cs" />
+    <Compile Include="$(BuildSourceRoot)/BuildingFacadeReader.cs" Link="Source/BuildingFacadeReader.cs" />
+    <Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" Link="Source/McpContentTypes.cs" />
+    <Compile Include="$(AvailabilitySource)" Link="Source/BuildingAvailabilityReader.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextModels.cs" Link="Source/BuildPlanTextModels.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextParser.cs" Link="Source/BuildPlanTextParser.cs" />
     <Compile Include="$(BuildSourceRoot)/BuildPlanTextSequenceParser.cs" Link="Source/BuildPlanTextSequenceParser.cs" />

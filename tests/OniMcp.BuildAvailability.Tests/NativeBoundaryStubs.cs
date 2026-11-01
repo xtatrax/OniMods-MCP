@@ -6,7 +6,7 @@ using System.Linq;
 internal static class Boundary
 {
     internal static int DbGetCalls, DbInitializationAttempts, GetOrAddCalls, UiCalls, MaterialCalls;
-    internal static int UtilityGuardCalls, VirtualContextReads;
+    internal static int UtilityGuardCalls, VirtualContextReads, MissingParentLookups, PermitReads;
     internal static bool ExactUtility, VirtualEditContext;
     internal static Action MaterialRead;
     internal static void Reset() { DbGetCalls = DbInitializationAttempts = GetOrAddCalls = UiCalls = MaterialCalls = 0; UtilityGuardCalls = VirtualContextReads = 0; ExactUtility = VirtualEditContext = false; MaterialRead = null; }
@@ -88,7 +88,7 @@ namespace Database
         public Func<string, bool> Predicate;
         public int PredicateCalls;
         public string LastPrefabId;
-        public Tech Get(string id) { return resources.FirstOrDefault(tech => tech.Id == id); }
+        public Tech Get(string id) { var value=resources.FirstOrDefault(tech => tech.Id == id); if(value==null) Boundary.MissingParentLookups++; return value; }
         public bool IsTechItemComplete(string prefabId)
         {
             PredicateCalls++; LastPrefabId = prefabId;
@@ -153,7 +153,26 @@ public class Research
     public TechInstance Get(Database.Tech tech) { GetCalls++; return Existing.FirstOrDefault(x => ReferenceEquals(x.tech, tech)); }
     public TechInstance GetOrAdd(Database.Tech tech) { Boundary.GetOrAddCalls++; throw Boundary.Forbidden("Research.GetOrAdd"); }
 }
-public class PermitSet { public Permit TryGet(string id) { Boundary.UiCalls++; throw Boundary.Forbidden("Permit lookup"); } }
-public class Permit { public bool IsUnlocked() { Boundary.UiCalls++; throw Boundary.Forbidden("Permit eligibility"); } }
-public class FacadeSet { public Facade TryGet(string id) { Boundary.UiCalls++; throw Boundary.Forbidden("Facade lookup"); } }
-public class Facade { public string Name; }
+public class PermitSet
+{
+    public List<Database.PermitResource> resources = new List<Database.PermitResource>();
+    public FacadeSet BuildingFacades = new FacadeSet();
+    public Database.PermitResource TryGet(string id) { return resources.FirstOrDefault(value=>value.Id==id); }
+}
+namespace Database
+{
+    public enum PermitRarity { Unknown, Universal, UniversalLocked, Loyalty, Common }
+    public class PermitResource
+    {
+        public string Id; public PermitRarity Rarity=PermitRarity.Common; public bool NativeUnlocked;
+        public bool IsUnlocked() { Boundary.PermitReads++; return NativeUnlocked; }
+    }
+}
+public class FacadeSet { public List<Facade> resources=new List<Facade>(); public Facade TryGet(string id) {return resources.FirstOrDefault(value=>value.Id==id);} }
+public class Facade { public string Id,Name; }
+public class KleiItems
+{
+    public struct Inventory { public Dictionary<string,int> ItemsByType; }
+    private static Inventory InventoryData;
+    public static void Ready(bool ready) { InventoryData=new Inventory { ItemsByType=ready?new Dictionary<string,int>():null }; }
+}

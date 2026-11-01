@@ -12,6 +12,14 @@ internal static class Program
 
     private static void Main(string[] args)
     {
+        if(args.Length==1&&args[0]=="--final-unknown-only"){FinalUnknownContractRegression.Run(Array.Empty<string>());return;}
+        if(args.Length==1&&args[0]=="--mode-only"){try{ModeObservationRegression.Run();}finally{WorldEditorTools.FixtureModeRequest=null;DebugHandler.InstantBuildMode=false;}return;}
+        try{ModeObservationRegression.Run();}finally{WorldEditorTools.FixtureModeRequest=null;DebugHandler.InstantBuildMode=false;}
+        CombinedScopeRegression.Run();
+        ScopeParentRegression.Run();
+        LeafScopeRegression.Run();
+        FinalUnknownContractRegression.Run(Array.Empty<string>());
+        OniMcp.Tools.BuildPlanningTools.RunPreviewContextRegression();
         if (args.Length == 1 && args[0] == "--toilet-read-only") { ToiletReadRegression.Run(); return; }
         if (args.Length == 1 && args[0] == "--toilet-legacy-missing-only") { ToiletReadRegression.LegacyMissingOnly(); return; }
         if (args.Length == 1 && args[0] == "--completion-no-direct-write") { BlueprintParentRegression.VerifyNoDirectFallbackOnly(); return; }

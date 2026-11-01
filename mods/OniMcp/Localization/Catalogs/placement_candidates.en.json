@@ -1,0 +1,14 @@
+{
+  "placement_candidates.max_evaluations": "Maximum anchors whose placement is evaluated in this call. Defaults to 64; hard maximum 256. Independent of returned limit and maxCells.",
+  "placement_candidates.scan_offset": "Zero-based row-major anchor offset within the same rectangle. Defaults to 0. Continue with nextOffset; each page is independently observed and ranked.",
+  "placement_candidates.limit": "Maximum candidate rows returned. Defaults to 8; hard maximum 50. This does not bound placement evaluation work.",
+  "placement_candidates.max_cells": "Maximum cells in the requested rectangle. Default and hard maximum 2500. Evaluation work is separately bounded by maxEvaluations.",
+  "placement_candidates.scope_note": "Candidates, ranking and counts cover only this call's evaluated window. bestCandidate is the best observed anchor in that window; successful preview does not guarantee native placement or completed construction.",
+  "placement_candidates.next_partial": "More anchors remain unobserved. Repeat the same rectangle and settings with scanOffset={0}; pages are not an atomic snapshot.",
+  "placement_candidates.no_viable": "No viable anchor was observed in this window. Inspect rejected previews or choose another rectangle or settings.",
+  "placement_candidates.offset_error": "scanOffset must be between 0 and {0} for this rectangle.",
+  "placement_candidates.invalid_rect": "Invalid candidate rectangle: width and height must be positive.",
+  "placement_candidates.area_too_large": "Area too large: {0}x{1}={2} cells, maxCells={3}",
+  "tools.building_control.parameters.maxEvaluations": "Maximum anchors whose placement is evaluated in this call. Defaults to 64; hard maximum 256. Independent of returned limit and maxCells.",
+  "tools.building_control.parameters.scanOffset": "Zero-based row-major anchor offset within the same rectangle. Defaults to 0. Continue with nextOffset; each page is independently observed and ranked."
+}

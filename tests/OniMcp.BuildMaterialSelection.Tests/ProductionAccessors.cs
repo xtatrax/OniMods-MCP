@@ -25,7 +25,7 @@ namespace OniMcp.Tools
         }
     }
 
-    internal static class ToolUtil
+    internal static partial class ToolUtil
     {
         // Boundary copy of ToolUtil.cs:306-309. It does not select or enumerate materials.
         public static float SafeFloat(float value)

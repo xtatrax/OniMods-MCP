@@ -1944,3 +1944,153 @@ msgstr ""
 msgctxt "OniMcp.MCP.UTILITY_READ_SAFETY.STATE_UNAVAILABLE"
 msgid "Utility connection state is unavailable: {0}."
 msgstr ""
+
+#. Runtime JSON key: building_facade.default_name
+#. Runtime zh-Hans msgstr: "默认"
+msgctxt "OniMcp.MCP.BUILDING_FACADE.DEFAULT_NAME"
+msgid "Default"
+msgstr ""
+
+#. Runtime JSON key: building_facade.not_available
+#. Runtime zh-Hans msgstr: "外观 '{0}' 未在 {1} 中定义。"
+msgctxt "OniMcp.MCP.BUILDING_FACADE.NOT_AVAILABLE"
+msgid "Facade '{0}' is not defined for {1}."
+msgstr ""
+
+#. Runtime JSON key: building_facade.unknown
+#. Runtime zh-Hans msgstr: "外观 '{0}' 的可用性未知（{1}）；未执行放置。"
+msgctxt "OniMcp.MCP.BUILDING_FACADE.UNKNOWN"
+msgid "Facade '{0}' availability is unknown ({1}); no placement was issued."
+msgstr ""
+
+#. Runtime JSON key: building_facade.locked
+#. Runtime zh-Hans msgstr: "外观 '{0}' 未解锁。"
+msgctxt "OniMcp.MCP.BUILDING_FACADE.LOCKED"
+msgid "Facade '{0}' is locked."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.discovery_unknown
+#. Runtime zh-Hans msgstr: "本次预检窗口无法获取现有对象；请勿将未观察的单元格视为空闲。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.DISCOVERY_UNKNOWN"
+msgid "Existing-object discovery is unavailable for this preview window; do not treat unobserved cells as clear."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.material_inventory_unknown
+#. Runtime zh-Hans msgstr: "建材库存就绪状态未知（{0}）；本次预检不能判定库存为零。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.MATERIAL_INVENTORY_UNKNOWN"
+msgid "Material inventory readiness is unknown ({0}); this preview does not establish zero stock."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.include_rejected
+#. Runtime zh-Hans msgstr: "在已知有效候选后包含未知和被拒绝的预检行。默认false：仅在没有已知有效候选时返回这些行。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.INCLUDE_REJECTED"
+msgid "Include unknown and refused preview rows after known valid candidates. Default false: return them only when no known valid candidate exists."
+msgstr ""
+
+#. Runtime JSON key: tools.building_control.parameters.includeRejected
+#. Runtime zh-Hans msgstr: "在已知有效候选后包含未知和被拒绝的预检行。默认false：仅在没有已知有效候选时返回这些行。"
+msgctxt "OniMcp.MCP.TOOLS.BUILDING_CONTROL.PARAMETERS.INCLUDEREJECTED"
+msgid "Include unknown and refused preview rows after known valid candidates. Default false: return them only when no known valid candidate exists."
+msgstr ""
+
+#. Runtime JSON key: map_request_support.preflight_failed
+#. Runtime zh-Hans msgstr: "存在未通过放置预检的分组，未执行此地图请求。重试前请检查各组的 preflightResult。"
+msgctxt "OniMcp.MCP.MAP_REQUEST_SUPPORT.PREFLIGHT_FAILED"
+msgid "The map request was not executed because a group failed placement preflight. Inspect each preflightResult before retrying."
+msgstr ""
+
+#. Runtime JSON key: construction_mode.future_preflight_unavailable
+#. Runtime zh-Hans msgstr: "请求的建造模式或材料规则尚未生效。只读预检不会切换游戏模式，因此该条件下的放置适用性仍未知。"
+msgctxt "OniMcp.MCP.CONSTRUCTION_MODE.FUTURE_PREFLIGHT_UNAVAILABLE"
+msgid "The requested construction or material policy is not active. A read-only preflight does not switch game modes; placement eligibility for that requested policy remains unknown."
+msgstr ""
+
+#. Runtime JSON key: construction_mode.instant_consent_required
+#. Runtime zh-Hans msgstr: "instantBuild=true 需要 allowSandbox=true 且 confirm=true"
+msgctxt "OniMcp.MCP.CONSTRUCTION_MODE.INSTANT_CONSENT_REQUIRED"
+msgid "instantBuild=true requires allowSandbox=true and confirm=true"
+msgstr ""
+
+#. Runtime JSON key: construction_mode.unsupported_preview_action
+#. Runtime zh-Hans msgstr: "不支持的建造预检操作。请选择已公布的 planning action。"
+msgctxt "OniMcp.MCP.CONSTRUCTION_MODE.UNSUPPORTED_PREVIEW_ACTION"
+msgid "Unknown construction preview action; choose an advertised planning action."
+msgstr ""
+
+#. Runtime JSON key: construction_mode.unsupported_sandbox_preview
+#. Runtime zh-Hans msgstr: "所选沙盒操作不支持预检。"
+msgctxt "OniMcp.MCP.CONSTRUCTION_MODE.UNSUPPORTED_SANDBOX_PREVIEW"
+msgid "The selected sandbox action does not support preview."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.max_evaluations
+#. Runtime zh-Hans msgstr: "本次调用最多评估的放置锚点数。默认64，硬上限256。独立于返回limit和区域maxCells。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.MAX_EVALUATIONS"
+msgid "Maximum anchors whose placement is evaluated in this call. Defaults to 64; hard maximum 256. Independent of returned limit and maxCells."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.scan_offset
+#. Runtime zh-Hans msgstr: "同一矩形内按行优先的锚点偏移。从0开始，默认0。用nextOffset继续；各页独立观察和排名。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.SCAN_OFFSET"
+msgid "Zero-based row-major anchor offset within the same rectangle. Defaults to 0. Continue with nextOffset; each page is independently observed and ranked."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.limit
+#. Runtime zh-Hans msgstr: "返回候选行数上限。默认8，最大50。这不限制放置评估的工作量。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.LIMIT"
+msgid "Maximum candidate rows returned. Defaults to 8; hard maximum 50. This does not bound placement evaluation work."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.max_cells
+#. Runtime zh-Hans msgstr: "请求矩形的单元格数上限。默认及硬上限为2500。评估工作量另由maxEvaluations限制。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.MAX_CELLS"
+msgid "Maximum cells in the requested rectangle. Default and hard maximum 2500. Evaluation work is separately bounded by maxEvaluations."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.scope_note
+#. Runtime zh-Hans msgstr: "候选、排名和计数仅涵盖本次已评估窗口。bestCandidate只是该窗口内已观察到的最佳锚点；预检成功不保证本体放置或施工完成。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.SCOPE_NOTE"
+msgid "Candidates, ranking and counts cover only this call's evaluated window. bestCandidate is the best observed anchor in that window; successful preview does not guarantee native placement or completed construction."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.next_partial
+#. Runtime zh-Hans msgstr: "仍有未观察的锚点。保持相同矩形和设置并指定scanOffset={0}；各页不是原子快照。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.NEXT_PARTIAL"
+msgid "More anchors remain unobserved. Repeat the same rectangle and settings with scanOffset={0}; pages are not an atomic snapshot."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.no_viable
+#. Runtime zh-Hans msgstr: "本窗口内未观察到可用锚点。请检查被拒绝的预检，或选择其他矩形或设置。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.NO_VIABLE"
+msgid "No viable anchor was observed in this window. Inspect rejected previews or choose another rectangle or settings."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.offset_error
+#. Runtime zh-Hans msgstr: "此矩形的scanOffset必须在0到{0}之间。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.OFFSET_ERROR"
+msgid "scanOffset must be between 0 and {0} for this rectangle."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.invalid_rect
+#. Runtime zh-Hans msgstr: "候选矩形无效：宽度和高度必须为正数。"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.INVALID_RECT"
+msgid "Invalid candidate rectangle: width and height must be positive."
+msgstr ""
+
+#. Runtime JSON key: placement_candidates.area_too_large
+#. Runtime zh-Hans msgstr: "区域过大: {0}x{1}={2}单元格，maxCells={3}"
+msgctxt "OniMcp.MCP.PLACEMENT_CANDIDATES.AREA_TOO_LARGE"
+msgid "Area too large: {0}x{1}={2} cells, maxCells={3}"
+msgstr ""
+
+#. Runtime JSON key: tools.building_control.parameters.maxEvaluations
+#. Runtime zh-Hans msgstr: "本次调用最多评估的放置锚点数。默认64，硬上限256。独立于返回limit和区域maxCells。"
+msgctxt "OniMcp.MCP.TOOLS.BUILDING_CONTROL.PARAMETERS.MAXEVALUATIONS"
+msgid "Maximum anchors whose placement is evaluated in this call. Defaults to 64; hard maximum 256. Independent of returned limit and maxCells."
+msgstr ""
+
+#. Runtime JSON key: tools.building_control.parameters.scanOffset
+#. Runtime zh-Hans msgstr: "同一矩形内按行优先的锚点偏移。从0开始，默认0。用nextOffset继续；各页独立观察和排名。"
+msgctxt "OniMcp.MCP.TOOLS.BUILDING_CONTROL.PARAMETERS.SCANOFFSET"
+msgid "Zero-based row-major anchor offset within the same rectangle. Defaults to 0. Continue with nextOffset; each page is independently observed and ranked."
+msgstr ""

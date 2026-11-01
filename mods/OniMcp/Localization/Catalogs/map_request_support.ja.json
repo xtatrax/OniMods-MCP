@@ -1,0 +1,3 @@
+{
+  "map_request_support.preflight_failed": "配置予行に失敗したグループがあるため、地図要求は実行していません。再試行前に各 preflightResult を確認してください。"
+}

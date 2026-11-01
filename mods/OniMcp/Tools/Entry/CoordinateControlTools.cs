@@ -72,6 +72,24 @@ namespace OniMcp.Tools
             };
         }
 
+        internal static bool TryDescribeForwarding(JObject args, out string targetTool, out JObject forwarded)
+        {
+            targetTool = (args?["targetTool"]?.ToString() ?? string.Empty).Trim();
+            forwarded = null;
+            if (args == null || targetTool.Length == 0 || OniToolRegistry.IsCoordinateTool(targetTool)) return false;
+            McpTool operation;
+            if (!OniToolRegistry.TryGetOperation(targetTool, out operation)) return false;
+            if (!string.IsNullOrWhiteSpace(operation.Name)) targetTool = operation.Name;
+            forwarded = ReadPayload(args);
+            if (!CoordinateForwardingSafety.TryValidate(args, forwarded, out _)) return false;
+            bool coordinateWrapper = IsCoordinateWrapperAction((args["action"]?.ToString() ?? string.Empty).Trim().ToLowerInvariant());
+            MergeIfPresent(args, forwarded, "domain");
+            if (!coordinateWrapper) MergeIfPresent(args, forwarded, "action");
+            MergeCoordinateFields(args, forwarded);
+            ApplyCoordinateWrapperDefaults(targetTool, forwarded, coordinateWrapper);
+            return true;
+        }
+
         private static JObject ReadPayload(JObject args)
         {
             if (args["payload"] is JObject obj)

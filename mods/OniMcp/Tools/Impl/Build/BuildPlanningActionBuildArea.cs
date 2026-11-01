@@ -10,7 +10,9 @@ namespace OniMcp.Tools
 {
     public static partial class BuildPlanningTools
     {
-        public static McpTool BuildArea()
+        public static McpTool BuildArea() => BuildArea(null);
+
+        internal static McpTool BuildArea(BuildPlanningRequestSupportContext requestSupport)
         {
             var parameters = BuildPlacementParameters(includeConfirm: true, includeArea: true);
             parameters["anchors"] = new McpToolParameter { Type = "array", Description = "任意の anchor 一覧。各項目は {x,y} または [x,y]。x/y と x1/y1/x2/y2 より優先", Required = false };
@@ -40,7 +42,7 @@ namespace OniMcp.Tools
                 Tags = new List<string> { "buildings", "batch", "area", "footprint", "建造", "批量" },
                 Description = "anchor 一覧または区域に従って建築予定を一括配置。実行前に占有範囲、支え、素材、明らかな衝突を事前検証する。採掘可能な自然の固体には既定で先に採掘を指示し、dryRun=true ではプレビューのみを返す。",
                 Parameters = parameters,
-                Handler = args =>
+                Handler = WithValidationRequest(args =>
                 {
                     if (args.Property("anchors") != null
                         && (!(args["anchors"] is JArray explicitAnchors) || explicitAnchors.Count == 0))
@@ -88,7 +90,7 @@ namespace OniMcp.Tools
                     preflightArgs["dryRun"] = true;
                     preflightArgs["confirm"] = true;
 
-                    var preflightSupport = new HashSet<int>();
+                    var preflightSupport = requestSupport?.CopyForWorld(ToolUtil.ResolveWorldId(args)) ?? new HashSet<int>();
                     var preflightFootprints = new HashSet<int>();
                     var previews = new List<Dictionary<string, object>>();
                     var validAnchors = new List<CellCoord>();
@@ -125,6 +127,20 @@ namespace OniMcp.Tools
                     var hardFailedPreviews = previews.Where(item => !(item.ContainsKey("valid") && (bool)item["valid"]) && !IsAutoDiggableFailure(item)).ToList();
                     bool plannedFootprintOverlap = failedPreviews.Any(item =>
                         EqualsIgnoreCase(item.TryGetValue("reasonCode", out object reasonCode) ? reasonCode?.ToString() : null, "planned_footprint_overlap"));
+                    // Only this request's successful, budget-selected support previews
+                    // are future dependencies. Actual execution never receives this set.
+                    if (requestSupport != null && !plannedFootprintOverlap
+                        && (allowPartial || hardFailedPreviews.Count == 0))
+                    {
+                        int supportWorld = ToolUtil.ResolveWorldId(args);
+                        var selected = (allowPartial ? actionableAnchors : anchors).Take(maxCommitAnchors);
+                        foreach (var anchor in selected)
+                            if (validAnchors.Any(valid => valid.x == anchor.x && valid.y == anchor.y)
+                                && TryRequestSupportCell(def, anchor.x, anchor.y, supportWorld,
+                                    ParseOrientation(args["orientation"]?.ToString()), out int supportCell))
+                                requestSupport.Include(supportWorld, supportCell);
+                    }
+
                     if (dryRun || plannedFootprintOverlap || (hardFailedPreviews.Count > 0 && !allowPartial))
                     {
                         var preflightResponse = new Dictionary<string, object>
@@ -154,9 +170,13 @@ namespace OniMcp.Tools
                         {
                             preflightResponse["reasonCode"] = "planned_footprint_overlap";
                             preflightResponse["success"] = false;
-                            return CallToolResult.Error(JsonConvert.SerializeObject(preflightResponse, McpJsonUtil.Settings));
+                            return new PreviewValidationObservation("build_area", "batch_placement_preflight", "partial", !dryRun, false,
+                                "valid", "actionable", "dryRun", "anchorCount", "validAnchors", "failed", "hardFailed", "committed")
+                                .Attach(CallToolResult.Error(JsonConvert.SerializeObject(preflightResponse, McpJsonUtil.Settings)));
                         }
-                        return CallToolResult.Text(JsonConvert.SerializeObject(preflightResponse, McpJsonUtil.Settings));
+                        return new PreviewValidationObservation("build_area", "batch_placement_preflight", "partial", !dryRun, false,
+                                "valid", "actionable", "dryRun", "anchorCount", "validAnchors", "failed", "hardFailed", "committed")
+                                .Attach(CallToolResult.Text(JsonConvert.SerializeObject(preflightResponse, McpJsonUtil.Settings)));
                     }
 
                     var actualSupport = new HashSet<int>();
@@ -247,10 +267,14 @@ namespace OniMcp.Tools
                     {
                         executionResponse["reasonCode"] = executionConflictReason;
                         executionResponse["success"] = false;
-                        return CallToolResult.Error(JsonConvert.SerializeObject(executionResponse, McpJsonUtil.Settings));
+                        return new PreviewValidationObservation("build_area", "batch_execution_observation", "partial", true, true,
+                                "dryRun", "committed", "succeeded", "failed", "deferred", "allRequestedSatisfied")
+                                .Attach(CallToolResult.Error(JsonConvert.SerializeObject(executionResponse, McpJsonUtil.Settings)));
                     }
-                    return CallToolResult.Text(JsonConvert.SerializeObject(executionResponse, McpJsonUtil.Settings));
-                }
+                    return new PreviewValidationObservation("build_area", "batch_execution_observation", "partial", true, true,
+                                "dryRun", "committed", "succeeded", "failed", "deferred", "allRequestedSatisfied")
+                                .Attach(CallToolResult.Text(JsonConvert.SerializeObject(executionResponse, McpJsonUtil.Settings)));
+                }, "build_area", passive: false)
             };
         }
 

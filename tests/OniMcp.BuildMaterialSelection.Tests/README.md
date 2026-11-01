@@ -1,0 +1,3 @@
+# Preview material context regressions
+
+This existing project links the full production material selector, request-local context, facade reader, quantity helper, localization and JSON settings. Existing material behavior/count-budget cases stay active; PreviewMaterialContextCases adds16 clone/cache/readiness/facade checks. Only native catalog/inventory/cache shapes and unused unrelated collaborators are substituted. Native selection/support/UI behavior outside this material-only host is not claimed. Missing inventory cache is explicit unknown; ready zero inventory still invokes existing native selection. OldFacadeComparison is only a compile boundary for the exact prechange Materials file and targeted facade-only semantic negative, never a positive shortcut.

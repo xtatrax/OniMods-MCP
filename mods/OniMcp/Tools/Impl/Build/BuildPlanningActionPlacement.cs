@@ -78,18 +78,19 @@ namespace OniMcp.Tools
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "ワールド ID。既定は現在アクティブなワールド", Required = false },
                     ["limit"] = new McpToolParameter { Type = "integer", Description = "返す候補数。既定は 5、最大 20", Required = false }
                 },
-                Handler = args =>
+                Handler = WithValidationRequest(args =>
                 {
                     try
                     {
                         var resolution = ResolveBuildPlan(args);
-                        return CallToolResult.Text(JsonConvert.SerializeObject(resolution.ToDictionary(), McpJsonUtil.Settings));
+                        return new PreviewValidationObservation("parse_plan", "plan_resolution", "partial", false, false)
+                            .Attach(CallToolResult.Text(JsonConvert.SerializeObject(resolution.ToDictionary(), McpJsonUtil.Settings)));
                     }
                     catch (Exception ex)
                     {
                         return CallToolResult.Error("parse_plan failed: " + ex);
                     }
-                }
+                }, "plan_resolution", passive: true)
             };
         }
         public static McpTool ListBuildMaterials()
@@ -168,7 +169,7 @@ namespace OniMcp.Tools
                 Tags = new List<string> { "buildings", "preview", "footprint", "placement", "建造", "预检" },
                 Description = "互換用の入口。building_control domain=planning action=preview を使用してください",
                 Parameters = BuildPlacementParameters(includeConfirm: false, includeArea: false),
-                Handler = args =>
+                Handler = WithValidationRequest(args =>
                 {
                     string error;
                     int x;
@@ -180,7 +181,7 @@ namespace OniMcp.Tools
                     previewArgs["dryRun"] = true;
                     var result = TryPlanOne(args["prefabId"]?.ToString(), x, y, previewArgs);
                     return CallToolResult.Text(JsonConvert.SerializeObject(result, McpJsonUtil.Settings));
-                }
+                }, "placement", passive: true)
             };
         }
         public static McpTool AutoConnectUtility()
@@ -219,9 +220,26 @@ namespace OniMcp.Tools
                     ["maxAutoDigCells"] = new McpToolParameter { Type = "integer", Description = "採掘・掘り起こしを自動指定するセル数の上限。既定は 100、最大 500", Required = false },
                     ["nativePathPlacement"] = new McpToolParameter { Type = "boolean", Description = "Default true. Use ONI's native utility drag placement for the whole path before falling back to per-cell placement.", Required = false }
                 },
-                Handler = args =>
+                Handler = WithValidationRequest(args =>
                 {
                     bool dryRun = IsDryRun(args);
+                    if (dryRun)
+                    {
+                        var mode = ConstructionModeObservation.Read(args);
+                        if (!mode.MatchesRequestedPolicy)
+                        {
+                            var unknown = mode.Details();
+                            unknown["dryRun"] = true;
+                            unknown["valid"] = JValue.CreateNull();
+                            unknown["availableNow"] = JValue.CreateNull();
+                            unknown["error"] = mode.ErrorText;
+                            return new PreviewValidationObservation("utility_path", "placement_mode_observation", "partial",
+                                false, false, "dryRun", "valid", "availableNow", "nativePlacementValid", "assessmentState", "reasonCode",
+                                "requestedInstantBuild", "currentInstantBuildMode", "normalMaterialRules", "modeMatches",
+                                "materialPolicyMatches", "requestModeOrigin")
+                                .Attach(CallToolResult.Error(JsonConvert.SerializeObject(unknown, McpJsonUtil.Settings)));
+                        }
+                    }
                     if (!dryRun && !ToolUtil.GetBool(args, "confirm", false))
                         return CallToolResult.Error("confirm=true is required unless dryRun=true");
 
@@ -264,11 +282,11 @@ return CallToolResult.Error("utility_auto_connect only supports linear utility p
                         System.Math.Max(1, System.Math.Min(ToolUtil.GetInt(args, "maxAutoDigCells") ?? 100, 500)),
                         ToolUtil.GetBool(args, "autoDigObstructions", true));
                     if (terrainConflict != null && !GetBool(terrainConflict, "allowed"))
-                        return CallToolResult.Error(JsonConvert.SerializeObject(terrainConflict, McpJsonUtil.Settings));
+                        return UtilityPathObservation(args, "utility_path_preflight").Attach(CallToolResult.Error(JsonConvert.SerializeObject(terrainConflict, McpJsonUtil.Settings)));
                     var pathSafety = ValidateUtilityPathSafety(def, path, worldId);
                     if (!pathSafety.Valid)
-                        return CallToolResult.Error(JsonConvert.SerializeObject(
-                            UtilityPathConflictResult(def, path, pathSafety, "path_preflight"), McpJsonUtil.Settings));
+                        return UtilityPathObservation(args, "utility_path_preflight").Attach(CallToolResult.Error(JsonConvert.SerializeObject(
+                            UtilityPathConflictResult(def, path, pathSafety, "path_preflight"), McpJsonUtil.Settings)));
 if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     {
                         var nativePath = TryPlaceUtilityPathNative(def, path, args);
@@ -281,8 +299,8 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     }
                     var fallbackSafety = ValidateUtilityPathSafety(def, path, worldId);
                     if (!fallbackSafety.Valid)
-                        return CallToolResult.Error(JsonConvert.SerializeObject(
-                            UtilityPathConflictResult(def, path, fallbackSafety, "cell_fallback_pre_commit"), McpJsonUtil.Settings));
+                        return UtilityPathObservation(args, "utility_path_preflight").Attach(CallToolResult.Error(JsonConvert.SerializeObject(
+                            UtilityPathConflictResult(def, path, fallbackSafety, "cell_fallback_pre_commit"), McpJsonUtil.Settings)));
                     var results = new List<Dictionary<string, object>>();
                     var errors = new List<Dictionary<string, object>>();
                     var plannedSupportCells = new HashSet<int>();
@@ -359,15 +377,18 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     {
                         response["reasonCode"] = "utility_path_conflict";
                         response["success"] = false;
-                        return CallToolResult.Error(JsonConvert.SerializeObject(response, McpJsonUtil.Settings));
+                        return UtilityPathObservation(args, dryRun ? "utility_path_preflight" : "utility_path_execution_observation")
+                            .Attach(CallToolResult.Error(JsonConvert.SerializeObject(response, McpJsonUtil.Settings)));
                     }
                     if (!complete)
                     {
                         response["reasonCode"] = "utility_path_incomplete";
-                        return CallToolResult.Error(JsonConvert.SerializeObject(response, McpJsonUtil.Settings));
+                        return UtilityPathObservation(args, dryRun ? "utility_path_preflight" : "utility_path_execution_observation")
+                            .Attach(CallToolResult.Error(JsonConvert.SerializeObject(response, McpJsonUtil.Settings)));
                     }
-                    return CallToolResult.Text(JsonConvert.SerializeObject(response, McpJsonUtil.Settings));
-        }
+                    return UtilityPathObservation(args, dryRun ? "utility_path_preflight" : "utility_path_execution_observation")
+                            .Attach(CallToolResult.Text(JsonConvert.SerializeObject(response, McpJsonUtil.Settings)));
+        }, "utility_path", passive: false)
             };
         }
         public static McpTool FindPlacementCandidates()
@@ -397,11 +418,13 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     ["facade"] = new McpToolParameter { Type = "string", Description = "任意の設備の外観・permit id", Required = false },
                     ["orientation"] = new McpToolParameter { Type = "string", Description = "任意の向き。既定は Neutral", Required = false },
                     ["priority"] = new McpToolParameter { Type = "integer", Description = "建築の優先度 1..9。既定は 5", Required = false },
-                    ["limit"] = new McpToolParameter { Type = "integer", Description = "返す候補数の上限。既定は 8、最大 50", Required = false },
-                    ["includeRejected"] = new McpToolParameter { Type = "boolean", Description = "配置可能な候補が十分にない場合、不適合の候補も追加するか。既定は false", Required = false },
-                    ["maxCells"] = new McpToolParameter { Type = "integer", Description = "走査セル数の上限。既定は 2500、厳格な上限は 2500", Required = false }
+                    ["limit"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("placement_candidates.limit"), Required = false },
+                    ["includeRejected"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("placement_candidates.include_rejected"), Required = false },
+                    ["maxCells"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("placement_candidates.max_cells"), Required = false },
+                    ["maxEvaluations"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("placement_candidates.max_evaluations"), Required = false },
+                    ["scanOffset"] = new McpToolParameter { Type = "integer", Description = McpLocalization.Get("placement_candidates.scan_offset"), Required = false }
                 },
-                Handler = args =>
+                Handler = WithValidationRequest(args =>
                 {
                     if (Game.Instance == null)
                         return CallToolResult.Error("Game not initialized");
@@ -419,11 +442,19 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
 
                     int maxCells = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "maxCells") ?? 2500, 2500));
                     var rect = ToolUtil.GetRect(args);
-                    int width = rect["x2"] - rect["x1"] + 1;
-                    int height = rect["y2"] - rect["y1"] + 1;
-                    int cells = width * height;
-                    if (cells > maxCells)
-                        return CallToolResult.Error($"Area too large: {width}x{height}={cells} cells, maxCells={maxCells}");
+                    long requestedWidth = (long)rect["x2"] - rect["x1"] + 1;
+                    long requestedHeight = (long)rect["y2"] - rect["y1"] + 1;
+                    if (requestedWidth <= 0 || requestedHeight <= 0)
+                        return CallToolResult.Error(McpLocalization.Get("placement_candidates.invalid_rect"));
+                    decimal requestedCells = (decimal)requestedWidth * requestedHeight;
+                    if (requestedCells > maxCells)
+                        return CallToolResult.Error(McpLocalization.Format("placement_candidates.area_too_large", null,
+                            requestedWidth, requestedHeight, requestedCells, maxCells));
+                    int width = (int)requestedWidth, height = (int)requestedHeight, cells = (int)requestedCells;
+                    int scanOffset = ToolUtil.GetInt(args, "scanOffset") ?? 0;
+                    if (scanOffset < 0 || scanOffset > cells)
+                        return CallToolResult.Error(McpLocalization.Format("placement_candidates.offset_error", null, cells));
+                    int maxEvaluations = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "maxEvaluations") ?? 64, 256));
 
                     int worldId = ToolUtil.ResolveWorldId(args);
                     int limit = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "limit") ?? 8, 50));
@@ -436,46 +467,56 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                     scanArgs["worldId"] = worldId;
                     scanArgs["allowUnsupported"] = allowUnsupported;
 
+                    var previewReads = new PlacementPreviewReadContext(def, scanArgs, worldId);
                     var validCandidates = new List<PlacementCandidate>();
                     var rejectedCandidates = new List<PlacementCandidate>();
+                    var unknownCandidates = new List<PlacementCandidate>();
                     int scannedAnchors = 0;
                     int validCount = 0;
                     int warningCount = 0;
                     int rejectedCount = 0;
+                    int unknownCount = 0, unknownValidCount = 0, unknownRejectedCount = 0;
 
-                    for (int y = rect["y1"]; y <= rect["y2"]; y++)
+                    for (int offset = scanOffset; offset < cells && scannedAnchors < maxEvaluations; offset++)
                     {
-                        for (int x = rect["x1"]; x <= rect["x2"]; x++)
+                        int x = rect["x1"] + offset % width;
+                        int y = rect["y1"] + offset / width;
+                        scannedAnchors++;
+                        var previewArgs = (JObject)scanArgs.DeepClone();
+                        var preview = TryPlanOne(prefabId, x, y, previewArgs, previewReads: previewReads);
+                        bool valid = GetDictionaryBool(preview, "valid");
+                        bool warningOnly = valid && GetNestedBool(preview, "support", "warningOnly");
+                        bool unknown = HasExplicitUnknownPlacementEvidence(preview);
+                        int score = ScorePlacementCandidate(preview, valid, warningOnly);
+
+                        var candidate = new PlacementCandidate
                         {
-                            scannedAnchors++;
-                            var previewArgs = (JObject)scanArgs.DeepClone();
-                            var preview = TryPlanOne(prefabId, x, y, previewArgs);
-                            bool valid = GetDictionaryBool(preview, "valid");
-                            bool warningOnly = valid && GetNestedBool(preview, "support", "warningOnly");
-                            int score = ScorePlacementCandidate(preview, valid, warningOnly);
+                            Score = score,
+                            Status = unknown ? "unknown" : valid ? (warningOnly ? "warning" : "valid") : "invalid",
+                            Preview = preview,
+                            Anchor = AnchorDictionary(x, y, worldId)
+                        };
+                        AddAnchorInfo(candidate.Anchor, args, x, y);
 
-                            var candidate = new PlacementCandidate
-                            {
-                                Score = score,
-                                Status = valid ? (warningOnly ? "warning" : "valid") : "invalid",
-                                Preview = preview
-                            };
-                            AddAnchorInfo(candidate.Anchor, args, x, y);
-
-                            if (valid)
-                            {
-                                validCount++;
-                                if (warningOnly)
-                                    warningCount++;
-                                validCandidates.Add(candidate);
-                            }
-                            else
-                            {
-                                rejectedCount++;
-                                rejectedCandidates.Add(candidate);
-                            }
+                        if (valid)
+                        {
+                            validCount++;
+                            if (warningOnly) warningCount++;
                         }
+                        else rejectedCount++;
+                        if (unknown)
+                        {
+                            unknownCount++;
+                            if (valid) unknownValidCount++; else unknownRejectedCount++;
+                            unknownCandidates.Add(candidate);
+                        }
+                        else if (valid) validCandidates.Add(candidate);
+                        else rejectedCandidates.Add(candidate);
                     }
+
+                    int afterWindow = scanOffset + scannedAnchors;
+                    bool hasMore = afterWindow < cells;
+                    bool allAnchorsEvaluated = scanOffset == 0 && !hasMore;
 
                     var selected = validCandidates
                         .OrderByDescending(item => item.Score)
@@ -486,6 +527,11 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
 
                     if (selected.Count < limit && (includeRejected || validCandidates.Count == 0))
                     {
+                        selected.AddRange(unknownCandidates
+                            .OrderByDescending(item => item.Score)
+                            .ThenBy(item => item.AnchorY)
+                            .ThenBy(item => item.AnchorX)
+                            .Take(limit - selected.Count));
                         selected.AddRange(rejectedCandidates
                             .OrderByDescending(item => item.Score)
                             .ThenBy(item => item.AnchorY)
@@ -493,7 +539,13 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                             .Take(limit - selected.Count));
                     }
 
-                    return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
+                    return new PreviewValidationObservation("candidate_scan", "candidate_scan_window",
+                        unknownCount > 0 ? "partial" : "complete", false, false,
+                        "scannedAnchors", "totalAnchors", "maxEvaluations", "scanOffset", "nextOffset", "hasMore",
+                        "allAnchorsEvaluated", "truncated", "validCount", "warningCount", "rejectedCount",
+                        "unknownCount", "knownRejectedCount", "unknownValidCount", "unknownRejectedCount",
+                        "validCountTotal", "unknownCountTotal", "knownRejectedCountTotal", "countsScope", "rankingScope", "limit")
+                        .Attach(CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
                     {
                         ["v"] = 1,
                         ["prefabId"] = prefabId,
@@ -502,19 +554,72 @@ if (!dryRun && ToolUtil.GetBool(args, "nativePathPlacement", true))
                         ["rect"] = new[] { rect["x1"], rect["y1"], rect["x2"], rect["y2"] },
                         ["size"] = new[] { width, height },
                         ["scannedAnchors"] = scannedAnchors,
+                        ["totalAnchors"] = cells,
+                        ["maxEvaluations"] = maxEvaluations,
+                        ["scanOffset"] = scanOffset,
+                        ["nextOffset"] = hasMore ? (object)afterWindow : JValue.CreateNull(),
+                        ["hasMore"] = hasMore,
+                        ["allAnchorsEvaluated"] = allAnchorsEvaluated,
+                        ["truncated"] = !allAnchorsEvaluated,
+                        ["unobservedBefore"] = scanOffset,
+                        ["remainingAnchors"] = cells - afterWindow,
+                        ["omittedAnchors"] = cells - scannedAnchors,
+                        ["countsScope"] = "evaluated_window",
+                        ["rankingScope"] = "evaluated_window",
+                        ["inspectionScope"] = McpLocalization.Get("placement_candidates.scope_note"),
                         ["validCount"] = validCount,
                         ["warningCount"] = warningCount,
                         ["rejectedCount"] = rejectedCount,
+                        ["unknownCount"] = unknownCount,
+                        ["knownRejectedCount"] = rejectedCount - unknownRejectedCount,
+                        ["unknownValidCount"] = unknownValidCount,
+                        ["unknownRejectedCount"] = unknownRejectedCount,
+                        ["classificationScope"] = "mcp_preview_boolean_with_explicit_unknown_evidence",
+                        ["rejectedCountMeaning"] = "mcp_refused_including_unknown",
+                        ["unknownRowPolicy"] = "fallback_if_no_known_valid_or_includeRejected",
+                        ["classificationCounts"] = new Dictionary<string, object>
+                        {
+                            ["knownValid"] = validCount - unknownValidCount,
+                            ["knownRejected"] = rejectedCount - unknownRejectedCount,
+                            ["unknownValid"] = unknownValidCount,
+                            ["unknownRejected"] = unknownRejectedCount
+                        },
+                        ["unknownCountTotal"] = allAnchorsEvaluated ? (object)unknownCount : JValue.CreateNull(),
+                        ["knownRejectedCountTotal"] = allAnchorsEvaluated ? (object)(rejectedCount - unknownRejectedCount) : JValue.CreateNull(),
+                        ["validCountTotal"] = allAnchorsEvaluated ? (object)validCount : JValue.CreateNull(),
+                        ["warningCountTotal"] = allAnchorsEvaluated ? (object)warningCount : JValue.CreateNull(),
+                        ["rejectedCountTotal"] = allAnchorsEvaluated ? (object)rejectedCount : JValue.CreateNull(),
                         ["limit"] = limit,
                         ["includeRejected"] = includeRejected,
                         ["candidates"] = selected.Select(item => item.ToDictionary()).ToList(),
                         ["bestCandidate"] = selected.Count > 0 ? (object)selected[0].ToDictionary() : null,
-                        ["next"] = selected.Count == 0
-                            ? "No viable anchor found. Use build_preview on a tighter rect or raise allowUnsupported/material settings."
-                            : BuildingOperationGuidance.Placement
-                    }, McpJsonUtil.Settings));
-                }
+                        ["next"] = hasMore
+                            ? McpLocalization.Format("placement_candidates.next_partial", null, afterWindow)
+                            : selected.Count == 0 ? McpLocalization.Get("placement_candidates.no_viable")
+                                : BuildingOperationGuidance.Placement
+                    }, McpJsonUtil.Settings)));
+                }, "candidate_scan", passive: true)
             };
+        }
+        private static bool HasExplicitUnknownPlacementEvidence(Dictionary<string, object> preview)
+        {
+            var details = GetObject(preview, "details");
+            if (HasPlacementToken(preview, "assessmentState", "unknown")
+                || HasPlacementToken(details, "assessmentState", "unknown")) return true;
+            var availability = GetObject(preview, "availability") ?? GetObject(details, "availability");
+            if (HasPlacementToken(availability, "status", "unknown")) return true;
+            var support = GetObject(preview, "support") ?? GetObject(details, "support");
+            if (HasPlacementToken(support, "status", "unknown")) return true;
+            if (HasPlacementToken(support, "status", "not_evaluated")
+                && support.ContainsKey("buildLocationRule")) return true;
+            var material = GetObject(preview, "materialSelection");
+            return GetDictionaryBool(material, "valid") && HasPlacementToken(material, "quantityStatus", "unknown");
+        }
+
+        private static bool HasPlacementToken(Dictionary<string, object> source, string key, string token)
+        {
+            object value;
+            return source != null && source.TryGetValue(key, out value) && value is string && (string)value == token;
         }
     }
 }

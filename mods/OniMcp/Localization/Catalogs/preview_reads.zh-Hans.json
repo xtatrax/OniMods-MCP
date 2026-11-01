@@ -1,0 +1,10 @@
+{
+  "building_facade.default_name": "默认",
+  "building_facade.not_available": "外观 '{0}' 未在 {1} 中定义。",
+  "building_facade.unknown": "外观 '{0}' 的可用性未知（{1}）；未执行放置。",
+  "building_facade.locked": "外观 '{0}' 未解锁。",
+  "placement_candidates.discovery_unknown": "本次预检窗口无法获取现有对象；请勿将未观察的单元格视为空闲。",
+  "placement_candidates.material_inventory_unknown": "建材库存就绪状态未知（{0}）；本次预检不能判定库存为零。",
+  "placement_candidates.include_rejected": "在已知有效候选后包含未知和被拒绝的预检行。默认false：仅在没有已知有效候选时返回这些行。",
+  "tools.building_control.parameters.includeRejected": "在已知有效候选后包含未知和被拒绝的预检行。默认false：仅在没有已知有效候选时返回这些行。"
+}

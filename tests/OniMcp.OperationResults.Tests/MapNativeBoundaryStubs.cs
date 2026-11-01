@@ -8,7 +8,10 @@ namespace OniMcp.Tools
 {
     internal static class MapNativeBoundary
     {
+        internal static Func<JObject,CallToolResult> GameHandler;
         internal static string Snapshot = null;
+        internal static bool AllowPlacementPreview { get => ModeAllowPreview; set => ModeAllowPreview=value; }
+        internal static Dictionary<string,object> LayerObservation=new Dictionary<string,object>{{"status","disabled"}};
         internal static Func<JObject, int> WorldResolver;
         internal static readonly List<JObject> WorldResolutionCalls = new List<JObject>();
         internal static readonly Queue<CallToolResult> BuildingResults = new Queue<CallToolResult>();
@@ -20,11 +23,17 @@ namespace OniMcp.Tools
             if (OrderResults.Count == 0) throw new NotSupportedException();
             return OrderResults.Dequeue();
         }
+        internal static readonly List<JObject> PreflightCalls = new List<JObject>();
+        internal static Func<JObject, BuildPlanningRequestSupportContext, CallToolResult> PreflightHandler;
+        internal static readonly List<BuildPlanningRequestSupportContext> FactoryContexts = new List<BuildPlanningRequestSupportContext>();
         internal static readonly List<JObject> BuildingCalls = new List<JObject>();
+        internal static bool ModeAllowPreview;
+        internal static Action<JObject> ModeObserver;
         internal static CallToolResult Building(JObject args)
         {
             BuildingCalls.Add((JObject)args.DeepClone());
-            if (ToolUtil.GetBool(args, "dryRun", false)) throw new NotSupportedException("Unexpected native placement preview.");
+            if (ModeObserver != null) ModeObserver(args);
+            if (ToolUtil.GetBool(args, "dryRun", false) && !ModeAllowPreview) throw new NotSupportedException("Unexpected native placement preview.");
             if (BuildingResults.Count == 0) throw new NotSupportedException("No native building result fixture.");
             return BuildingResults.Dequeue();
         }
@@ -40,23 +49,33 @@ namespace OniMcp.Tools
                 ? GetInt(args, "worldId") ?? 0 : MapNativeBoundary.WorldResolver(args);
         }
     }
-    internal static class GameControlEntryTools { internal static McpTool ControlGame() => throw new NotSupportedException(); }
+    internal static class GameControlEntryTools { internal static McpTool ControlGame() => MapNativeBoundary.GameHandler == null ? throw new NotSupportedException() : new McpTool { Handler = MapNativeBoundary.GameHandler }; }
     internal static class NavigationControlTools { internal static McpTool ControlNavigation() => throw new NotSupportedException(); }
     internal static class BuildingControlTools
     {
-        internal static CallToolResult ControlBuildingFromVirtualFile(JObject args) => MapNativeBoundary.Building(args);
+        internal static CallToolResult ControlBuildingFromVirtualFile(JObject args, BuildPlanningRequestSupportContext support = null)
+        {
+            MapNativeBoundary.FactoryContexts.Add(support);
+            if (support == null) return MapNativeBoundary.Building(args);
+            MapNativeBoundary.PreflightCalls.Add((JObject)args.DeepClone());
+            if (MapNativeBoundary.ModeObserver != null) MapNativeBoundary.ModeObserver(args);
+            return MapNativeBoundary.PreflightHandler == null
+                ? CallToolResult.Text("{\"valid\":true,\"actionable\":true,\"committed\":false}")
+                : MapNativeBoundary.PreflightHandler(args, support);
+        }
         internal static McpTool ControlBuilding() => new McpTool { Handler = MapNativeBoundary.Building };
     }
     internal static class OrdersControlEntryTools
     {
         internal static McpTool ControlOrders() => new McpTool { Handler = MapNativeBoundary.Order };
     }
-    internal static class BuildPlanningTools
+    public static partial class BuildPlanningTools
     {
+        private static bool IsSupportPrefab(string id) => id == "Tile" || id == "AirflowTile";
         internal static string ValidateLayerContextOptions(JObject args) => null;
         internal static bool LayerContextRequested(JObject args) => false;
         internal static Dictionary<string,object> CaptureCompiledMapLayerContext(string prefabId, JObject args, JArray anchors = null, IEnumerable<int[]> path = null)
-            => new Dictionary<string, object> { ["status"] = "disabled" };
+            => MapNativeBoundary.LayerObservation;
     }
     internal sealed class KPrefabID
     {
@@ -67,6 +86,10 @@ namespace OniMcp.Tools
     internal sealed class FixtureGameObject { internal T GetComponent<T>() => throw new NotSupportedException(); }
     internal static class Grid
     {
+        internal const int InvalidCell = -1;
+        internal static readonly int[] WorldIdx = new int[10000];
+        internal static bool IsWorldValidCell(int c) => IsValidCell(c);
+        internal static bool IsVisible(int c) => IsValidCell(c);
         internal const int WidthInCells = 100;
         internal const int HeightInCells = 100;
         internal static int PosToCell(object position) => throw new NotSupportedException();
@@ -82,11 +105,18 @@ namespace OniMcp.Tools
         internal static class LiveMinionIdentities { internal static List<MinionIdentity> Items = new List<MinionIdentity>(); }
     }
     internal sealed class FixtureDupe { internal object gameObject => throw new NotSupportedException(); internal T GetComponent<T>() => throw new NotSupportedException(); }
-    internal enum ObjectLayer { Building, NumLayers }
+    internal enum ObjectLayer { Building, FoundationTile, NumLayers }
     internal enum Orientation { Neutral, R90, R180, R270, FlipH, FlipV }
     internal enum SimHashes { CopperOre }
-    internal sealed class FixtureBuildingDef
+    internal enum BuildLocationRule { Anywhere, Tile }
+    internal struct CellOffset { internal int x,y; internal CellOffset(int x,int y) { this.x=x;this.y=y; } }
+    internal sealed class BuildingDef
     {
+        internal bool IsFoundation;
+        internal int WidthInCells=1, HeightInCells=1;
+        internal ObjectLayer TileLayer=ObjectLayer.NumLayers;
+        internal BuildLocationRule BuildLocationRule=BuildLocationRule.Anywhere;
+        internal CellOffset[] PlacementOffsets=new[] { new CellOffset(0,0) };
         internal string PrefabID = null;
         internal string Name = null;
         internal ObjectLayer ObjectLayer = ObjectLayer.Building;
@@ -94,10 +124,11 @@ namespace OniMcp.Tools
     }
     internal static class Assets
     {
-        internal static List<FixtureBuildingDef> BuildingDefs = new List<FixtureBuildingDef>();
-        internal static FixtureBuildingDef GetBuildingDef(string id) => BuildingDefs.FirstOrDefault(d => d.PrefabID == id);
+        internal static bool MissingDefinitionLookup;
+        internal static List<BuildingDef> BuildingDefs = new List<BuildingDef>();
+        internal static BuildingDef GetBuildingDef(string id) => MissingDefinitionLookup ? null : BuildingDefs.FirstOrDefault(d => d.PrefabID == id);
     }
-    internal sealed class NativePoint { internal int X = 0; internal int Y = 0; }
+    internal sealed class NativePoint { internal int X = 0; internal int Y = 0; internal int? Cell; }
     internal sealed class NativeShape
     {
         internal bool Available = true;
@@ -108,19 +139,18 @@ namespace OniMcp.Tools
     }
     internal static class NativeBuildingFootprint
     {
-        internal static NativeShape Definition(FixtureBuildingDef def, Orientation orientation) => def.Shape;
+        internal static NativeShape Definition(BuildingDef def, Orientation orientation) => def.Shape;
+        internal static NativeShape FromLowerLeft(BuildingDef def,int x,int y,Orientation orientation)
+            => new NativeShape { Cells=new List<NativePoint> {new NativePoint {X=x,Y=y,Cell=Grid.XYToCell(x,y)}} };
     }
     public static partial class WorldEditorTools
     {
         internal static CallToolResult BatchForCountTest(JObject args) => Batch(args);
-        private static CallToolResult HandleWorldEditorScoped(JObject args) => HandleWorldEditorCommand(args);
         private static CallToolResult Zoom(JObject args) => throw new NotSupportedException();
         private static CallToolResult Search(JObject args) => throw new NotSupportedException();
         private static CallToolResult Grep(JObject args) => throw new NotSupportedException();
         private static CallToolResult SymbolMap(JObject args) => throw new NotSupportedException();
-        private static CallToolResult ForwardSandbox(JObject args) => throw new NotSupportedException();
         private static CallToolResult Screenshot(JObject args) => throw new NotSupportedException();
-        private static CallToolResult BlueprintCommand(JObject args) => throw new NotSupportedException();
         internal static CallToolResult EditForCountTest(JObject args) => Edit(args);
         internal static CallToolResult ApplyMapForCountTest(JObject args, string search, string replacement) => ApplyMapEdit(args, search, replacement);
         private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromMilliseconds(100);
@@ -135,13 +165,10 @@ namespace OniMcp.Tools
             DirectoryListingBoundary.FileReads++;
             return CallToolResult.Text(MapNativeBoundary.Snapshot);
         }
-        private static bool IsBlueprintMarkdown(string relative) => false;
         private static bool IsDupeDetailMarkdown(string relative) => false;
         private static bool IsBuildingDetailMarkdown(string relative) => false;
-        private static CallToolResult PreflightBlueprintMarkdownEdit(string relative, string search, string replacement) => throw new NotSupportedException();
         private static CallToolResult PreflightDupeDetailEdit(string relative, string replacement) => throw new NotSupportedException();
         private static CallToolResult PreflightBuildingDetailEdit(string relative, string search, string replacement) => throw new NotSupportedException();
-        private static CallToolResult ApplyBlueprintMarkdownEdit(JObject args, string relative, string search, string replacement) => throw new NotSupportedException();
         private static CallToolResult ApplyDupeDetailEdit(JObject args, string relative, string replacement) => throw new NotSupportedException();
         private static CallToolResult ApplyBuildingDetailEdit(JObject args, string relative, string search, string replacement) => throw new NotSupportedException();
     }

@@ -6,6 +6,7 @@ public static class Program
  static void Check(bool ok) { checks++; if (!ok) throw new Exception("check " + checks); }
  public static void Main()
  {
+  UtilityPowerScopeRegression.Run();
   foreach (object component in new object[] { new Wire(), new LogicWire(), new Conduit(), new SolidConduit() })
   {
    var mgr = new Manager(); var def = new BuildingDef { PrefabID = component.GetType().Name, BuildingComplete = new GameObject() };

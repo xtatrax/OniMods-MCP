@@ -28,30 +28,37 @@ namespace OniMcp.Tools
         private static CallToolResult ApplyMapEdit(JObject args, string search, string replacement)
         {
             if (!TryCompileMapEdit(args, search, replacement, out List<MapEditCell> changes, out string error))
-                return CallToolResult.Error(error);
+                return EditorStampChildCalls(PreviewValidationObservation.Rejected(CallToolResult.Error(error),
+                    "map_edit", EditorGameplayRequested(args)), 0);
             if (!WorldEditorExecutionAllowed(args))
-                return WorldEditorPreview("map", args["sourcePath"]?.ToString(), new JObject { ["changedCells"] = changes.Count });
+            {
+                return EditorSyntaxPreview(WorldEditorPreview("map", args["sourcePath"]?.ToString(), new JObject
+                {
+                    ["changedCells"] = changes.Count, ["placementValidated"] = false
+                }), "map_edit", "syntax_and_footprint_shape", "partial", args);
+            }
 
             int writeBudget = MapEditWriteBudget(args);
             bool partial = changes.Count > writeBudget;
             var executableChanges = partial ? changes.Take(writeBudget).ToList() : changes;
 
             var results = new JArray();
+            var observedChildren = new List<CallToolResult>();
             bool anyError = false;
             bool childPartial = false;
             var progressItems = new List<MapCellProgress>();
             foreach (var group in executableChanges.GroupBy(ChangeKind))
             {
-                CallToolResult result;
-                if (group.Key == "build")
-                    result = ApplyBuildMapEdit(args, group, changes.Where(cell => ChangeKind(cell) == "build"));
-                else if (group.Key == "wire")
-                    result = ApplyConnectionMapEdit(args, group);
-                else if (IsOrderAction(group.Key))
-                    result = ApplyOrderMapEdit(args, group.Key, group);
-                else
+                CallToolResult result = RunWithWorldEditorInstantBuildScope(args, () =>
+                {
+                    if (group.Key == "build")
+                        return ApplyBuildMapEdit(args, group, changes.Where(cell => ChangeKind(cell) == "build"));
+                    if (group.Key == "wire") return ApplyConnectionMapEdit(args, group);
+                    if (IsOrderAction(group.Key)) return ApplyOrderMapEdit(args, group.Key, group);
                     return UnsupportedMapEdit(group);
+                });
 
+                observedChildren.Add(result);
                 bool failed = WorldEditorResultFailed(result, args);
                 anyError = anyError || failed;
                 childPartial = childPartial || ResultProgressPartial(result);
@@ -86,7 +93,9 @@ namespace OniMcp.Tools
                 ["next"] = !anyError && !childPartial && satisfied == changes.Count ? "complete" : McpLocalization.Get("result_progress.map_edit_pending"),
                 ["results"] = results
             };
-            return anyError ? CallToolResult.Error(JsonResultText(summary)) : JsonResult(summary);
+            return EditorObservePayload(summary, "map_edit", "requested_scope_only", "not_evaluated",
+                EditorChildCalls(observedChildren), EditorGameplayRequested(args),
+                observedChildren.Count == 1 ? EditorValidation(observedChildren[0]) : null, anyError);
         }
 
         private static CallToolResult ApplyOrderMapEdit(JObject parentArgs, string action, IEnumerable<MapEditCell> cells)

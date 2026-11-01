@@ -67,6 +67,7 @@ namespace OniMcp.Tools
         public static List<McpTool> GetVisibleTools() => throw new NotSupportedException();
         public static bool TryGetOperation(string name, out McpTool tool)
         {
+            if (ModeCallerRegression.Enabled) return ModeCallerRegression.TryGetOperation(name, out tool);
             if (MoveGuidanceBoundary.Enabled) return MoveGuidanceBoundary.TryGetOperation(name, out tool);
             tool = new McpTool { Name = name, Handler = NativeBoundary.Call };
             return name == "colony_control" || name == "coordinate_control" || name == "dupes_control"
@@ -81,6 +82,7 @@ namespace OniMcp.Tools
 
         public static CallToolResult CallToolFromWorldEditor(string name, JObject args, bool semanticCoordinates)
         {
+            if (ModeCallerRegression.Enabled) return ModeCallerRegression.Dispatch(name, args);
             if (MoveGuidanceBoundary.Enabled) { MoveGuidanceBoundary.OperationDispatches++; throw new NotSupportedException("Preview dispatched an operation"); }
             NativeBoundary.LastTool = name;
             return NativeBoundary.Call(args);
@@ -138,13 +140,6 @@ namespace OniMcp.Tools
             return ApplyOperationMarkdownEdit(parent, relative, text);
         }
 
-        private static JObject InheritWorldEditorSandboxPolicy(JObject parent, JObject child) => child;
-        private static CallToolResult RunWithWorldEditorInstantBuildScope(JObject args, Func<CallToolResult> call) => call();
-        private static bool ValidateWorldEditorSandboxPolicy(JObject args, out string error)
-        {
-            error = null;
-            return true;
-        }
         private static CallToolResult ReadOperationToolIndexMarkdown(string path) => throw new NotSupportedException();
     }
 }

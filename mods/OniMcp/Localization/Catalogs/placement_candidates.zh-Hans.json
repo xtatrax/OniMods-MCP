@@ -1,0 +1,14 @@
+{
+  "placement_candidates.max_evaluations": "本次调用最多评估的放置锚点数。默认64，硬上限256。独立于返回limit和区域maxCells。",
+  "placement_candidates.scan_offset": "同一矩形内按行优先的锚点偏移。从0开始，默认0。用nextOffset继续；各页独立观察和排名。",
+  "placement_candidates.limit": "返回候选行数上限。默认8，最大50。这不限制放置评估的工作量。",
+  "placement_candidates.max_cells": "请求矩形的单元格数上限。默认及硬上限为2500。评估工作量另由maxEvaluations限制。",
+  "placement_candidates.scope_note": "候选、排名和计数仅涵盖本次已评估窗口。bestCandidate只是该窗口内已观察到的最佳锚点；预检成功不保证本体放置或施工完成。",
+  "placement_candidates.next_partial": "仍有未观察的锚点。保持相同矩形和设置并指定scanOffset={0}；各页不是原子快照。",
+  "placement_candidates.no_viable": "本窗口内未观察到可用锚点。请检查被拒绝的预检，或选择其他矩形或设置。",
+  "placement_candidates.offset_error": "此矩形的scanOffset必须在0到{0}之间。",
+  "placement_candidates.invalid_rect": "候选矩形无效：宽度和高度必须为正数。",
+  "placement_candidates.area_too_large": "区域过大: {0}x{1}={2}单元格，maxCells={3}",
+  "tools.building_control.parameters.maxEvaluations": "本次调用最多评估的放置锚点数。默认64，硬上限256。独立于返回limit和区域maxCells。",
+  "tools.building_control.parameters.scanOffset": "同一矩形内按行优先的锚点偏移。从0开始，默认0。用nextOffset继续；各页独立观察和排名。"
+}

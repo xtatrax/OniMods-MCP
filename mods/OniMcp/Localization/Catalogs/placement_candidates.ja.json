@@ -1,0 +1,14 @@
+{
+  "placement_candidates.max_evaluations": "この呼出しで配置を評価するアンカー数の上限。既定64、厳格な最大256。返却limitと領域maxCellsとは別の制限です。",
+  "placement_candidates.scan_offset": "同じ矩形内の行優先アンカー位置。0始まり、既定0。続きはnextOffsetを指定します。各ページは独立した観測・順位付けです。",
+  "placement_candidates.limit": "返す候補行数の上限。既定8、最大50。配置評価の作業量を制限する値ではありません。",
+  "placement_candidates.max_cells": "要求矩形のセル数上限。既定と厳格な最大は2500。評価の作業量はmaxEvaluationsで別に制限します。",
+  "placement_candidates.scope_note": "候補・順位・件数は、この呼出しで評価した範囲だけの結果です。bestCandidateはその範囲で観測した最良候補で、予行成功は本体の配置・工事完了を保証しません。",
+  "placement_candidates.next_partial": "未観測のアンカーが残っています。同じ矩形・設定でscanOffset={0}を指定してください。複数ページは原子的な単一スナップショットではありません。",
+  "placement_candidates.no_viable": "この評価範囲では有効なアンカーを観測していません。拒否された予行を確認するか、矩形・設定を変更してください。",
+  "placement_candidates.offset_error": "この矩形のscanOffsetは0から{0}までで指定してください。",
+  "placement_candidates.invalid_rect": "候補矩形が不正です。幅と高さは正数である必要があります。",
+  "placement_candidates.area_too_large": "領域が大きすぎます: {0}x{1}={2}セル、maxCells={3}",
+  "tools.building_control.parameters.maxEvaluations": "この呼出しで配置を評価するアンカー数の上限。既定64、厳格な最大256。返却limitと領域maxCellsとは別の制限です。",
+  "tools.building_control.parameters.scanOffset": "同じ矩形内の行優先アンカー位置。0始まり、既定0。続きはnextOffsetを指定します。各ページは独立した観測・順位付けです。"
+}

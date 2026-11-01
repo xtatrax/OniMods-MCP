@@ -9,8 +9,9 @@ internal static partial class Program
 {
     private static int checks;
 
-    private static void Main()
+    private static void Main(string[] args)
     {
+        if (args.Length==1 && args[0]=="--mixed-mode-only") { MixedModeCompositionRegression.Run(); return; }
         DirectoryListingRegression.Run();
         ScreenshotProjectionRegression.Run();
         MoveGuidanceRegression.Run();
@@ -29,6 +30,10 @@ internal static partial class Program
         CommandParsingRegression.Run();
         OperationCommandLimitRegression.Run();
         AchievementUiSchemaRegression.Run();
+        ModeCallerRegression.Run();
+        EditorValidationScopeRegression.Run();SandboxCallerScopeRegression.Run();
+        MixedMapSupportRegression.Run();
+        MixedModeCompositionRegression.Run();
     }
 
     private static void DetailedPayloadsRemainExact()

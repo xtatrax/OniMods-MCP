@@ -19,35 +19,33 @@ namespace OniMcp.Tools
             public List<Dictionary<string,object>> MissingSupportCells=new List<Dictionary<string,object>>();
             public Dictionary<string,object> ToDictionary(){return new Dictionary<string,object>{["valid"]=Valid};}
         }
-        private sealed class MaterialSelection
-        {
-            public bool Valid=true;
-            public string Error;
-            public float RequiredKg;
-            public List<Tag> Elements=new List<Tag>();
-            public Dictionary<string,object> ToDictionary(){return new Dictionary<string,object>{["valid"]=Valid,["requiredKg"]=RequiredKg,["elements"]=Elements.Select(value=>value.Name).ToArray()};}
-        }
-        private struct FacadeSelection {public bool Valid;public string Error,ResponseId,TryPlaceId;}
-        internal static string FixtureAvailabilityError;
+
+        private struct FacadeSelection {public bool Valid;public string Error,ResponseId,TryPlaceId;
+            public string AssessmentState,ReasonCode;
+            public Dictionary<string,object> ToDictionary(){return new Dictionary<string,object>{["valid"]=Valid,["status"]=AssessmentState=="unknown"?"unknown":Valid?"selected":"rejected",["assessmentState"]=AssessmentState??"known",["reasonCode"]=ReasonCode==null?(object)JValue.CreateNull():ReasonCode};}}
+        internal static string FixtureAvailabilityError,FixtureFacadeUnknownReason;
         internal static bool FixtureMaterialValid=true,FixtureFacadeValid=true,FixtureSupportValid=true;
         internal static int FixtureSelectCalls,FixtureAutoDigCalls,FixtureFallbackCalls;
-        internal static int FixtureSupportCalls;
+        internal static int FixtureSupportCalls,FixtureFacadeCalls;
+        internal static float FixtureMaterialAvailableKg=100f;
         internal static void ResetPlannerFixture()
         {FixtureAvailabilityError=null;FixtureMaterialValid=true;FixtureFacadeValid=true;FixtureSupportValid=true;FixtureSelectCalls=0;FixtureAutoDigCalls=0;FixtureFallbackCalls=0;FixtureSupportCalls=0;}
         private static string BuildAvailabilityError(BuildingDef def,JObject args)
         {BuildingAvailabilityReader.Observation observed;return BuildAvailabilityError(def,args,out observed);}
         private static string BuildAvailabilityError(BuildingDef def,JObject args,out BuildingAvailabilityReader.Observation observed)
         {observed=BuildingAvailabilityReader.Read(def);return FixtureAvailabilityError;}
+        private static string BuildAvailabilityErrorFromObservation(BuildingDef def,JObject args,BuildingAvailabilityReader.Observation observed){return FixtureAvailabilityError;}
+        private static bool IsFreeBuildContext(){return DebugHandler.InstantBuildMode||(Game.Instance!=null&&Game.Instance.SandboxModeActive);}
         private static bool IsTechUnlocked(BuildingDef def){return FixtureAvailabilityError==null;}
         private static bool IsUnlockedAndAvailable(BuildingDef def){return FixtureAvailabilityError==null;}
         private static Orientation ParseOrientation(string value)
         {Orientation result;return value!=null&&Enum.TryParse(value,out result)?result:Orientation.Neutral;}
         private static Dictionary<string,object> UtilityTerrainConflict(BuildingDef def,IEnumerable<int> cells,int world,bool allow,int max,bool enabled){return null;}
         private static MaterialSelection SelectElements(BuildingDef def,string material,int world)
-        {FixtureSelectCalls++;return new MaterialSelection{Valid=FixtureMaterialValid,Error=FixtureMaterialValid?null:"fixture material rejected",Elements=new List<Tag>{new Tag(material??"Cuprite")}};}
+        {FixtureSelectCalls++;return new MaterialSelection{Valid=FixtureMaterialValid,Error=FixtureMaterialValid?null:"fixture material rejected",Elements=new List<Tag>{new Tag(material??"Cuprite")},Selected=new BuildMaterialInfo{Tag=new Tag(material??"Cuprite"),AvailableKg=FixtureMaterialAvailableKg,ValidForBuilding=FixtureMaterialValid}};}
         private static float RequiredMaterialKg(BuildingDef def){return def.Mass[0];}
         private static FacadeSelection ResolveFacade(BuildingDef def,string value)
-        {return new FacadeSelection{Valid=FixtureFacadeValid,Error=FixtureFacadeValid?null:"fixture facade rejected",ResponseId=value??"DEFAULT_FACADE",TryPlaceId=value};}
+        {FixtureFacadeCalls++;return new FacadeSelection{Valid=FixtureFacadeValid&&FixtureFacadeUnknownReason==null,AssessmentState=FixtureFacadeUnknownReason==null?"known":"unknown",ReasonCode=FixtureFacadeUnknownReason,Error=FixtureFacadeValid&&FixtureFacadeUnknownReason==null?null:"fixture facade rejected",ResponseId=value??"DEFAULT_FACADE",TryPlaceId=value};}
         private static SupportValidation ValidateSupport(BuildingDef def,int x,int y,bool allow,HashSet<int> planned,Orientation orientation)
         {FixtureSupportCalls++;return new SupportValidation{Valid=FixtureSupportValid,Error=FixtureSupportValid?null:"fixture support rejected"};}
         private static void RegisterSupportBlueprint(string id,int x,int y,HashSet<int> cells){}

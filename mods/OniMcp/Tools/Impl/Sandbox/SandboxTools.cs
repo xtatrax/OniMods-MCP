@@ -106,6 +106,7 @@ namespace OniMcp.Tools
                     return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
                     {
                         ["sandboxModeActive"] = Game.Instance?.SandboxModeActive ?? false,
+                        ["instantBuildMode"] = DebugHandler.InstantBuildMode,
                         ["maxAreaCells"] = MaxSandboxCells,
                         ["actions"] = actions,
                         ["safety"] = "Dangerous sandbox write operations require confirm=true and sandbox mode unless force=true."

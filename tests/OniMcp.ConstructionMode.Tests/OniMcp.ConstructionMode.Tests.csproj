@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><LangVersion>7.3</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+<PolicySource Condition="'$(PolicySource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorBuildModePolicy.cs</PolicySource>
+<ScopeSource Condition="'$(ScopeSource)' == ''">../../mods/OniMcp/Tools/WorldEditor/WorldEditorSandboxPolicy.cs</ScopeSource>
+<MaterialSource Condition="'$(MaterialSource)' == ''">../../mods/OniMcp/Tools/Impl/Build/BuildPlanningMaterials.cs</MaterialSource><DefineConstants Condition="'$(OldFacadeComparison)' == 'true'">$(DefineConstants);OLD_FACADE_COMPARISON</DefineConstants><EnableDefaultCompileItems>false</EnableDefaultCompileItems><DefineConstants Condition="'$(OldScopeComparison)' == 'true'">$(DefineConstants);OLD_SCOPE_COMPARISON</DefineConstants></PropertyGroup><ItemGroup>
+<Compile Include="../../mods/OniMcp/Tools/Shared/ConstructionModeObservation.cs" />
+<Compile Include="*.cs" /><Compile Include="../../mods/OniMcp/Tools/Impl/Core/SandboxDryRunRoutingPolicy.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Shared/PreviewValidationObservation.cs" />
+<Compile Include="$(ScopeSource)" />
+<Compile Include="$(PolicySource)" />
+<Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateControlTools.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Entry/CoordinateForwardingSafety.cs" />
+<Compile Include="../../mods/OniMcp/Core/McpContentTypes.cs" />
+
+<Compile Include="$(MaterialSource)" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPreviewReadContext.cs" Condition="'$(OldFacadeComparison)' != 'true'" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningCatalog.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingAvailabilityReader.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildingFacadeReader.cs" />
+<Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialQuantityDiagnostics.cs" />
+<Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" />
+<Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" />
+
+
+<EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" /><PackageReference Include="Newtonsoft.Json" Version="13.0.3" /></ItemGroup></Project>
