@@ -31,8 +31,9 @@ namespace OniMcp.Tools
         internal static string FixtureAvailabilityError;
         internal static bool FixtureMaterialValid=true,FixtureFacadeValid=true,FixtureSupportValid=true;
         internal static int FixtureSelectCalls,FixtureAutoDigCalls,FixtureFallbackCalls;
+        internal static int FixtureSupportCalls;
         internal static void ResetPlannerFixture()
-        {FixtureAvailabilityError=null;FixtureMaterialValid=true;FixtureFacadeValid=true;FixtureSupportValid=true;FixtureSelectCalls=0;FixtureAutoDigCalls=0;FixtureFallbackCalls=0;}
+        {FixtureAvailabilityError=null;FixtureMaterialValid=true;FixtureFacadeValid=true;FixtureSupportValid=true;FixtureSelectCalls=0;FixtureAutoDigCalls=0;FixtureFallbackCalls=0;FixtureSupportCalls=0;}
         private static string BuildAvailabilityError(BuildingDef def,JObject args){return FixtureAvailabilityError;}
         private static bool IsTechUnlocked(BuildingDef def){return FixtureAvailabilityError==null;}
         private static bool IsUnlockedAndAvailable(BuildingDef def){return FixtureAvailabilityError==null;}
@@ -45,7 +46,7 @@ namespace OniMcp.Tools
         private static FacadeSelection ResolveFacade(BuildingDef def,string value)
         {return new FacadeSelection{Valid=FixtureFacadeValid,Error=FixtureFacadeValid?null:"fixture facade rejected",ResponseId=value??"DEFAULT_FACADE",TryPlaceId=value};}
         private static SupportValidation ValidateSupport(BuildingDef def,int x,int y,bool allow,HashSet<int> planned,Orientation orientation)
-        {return new SupportValidation{Valid=FixtureSupportValid,Error=FixtureSupportValid?null:"fixture support rejected"};}
+        {FixtureSupportCalls++;return new SupportValidation{Valid=FixtureSupportValid,Error=FixtureSupportValid?null:"fixture support rejected"};}
         private static void RegisterSupportBlueprint(string id,int x,int y,HashSet<int> cells){}
         private static Dictionary<string,object> ExistingPlacementResult(BuildingDef def,PlacementDetails placement,Dictionary<string,object> existing,bool utility)
         {return new Dictionary<string,object>{["valid"]=true,["alreadyPresent"]=true,["existing"]=existing};}
@@ -65,8 +66,13 @@ namespace OniMcp.Tools
         private static void SetPriority(GameObject go,int value){throw new InvalidOperationException("fixture low-level object priority write forbidden");}
         private static IEnumerable<Tag> MaterialCategoryTags(BuildingDef def){return new[]{new Tag(def.PrefabID=="Tile"?"RawMinerals":"AllMetals")};}
         private static bool MaterialMatchesCategory(Tag tag,Tag category){return category.Name=="AllMetals"&&(tag.Name=="Cuprite"||tag.Name=="GoldAmalgam");}
-        internal static JObject PlanForTest(string id,int cell,JObject args)
-        {return JObject.FromObject(TryPlanOne(id,Grid.CellColumn(cell),Grid.CellRow(cell),args));}
+        internal static JObject PlanForTest(string id,int cell,JObject args,bool wireSerialization=false)
+        {
+            var result = TryPlanOne(id,Grid.CellColumn(cell),Grid.CellRow(cell),args);
+            return wireSerialization
+                ? JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(result, OniMcp.Support.McpJsonUtil.Settings))
+                : JObject.FromObject(result);
+        }
     }
 }
 

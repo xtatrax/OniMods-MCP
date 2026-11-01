@@ -84,7 +84,15 @@ prefabId = resolvedPrefabId;
                     ["worldId"] = worldId,
                     ["placement"] = earlyPlacement.ToDictionary(),
                     ["footprint"] = earlyPlacement.Footprint.Select(cellInfo => cellInfo.ToDictionary()).ToList(),
-                    ["existing"] = earlyExistingBuild
+                    ["existing"] = earlyExistingBuild,
+                    ["validationScope"] = "existing_object_reuse",
+                    ["support"] = new Dictionary<string, object>
+                    {
+                        ["status"] = "not_evaluated",
+                        ["currentValid"] = null,
+                        ["nativeFoundationValid"] = null,
+                        ["requiresSupportCompletion"] = null
+                    }
                 };
             }
             var materialResult = SelectElements(def, args["material"]?.ToString(), worldId);
