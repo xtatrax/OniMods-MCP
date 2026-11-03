@@ -1,0 +1,5 @@
+{
+  "filter_preview.error.unsupported_preview": "筛选器更改不支持 dryRun=true。请求已在访问目标前被拒绝，筛选器未更改。请用 list/detail 读取当前设置。",
+  "filter_preview.error.invalid_boolean": "dryRun 必须是 JSON 布尔值。筛选器未更改。",
+  "filter_preview.parameter.dry_run": "筛选器写入不支持预览。dryRun=true 会在访问或修改目标前被拒绝；仅在有意实际执行时省略或设为 false。list/detail 仅供读取。"
+}

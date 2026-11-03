@@ -85,3 +85,8 @@ The operation-file mode, edit and syntax hints now use runtime catalogs synchron
 
 
 Generated capture examples now appear only in the orders and ranching operation guides. The DSL strings, parser, capabilities, safeguards and native action routes are unchanged. This public source passed its own host regressions with a semantic old-reader negative, game-reference build and paused reads of all ordinary guides with representative repeats. The original environment was restored with the game stopped. Capture execution and ranching completion are outside this display-only acceptance; see [the scope and limits](docs/operation-capture-examples_JP.md). Private runtime evidence and development history are excluded.
+
+
+## Unsupported filter preview requests
+
+Filter writes now reject unsupported dry-run requests before target/native access, including the independent storage filter route. Non-boolean flags are refused; omitted/false execution and read routes retain their existing behavior. This public identity passed its own source-linked host regressions, localization checks, game-reference build, three native preview-refusal paths and normal change/restore readbacks with paused time and observed neighboring storage preserved. Native flat-filter positives, all filter families and transport completion remain outside acceptance. See [the contract and limits](docs/filter-write-preview_JP.md). Private runtime evidence and development history are excluded.

@@ -26,7 +26,7 @@ namespace UnityEngine
         public readonly HashSet<Type> ThrowGetComponent = new HashSet<Type>();
         public readonly List<object> ExtraComponents = new List<object>();
         public readonly List<object> ChildComponents = new List<object>();
-        public int ComponentEnumerationReads, ChildEnumerationReads;
+        public int ComponentEnumerationReads, ChildEnumerationReads, ComponentReads;
         public bool ThrowComponentEnumeration, ReturnNullComponentEnumeration;
         public Func<Type, object[]> ComponentResults;
         public T[] GetComponents<T>() where T : class
@@ -44,6 +44,7 @@ namespace UnityEngine
         }
         public T GetComponent<T>() where T : class
         {
+            ComponentReads++;
             if (ThrowGetComponent.Contains(typeof(T))) throw new InvalidOperationException("fixture component read failure");
             object component;
             return Components.TryGetValue(typeof(T), out component) ? component as T : null;
@@ -67,6 +68,8 @@ public struct Tag : IEquatable<Tag>
     public static int InvalidNameReads;
     public string Name { get { if (!initialized) { InvalidNameReads++; if (ThrowInvalidName) throw new InvalidOperationException("fixture invalid tag Name read forbidden"); } return nativeName; } }
     public Tag(string name) { nativeName = name; initialized = true; }
+    public bool IsValid { get { return initialized && !string.IsNullOrEmpty(nativeName); } }
+    public string ProperName() { return Name; }
     public bool Equals(Tag other) { return initialized == other.initialized && string.Equals(nativeName, other.nativeName, StringComparison.Ordinal); }
     public override bool Equals(object other) { return other is Tag && Equals((Tag)other); }
     public override int GetHashCode() { return nativeName == null ? (initialized ? 1 : 0) : nativeName.GetHashCode(); }
@@ -79,6 +82,10 @@ public sealed class TreeFilterable
     private HashSet<Tag> nativeTags = new HashSet<Tag>();
     public int Updates;
     public int Reads;
+    public bool dropIncorrectOnFilterChange;
+    public Storage FilterStorage;
+    public Storage GetFilterStorage() { return FilterStorage; }
+    public string[] FixtureTags() { return nativeTags.Select(tag => tag.Name).OrderBy(name => name).ToArray(); }
     public Action<TreeFilterable> OnUpdated;
     public IEnumerable<Tag> GetTags() { Reads++; return nativeTags.ToArray(); }
     public void FixtureSet(params string[] tags) { nativeTags = new HashSet<Tag>(tags.Select(tag => new Tag(tag))); }
@@ -166,11 +173,28 @@ public sealed class Db
     public static Db Get() { LazyGetCalls++; throw new InvalidOperationException("lazy database initialization forbidden in readback"); }
 }
 public sealed class BuildingComplete { public UnityEngine.GameObject gameObject; }
-public sealed class BuildingCollection { public readonly List<BuildingComplete> Items = new List<BuildingComplete>(); }
+public sealed class BuildingCollection
+{
+    private readonly List<BuildingComplete> items = new List<BuildingComplete>();
+    public int Reads;
+    public bool ThrowRead;
+    public List<BuildingComplete> Items
+    {
+        get
+        {
+            Reads++;
+            if (ThrowRead) throw new InvalidOperationException("fixture lookup forbidden");
+            return items;
+        }
+    }
+}
 public static class Components { public static readonly BuildingCollection BuildingCompletes = new BuildingCollection(); }
 public static class Grid
 {
     public static int XYToCell(int x, int y) { return x < 0 || y < 0 || x >= 100 || y >= 100 ? -1 : y * 100 + x; }
+    public static readonly int[] WorldIdx = new int[10000];
+    public static bool IsWorldValidCell(int cell) { return IsValidCell(cell); }
+    public static int PosToCell(UnityEngine.GameObject value) { return PosToCell(value.transform.GetPosition()); }
     public static int PosToCell(UnityEngine.Vector3 position) { return XYToCell((int)position.x, (int)position.y); }
     public static bool IsValidCell(int cell) { return cell >= 0 && cell < 10000; }
     public static int CellColumn(int cell) { return cell % 100; }
@@ -216,13 +240,24 @@ namespace OniMcp.Tools
         public static OniMcp.Core.McpTool ControlStorageTileSelection() { throw new NotSupportedException(); }
         public static OniMcp.Core.McpTool ControlReceptacle() { throw new NotSupportedException(); }
     }
-    public static class FilterTools
-    {
-        public static OniMcp.Core.McpTool ControlFilter() { throw new NotSupportedException(); }
-    }
     public static class ToolUtil
     {
         public static int? GetInt(JObject args, string key) { return (int?)args[key]; }
+        public static bool GetBool(JObject args, string key, bool fallback)
+        {
+            bool value;
+            return args[key] != null && bool.TryParse(args[key].ToString(), out value) ? value : fallback;
+        }
+        public static Dictionary<string, int> GetRect(JObject args)
+        {
+            return new Dictionary<string, int> { ["x1"] = GetInt(args, "x1") ?? 0, ["y1"] = GetInt(args, "y1") ?? 0,
+                ["x2"] = GetInt(args, "x2") ?? 0, ["y2"] = GetInt(args, "y2") ?? 0 };
+        }
+        public static bool GameObjectMatchesWorld(UnityEngine.GameObject value, int world)
+        {
+            return world < 0 || value.WorldId == world;
+        }
+        public static bool CellMatchesWorld(int cell, int world) { return world < 0 || Grid.WorldIdx[cell] == world; }
         public static int ResolveWorldId(JObject args) { return GetInt(args, "worldId") ?? 0; }
         public static int ClampLimit(JObject args, int fallback, int maximum) { return Math.Max(1, Math.Min(maximum, GetInt(args, "limit") ?? fallback)); }
         public static string CleanName(string value) { return value; }

@@ -1,0 +1,5 @@
+{
+  "filter_preview.error.unsupported_preview": "フィルター変更は dryRun=true に対応していません。対象にアクセスする前に要求を拒否し、フィルターは変更していません。現在の設定は list/detail の読取操作で確認してください。",
+  "filter_preview.error.invalid_boolean": "dryRun は JSON の真偽値で指定してください。フィルターは変更していません。",
+  "filter_preview.parameter.dry_run": "フィルター変更の予行は未対応です。dryRun=true は対象の読取・変更前に拒否します。実行する意図がある場合だけ省略するか false を指定してください。list/detail は読取専用です。"
+}

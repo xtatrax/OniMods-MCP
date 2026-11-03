@@ -92,11 +92,14 @@ namespace OniMcp.Tools
                 Description = "互換用の入口。building_control domain=storage action=set_filter を優先してください。収納設備の資源フィルタータグを設定します。既定では現在のフィルターを置き換え、add/remove も使用可能です",
                 Parameters = StorageLookupParams(new Dictionary<string, McpToolParameter>
                 {
+                    ["dryRun"] = FilterWritePreviewGuard.Parameter(),
                     ["tags"] = new McpToolParameter { Type = "array", Description = "資源 Tag の一覧。例: Dirt、Algae、SandStone", Required = true },
                     ["mode"] = new McpToolParameter { Type = "string", Description = "replace、add、remove。既定は replace", Required = false, EnumValues = new List<string> { "replace", "add", "remove" } }
                 }),
                 Handler = args =>
                 {
+                    if (FilterWritePreviewGuard.TryReject(args, out CallToolResult rejection))
+                        return rejection;
                     if (HasStorageScope(args)) return StorageScopeDetailOnly();
                     StorageInfo target;
                     string error;
@@ -146,6 +149,7 @@ namespace OniMcp.Tools
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["action"] = new McpToolParameter { Type = "string", Description = "list、detail または set_filter", Required = true, EnumValues = new List<string> { "list", "detail", "set_filter" } },
+                    ["dryRun"] = FilterWritePreviewGuard.Parameter(),
                     ["resource"] = new McpToolParameter { Type = "string", Description = "action=list で収納フィルターのタグまたは設備名による絞り込み", Required = false },
                     ["storageScope"] = StorageScopeParameter(),
                     ["worldId"] = new McpToolParameter { Type = "integer", Description = "対象ワールドの ID。detail/set_filter の query のみの検索では現在アクティブなワールドが既定", Required = false },
@@ -187,6 +191,7 @@ namespace OniMcp.Tools
                 Parameters = new Dictionary<string, McpToolParameter>
                 {
                     ["domain"] = new McpToolParameter { Type = "string", Description = "storage、tile_selection、filter または receptacle", Required = true, EnumValues = new List<string> { "storage", "tile_selection", "filter", "receptacle" } },
+                    ["dryRun"] = FilterWritePreviewGuard.Parameter(),
                     ["action"] = new McpToolParameter { Type = "string", Description = "サブツールの操作: storage=list/detail/set_filter、tile_selection=list/set/batch、filter=list/set、receptacle=list/request/cancel_request/remove_occupant/cancel_remove/batch", Required = false },
                     ["resource"] = new McpToolParameter { Type = "string", Description = "domain=storage action=list で収納フィルターのタグまたは設備名による絞り込み", Required = false },
                     ["storageScope"] = StorageScopeParameter(),

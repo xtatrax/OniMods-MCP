@@ -1,0 +1,5 @@
+{
+  "filter_preview.error.unsupported_preview": "Filter changes do not support dryRun=true. The request was rejected before target access, and no filter changes were made. Use a list/detail read action to inspect the current filter.",
+  "filter_preview.error.invalid_boolean": "dryRun must be a JSON boolean. No filter changes were made.",
+  "filter_preview.parameter.dry_run": "Filter writes do not support previews. dryRun=true is rejected before target access or mutation. Omit it or use false only for intended execution. The list/detail actions remain read-only."
+}

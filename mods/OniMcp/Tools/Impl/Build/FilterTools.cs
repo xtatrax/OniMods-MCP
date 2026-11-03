@@ -149,6 +149,7 @@ namespace OniMcp.Tools
                 Parameters = RectParams(new Dictionary<string, McpToolParameter>
                 {
                     ["action"] = new McpToolParameter { Type = "string", Description = "list または set", Required = true, EnumValues = new List<string> { "list", "set" } },
+                    ["dryRun"] = FilterWritePreviewGuard.Parameter(),
                     ["id"] = new McpToolParameter { Type = "integer", Description = "action=set の対象オブジェクトの InstanceID", Required = false },
                     ["x"] = new McpToolParameter { Type = "integer", Description = "action=set の対象セルの X", Required = false },
                     ["y"] = new McpToolParameter { Type = "integer", Description = "action=set の対象セルの Y", Required = false },
@@ -196,6 +197,8 @@ namespace OniMcp.Tools
 
         private static CallToolResult SetSingleFilter(JObject args)
         {
+            if (FilterWritePreviewGuard.TryReject(args, out CallToolResult rejection))
+                return rejection;
             var go = FindTarget(args);
             if (go == null)
                 return CallToolResult.Error("Target not found");
@@ -231,6 +234,8 @@ namespace OniMcp.Tools
 
         private static CallToolResult SetTreeFilter(JObject args)
         {
+            if (FilterWritePreviewGuard.TryReject(args, out CallToolResult rejection))
+                return rejection;
             var go = FindTarget(args);
             if (go == null)
                 return CallToolResult.Error("Target not found");
@@ -450,6 +455,7 @@ namespace OniMcp.Tools
             var parameters = new Dictionary<string, McpToolParameter>
             {
                 ["id"] = new McpToolParameter { Type = "integer", Description = "対象オブジェクトの InstanceID", Required = false },
+                ["dryRun"] = FilterWritePreviewGuard.Parameter(),
                 ["x"] = new McpToolParameter { Type = "integer", Description = "対象セルの X", Required = false },
                 ["y"] = new McpToolParameter { Type = "integer", Description = "対象セルの Y", Required = false },
                 ["worldId"] = new McpToolParameter { Type = "integer", Description = "対象ワールドの ID。座標による検索では現在アクティブなワールドが既定", Required = false }

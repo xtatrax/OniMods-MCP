@@ -65,6 +65,7 @@ internal static class Program
 
     private static void Main()
     {
+        Console.WriteLine("Filter preview guard adapter: " + FilterPreviewRegression.Run() + " assertions passed");
         Components.BuildingCompletes.Items.Clear();
         var target = Make(11, 0, "SandStone");
         var unrelated = Make(12, 0, "Iron");

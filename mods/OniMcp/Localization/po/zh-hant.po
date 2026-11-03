@@ -2191,3 +2191,21 @@ msgstr "本次呼叫最多評估的放置錨點數。預設64，硬上限256。�
 msgctxt "OniMcp.MCP.TOOLS.BUILDING_CONTROL.PARAMETERS.SCANOFFSET"
 msgid "Zero-based row-major anchor offset within the same rectangle. Defaults to 0. Continue with nextOffset; each page is independently observed and ranked."
 msgstr "同一矩形內的錨點偏移（先增加X，列結束後增加Y）。從0開始，預設0。用nextOffset繼續；各頁獨立觀察和排名。"
+
+#. Runtime JSON key: filter_preview.error.unsupported_preview
+#. Runtime zh-Hans msgstr: "筛选器更改不支持 dryRun=true。请求已在访问目标前被拒绝，筛选器未更改。请用 list/detail 读取当前设置。"
+msgctxt "OniMcp.MCP.FILTER_PREVIEW.ERROR.UNSUPPORTED_PREVIEW"
+msgid "Filter changes do not support dryRun=true. The request was rejected before target access, and no filter changes were made. Use a list/detail read action to inspect the current filter."
+msgstr "篩選器變更不支援 dryRun=true。要求已在存取目標前遭拒絕，篩選器未變更。請用 list/detail 讀取目前設定。"
+
+#. Runtime JSON key: filter_preview.error.invalid_boolean
+#. Runtime zh-Hans msgstr: "dryRun 必须是 JSON 布尔值。筛选器未更改。"
+msgctxt "OniMcp.MCP.FILTER_PREVIEW.ERROR.INVALID_BOOLEAN"
+msgid "dryRun must be a JSON boolean. No filter changes were made."
+msgstr "dryRun 必須是 JSON 布林值。篩選器未變更。"
+
+#. Runtime JSON key: filter_preview.parameter.dry_run
+#. Runtime zh-Hans msgstr: "筛选器写入不支持预览。dryRun=true 会在访问或修改目标前被拒绝；仅在有意实际执行时省略或设为 false。list/detail 仅供读取。"
+msgctxt "OniMcp.MCP.FILTER_PREVIEW.PARAMETER.DRY_RUN"
+msgid "Filter writes do not support previews. dryRun=true is rejected before target access or mutation. Omit it or use false only for intended execution. The list/detail actions remain read-only."
+msgstr "篩選器寫入不支援預覽。dryRun=true 會在存取或修改目標前遭拒絕；僅在有意實際執行時省略或設為 false。list/detail 僅供讀取。"
