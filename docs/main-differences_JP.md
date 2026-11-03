@@ -981,3 +981,8 @@ viewport/indexと高さ別layerのHTML生成に、既存Markdownと同じ読取g
 single/tree/flatと独立Storageの書込入口で、dryRun=trueをunsupported_preview、非Booleanをinvalid_booleanとして対象検索前に拒否する。省略/falseの既存設定処理と読取を維持し、nativeのタグ規則を再実装しない。新規文言はPO正本とruntime3言語へ対応させた。
 
 公開版自身のホスト1158・新規翻訳146・参照ビルド、および停止した試験分岐で予行3経路の拒否、独立読取による不変、通常変更と元選択への復帰6段階を確認。対象の全Storageと観測した隣接収納・停止時計を照合した。実機Flat正例、全設備種、運搬・実搬送、全操作の予行対応は未受入。[契約と範囲](filter-write-preview_JP.md)を参照。個別の実測値・セーブ・導入設定・生ログ・開発履歴は含まない。
+
+
+### 時間割画面の送信結果と観測
+
+時間割画面の通常入力受付と実表示を区別し、未取得null・既知false、受動status／予行、明示確認、表示済みno-op、pending／partialを返す。公開版自身のhost502・翻訳483・本体参照build.81の0警告0エラーと、停止実機の通常表示・後続状態／画像・再要求保持・閉鎖・非対象Action保持を確認。失敗枝の全実機生成は含まず、公開ID／設定分離を保持する。詳細は[時間割UIの観測契約](schedule-ui-observation_JP.md)。

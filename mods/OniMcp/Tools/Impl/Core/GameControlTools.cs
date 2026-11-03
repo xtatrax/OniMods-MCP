@@ -51,7 +51,7 @@ namespace OniMcp.Tools
                     ["dialogToken"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("tools.game_control.parameters.dialogToken"), Required = false },
                     ["keepPaused"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.keepPaused"), Required = false },
                     ["uiAction"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=action action=trigger の Action 列挙名", Required = false },
-                    ["screen"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=action action=open_management の画面名", Required = false },
+                    ["screen"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_action.management_screen_description"), Required = false },
                     ["title"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=feedback action=notification の通知タイトル", Required = false },
                     ["message"] = new McpToolParameter { Type = "string", Description = "domain=ui の通知本文または案内内容。action に応じて解釈する", Required = false },
                     ["text"] = new McpToolParameter { Type = "string", Description = "domain=ui uiDomain=feedback action=popup/speech_bubble の表示文。speech_bubble では必須", Required = false },

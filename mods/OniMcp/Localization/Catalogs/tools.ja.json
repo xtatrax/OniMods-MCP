@@ -72,7 +72,7 @@
   "tools.game_control.parameters.includeCosmetic": "domain=dlc action=list で cosmetic/content-only DLC を含めるか。既定は false",
   "tools.game_control.parameters.dlcId": "domain=dlc action=activate の DLC id。例: DLC2_ID、DLC3_ID、DLC4_ID、DLC5_ID",
   "tools.game_control.parameters.uiAction": "domain=ui uiDomain=action action=trigger の Action 列挙名",
-  "tools.game_control.parameters.screen": "domain=ui uiDomain=action action=open_management の画面名",
+  "tools.game_control.parameters.screen": "open_managementの管理ページ。uiDomain=action action=management_statusはscheduleだけに対応し、開かずに本体の状態を読む。",
   "tools.game_control.parameters.title": "domain=ui uiDomain=feedback action=notification の通知タイトル",
   "tools.game_control.parameters.message": "domain=ui の通知本文または案内内容。action に応じて解釈する",
   "tools.game_control.parameters.text": "ui/feedback の popup または speech_bubble に表示するテキスト。speech_bubble では必須。",

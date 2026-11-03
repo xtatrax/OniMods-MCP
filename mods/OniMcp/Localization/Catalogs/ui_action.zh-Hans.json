@@ -2,5 +2,15 @@
   "ui_action.binding_unknown": "无法获取原生输入绑定；未发送UI操作。",
   "ui_action.unbound": "指定UI操作目前没有原生输入绑定；未发送UI操作。",
   "ui_action.readiness_unknown": "无法确定原生UI的就绪状态；未发送UI操作。",
-  "ui_action.not_ready": "此操作所需的原生UI不可用；未发送UI操作。"
+  "ui_action.not_ready": "此操作所需的原生UI不可用；未发送UI操作。",
+  "ui_action.management_open_description": "兼容入口。优先使用game_control domain=ui uiDomain=action action=open_management。打开指定管理页面。schedule需要confirm=true；dryRun不发送UI操作，响应区分操作发送与已打开状态的观测。其他页面保留现有契约。",
+  "ui_action.control_description": "统一UI操作：list、trigger、open_management或management_status。management_status仅被动读取schedule。打开schedule需要confirm=true，支持不调用callback的dryRun，并区分原生操作发送与已打开状态的观测。其他操作保留现有契约。",
+  "ui_action.control_action_description": "list、trigger、open_management或management_status。management_status仅支持screen=schedule，不调用UI。",
+  "ui_action.management_screen_description": "open_management的管理页面。uiDomain=action action=management_status仅支持schedule，只读取原生状态，不打开页面。",
+  "ui_action.control_invalid_action": "UI action必须为list、trigger、open_management或management_status。",
+  "ui_action.schedule_invalid_request": "schedule UI请求无效。请查看reasonCode及parameter。",
+  "ui_action.schedule_unavailable": "原生schedule UI状态不可用或不一致；未发送UI操作。",
+  "ui_action.schedule_not_focused": "游戏没有原生输入焦点；未发送schedule操作。",
+  "ui_action.schedule_pending": "schedule操作已发送一次，但未观测到页面打开。请显式读取management_status或截图；未重试。",
+  "ui_action.schedule_partial": "schedule操作发送后的原生UI所有状态未确认。结果保持未知；未重试。"
 }

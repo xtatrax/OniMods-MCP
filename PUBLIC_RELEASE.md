@@ -90,3 +90,8 @@ Generated capture examples now appear only in the orders and ranching operation 
 ## Unsupported filter preview requests
 
 Filter writes now reject unsupported dry-run requests before target/native access, including the independent storage filter route. Non-boolean flags are refused; omitted/false execution and read routes retain their existing behavior. This public identity passed its own source-linked host regressions, localization checks, game-reference build, three native preview-refusal paths and normal change/restore readbacks with paused time and observed neighboring storage preserved. Native flat-filter positives, all filter families and transport completion remain outside acceptance. See [the contract and limits](docs/filter-write-preview_JP.md). Private runtime evidence and development history are excluded.
+
+
+### 時間割画面の実表示確認
+
+時間割画面の通常入力受付と実表示を区別し、未取得null・既知false、受動status／予行、明示確認、表示済みno-op、pending／partialを返す。公開版自身のhost502・翻訳483・本体参照build.81の0警告0エラーと、停止実機の通常表示・後続状態／画像・再要求保持・閉鎖・非対象Action保持を確認。失敗枝の全実機生成は含まず、公開ID／設定分離を保持する。詳細は[時間割UIの観測契約](docs/schedule-ui-observation_JP.md)。

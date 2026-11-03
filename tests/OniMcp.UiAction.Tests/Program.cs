@@ -157,7 +157,9 @@ internal static class Program
         {
             if (args.Contains("--probe=bindings")) BindingRegression();
             else if (args.Contains("--probe=dispatch")) DispatchRegression();
-            else Run();
+            else if (args.Contains("--probe=refused-preview")) ScheduleAcknowledgementRegression.RefusedPreviewProbe();
+            else if (args.Contains("--probe=schedule-ack")) ScheduleAcknowledgementRegression.OldAcknowledgementProbe();
+            else { Run(); ScheduleAcknowledgementRegression.Run(); }
             Console.WriteLine("UI action binding regression PASS: " + checks + " conditions"); return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error.ToString()); return 1; }

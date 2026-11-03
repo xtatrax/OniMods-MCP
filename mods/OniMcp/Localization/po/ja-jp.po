@@ -288,10 +288,10 @@ msgid "UI subsystem: action, feedback, dialog or selection."
 msgstr "UIのサブシステム: action、feedback、dialog、selection。"
 
 #. Runtime JSON key: ui_dialog.ui_action_description
-#. Runtime zh-Hans msgstr: "domain=action：list/trigger/open_management；domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge；domain=selection：使用精确id的被动status或显式select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不调用UI。滚动仅针对已选复制人的UI；scroll_up/down各发送一次原生滚轮事件（+1/-1）并返回pending，不保证距离、完成或可见性。后续status或截图需显式请求。"
+#. Runtime zh-Hans msgstr: "domain=action：list/trigger/open_management/management_status；management_status仅被动读取screen=schedule。打开schedule需要confirm=true；dryRun不发送UI，observedOpen与操作发送分别返回。domain=feedback：notification/popup/speech_bubble/marker；domain=dialog：status/acknowledge；domain=selection：使用精确id的被动status或显式select/close/scroll_up/scroll_down。selection的修改操作需要task及confirm=true；dryRun不调用UI。滚动仅针对已选复制人的UI；scroll_up/down各发送一次原生滚轮事件（+1/-1）并返回pending，不保证距离、完成或可见性。后续status或截图需显式请求。"
 msgctxt "OniMcp.MCP.UI_DIALOG.UI_ACTION_DESCRIPTION"
-msgid "domain=action: list/trigger/open_management; domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge; domain=selection: passive status or explicit select/close/scroll_up/scroll_down with exact id. Selection UI mutations require task and confirm=true; dryRun invokes no UI. Scroll requires the selected duplicant UI; scroll_up/down dispatches one native wheel event (+1/-1) and returns pending, without guaranteeing distance, completion or visibility. Request a later status or screenshot explicitly."
-msgstr "domain=action: list/trigger/open_management、domain=feedback: notification/popup/speech_bubble/marker、domain=dialog: status/acknowledge、domain=selection: 正確なidを指定した受動statusまたは明示的なselect/close/scroll_up/scroll_down。selectionの変更操作にはtaskとconfirm=trueが必須で、dryRunはUIを操作しない。scrollは選択済み複製人間のUIが対象。scroll_up/downは本体ホイールイベントを1回（+1/-1）送りpendingを返す。移動距離・完了・可視化は保証しない。後続statusやスクリーンショットは明示的に取得する。"
+msgid "domain=action: list/trigger/open_management/management_status; management_status passively reads screen=schedule. Schedule open requests require confirm=true; dryRun dispatches no UI and observedOpen is separate from dispatch. domain=feedback: notification/popup/speech_bubble/marker; domain=dialog: status/acknowledge; domain=selection: passive status or explicit select/close/scroll_up/scroll_down with exact id. Selection UI mutations require task and confirm=true; dryRun invokes no UI. Scroll requires the selected duplicant UI; scroll_up/down dispatches one native wheel event (+1/-1) and returns pending, without guaranteeing distance, completion or visibility. Request a later status or screenshot explicitly."
+msgstr "domain=action: list/trigger/open_management/management_status。management_statusはscreen=scheduleを受動取得する。scheduleを開く要求はconfirm=trueが必須で、dryRunはUIを送信せず、observedOpenは送信とは別に返す。domain=feedback: notification/popup/speech_bubble/marker、domain=dialog: status/acknowledge、domain=selection: 正確なidを指定した受動statusまたは明示的なselect/close/scroll_up/scroll_down。selectionの変更操作にはtaskとconfirm=trueが必須で、dryRunはUIを操作しない。scrollは選択済み複製人間のUIが対象。scroll_up/downは本体ホイールイベントを1回（+1/-1）送りpendingを返す。移動距離・完了・可視化は保証しない。後続statusやスクリーンショットは明示的に取得する。"
 
 #. Runtime JSON key: ui_dialog.invalid_ui_domain
 #. Runtime zh-Hans msgstr: "UI的domain必须为action、feedback、dialog或selection。"
@@ -2113,3 +2113,64 @@ msgstr "dryRun は JSON の真偽値で指定してください。フィルタ�
 msgctxt "OniMcp.MCP.FILTER_PREVIEW.PARAMETER.DRY_RUN"
 msgid "Filter writes do not support previews. dryRun=true is rejected before target access or mutation. Omit it or use false only for intended execution. The list/detail actions remain read-only."
 msgstr "フィルター変更の予行は未対応です。dryRun=true は対象の読取・変更前に拒否します。実行する意図がある場合だけ省略するか false を指定してください。list/detail は読取専用です。"
+
+#. Runtime JSON key: ui_action.management_open_description
+#. Runtime zh-Hans msgstr: "兼容入口。优先使用game_control domain=ui uiDomain=action action=open_management。打开指定管理页面。schedule需要confirm=true；dryRun不发送UI操作，响应区分操作发送与已打开状态的观测。其他页面保留现有契约。"
+msgctxt "OniMcp.MCP.UI_ACTION.MANAGEMENT_OPEN_DESCRIPTION"
+msgid "Compatibility entrypoint. Prefer game_control domain=ui uiDomain=action action=open_management. Open the requested management page. For schedule, confirm=true is required, dryRun sends no UI action, and the response separates dispatch from observed open state. Other pages retain their existing contracts."
+msgstr "互換窓口。game_control domain=ui uiDomain=action action=open_managementを優先する。指定した管理ページを開く。scheduleはconfirm=trueが必須で、dryRunはUI操作を送らず、応答は送信と開いた状態の観測を分ける。他のページは既存の契約を保つ。"
+
+#. Runtime JSON key: ui_action.control_description
+#. Runtime zh-Hans msgstr: "统一UI操作：list、trigger、open_management或management_status。management_status仅被动读取schedule。打开schedule需要confirm=true，支持不调用callback的dryRun，并区分原生操作发送与已打开状态的观测。其他操作保留现有契约。"
+msgctxt "OniMcp.MCP.UI_ACTION.CONTROL_DESCRIPTION"
+msgid "Unified UI actions: list, trigger, open_management, or management_status. management_status passively reads schedule only. Schedule open requests require confirm=true, support a callback-free dryRun, and report native dispatch separately from observed open state. Other actions retain their existing contracts."
+msgstr "UI Actionの統合窓口: list、trigger、open_management、management_status。management_statusはscheduleだけを受動取得する。scheduleを開く要求はconfirm=trueが必須で、dryRunはcallbackを呼ばず、本体への送信と開いた状態の観測を分けて返す。他の操作は既存の契約を保つ。"
+
+#. Runtime JSON key: ui_action.control_action_description
+#. Runtime zh-Hans msgstr: "list、trigger、open_management或management_status。management_status仅支持screen=schedule，不调用UI。"
+msgctxt "OniMcp.MCP.UI_ACTION.CONTROL_ACTION_DESCRIPTION"
+msgid "list, trigger, open_management, or management_status. management_status supports only screen=schedule and invokes no UI."
+msgstr "list、trigger、open_management、management_status。management_statusはscreen=scheduleだけに対応し、UIを操作しない。"
+
+#. Runtime JSON key: ui_action.management_screen_description
+#. Runtime JSON alias: tools.game_control.parameters.screen
+#. Runtime zh-Hans msgstr: "open_management的管理页面。uiDomain=action action=management_status仅支持schedule，只读取原生状态，不打开页面。"
+msgctxt "OniMcp.MCP.UI_ACTION.MANAGEMENT_SCREEN_DESCRIPTION"
+msgid "Management page for open_management. uiDomain=action action=management_status supports only schedule and reads native state without opening it."
+msgstr "open_managementの管理ページ。uiDomain=action action=management_statusはscheduleだけに対応し、開かずに本体の状態を読む。"
+
+#. Runtime JSON key: ui_action.control_invalid_action
+#. Runtime zh-Hans msgstr: "UI action必须为list、trigger、open_management或management_status。"
+msgctxt "OniMcp.MCP.UI_ACTION.CONTROL_INVALID_ACTION"
+msgid "UI action must be list, trigger, open_management, or management_status."
+msgstr "UI actionはlist、trigger、open_management、management_statusのいずれかを指定する。"
+
+#. Runtime JSON key: ui_action.schedule_invalid_request
+#. Runtime zh-Hans msgstr: "schedule UI请求无效。请查看reasonCode及parameter。"
+msgctxt "OniMcp.MCP.UI_ACTION.SCHEDULE_INVALID_REQUEST"
+msgid "The schedule UI request is invalid. See reasonCode and parameter."
+msgstr "スケジュールUIの要求が不正。reasonCodeとparameterを確認する。"
+
+#. Runtime JSON key: ui_action.schedule_unavailable
+#. Runtime zh-Hans msgstr: "原生schedule UI状态不可用或不一致；未发送UI操作。"
+msgctxt "OniMcp.MCP.UI_ACTION.SCHEDULE_UNAVAILABLE"
+msgid "The native schedule UI state is unavailable or inconsistent; no UI action was dispatched."
+msgstr "本体のスケジュールUI状態が未取得または不整合のため、UI操作は送信していない。"
+
+#. Runtime JSON key: ui_action.schedule_not_focused
+#. Runtime zh-Hans msgstr: "游戏没有原生输入焦点；未发送schedule操作。"
+msgctxt "OniMcp.MCP.UI_ACTION.SCHEDULE_NOT_FOCUSED"
+msgid "The game does not have native input focus; no schedule action was dispatched."
+msgstr "ゲーム本体に入力フォーカスがないため、スケジュール操作は送信していない。"
+
+#. Runtime JSON key: ui_action.schedule_pending
+#. Runtime zh-Hans msgstr: "schedule操作已发送一次，但未观测到页面打开。请显式读取management_status或截图；未重试。"
+msgctxt "OniMcp.MCP.UI_ACTION.SCHEDULE_PENDING"
+msgid "The schedule action was dispatched once, but its screen is not observed open. Explicitly read management_status or take a screenshot; no retry was attempted."
+msgstr "スケジュール操作を1回送信したが、開いた画面は観測できていない。management_statusまたはスクリーンショットを明示取得する。再試行は行っていない。"
+
+#. Runtime JSON key: ui_action.schedule_partial
+#. Runtime zh-Hans msgstr: "schedule操作发送后的原生UI所有状态未确认。结果保持未知；未重试。"
+msgctxt "OniMcp.MCP.UI_ACTION.SCHEDULE_PARTIAL"
+msgid "The schedule dispatch did not finish with a confirmed native owner state. Its outcome is unknown; no retry was attempted."
+msgstr "スケジュール送信後の本体UI所有状態を確定できない。結果は未判定のまま保持し、再試行は行っていない。"

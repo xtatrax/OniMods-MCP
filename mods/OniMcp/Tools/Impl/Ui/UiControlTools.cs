@@ -29,7 +29,7 @@ namespace OniMcp.Tools
                     ["confirm"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.confirm"), Required = false },
                     ["dryRun"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("tools.game_control.parameters.dryRun"), Required = false },
                     ["uiAction"] = new McpToolParameter { Type = "string", Description = "domain=action action=trigger の場合の Action 列挙型の名前", Required = false },
-                    ["screen"] = new McpToolParameter { Type = "string", Description = "domain=action action=open_management の場合のページ名", Required = false },
+                    ["screen"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("ui_action.management_screen_description"), Required = false },
                     ["title"] = new McpToolParameter { Type = "string", Description = "domain=feedback action=notification の場合の通知タイトル", Required = false },
                     ["message"] = new McpToolParameter { Type = "string", Description = "通知本文または案内内容。サブアクションの意味に従って使用", Required = false },
                     ["text"] = new McpToolParameter { Type = "string", Description = "domain=feedback action=popup/speech_bubble の場合の表示テキスト。speech_bubble では必須", Required = false },

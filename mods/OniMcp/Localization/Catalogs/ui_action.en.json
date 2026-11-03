@@ -2,5 +2,15 @@
   "ui_action.binding_unknown": "Native input bindings are unavailable; no UI action was dispatched.",
   "ui_action.unbound": "The requested UI action has no current native input binding; no UI action was dispatched.",
   "ui_action.readiness_unknown": "Native UI readiness could not be determined; no UI action was dispatched.",
-  "ui_action.not_ready": "The native UI required for this action is unavailable; no UI action was dispatched."
+  "ui_action.not_ready": "The native UI required for this action is unavailable; no UI action was dispatched.",
+  "ui_action.management_open_description": "Compatibility entrypoint. Prefer game_control domain=ui uiDomain=action action=open_management. Open the requested management page. For schedule, confirm=true is required, dryRun sends no UI action, and the response separates dispatch from observed open state. Other pages retain their existing contracts.",
+  "ui_action.control_description": "Unified UI actions: list, trigger, open_management, or management_status. management_status passively reads schedule only. Schedule open requests require confirm=true, support a callback-free dryRun, and report native dispatch separately from observed open state. Other actions retain their existing contracts.",
+  "ui_action.control_action_description": "list, trigger, open_management, or management_status. management_status supports only screen=schedule and invokes no UI.",
+  "ui_action.management_screen_description": "Management page for open_management. uiDomain=action action=management_status supports only schedule and reads native state without opening it.",
+  "ui_action.control_invalid_action": "UI action must be list, trigger, open_management, or management_status.",
+  "ui_action.schedule_invalid_request": "The schedule UI request is invalid. See reasonCode and parameter.",
+  "ui_action.schedule_unavailable": "The native schedule UI state is unavailable or inconsistent; no UI action was dispatched.",
+  "ui_action.schedule_not_focused": "The game does not have native input focus; no schedule action was dispatched.",
+  "ui_action.schedule_pending": "The schedule action was dispatched once, but its screen is not observed open. Explicitly read management_status or take a screenshot; no retry was attempted.",
+  "ui_action.schedule_partial": "The schedule dispatch did not finish with a confirmed native owner state. Its outcome is unknown; no retry was attempted."
 }

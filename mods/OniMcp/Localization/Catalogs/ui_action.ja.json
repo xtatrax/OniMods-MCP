@@ -2,5 +2,15 @@
   "ui_action.binding_unknown": "本体の入力割当を取得できないため、UI操作は送信していません。",
   "ui_action.unbound": "指定したUI操作には現在の本体入力割当がないため、UI操作は送信していません。",
   "ui_action.readiness_unknown": "本体UIの準備状態を判定できないため、UI操作は送信していません。",
-  "ui_action.not_ready": "指定した操作に必要な本体UIが利用できないため、UI操作は送信していません。"
+  "ui_action.not_ready": "指定した操作に必要な本体UIが利用できないため、UI操作は送信していません。",
+  "ui_action.management_open_description": "互換窓口。game_control domain=ui uiDomain=action action=open_managementを優先する。指定した管理ページを開く。scheduleはconfirm=trueが必須で、dryRunはUI操作を送らず、応答は送信と開いた状態の観測を分ける。他のページは既存の契約を保つ。",
+  "ui_action.control_description": "UI Actionの統合窓口: list、trigger、open_management、management_status。management_statusはscheduleだけを受動取得する。scheduleを開く要求はconfirm=trueが必須で、dryRunはcallbackを呼ばず、本体への送信と開いた状態の観測を分けて返す。他の操作は既存の契約を保つ。",
+  "ui_action.control_action_description": "list、trigger、open_management、management_status。management_statusはscreen=scheduleだけに対応し、UIを操作しない。",
+  "ui_action.management_screen_description": "open_managementの管理ページ。uiDomain=action action=management_statusはscheduleだけに対応し、開かずに本体の状態を読む。",
+  "ui_action.control_invalid_action": "UI actionはlist、trigger、open_management、management_statusのいずれかを指定する。",
+  "ui_action.schedule_invalid_request": "スケジュールUIの要求が不正。reasonCodeとparameterを確認する。",
+  "ui_action.schedule_unavailable": "本体のスケジュールUI状態が未取得または不整合のため、UI操作は送信していない。",
+  "ui_action.schedule_not_focused": "ゲーム本体に入力フォーカスがないため、スケジュール操作は送信していない。",
+  "ui_action.schedule_pending": "スケジュール操作を1回送信したが、開いた画面は観測できていない。management_statusまたはスクリーンショットを明示取得する。再試行は行っていない。",
+  "ui_action.schedule_partial": "スケジュール送信後の本体UI所有状態を確定できない。結果は未判定のまま保持し、再試行は行っていない。"
 }

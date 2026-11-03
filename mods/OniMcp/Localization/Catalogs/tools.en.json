@@ -72,7 +72,7 @@
   "tools.game_control.parameters.includeCosmetic": "For domain=dlc action=list, include cosmetic/content-only DLC. Defaults to false.",
   "tools.game_control.parameters.dlcId": "DLC ID for domain=dlc action=activate. Examples: DLC2_ID, DLC3_ID, DLC4_ID, DLC5_ID.",
   "tools.game_control.parameters.uiAction": "Action enum name for domain=ui uiDomain=action action=trigger.",
-  "tools.game_control.parameters.screen": "Screen name for domain=ui uiDomain=action action=open_management.",
+  "tools.game_control.parameters.screen": "Management page for open_management. uiDomain=action action=management_status supports only schedule and reads native state without opening it.",
   "tools.game_control.parameters.title": "Notification title for domain=ui uiDomain=feedback action=notification.",
   "tools.game_control.parameters.message": "Notification body or guidance text for domain=ui; interpreted according to action.",
   "tools.game_control.parameters.text": "Displayed text for ui/feedback popup or speech_bubble; required for speech_bubble.",

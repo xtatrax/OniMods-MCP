@@ -72,7 +72,7 @@
   "tools.game_control.parameters.includeCosmetic": "domain=dlc action=list 时是否包含 cosmetic/content-only DLC，默认 false",
   "tools.game_control.parameters.dlcId": "domain=dlc action=activate 时的 DLC id，如 DLC2_ID、DLC3_ID、DLC4_ID、DLC5_ID",
   "tools.game_control.parameters.uiAction": "domain=ui uiDomain=action action=trigger 时的 Action 枚举名",
-  "tools.game_control.parameters.screen": "domain=ui uiDomain=action action=open_management 时的页面名",
+  "tools.game_control.parameters.screen": "open_management的管理页面。uiDomain=action action=management_status仅支持schedule，只读取原生状态，不打开页面。",
   "tools.game_control.parameters.title": "domain=ui uiDomain=feedback action=notification 时通知标题",
   "tools.game_control.parameters.message": "domain=ui 的通知正文或提示内容，按 action 解释",
   "tools.game_control.parameters.text": "ui/feedback 的 popup 或 speech_bubble 显示文本；speech_bubble 必填。",

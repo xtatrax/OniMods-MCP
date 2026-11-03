@@ -3,7 +3,7 @@
   "tools.game_control.parameters.dialogToken": "status が返す現在のMOD不一致ダイアログの不透明トークン。acknowledge に必須で、ネイティブ呼出し直前に再照合する。",
   "ui_dialog.ui_control_description": "UIの統合窓口: domain=action/feedback/dialog/selection。許可されたUI Action、プレイヤー向け通知、本体ダイアログのstatus/acknowledge、正確なidによる複製人間選択のstatus/select/close/scroll_up/scroll_downに対応する。",
   "ui_dialog.ui_domain_description": "UIのサブシステム: action、feedback、dialog、selection。",
-  "ui_dialog.ui_action_description": "domain=action: list/trigger/open_management、domain=feedback: notification/popup/speech_bubble/marker、domain=dialog: status/acknowledge、domain=selection: 正確なidを指定した受動statusまたは明示的なselect/close/scroll_up/scroll_down。selectionの変更操作にはtaskとconfirm=trueが必須で、dryRunはUIを操作しない。scrollは選択済み複製人間のUIが対象。scroll_up/downは本体ホイールイベントを1回（+1/-1）送りpendingを返す。移動距離・完了・可視化は保証しない。後続statusやスクリーンショットは明示的に取得する。",
+  "ui_dialog.ui_action_description": "domain=action: list/trigger/open_management/management_status。management_statusはscreen=scheduleを受動取得する。scheduleを開く要求はconfirm=trueが必須で、dryRunはUIを送信せず、observedOpenは送信とは別に返す。domain=feedback: notification/popup/speech_bubble/marker、domain=dialog: status/acknowledge、domain=selection: 正確なidを指定した受動statusまたは明示的なselect/close/scroll_up/scroll_down。selectionの変更操作にはtaskとconfirm=trueが必須で、dryRunはUIを操作しない。scrollは選択済み複製人間のUIが対象。scroll_up/downは本体ホイールイベントを1回（+1/-1）送りpendingを返す。移動距離・完了・可視化は保証しない。後続statusやスクリーンショットは明示的に取得する。",
   "ui_dialog.invalid_ui_domain": "UIのdomainにはaction、feedback、dialog、selectionのいずれかを指定してください。",
   "tools.game_control.parameters.keepPaused": "MOD不一致の確認後に停止状態を保つか。既定は true。false は本来の一時停止処理に任せ、強制的に再開しない。status と dryRun は速度を変更しない。",
   "ui_dialog.unsupported_action": "ダイアログのactionには status または acknowledge を指定してください。",
