@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using OniMcp.Core;
+using OniMcp.Support;
 
 namespace OniMcp.Tools
 {
@@ -25,7 +26,7 @@ Tags = new List<string> { "orders", "priority", "area", "designation", "dig", "s
                     ["id"] = new McpToolParameter { Type = "integer", Description = "Single target InstanceID.", Required = false },
                     ["x"] = new McpToolParameter { Type = "integer", Description = "Single target X for designation actions.", Required = false },
                     ["y"] = new McpToolParameter { Type = "integer", Description = "Single target Y for designation actions.", Required = false },
-                    ["direction"] = new McpToolParameter { Type = "string", Description = "cut_conduits single-cell edge: up/down/left/right", Required = false },
+                    ["direction"] = new McpToolParameter { Type = "string", Description = McpLocalization.GetForLanguage("en", "tools.orders_control.parameters.direction"), Required = false },
                     ["type"] = new McpToolParameter { Type = "string", Description = "empty_conduits/cut_conduits layer type when needed.", Required = false },
                     ["priority"] = new McpToolParameter { Type = "integer", Description = "Priority 1-9.", Required = false },
                     ["topPriority"] = new McpToolParameter { Type = "boolean", Description = "Set top priority where supported.", Required = false },

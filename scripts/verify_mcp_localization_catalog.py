@@ -5,7 +5,8 @@ This is a supporting source check, not an ONI or compiled-assembly test. It
 checks catalog key parity, .NET format placeholders, canonical public metadata keys,
 unchanged existing English descriptions, and embedding declarations. It resolves constant catalog references across resource
 groups and explicitly audits indexed-parameter shadows. An optional
-saved tools/list response checks the actual emitted parameter inventory. Host
+saved tools/list response checks the actual emitted parameter inventory. Explicit PO
+metadata mappings and their runtime aliases are validated after JSON/source checks. Host
 tests must separately check runtime selection, fallback, cloning, and resources.
 
 The small source reader intentionally fails on unfamiliar parameter declaration
@@ -574,6 +575,127 @@ def public_metadata(mod: Path, catalog: dict[str, str] | None = None,
     return result
 
 
+def po_runtime_keys(record: dict, context: str, catalogs: dict[str, str]) -> tuple[str | None, list[str]]:
+    """Read documented mappings; preserve the pre-existing alias comment spelling."""
+    primary, aliases = [], []
+    primary_prefixes = ("#. Runtime JSON key: ", "#. Legacy runtime JSON key: ")
+    alias_prefixes = ("#. Runtime JSON alias key: ", "#. Runtime JSON alias: ")
+    for comment in record["comments"]:
+        for prefixes, target in ((primary_prefixes, primary), (alias_prefixes, aliases)):
+            prefix = next((value for value in prefixes if comment.startswith(value)), None)
+            if prefix is not None:
+                key = comment[len(prefix):]
+                require(re.fullmatch(r"[A-Za-z0-9_.]+", key) is not None,
+                        "Malformed PO runtime mapping: " + context)
+                target.append(key)
+                break
+        else:
+            require(not comment.startswith("#. Runtime JSON alias"), "Unknown PO runtime alias syntax: " + context)
+    # Legacy entries can use their exact runtime key as msgctxt. Do not invent
+    # a second PO context merely to add a canonical tools.* alias.
+    if not primary and context in catalogs:
+        primary.append(context)
+    require(len(primary) <= 1 and len(aliases) == len(set(aliases)), "Duplicate PO runtime mapping: " + context)
+    require(not aliases or len(primary) == 1, "PO alias has no primary runtime key: " + context)
+    require(not primary or primary[0] not in aliases, "PO alias repeats its primary key: " + context)
+    return (primary[0] if primary else None), aliases
+
+
+def source_metadata_keys(context: str) -> set[str]:
+    """Map existing extractor audit contexts back to public metadata keys."""
+    # A registered parameter factory records its definition method after a
+    # colon. Resolve only those exact registered contexts, not arbitrary tails.
+    for (tool, parameter, _), (_, method) in PARAMETER_FACTORIES.items():
+        if context == tool + "." + parameter + ":" + method:
+            context = tool + "." + parameter
+            break
+    keys = set()
+    for tool in TOOL_SOURCES:
+        if context.startswith(tool + "."):
+            field = context[len(tool) + 1:]
+            keys.add("tools." + tool + (".description" if field == "description" else ".parameters." + field))
+        if context == "CoreToolEnglishDescriptions." + tool:
+            keys.add("tools." + tool + ".description")
+    for tool, method in OVERRIDE_METHODS.items():
+        if context.startswith(method + "Descriptions."):
+            keys.add("tools." + tool + ".parameters." + context.split(".", 1)[1])
+        if context.startswith("CommonDescriptions."):
+            keys.add("tools." + tool + ".parameters." + context.split(".", 1)[1])
+    return keys
+
+
+def verify_metadata_po_mappings(mod: Path, catalogs: dict[str, dict[str, str]],
+                                effective: dict[str, str], references: list[dict]) -> tuple[int, int]:
+    # Reuse the existing strict singular-record parser. It rejects duplicate
+    # contexts, plural/obsolete entries and unfamiliar syntax rather than
+    # silently accepting text it cannot validate.
+    from verify_operation_file_localization import read_po
+
+    names = ("onimcp.pot", "en-us.po", "ja-jp.po", "zh-hant.po")
+    sources = {name: read_po(mod / "Localization/po" / name) for name in names}
+    template = sources["onimcp.pot"]
+    for name, records in sources.items():
+        require(records.keys() == template.keys(), "PO contexts differ: " + name)
+    hant_header = sources["zh-hant.po"][""]["msgstr"]
+    languages = [line.split(":", 1)[1].strip() for line in hant_header.splitlines() if line.startswith("Language:")]
+    require(languages in (["zh_Hant"], ["zh-Hant"]), "Provisional Hant PO header must remain distinct from runtime zh-Hans")
+
+    mappings, context_keys = {}, {}
+    for context, record in template.items():
+        primary, aliases = po_runtime_keys(record, context, catalogs["en"])
+        context_keys[context] = (primary, aliases)
+        for key in ([primary] if primary else []) + aliases:
+            require(key not in mappings, "Duplicate PO runtime key across contexts: " + key)
+            mappings[key] = context
+        for alias in aliases:
+            require(alias in effective, "PO alias is not public metadata: " + alias)
+
+    selected = {mappings[key] for key in effective if key in mappings}
+    for reference in references:
+        key = reference["key"]
+        require(key in mappings, "PO source reference has no mapping: " + key)
+        selected.add(mappings[key])
+        for canonical in source_metadata_keys(reference["context"]):
+            # Ignore constructor prose that a later Core override replaces.
+            if canonical in effective and effective[canonical] == catalogs["en"][key]:
+                require(canonical in mappings, "PO effective source metadata has no mapping: " + canonical)
+                selected.add(mappings[canonical])
+
+    alias_count = 0
+    hans_prefix = "#. Runtime zh-Hans msgstr: "
+    for context in sorted(selected):
+        primary, aliases = context_keys[context]
+        require(primary is not None, "PO selected context has no primary key: " + context)
+        keys = [primary] + aliases
+        alias_count += len(aliases)
+        for language in LOCALES:
+            for key in keys:
+                require(key in catalogs[language], "PO runtime key missing: " + key + "/" + language)
+                require(catalogs[language][key] == catalogs[language][primary],
+                        "PO runtime alias mismatch: " + key + "/" + language)
+        english = catalogs["en"][primary]
+        require(template[context]["msgstr"] == "", "POT translation must be empty: " + context)
+        for name, records in sources.items():
+            record = records[context]
+            require(po_runtime_keys(record, context, catalogs["en"]) == (primary, aliases), "PO runtime mapping comments differ: " + name + "/" + context)
+            require(record["msgid"] == english, "PO English source mismatch: " + name + "/" + context)
+            if name != "onimcp.pot":
+                require(bool(record["msgstr"]), "PO selected translation missing: " + name + "/" + context)
+                require(Counter(PLACEHOLDER.findall(record["msgstr"])) == Counter(PLACEHOLDER.findall(english)), "PO placeholder mismatch: " + name + "/" + context)
+            markers = [comment[len(hans_prefix):] for comment in record["comments"] if comment.startswith(hans_prefix)]
+            # Namespaced migrated entries carry their separate Hans source in
+            # comments. Legacy runtime-key contexts keep their existing path;
+            # their aliases still compare directly in all runtime languages.
+            require(len(markers) <= 1, "Duplicate PO separate zh-Hans source marker: " + name + "/" + context)
+            if context.startswith("OniMcp.MCP."):
+                require(len(markers) == 1, "PO separate zh-Hans source marker missing: " + name + "/" + context)
+            if markers:
+                require(json.loads(markers[0]) == catalogs["zh-Hans"][primary], "PO separate zh-Hans source mismatch: " + name + "/" + context)
+        require(sources["en-us.po"][context]["msgstr"] == english, "PO English runtime mapping mismatch: " + context)
+        require(sources["ja-jp.po"][context]["msgstr"] == catalogs["ja"][primary], "PO Japanese runtime mapping mismatch: " + context)
+    return len(selected), alias_count
+
+
 def verify(root: Path, tools_list: Path | None = None) -> str:
     mod = root / "mods/OniMcp"
     directory = mod / "Localization/Catalogs"
@@ -629,6 +751,8 @@ def verify(root: Path, tools_list: Path | None = None) -> str:
             for token in code_tokens:
                 require(token in merged[locale][key], f"Code token {token!r} missing: tools.{locale}:{key}")
 
+    po_contexts, po_aliases = verify_metadata_po_mappings(mod, merged, effective, audit.get("references", []))
+
     project = ET.parse(mod / "OniMcp.csproj").getroot()
     declarations = [item for item in project.iter() if item.tag.rsplit("}", 1)[-1] == "EmbeddedResource"]
     embedded = set()
@@ -641,7 +765,7 @@ def verify(root: Path, tools_list: Path | None = None) -> str:
         require(item.attrib.get("LogicalName") == expected_name, "Unexpected localization resource LogicalName")
         embedded.update(path.resolve() for path in mod.glob(pattern) if path.is_file())
     require(all(path.resolve() in embedded for path in files), "Some catalogs are not embedded by OniMcp.csproj")
-    return f"Localization source contracts passed: {len(groups)} catalog groups, {len(effective)} public metadata keys, {len(files)} embedded catalogs."
+    return f"Localization source contracts passed: {len(groups)} catalog groups, {len(effective)} public metadata keys, {len(files)} embedded catalogs, {po_contexts} migrated PO contexts, {po_aliases} runtime aliases."
 
 
 def main() -> int:

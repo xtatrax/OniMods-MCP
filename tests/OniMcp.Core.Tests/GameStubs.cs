@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OniMcp.Core;
 
-// Only game tool factories and the Unity overlay are replaced. Tests execute the
-// production registries, route tables, middleware and JSON-RPC serialization.
+// Most game tool factories and the Unity overlay are replaced. Navigation and
+// English metadata overrides are linked from production; native camera execution
+// is poisoned. Registries, route tables, middleware and serialization are real.
 namespace OniMcp.Tools
 {
     internal static class GameStubs
@@ -115,10 +116,17 @@ namespace OniMcp.Tools
         internal static void NotifyMissingDescription(string toolName) { }
     }
 
-    internal static class CoreToolEnglishDescriptions { internal static McpTool Apply(McpTool tool) => tool; }
     internal static class ServerControlEntryTools { internal static McpTool ControlServer() => GameStubs.Tool("server_control"); }
     internal static class WorldEditorTools { internal static McpTool ControlWorldEditor() => GameStubs.Tool("world_editor"); }
-    internal static class NavigationControlTools { internal static McpTool ControlNavigation() => GameStubs.Tool("navigation_control"); }
+    internal static class CameraTools
+    {
+        internal static int NativeBoundaryCalls;
+        internal static McpTool ControlCamera()
+        {
+            NativeBoundaryCalls++;
+            throw new InvalidOperationException("Metadata-only host invoked native camera execution.");
+        }
+    }
     internal static class BuildingControlTools { internal static McpTool ControlBuilding() => GameStubs.Tool("building_control"); }
     internal static class GameControlEntryTools { internal static McpTool ControlGame() => GameStubs.Tool("game_control"); }
     internal static class OrdersControlEntryTools { internal static McpTool ControlOrders() => GameStubs.Tool("orders_control"); }

@@ -10,8 +10,11 @@
     <LangVersion>7.3</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <NavigationControlSource Condition="'$(NavigationControlSource)' == ''">../../mods/OniMcp/Tools/Entry/NavigationControlTools.cs</NavigationControlSource>
+    <CoreEnglishDescriptionsSource Condition="'$(CoreEnglishDescriptionsSource)' == ''">../../mods/OniMcp/Tools/Entry/CoreToolEnglishDescriptions.cs</CoreEnglishDescriptionsSource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="obj/**/*.cs;bin/**/*.cs" />
     <Compile Include="../../mods/OniMcp/Localization/McpLocalization.cs" Link="Source/McpLocalization.cs" />
     <Compile Include="../../mods/OniMcp/Config/PrintingPodSelectionPolicy.cs" Link="Source/PrintingPodSelectionPolicy.cs" />
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
@@ -19,6 +22,8 @@
     <Compile Include="../../mods/OniMcp/Core/*.cs" Link="Production/Core/%(Filename)%(Extension)" />
     <Compile Include="../../mods/OniMcp/Support/McpJsonUtil.cs" Link="Production/McpJsonUtil.cs" />
     <Compile Include="../../mods/OniMcp/Tools/Core/*.cs" Link="Production/Tools/%(Filename)%(Extension)" />
+    <Compile Include="$(NavigationControlSource)" Link="Production/NavigationControlTools.cs" />
+    <Compile Include="$(CoreEnglishDescriptionsSource)" Link="Production/CoreToolEnglishDescriptions.cs" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

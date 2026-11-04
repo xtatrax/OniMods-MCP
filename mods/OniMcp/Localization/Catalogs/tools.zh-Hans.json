@@ -58,7 +58,7 @@
   "tools.game_control.parameters.worldId": "目标世界 ID。",
   "tools.game_control.parameters.allWorlds": "domain=state 是否应用/读取全部已加载世界，默认 false",
   "tools.game_control.parameters.type": "domain=save list/load index 查找范围：local、cloud 或 both，默认 both",
-  "tools.game_control.parameters.limit": "读取最多返回条目。save/status默认20，最多100。",
+  "tools.game_control.parameters.limit": "返回或处理的最大条目数。save/status默认20，最多100。",
   "tools.game_control.parameters.name": "存档名称，或 ui/feedback speech_bubble 的复制人名称。",
   "tools.game_control.parameters.overwrite": "覆盖现有存档文件。",
   "tools.game_control.parameters.updateActiveSave": "domain=save action=save 成功后是否设为当前 active save，默认 true",
@@ -86,7 +86,7 @@
   "tools.game_control.parameters.prefabId": "sandbox 实体生成操作使用的 prefab ID。",
   "tools.game_control.parameters.storyId": "故事特性 ID。",
   "tools.game_control.parameters.id": "目标对象ID，或ui/feedback speech_bubble的复制人实例ID。uiDomain=selection的status/select/close/scroll_up/scroll_down必须使用非零且精确的canonical Int32复制人ID；拒绝其他选择方式。",
-  "tools.game_control.parameters.query": "save/status：在数量限制之前筛选存档标签id/title。sandbox/read/list_story_traits：搜索文本。",
+  "tools.game_control.parameters.query": "搜索或筛选文本。save/status在数量限制之前筛选存档标签id/title；sandbox/read/list_story_traits使用搜索文本。",
   "tools.game_control.parameters.massKg": "质量，单位为 kg。",
   "tools.game_control.parameters.temperatureK": "domain=sandbox 温度 K，按 action 解释",
   "tools.game_control.parameters.disease": "domain=sandbox 病菌 ID，默认无",
@@ -279,5 +279,13 @@
   "tools.world_editor.parameters.autoConnectPower": "自动为耗电建筑布线，默认true。穿过天然地形需allowUtilityTerrainDig=true。设为false时只建造建筑本体。",
   "tools.game_control.parameters.afterSequence": "action=trace时，返回此非负整数sequence之后的记录。必须提供先前trace响应中的traceEpoch。",
   "tools.game_control.parameters.traceEpoch": "action=trace返回的观测进程不透明标识。与afterSequence一起使用；不同进程的标识会被拒绝。",
-  "tools.navigation_control.parameters.requestId": "截图受理时返回的 requestId；screenshot_status 必填。"
+  "tools.navigation_control.parameters.requestId": "截图受理时返回的 requestId；screenshot_status 必填。",
+  "tools.building_control.parameters.storageScope": "仅限storage action=detail：primary（默认）读取第一个Storage；all_components读取同一GameObject上的各个Storage。不包含子对象的Storage和其他IStorage实现。顶层容量和质量始终为primary的摘要；all_components仅在各component内返回物品。",
+  "tools.orders_control.parameters.direction": "cut_conduits的单个单元格边：up/down/left/right",
+  "tools.server_control.parameters.includePatches": "仅diagnostics action=status：增加只读的Harmony注册审计，目标为此MCP程序集的补丁方法。默认为false。返回重复分组及最多128个分组，不改变注册。",
+  "tools.world_editor.parameters.achievementDetail": "殖民地/Steam成就：brief（默认）或包含说明和需求类型的full；不会重新评估进度。",
+  "tools.world_editor.parameters.achievementStatus": "按成就状态筛选；Steam支持all/completed/incomplete/unknown，不支持failed。计数覆盖整个目录。",
+  "tools.world_editor.parameters.foodDetail": "食物读取输出：summary（默认）、types、full。",
+  "tools.world_editor.parameters.includeAchievementUi": "显式设置includeAchievementUi=true时，仅对返回的成就ID附加读取已打开的殖民地概要/成就组件中缓存的原始状态和工具提示文本。默认false；不会打开或刷新UI，也不会验证所显示的概要是否属于当前殖民地。",
+  "tools.world_editor.parameters.specDetail": "只读预制体规格：brief（默认）或full；在buildings/specs.oni或resources/specs.oni中需要prefabId或query。"
 }

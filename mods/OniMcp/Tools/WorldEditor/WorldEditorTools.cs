@@ -378,8 +378,8 @@ namespace OniMcp.Tools
                 ["includeAchievementUi"] = new McpToolParameter { Type = "boolean", Description = McpLocalization.Get("achievement_read.include_ui"), Required = false },
                 ["achievementDetail"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("achievement_read.detail"), Required = false, EnumValues = new List<string> { "brief", "full" } },
                 ["achievementStatus"] = new McpToolParameter { Type = "string", Description = McpLocalization.Get("achievement_read.filter"), Required = false, EnumValues = new List<string> { "all", "completed", "incomplete", "failed", "unknown" } },
-                ["specDetail"] = new McpToolParameter { Type = "string", Description = "Readonly prefab specs: brief (default) or full; requires prefabId or query at buildings/specs.oni or resources/specs.oni.", Required = false, EnumValues = new List<string> { "brief", "full" } },
-                ["foodDetail"] = new McpToolParameter { Type = "string", Description = "Food read output: summary (default), types, full.", Required = false, EnumValues = new List<string> { "summary", "types", "full" } },
+                ["specDetail"] = new McpToolParameter { Type = "string", Description = McpLocalization.GetForLanguage("en", "tools.world_editor.parameters.specDetail"), Required = false, EnumValues = new List<string> { "brief", "full" } },
+                ["foodDetail"] = new McpToolParameter { Type = "string", Description = McpLocalization.GetForLanguage("en", "tools.world_editor.parameters.foodDetail"), Required = false, EnumValues = new List<string> { "summary", "types", "full" } },
                 ["visibleOnly"] = new McpToolParameter { Type = "boolean", Description = "Forwarded sandbox map visibility filter.", Required = false },
                 ["matchIndex"] = new McpToolParameter { Type = "integer", Description = "Forwarded sandbox map match index.", Required = false },
                 ["payload"] = new McpToolParameter { Type = "object", Description = "Advanced routing payload merged into generated child tool calls.", Required = false }

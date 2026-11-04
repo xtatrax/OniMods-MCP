@@ -58,7 +58,7 @@
   "tools.game_control.parameters.worldId": "対象ワールドの ID。",
   "tools.game_control.parameters.allWorlds": "domain=state で読み込み済みの全ワールドに適用するか、全ワールドを読み取るか。既定は false",
   "tools.game_control.parameters.type": "domain=save の list/load index の検索範囲: local、cloud、both。既定は both",
-  "tools.game_control.parameters.limit": "読取の最大返却件数。save/statusは既定20、最大100。",
+  "tools.game_control.parameters.limit": "返却または処理する項目数の上限。save/statusは既定20、最大100。",
   "tools.game_control.parameters.name": "セーブ名、または ui/feedback speech_bubble の複製人間名。",
   "tools.game_control.parameters.overwrite": "既存のセーブファイルを上書きする。",
   "tools.game_control.parameters.updateActiveSave": "domain=save action=save の成功後、現在の active save に設定するか。既定は true",
@@ -86,7 +86,7 @@
   "tools.game_control.parameters.prefabId": "sandbox のエンティティ生成操作に使う prefab ID。",
   "tools.game_control.parameters.storyId": "物語特性の ID。",
   "tools.game_control.parameters.id": "対象オブジェクトのID、またはui/feedback speech_bubbleの複製人間のインスタンスID。uiDomain=selectionのstatus/select/close/scroll_up/scroll_downには、0以外の正確なcanonical Int32複製人間IDが必須。他の選択方法は拒否する。",
-  "tools.game_control.parameters.query": "save/status: 件数制限の前に保存ラベルのid／titleを絞り込みます。sandbox/read/list_story_traits: 検索語。",
+  "tools.game_control.parameters.query": "検索または絞り込みの語句。save/statusでは件数制限の前に保存ラベルのid／titleを絞り込みます。sandbox/read/list_story_traitsでは検索語を指定します。",
   "tools.game_control.parameters.massKg": "質量（kg）。",
   "tools.game_control.parameters.temperatureK": "domain=sandbox の温度 K。action に応じて解釈する",
   "tools.game_control.parameters.disease": "domain=sandbox の病原菌 ID。既定はなし",
@@ -279,5 +279,13 @@
   "tools.world_editor.parameters.autoConnectPower": "電力を消費する設備を自動配線する。既定true。自然地形を通る経路にはallowUtilityTerrainDig=trueが必要。falseで本体だけ建設する。",
   "tools.game_control.parameters.afterSequence": "action=traceで、この非負整数sequenceより後を取得する。過去のtrace応答のtraceEpochが必要。",
   "tools.game_control.parameters.traceEpoch": "action=traceが返す、観測プロセスを区別する不透明な値。afterSequenceと併用し、別プロセスの値は拒否する。",
-  "tools.navigation_control.parameters.requestId": "撮影の受理時に返された requestId。screenshot_status で必須。"
+  "tools.navigation_control.parameters.requestId": "撮影の受理時に返された requestId。screenshot_status で必須。",
+  "tools.building_control.parameters.storageScope": "storage action=detailのみ。primary（既定）は先頭のStorage、all_componentsは同じGameObject上の各Storageを読み取ります。子のStorageと他のIStorage実装は対象外です。先頭の容量・質量は常にprimaryの要約で、all_componentsの内容物は各component内にだけ返します。",
+  "tools.orders_control.parameters.direction": "cut_conduitsの単一セルの辺: up/down/left/right",
+  "tools.server_control.parameters.includePatches": "diagnostics action=statusのみ。このMCP Assembly由来のパッチメソッドを対象に、Harmony登録を読み取る監査を追加します。既定はfalse。登録を変更せず、重複群と最大128群の詳細を返します。",
+  "tools.world_editor.parameters.achievementDetail": "コロニー／Steam実績: brief（既定）、または説明と要求型を含むfull。進捗の再評価は行いません。",
+  "tools.world_editor.parameters.achievementStatus": "実績の状態で絞り込みます。Steamはall/completed/incomplete/unknownに対応し、failedには対応しません。件数は全カタログを対象とします。",
+  "tools.world_editor.parameters.foodDetail": "食料の読取出力: summary（既定値）、types、full。",
+  "tools.world_editor.parameters.includeAchievementUi": "includeAchievementUi=trueで、既に開いているコロニー概要／実績ウィジェットのキャッシュ済み生状態とツールチップ文を、返却対象ID分だけ追加読取します。既定false。UIを開く／更新する操作はせず、表示中の概要が現在のコロニーのものかは検証しません。",
+  "tools.world_editor.parameters.specDetail": "読取専用のPrefab仕様。brief（既定値）またはfull。buildings/specs.oniまたはresources/specs.oniでprefabIdまたはqueryが必要です。"
 }

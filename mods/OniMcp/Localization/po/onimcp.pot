@@ -728,6 +728,7 @@ msgid "Compatibility entry point. Prefer building_control domain=storage action=
 msgstr ""
 
 #. Runtime JSON key: patch_registration.include_patches_description
+#. Runtime JSON alias key: tools.server_control.parameters.includePatches
 #. Runtime zh-Hans msgstr: "仅diagnostics action=status：增加只读的Harmony注册审计，目标为此MCP程序集的补丁方法。默认为false。返回重复分组及最多128个分组，不改变注册。"
 msgctxt "OniMcp.MCP.PATCH_REGISTRATION.INCLUDE_PATCHES_DESCRIPTION"
 msgid "diagnostics action=status only: include a read-only audit of Harmony registrations whose patch methods belong to this MCP assembly. Defaults to false. Reports duplicate groups and up to 128 groups without changing registrations."
@@ -740,6 +741,7 @@ msgid "includePatches must be a JSON boolean."
 msgstr ""
 
 #. Runtime JSON key: storage_components.scope_description
+#. Runtime JSON alias key: tools.building_control.parameters.storageScope
 #. Runtime zh-Hans msgstr: "仅限storage action=detail：primary（默认）读取第一个Storage；all_components读取同一GameObject上的各个Storage。不包含子对象的Storage和其他IStorage实现。顶层容量和质量始终为primary的摘要；all_components仅在各component内返回物品。"
 msgctxt "OniMcp.MCP.STORAGE_COMPONENTS.SCOPE_DESCRIPTION"
 msgid "storage action=detail only: primary (default) reads the first Storage; all_components reads each Storage on the same GameObject. Child storages and other IStorage providers are excluded. Top capacity and mass always describe the primary Storage; all_components returns items only inside each component."
@@ -1299,15 +1301,15 @@ msgid "action must be list, status, save, load or quit."
 msgstr ""
 
 #. Runtime JSON key: tools.game_control.parameters.limit
-#. Runtime zh-Hans msgstr: "读取最多返回条目。save/status默认20，最多100。"
+#. Runtime zh-Hans msgstr: "返回或处理的最大条目数。save/status默认20，最多100。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.LIMIT"
-msgid "Maximum returned rows for reads. save/status defaults to 20, maximum 100."
+msgid "Maximum number of items to return or process. save/status defaults to 20, maximum 100."
 msgstr ""
 
 #. Runtime JSON key: tools.game_control.parameters.query
-#. Runtime zh-Hans msgstr: "save/status：在数量限制之前筛选存档标签id/title。sandbox/read/list_story_traits：搜索文本。"
+#. Runtime zh-Hans msgstr: "搜索或筛选文本。save/status在数量限制之前筛选存档标签id/title；sandbox/read/list_story_traits使用搜索文本。"
 msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.QUERY"
-msgid "save/status: filter saved label id/title before limit. sandbox/read/list_story_traits: search text."
+msgid "Search or filter text. save/status filters saved label id/title before limit; sandbox/read/list_story_traits uses search text."
 msgstr ""
 
 #. Runtime JSON key: save_status.current_context
@@ -1335,18 +1337,21 @@ msgid "The PLib settings storage adapter is unavailable. The in-game options are
 msgstr ""
 
 #. Runtime JSON key: achievement_read.include_ui
+#. Runtime JSON alias key: tools.world_editor.parameters.includeAchievementUi
 #. Runtime zh-Hans msgstr: "显式设置includeAchievementUi=true时，仅对返回的成就ID附加读取已打开的殖民地概要/成就组件中缓存的原始状态和工具提示文本。默认false；不会打开或刷新UI，也不会验证所显示的概要是否属于当前殖民地。"
 msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.INCLUDE_UI"
 msgid "Read-only opt-in: includeAchievementUi=true reads cached raw state and tooltip text from already-open summary/achievement widgets for returned IDs only. Defaults to false; does not open or refresh UI, and does not verify that the summary is for the current colony."
 msgstr ""
 
 #. Runtime JSON key: achievement_read.detail
+#. Runtime JSON alias key: tools.world_editor.parameters.achievementDetail
 #. Runtime zh-Hans msgstr: "殖民地/Steam成就：brief（默认）或包含说明和需求类型的full；不会重新评估进度。"
 msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.DETAIL"
 msgid "Colony/Steam achievements: brief (default) or full with description and requirement types; no progress reevaluation."
 msgstr ""
 
 #. Runtime JSON key: achievement_read.filter
+#. Runtime JSON alias key: tools.world_editor.parameters.achievementStatus
 #. Runtime zh-Hans msgstr: "按成就状态筛选；Steam支持all/completed/incomplete/unknown，不支持failed。计数覆盖整个目录。"
 msgctxt "OniMcp.MCP.ACHIEVEMENT_READ.FILTER"
 msgid "Filter achievement state; Steam supports all/completed/incomplete/unknown, not failed. Counts cover the full catalog."
@@ -2172,4 +2177,22 @@ msgstr ""
 #. Runtime zh-Hans msgstr: "schedule操作发送后的原生UI所有状态未确认。结果保持未知；未重试。"
 msgctxt "OniMcp.MCP.UI_ACTION.SCHEDULE_PARTIAL"
 msgid "The schedule dispatch did not finish with a confirmed native owner state. Its outcome is unknown; no retry was attempted."
+msgstr ""
+
+#. Runtime JSON key: tools.orders_control.parameters.direction
+#. Runtime zh-Hans msgstr: "cut_conduits的单个单元格边：up/down/left/right"
+msgctxt "OniMcp.MCP.TOOLS.ORDERS_CONTROL.PARAMETERS.DIRECTION"
+msgid "cut_conduits single-cell edge: up/down/left/right"
+msgstr ""
+
+#. Runtime JSON key: tools.world_editor.parameters.specDetail
+#. Runtime zh-Hans msgstr: "只读预制体规格：brief（默认）或full；在buildings/specs.oni或resources/specs.oni中需要prefabId或query。"
+msgctxt "OniMcp.MCP.TOOLS.WORLD_EDITOR.PARAMETERS.SPECDETAIL"
+msgid "Readonly prefab specs: brief (default) or full; requires prefabId or query at buildings/specs.oni or resources/specs.oni."
+msgstr ""
+
+#. Runtime JSON key: tools.world_editor.parameters.foodDetail
+#. Runtime zh-Hans msgstr: "食物读取输出：summary（默认）、types、full。"
+msgctxt "OniMcp.MCP.TOOLS.WORLD_EDITOR.PARAMETERS.FOODDETAIL"
+msgid "Food read output: summary (default), types, full."
 msgstr ""

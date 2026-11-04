@@ -23,13 +23,14 @@ internal static class Program
         Run("tool cache respects visibility after all-tools access", CacheVisibility);
         Run("metadata list callers cannot corrupt cached tool count", MetadataIsolation);
         Run("language changes refresh detached registry metadata", MetadataLanguages);
-        Run("all static resources dispatch to their registered operation", StaticResources);
+        Run("public factory and shared canonical descriptions survive language changes", PublicMetadataLocalizationRegression.Run);
+        Run("all static resources dispatch to their registered operation", () => WithNavigationResourceFixture(StaticResources));
         Run("dynamic resource routes preserve their read action", DynamicResources);
-        Run("resource templates reject query operation overrides", TemplateConstraints);
+        Run("resource templates reject query operation overrides", () => WithNavigationResourceFixture(TemplateConstraints));
         Run("resource errors return valid JSON content", ResourceErrors);
         Run("batch array item metadata survives projection and detached snapshots", CoreBatchSchemaRegression.Run);
         Run("read, write and alias dispatch preserve business and guidance blocks", ToolResultGuidanceBoundary);
-        Console.WriteLine(failures == 0 ? "All 15 core regression groups passed." : failures + " regression groups failed.");
+        Console.WriteLine(failures == 0 ? "All 16 core regression groups passed." : failures + " regression groups failed.");
         return failures == 0 ? 0 : 1;
     }
 
@@ -56,16 +57,30 @@ internal static class Program
 
     private static void InitializationRetry()
     {
-        GameStubs.FailNextFactory = true;
+        var preferred = McpLocalization.LanguageProvider;
+        var game = McpLocalization.GameLanguageProvider;
         try
         {
+            // Construct the real navigation metadata in Japanese, then request
+            // all three languages later without rebuilding the registry.
+            McpLocalization.LanguageProvider = () => "ja";
+            McpLocalization.GameLanguageProvider = () => "en";
+            GameStubs.FailNextFactory = true;
+            try
+            {
+                OniToolRegistry.Initialize();
+                throw new Exception("Expected a factory failure.");
+            }
+            catch (InvalidOperationException) { }
             OniToolRegistry.Initialize();
-            throw new Exception("Expected a factory failure.");
+            Require(OniToolRegistry.GetTools().Count == 7, "Retry left the public registry incomplete.");
+            Require(OniToolRegistry.TryGetOperation("read_control", out _), "Retry did not initialize internal operations.");
         }
-        catch (InvalidOperationException) { }
-        OniToolRegistry.Initialize();
-        Require(OniToolRegistry.GetTools().Count == 7, "Retry left the public registry incomplete.");
-        Require(OniToolRegistry.TryGetOperation("read_control", out _), "Retry did not initialize internal operations.");
+        finally
+        {
+            McpLocalization.LanguageProvider = preferred;
+            McpLocalization.GameLanguageProvider = game;
+        }
     }
 
     private static void MetadataLanguages()
@@ -327,6 +342,25 @@ internal static class Program
         var resource = OniResourceRegistry.ReadResource(uri);
         Require(resource?.Contents?.Count == 1, "Missing resource content: " + uri);
         return JObject.Parse(resource.Contents[0].Text);
+    }
+
+    private static void WithNavigationResourceFixture(Action routes)
+    {
+        // Preserve the pre-existing resource-routing fixture: this group proves
+        // operation/argument dispatch, while the metadata group uses the real
+        // navigation factory without executing its native camera handler.
+        McpTool navigation;
+        Require(OniToolRegistry.TryGetTool("navigation_control", out navigation), "Navigation fixture is unavailable.");
+        var originalHandler = navigation.Handler;
+        try
+        {
+            navigation.Handler = GameStubs.Tool("navigation_control").Handler;
+            routes();
+        }
+        finally
+        {
+            navigation.Handler = originalHandler;
+        }
     }
 
     private static void StaticResources()

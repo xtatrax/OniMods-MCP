@@ -58,7 +58,7 @@
   "tools.game_control.parameters.worldId": "Target world id.",
   "tools.game_control.parameters.allWorlds": "For domain=state, apply to or read all loaded worlds. Defaults to false.",
   "tools.game_control.parameters.type": "Search scope for domain=save list/load index: local, cloud, or both. Defaults to both.",
-  "tools.game_control.parameters.limit": "Maximum returned rows for reads. save/status defaults to 20, maximum 100.",
+  "tools.game_control.parameters.limit": "Maximum number of items to return or process. save/status defaults to 20, maximum 100.",
   "tools.game_control.parameters.name": "Save name, or duplicant name for ui/feedback speech_bubble.",
   "tools.game_control.parameters.overwrite": "Overwrite an existing save file.",
   "tools.game_control.parameters.updateActiveSave": "After a successful domain=save action=save, set this as the current active save. Defaults to true.",
@@ -86,7 +86,7 @@
   "tools.game_control.parameters.prefabId": "Prefab id used by sandbox entity spawn actions.",
   "tools.game_control.parameters.storyId": "Story trait id.",
   "tools.game_control.parameters.id": "Target object id, or duplicant instance id for ui/feedback speech_bubble. uiDomain=selection requires the exact nonzero canonical Int32 duplicant id for status/select/close/scroll_up/scroll_down; alternate selectors are rejected.",
-  "tools.game_control.parameters.query": "save/status: filter saved label id/title before limit. sandbox/read/list_story_traits: search text.",
+  "tools.game_control.parameters.query": "Search or filter text. save/status filters saved label id/title before limit; sandbox/read/list_story_traits uses search text.",
   "tools.game_control.parameters.massKg": "Mass in kilograms.",
   "tools.game_control.parameters.temperatureK": "Temperature in K for domain=sandbox; interpreted according to action.",
   "tools.game_control.parameters.disease": "Disease ID for domain=sandbox. Defaults to none.",
@@ -279,5 +279,13 @@
   "tools.world_editor.parameters.autoConnectPower": "Automatically wire powered buildings; default true. Natural terrain routes require allowUtilityTerrainDig=true. Set false to build without automatic wiring.",
   "tools.game_control.parameters.afterSequence": "For action=trace, return records after this nonnegative integer sequence. Requires the traceEpoch from a prior trace response.",
   "tools.game_control.parameters.traceEpoch": "Opaque trace-process epoch returned by action=trace. Required with afterSequence; a different process epoch is rejected.",
-  "tools.navigation_control.parameters.requestId": "Screenshot request ID returned by capture acceptance; required for screenshot_status."
+  "tools.navigation_control.parameters.requestId": "Screenshot request ID returned by capture acceptance; required for screenshot_status.",
+  "tools.building_control.parameters.storageScope": "storage action=detail only: primary (default) reads the first Storage; all_components reads each Storage on the same GameObject. Child storages and other IStorage providers are excluded. Top capacity and mass always describe the primary Storage; all_components returns items only inside each component.",
+  "tools.orders_control.parameters.direction": "cut_conduits single-cell edge: up/down/left/right",
+  "tools.server_control.parameters.includePatches": "diagnostics action=status only: include a read-only audit of Harmony registrations whose patch methods belong to this MCP assembly. Defaults to false. Reports duplicate groups and up to 128 groups without changing registrations.",
+  "tools.world_editor.parameters.achievementDetail": "Colony/Steam achievements: brief (default) or full with description and requirement types; no progress reevaluation.",
+  "tools.world_editor.parameters.achievementStatus": "Filter achievement state; Steam supports all/completed/incomplete/unknown, not failed. Counts cover the full catalog.",
+  "tools.world_editor.parameters.foodDetail": "Food read output: summary (default), types, full.",
+  "tools.world_editor.parameters.includeAchievementUi": "Read-only opt-in: includeAchievementUi=true reads cached raw state and tooltip text from already-open summary/achievement widgets for returned IDs only. Defaults to false; does not open or refresh UI, and does not verify that the summary is for the current colony.",
+  "tools.world_editor.parameters.specDetail": "Readonly prefab specs: brief (default) or full; requires prefabId or query at buildings/specs.oni or resources/specs.oni."
 }

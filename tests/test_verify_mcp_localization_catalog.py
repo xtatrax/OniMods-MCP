@@ -18,6 +18,7 @@ from unittest.mock import patch
 import warnings
 
 sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 args_parser = argparse.ArgumentParser(add_help=False)
 args_parser.add_argument("--checker", type=Path, default=Path(__file__).resolve().parents[1] / "scripts/verify_mcp_localization_catalog.py")
 args, test_args = args_parser.parse_known_args()
@@ -170,6 +171,35 @@ class CheckerRegression(unittest.TestCase):
             english.append('private static Dictionary<string, string> ' + method + 'Descriptions() { var d = CommonDescriptions(); d["value"] = ' + expression + '; return d; }')
         self.write("Tools/Entry/CoreToolEnglishDescriptions.cs", "\n".join(english))
         self.write("OniMcp.csproj", '<Project><ItemGroup><EmbeddedResource Include="Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" /></ItemGroup></Project>')
+        self.po_fixture()
+
+    def po_fixture(self, aliases=None):
+        aliases = aliases or {}
+        catalogs = {}
+        for language in C.LOCALES:
+            catalogs[language] = {}
+            for path in self.catalogs.glob("*." + language + ".json"):
+                catalogs[language].update(json.loads(path.read_text()))
+        for name, language in (("onimcp.pot", None), ("en-us.po", "en"), ("ja-jp.po", "ja"), ("zh-hant.po", "zh-Hant")):
+            header = "Language: " + ("zh_Hant" if language == "zh-Hant" else language or "") + "\n"
+            blocks = ['msgid ""\nmsgstr ' + json.dumps(header)]
+            for key, english in sorted(catalogs["en"].items()):
+                if key in aliases:
+                    continue
+                comments = ["#. Runtime JSON key: " + key]
+                comments += ["#. Runtime JSON alias key: " + alias for alias, source in sorted(aliases.items()) if source == key]
+                comments += ["#. Runtime zh-Hans msgstr: " + json.dumps(catalogs["zh-Hans"][key])]
+                translated = "" if language is None else "繁體 " + english if language == "zh-Hant" else catalogs[language][key]
+                fields = ['msgctxt ' + json.dumps("OniMcp.MCP." + key.upper()), 'msgid ' + json.dumps(english), 'msgstr ' + json.dumps(translated, ensure_ascii=False)]
+                blocks.append("\n".join(comments + fields))
+            self.write("Localization/po/" + name, "\n\n".join(blocks) + "\n")
+
+    def aliased_fixture(self):
+        self.full_fixture()
+        self.group("po_alias", {"fixture.shared": "Value world_editor"})
+        source = self.mod / C.TOOL_SOURCES["world_editor"]
+        source.write_text(source.read_text().replace('Description = "Value world_editor"', 'Description = McpLocalization.Get("fixture.shared")'))
+        self.po_fixture({"tools.world_editor.parameters.value": "fixture.shared"})
 
     def snapshot(self, metadata):
         result = {"tools": []}
@@ -273,6 +303,102 @@ class CheckerRegression(unittest.TestCase):
                 self.group("orphan", {key: "Unexpected metadata prose."})
                 with self.assertRaisesRegex(ValueError, message):
                     C.verify(self.root)
+
+
+    def test_20_alias_runtime_drift_is_rejected_by_existing_verify_api(self):
+        # OLD_FULL_SCRIPT accepts this one-asset mutation. The new guard must
+        # reject it semantically, without requiring a new test-only API.
+        self.aliased_fixture()
+        self.assertIn("source contracts passed", C.verify(self.root))
+        path = self.catalogs / "feature.ja.json"
+        entries = json.loads(path.read_text())
+        entries["tools.world_editor.parameters.value"] = "ja Changed world_editor"
+        path.write_text(json.dumps(entries))
+        with self.assertRaisesRegex(ValueError, "PO runtime alias mismatch.*ja"):
+            C.verify(self.root)
+
+    def test_21_po_mapping_body_and_separate_hans_source_are_checked(self):
+        for target, old, new, message in (
+            ("ja-jp.po", 'msgstr "ja Value game_control"', 'msgstr "ja Changed game_control"', "PO Japanese runtime mapping mismatch"),
+            ("onimcp.pot", '#. Runtime zh-Hans msgstr: "zh-Hans Value game_control"', '#. Runtime zh-Hans msgstr: "Changed Hans game_control"', "PO separate zh-Hans source mismatch"),
+            ("zh-hant.po", "繁體 Value game_control", "繁體 Value game_control {0}", "PO placeholder mismatch"),
+        ):
+            with self.subTest(target=target):
+                self.full_fixture()
+                path = self.mod / "Localization/po" / target
+                text = path.read_text()
+                self.assertIn(old, text)
+                path.write_text(text.replace(old, new))
+                with self.assertRaisesRegex(ValueError, message):
+                    C.verify(self.root)
+
+    def test_22_alias_comments_and_hant_header_are_not_silently_reinterpreted(self):
+        cases = (
+            ("ja-jp.po", "#. Runtime JSON alias key: tools.world_editor.parameters.value\n", "", "PO runtime mapping comments differ"),
+            ("onimcp.pot", "#. Runtime JSON alias key:", "#. Runtime JSON alias unknown:", "Unknown PO runtime alias syntax"),
+            ("onimcp.pot", "#. Runtime JSON alias key: tools.world_editor.parameters.value", "#. Runtime JSON alias key: tools.world_editor.parameters.typo", "PO alias is not public metadata"),
+            ("zh-hant.po", "zh_Hant", "zh_Hans", "Provisional Hant PO header"),
+        )
+        for target, old, new, message in cases:
+            with self.subTest(target=target, mutation=old):
+                self.aliased_fixture()
+                path = self.mod / "Localization/po" / target
+                text = path.read_text()
+                self.assertIn(old, text)
+                path.write_text(text.replace(old, new))
+                with self.assertRaisesRegex(ValueError, message):
+                    C.verify(self.root)
+
+    def test_23_po_parser_refuses_unsupported_and_duplicate_records(self):
+        for extra, message in (
+            ('msgctxt "unrelated"\nmsgid "one"\nmsgid_plural "many"\nmsgstr[0] "one"\n', "Unsupported PO syntax"),
+            ('msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.DESCRIPTION"\nmsgid "Duplicate"\nmsgstr "Duplicate"\n', "Duplicate PO context"),
+        ):
+            with self.subTest(message=message):
+                self.full_fixture()
+                path = self.mod / "Localization/po/ja-jp.po"
+                path.write_text(path.read_text() + "\n" + extra)
+                with self.assertRaisesRegex(ValueError, message):
+                    C.verify(self.root)
+
+    def test_24_migrated_source_mapping_cannot_disappear_from_all_po_files(self):
+        self.full_fixture()
+        context = 'msgctxt "OniMcp.MCP.TOOLS.GAME_CONTROL.PARAMETERS.VALUE"'
+        for name in ("onimcp.pot", "en-us.po", "ja-jp.po", "zh-hant.po"):
+            path = self.mod / "Localization/po" / name
+            blocks = [block for block in path.read_text().split("\n\n") if context not in block]
+            path.write_text("\n\n".join(blocks))
+        with self.assertRaisesRegex(ValueError, "PO source reference has no mapping"):
+            C.verify(self.root)
+
+
+    def test_25_registered_factory_alias_cannot_disappear_from_all_po_files(self):
+        self.full_fixture()
+        canonical = "tools.building_control.parameters.storageScope"
+        primary = "storage_components.scope_description"
+        self.group("storage", {primary: "Scope: primary or all_components.", canonical: "Scope: primary or all_components."})
+        self.write("Tools/Impl/Build/StorageComponentDetails.cs", 'internal static McpToolParameter StorageScopeParameter() { return new McpToolParameter { Type = "string", Description = McpLocalization.Get("storage_components.scope_description") }; }')
+        source = self.mod / C.TOOL_SOURCES["building_control"]
+        source.write_text(source.read_text().replace('Parameters = new Dictionary<string, McpToolParameter> { ', 'Parameters = new Dictionary<string, McpToolParameter> { ["storageScope"] = StorageTools.StorageScopeParameter(), '))
+        self.po_fixture({canonical: primary})
+        audit = {}
+        C.public_metadata(self.mod, audit=audit)
+        self.assertTrue(any(row["context"] == "building_control.storageScope:StorageScopeParameter" for row in audit["references"]))
+        self.assertIn("source contracts passed", C.verify(self.root))
+        for name in ("onimcp.pot", "en-us.po", "ja-jp.po", "zh-hant.po"):
+            path = self.mod / "Localization/po" / name
+            path.write_text(path.read_text().replace("#. Runtime JSON alias key: " + canonical + "\n", ""))
+        with self.assertRaisesRegex(ValueError, "PO effective source metadata has no mapping.*storageScope"):
+            C.verify(self.root)
+        # Also keep the runtime-drift check effective for the actual registered
+        # factory path, rather than only for a direct dictionary description.
+        self.po_fixture({canonical: primary})
+        path = self.catalogs / "storage.ja.json"
+        entries = json.loads(path.read_text())
+        entries[canonical] += " changed"
+        path.write_text(json.dumps(entries))
+        with self.assertRaisesRegex(ValueError, "PO runtime alias mismatch.*storageScope/ja"):
+            C.verify(self.root)
 
 
 if __name__ == "__main__":

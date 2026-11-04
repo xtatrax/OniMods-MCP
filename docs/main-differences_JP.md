@@ -986,3 +986,11 @@ single/tree/flatと独立Storageの書込入口で、dryRun=trueをunsupported_p
 ### 時間割画面の送信結果と観測
 
 時間割画面の通常入力受付と実表示を区別し、未取得null・既知false、受動status／予行、明示確認、表示済みno-op、pending／partialを返す。公開版自身のhost502・翻訳483・本体参照build.81の0警告0エラーと、停止実機の通常表示・後続状態／画像・再要求保持・閉鎖・非対象Action保持を確認。失敗枝の全実機生成は含まず、公開ID／設定分離を保持する。詳細は[時間割UIの観測契約](schedule-ui-observation_JP.md)。
+
+## 公開ツール説明の正規キーとPO対応
+
+既存の8引数説明に正規runtimeキーを揃え、既存の領域別説明はPOの同値aliasへ対応させた。gameのquery／limitは汎用の英語上書きから、保存一覧の絞り込み順・既定20／最大100を含む説明へ揃える。引数の型・必須条件・enum・操作経路、ゲーム由来の名称、MCP言語とゲーム言語の分離を保つ。
+
+公開ソース自身のCore host16群（追加metadata427条件・既存15群保持）、Python25回帰、正式source検査46カタログ群／298公開metadata／138埋込資源／35選定PO context／6runtime aliasを確認した。実NavigationファクトリとRegistryの要求時言語切替を使う一方、hostの共有8項目は純metadata fixtureでありowner factoryの実行へ一般化しない。旧英語上書き全文はコンパイル後にquery／limitの意味条件で失敗する。
+
+公開版自身の本体参照build.82は0警告0エラー。専用設定・公開識別子と配備DLLを確認した停止実機で、通常tools/listの7tool／必須task、3言語とautoの延べ1216説明と各カタログ、英語実応答の正式CLIを照合した。非説明schemaは同じ公開候補のautoを基準に4設定で一致し、変更前のaction／型保持は限定ソースレビューの根拠として分ける。本体の日本語設備・素材名を保持し、auto復帰後の全設定の意味的同一性、保護データとチェックポイント、停止時計・速度・視点の保持を確認した。全ローカライズ完成や画面描画の受入とは扱わない。[契約と確認境界](canonical-tool-metadata-localization_JP.md)を参照する。個別の実機記録・保存先・導入設定は含めない。

@@ -128,7 +128,9 @@ internal static class CoreBatchSchemaRegression
         }
         Check(batch.InputSchema.Properties["query"].Items == null && schema["query"]["items"] == null,
             "A non-array parameter gained an invented item schema.");
-        foreach (var tool in tools.Where(tool => tool.Name != "server_control"))
+        // The real navigation factory has its own full contract/language checks.
+        // Keep these exact assertions for the unrelated metadata fixtures.
+        foreach (var tool in tools.Where(tool => tool.Name != "server_control" && tool.Name != "navigation_control"))
         {
             Check(new HashSet<string>(tool.InputSchema.Properties.Keys).SetEquals(new[] { "query", "untouchedFixture", "task" }),
                 "The unrelated tool schema gained or lost fields: " + tool.Name);

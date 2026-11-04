@@ -223,6 +223,8 @@ namespace OniMcp.Tools
             var d = CommonDescriptions();
             d["domain"] = "Game subsystem: launch, speed, state, save, dlc, sandbox, or ui.";
             d["action"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.action");
+            d["query"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.query");
+            d["limit"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.limit");
             d["kind"] = "Sandbox or UI subtype.";
             d["uiDomain"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.uiDomain");
             d["dialog"] = McpLocalization.GetForLanguage("en", "tools.game_control.parameters.dialog");
