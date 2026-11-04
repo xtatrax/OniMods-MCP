@@ -1,11 +1,11 @@
 {
   "tile_replacement.permission_required": "地砖替换需要已确认的虚拟地图编辑请求。",
-  "tile_replacement.scope_unavailable": "此原生UI路径仅支持将当前世界中一个已完成、方向为Neutral的Tile替换为GasPermeableMembrane。",
-  "tile_replacement.target_unverifiable": "无法精确确认原已完成Tile的个体、形状或原生注册。",
-  "tile_replacement.target_changed": "原Tile、游戏世代或原生替换候选已改变；未执行后续操作。",
-  "tile_replacement.candidate_rejected": "原生替换候选或CanReplace结果与指定的已完成Tile不符。",
+  "tile_replacement.scope_unavailable": "此常规原生替换入口仅支持当前世界中 Neutral、单格、单一材料的已完成地基地板。",
+  "tile_replacement.target_unverifiable": "无法验证指定已完成地板的确切对象、形状或原生注册。",
+  "tile_replacement.target_changed": "原地板、已观测的单元格标志、游戏状态或原生替换候选已改变；未继续执行操作。",
+  "tile_replacement.candidate_rejected": "原生 Replaceable、CanReplace 或替换候选检查拒绝了此指定已完成地板的替换。保留本体替换限制。",
   "tile_replacement.pending_conflict": "替换图层已存在不同或无法确认的预约。",
-  "tile_replacement.marked_work_conflict": "原Tile有拆除、重建或挖掘工作，原生替换可能取消这些工作；已拒绝替换。",
+  "tile_replacement.marked_work_conflict": "原地板已有拆除、重建或挖掘任务，可能被原生替换取消，因此拒绝替换。",
   "tile_replacement.instant_mode_enabled": "一般地砖替换要求调试即时建造及沙盒有效即时建造均为关闭状态。",
   "tile_replacement.ui_unavailable": "无法使用地砖替换所需的原生一般建造UI。",
   "tile_replacement.ui_busy": "其他工具、拖动、模态画面或UI操作正在进行；已拒绝地砖替换。",
@@ -17,5 +17,6 @@
   "tile_replacement.priority_restore_failed": "无法在不覆盖其他UI操作的情况下恢复原画面的优先级。",
   "tile_replacement.queue_not_observed": "未观测到经确认的原生地砖替换预约；原生void入口不提供拒绝原因。",
   "tile_replacement.observation_unavailable": "无法观测地砖替换结果；changed与applied保持未知。",
-  "tile_replacement.protected_state_changed": "原Tile或其他保护对象意外改变；未尝试恢复状态或重试。"
+  "tile_replacement.protected_state_changed": "原地板、已观测的单元格标志或其他受保护同格对象发生了意外变化；未尝试恢复或重试。",
+  "tile_replacement.terrain_unverifiable": "原单元格为 Solid=true 且 Foundation=false；常规替换在发送建造操作前拒绝此未经验证的地形状态。"
 }

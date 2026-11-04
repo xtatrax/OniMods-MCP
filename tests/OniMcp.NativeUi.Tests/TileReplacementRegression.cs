@@ -89,7 +89,7 @@ internal static class TileReplacementRegression
     internal static void Check(bool condition,string reason){checks++;if(!condition)throw new InvalidOperationException("Tile replacement: "+reason);}
     internal static void Run()
     {
-        NativeReadiness();NativePreparationAndOwnership();MaterialUiDiagnostics();PriorityCacheReadiness();TileReplacementParentRegression.Run();
+        NativeReadiness();NativePreparationAndOwnership();MaterialUiDiagnostics();PriorityCacheReadiness();TileReplacementParentRegression.Run();TileReplacementGeneralizationRegression.Run();
         Console.WriteLine("Tile replacement: "+checks+" host checks passed (real adapter and parent route; native UI/geometry boundaries substituted)");
     }
     private static void NativeReadiness()

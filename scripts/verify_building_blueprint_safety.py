@@ -6,6 +6,7 @@ from __future__ import annotations
 from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
+import argparse
 
 from onimcp_verify_parsing import fail, matching_delimiter
 
@@ -143,9 +144,9 @@ def verify_existing_blueprint_native_retry(source: str, adapter: str) -> None:
 
 def verify_normal_tile_replacement(plan: str, source: str, state: str, adapter: str, native_state: str) -> None:
     """Supplemental narrow native-route contract; host cases prove execution behavior."""
-    require_order(plan, ("TryReuseNativeTileReplacementQueue(def, earlyPlacement, args)",
+    require_order(plan, ("TryReuseNativeTileReplacementQueue(def, earlyPlacement, args",
         "var earlyExistingBuild", "SelectElements(def", "ResolveFacade(def",
-        "TryPlanNativeTileReplacement(def, earlyPlacement, args", "ValidateFootprint(placement)"),
+        "TryPlanNativeTileReplacement(def, earlyPlacement, args", "ValidateFootprint(placement"),
         "normal tile replacement must validate/reuse its dedicated candidate before generic occupancy rejection")
     if "!IsNativeTileReplacementCandidateScope(def, earlyPlacement)" not in plan:
         fail("generic early reuse must not bypass dedicated pending replacement checks")
@@ -156,7 +157,10 @@ def verify_normal_tile_replacement(plan: str, source: str, state: str, adapter: 
     for token in ("DeleteObject", "def.TryPlace(", "def.TryReplaceTile(", "def.Build(", "FinishConstruction(", "QueueDeconstruction("):
         if token in source or token in state or token in adapter or token in native_state:
             fail(f"normal replacement must delegate without direct replacement/deconstruction fallback: {token}")
-    for token in ('"GasPermeableMembrane"', '"Tile"', "ObjectLayer.FoundationTile", "ObjectLayer.ReplacementTile",
+    for token in ("SingleCellMaterialTileDefinition", "def.IsFoundation", "ObjectLayer.FoundationTile", "ObjectLayer.ReplacementTile",
+        "RequireNativeTileReplacementCandidate", "target.Def.CanReplace(target.Old)", "target.Def.GetReplacementCandidate",
+        "target.OldSolid", "target.OldFoundation", "def.MaterialCategory.Length == 1",
+        '"terrain_unverifiable"', "Grid.Foundation[oldCell]",
         "placement.Orientation != Orientation.Neutral", "placement.Footprint.Count != 1", "IsReplacementTile",
         "SelectedElementsTags", "GetMasterPriority()", "OldTilePreserved", "TileReplacementProtectedSame"):
         if token not in state:
@@ -321,7 +325,19 @@ def verify_building_blueprint_safety(
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--tile-replacement-only", action="store_true")
+    args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
+    if args.tile_replacement_only:
+        base = root / "mods/OniMcp/Tools/Impl/Build"
+        plan = extract_block((base / "BuildPlanningPlanOne.cs").read_text(),
+            "private static Dictionary<string, object> TryPlanOneWithObservation(")
+        verify_normal_tile_replacement(plan, (base / "BuildPlanningTileReplacement.cs").read_text(),
+            (base / "BuildPlanningTileReplacementState.cs").read_text(),
+            (base / "NativeTileReplacement.cs").read_text(), (base / "NativeTileReplacementState.cs").read_text())
+        print("OK: normal tile replacement identity, native delegation and observed-state source contracts")
+        return
     verify_building_blueprint_safety(root)
     plan_path = root / "mods/OniMcp/Tools/Impl/Build/BuildPlanningPlanOne.cs"
     plan_one = extract_block(

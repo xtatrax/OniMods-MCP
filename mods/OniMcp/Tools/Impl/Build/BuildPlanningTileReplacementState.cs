@@ -19,6 +19,8 @@ namespace OniMcp.Tools
             internal Tag Material;
             internal string Facade, OldMaterial, OldFacade;
             internal float OldMass;
+            internal bool OldSolid, OldFoundation;
+            internal NativeReplacementOpinion NativeCandidate;
         }
 
         private sealed class TileReplacementObservation
@@ -32,10 +34,59 @@ namespace OniMcp.Tools
 
         private static bool IsNativeTileReplacementCandidateScope(BuildingDef def, PlacementDetails placement)
         {
-            if (def == null || placement == null || !string.Equals(def.PrefabID, "GasPermeableMembrane", StringComparison.Ordinal)
+            if (def == null || placement == null || !def.IsFoundation
+                || def.TileLayer != ObjectLayer.FoundationTile || def.ReplacementLayer != ObjectLayer.ReplacementTile
                 || !Grid.IsValidCell(placement.OriginCell)) return false;
             var old = Grid.Objects[placement.OriginCell, (int)ObjectLayer.FoundationTile];
-            return string.Equals(old?.GetComponent<BuildingComplete>()?.Def?.PrefabID, "Tile", StringComparison.Ordinal);
+            var oldDef = old?.GetComponent<BuildingComplete>()?.Def;
+            // Same-prefab reuse/material mismatch keeps the established generic contract.
+            return oldDef != null && !string.Equals(oldDef.PrefabID, def.PrefabID, StringComparison.Ordinal);
+        }
+
+        private sealed class NativeReplacementOpinion
+        {
+            internal string AssessmentState = "unknown", ExceptionType;
+            internal bool? OldReplaceable, CanReplace, CandidatePresent, CandidateMatchesOriginal;
+            internal int? CandidateId;
+            internal Dictionary<string, object> ToDictionary() => new Dictionary<string, object>
+            {
+                ["assessmentState"] = AssessmentState, ["oldReplaceable"] = TileReplacementValue(OldReplaceable),
+                ["canReplace"] = TileReplacementValue(CanReplace), ["candidatePresent"] = TileReplacementValue(CandidatePresent),
+                ["candidateMatchesOriginal"] = TileReplacementValue(CandidateMatchesOriginal),
+                ["candidateId"] = CandidateId.HasValue ? (object)CandidateId.Value : JValue.CreateNull(),
+                ["exceptionType"] = ExceptionType == null ? (object)JValue.CreateNull() : ExceptionType,
+                ["scope"] = "last_native_replacement_guard_read_not_final_placement_or_completion"
+            };
+        }
+
+        private static bool SingleCellMaterialTileDefinition(BuildingDef def)
+            => def != null && def.IsFoundation && def.TileLayer == ObjectLayer.FoundationTile
+                && def.ReplacementLayer == ObjectLayer.ReplacementTile && def.WidthInCells == 1 && def.HeightInCells == 1
+                && def.Mass != null && def.Mass.Length == 1
+                && def.MaterialCategory != null && def.MaterialCategory.Length == 1;
+
+        private static void RequireNativeTileReplacementCandidate(TileReplacementTarget target)
+        {
+            var opinion = new NativeReplacementOpinion();
+            target.NativeCandidate = opinion;
+            try
+            {
+                opinion.OldReplaceable = target.OldDef.Replaceable;
+                opinion.CanReplace = target.Def.CanReplace(target.Old);
+                var candidate = target.Def.GetReplacementCandidate(target.Placement.OriginCell);
+                opinion.CandidatePresent = candidate != null;
+                opinion.CandidateMatchesOriginal = ReferenceEquals(candidate, target.Old);
+                int? id = candidate?.GetComponent<KPrefabID>()?.InstanceID;
+                if (id.HasValue && id.Value > 0) opinion.CandidateId = id;
+                opinion.AssessmentState = "known";
+            }
+            catch (Exception error)
+            {
+                opinion.ExceptionType = error.GetType().Name;
+                throw new NativeTileReplacement.Failure("observation_unavailable");
+            }
+            if (opinion.OldReplaceable != true || opinion.CanReplace != true || opinion.CandidateMatchesOriginal != true)
+                throw new NativeTileReplacement.Failure("candidate_rejected");
         }
 
         private static int TileReplacementPriority(JObject args)
@@ -52,7 +103,7 @@ namespace OniMcp.Tools
         {
             if (!placement.GeometryAvailable || placement.Orientation != Orientation.Neutral || placement.Footprint.Count != 1
                 || placement.Footprint.Any(cell => !cell.Valid || !cell.Visible || !cell.InWorld)
-                || def.ReplacementLayer != ObjectLayer.ReplacementTile || def.TileLayer != ObjectLayer.FoundationTile)
+                || !SingleCellMaterialTileDefinition(def))
                 throw new NativeTileReplacement.Failure("scope_unavailable");
             var old = Grid.Objects[placement.OriginCell, (int)ObjectLayer.FoundationTile];
             var oldDef = old?.GetComponent<BuildingComplete>()?.Def;
@@ -60,12 +111,11 @@ namespace OniMcp.Tools
             var primary = old?.GetComponent<PrimaryElement>();
             var oldFacade = old?.GetComponent<BuildingFacade>();
             if (old == null || identity == null || identity.InstanceID <= 0 || primary == null || oldFacade == null
-                || oldDef == null || !string.Equals(oldDef.PrefabID, "Tile", StringComparison.Ordinal)
-                || !ReferenceEquals(old.GetComponent<Building>()?.Def, oldDef))
+                || oldDef == null || !ReferenceEquals(old.GetComponent<Building>()?.Def, oldDef))
                 throw new NativeTileReplacement.Failure("target_unverifiable");
+            if (!SingleCellMaterialTileDefinition(oldDef)) throw new NativeTileReplacement.Failure("scope_unavailable");
             var oldPlacement = BuildPlacementDetails(oldDef, placement.AnchorX, placement.AnchorY, placement.WorldId, Orientation.Neutral);
-            if (!Grid.Solid[placement.OriginCell] || !Grid.Foundation[placement.OriginCell]
-                || !oldPlacement.GeometryAvailable || oldPlacement.Footprint.Count != 1
+            if (!oldPlacement.GeometryAvailable || oldPlacement.Footprint.Count != 1
                 || oldPlacement.OriginCell != placement.OriginCell
                 || !GetBool(ComparePlacement(oldPlacement, ActualPlacementDetails(old, oldDef, placement.AnchorX, placement.AnchorY)), "valid")
                 || (old.GetComponent<Rotatable>()?.GetOrientation() ?? Orientation.Neutral) != Orientation.Neutral
@@ -76,7 +126,8 @@ namespace OniMcp.Tools
                 Game = Game.Instance, Generation = GameContextLifecycle.CaptureGeneration(), Old = old, OldId = identity.InstanceID,
                 OldDef = oldDef, Def = def, Placement = placement, OldPlacement = oldPlacement,
                 Material = material, Facade = facade, Priority = priority,
-                OldMaterial = primary.ElementID.ToString(), OldMass = primary.Mass, OldFacade = oldFacade.CurrentFacade
+                OldMaterial = primary.ElementID.ToString(), OldMass = primary.Mass, OldFacade = oldFacade.CurrentFacade,
+                OldSolid = Grid.Solid[placement.OriginCell], OldFoundation = Grid.Foundation[placement.OriginCell]
             };
         }
 
@@ -91,9 +142,11 @@ namespace OniMcp.Tools
                 throw new NativeTileReplacement.Failure("scope_unavailable");
             if (execute && (!BuildingControlTools.IsVirtualFileEditContext || IsDryRun(args)
                 || !ToolUtil.GetBool(args, "confirm", false))) throw new NativeTileReplacement.Failure("permission_required");
-            if (!target.OldDef.Replaceable || !target.Def.CanReplace(target.Old)
-                || !ReferenceEquals(target.Def.GetReplacementCandidate(target.Placement.OriginCell), target.Old))
-                throw new NativeTileReplacement.Failure("candidate_rejected");
+            if (!SingleCellMaterialTileDefinition(target.Def) || !SingleCellMaterialTileDefinition(target.OldDef))
+                throw new NativeTileReplacement.Failure("scope_unavailable");
+            RequireNativeTileReplacementCandidate(target);
+            if (Grid.Solid[target.Placement.OriginCell] && !Grid.Foundation[target.Placement.OriginCell])
+                throw new NativeTileReplacement.Failure("terrain_unverifiable");
             if (target.Def.EquivalentReplacementLayers != null)
                 foreach (var layer in target.Def.EquivalentReplacementLayers)
                 {
@@ -163,6 +216,8 @@ namespace OniMcp.Tools
                 && old.GetComponent<BuildingFacade>() != null
                 && string.Equals(old.GetComponent<BuildingFacade>().CurrentFacade, target.OldFacade, StringComparison.Ordinal)
                 && ToolUtil.GameObjectMatchesWorld(old, target.Placement.WorldId)
+                && Grid.Solid[target.Placement.OriginCell] == target.OldSolid
+                && Grid.Foundation[target.Placement.OriginCell] == target.OldFoundation
                 && GetBool(ComparePlacement(target.OldPlacement,
                     ActualPlacementDetails(old, target.OldDef, target.Placement.AnchorX, target.Placement.AnchorY)), "valid")
                 && IsCompletedBuildFullyRegistered(target.OldDef, target.OldPlacement, target.OldPlacement.OriginCell,

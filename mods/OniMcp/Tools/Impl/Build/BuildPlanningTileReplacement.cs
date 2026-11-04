@@ -119,6 +119,11 @@ namespace OniMcp.Tools
             var details = outcome.ToDictionary();
             details["reasonCode"] = reason == null ? (object)JValue.CreateNull() : reason;
             details["nativeCandidateValidated"] = previewValidated;
+            details["nativeCandidate"] = target?.NativeCandidate == null ? (object)JValue.CreateNull() : target.NativeCandidate.ToDictionary();
+            details["originalCellFlags"] = target == null ? (object)JValue.CreateNull() : new Dictionary<string, object>
+            {
+                ["solid"] = target.OldSolid, ["foundation"] = target.OldFoundation
+            };
             details["nativePlacementValidated"] = outcome.ActionAttempted && queueVerified;
             details["validationScope"] = queueVerified ? "native_replacement_reservation_observed"
                 : outcome.ActionAttempted ? "native_void_gesture_attempted_no_verified_reservation"
@@ -168,6 +173,8 @@ namespace OniMcp.Tools
                 (dryRun ? previewValidated : queueVerified) ? "complete" : "partial", !dryRun, !dryRun,
                 "valid", "dryRun", "queueVerified", "partial", "applied",
                 "tileReplacement.nativeCandidateValidated", "tileReplacement.nativePlacementValidated",
+                "tileReplacement.nativeCandidate.assessmentState", "tileReplacement.nativeCandidate.oldReplaceable",
+                "tileReplacement.nativeCandidate.canReplace", "tileReplacement.nativeCandidate.candidateMatchesOriginal",
                 "tileReplacement.persistentTargetLinkVerified").AttachPayload(result);
         }
     }

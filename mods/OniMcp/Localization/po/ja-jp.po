@@ -591,28 +591,28 @@ msgid "Tile replacement requires a confirmed virtual map edit request."
 msgstr "タイル交換には、確認済みの仮想地図編集が必要です。"
 
 #. Runtime JSON key: tile_replacement.scope_unavailable
-#. Runtime zh-Hans msgstr: "此原生UI路径仅支持将当前世界中一个已完成、方向为Neutral的Tile替换为GasPermeableMembrane。"
+#. Runtime zh-Hans msgstr: "此常规原生替换入口仅支持当前世界中 Neutral、单格、单一材料的已完成地基地板。"
 msgctxt "OniMcp.MCP.TILE_REPLACEMENT.SCOPE_UNAVAILABLE"
-msgid "This native replacement route supports one Neutral completed Tile replaced by GasPermeableMembrane in the active world."
-msgstr "この本体UI経路は、現在のワールドにある完成済みTile 1個を、向きNeutralのGasPermeableMembraneへ交換する場合だけに対応します。"
+msgid "This normal native replacement route supports only completed Neutral one-cell, single-material foundation floors in the active world."
+msgstr "この通常の本体交換経路は、アクティブワールドの完成済み地盤床で、Neutral・1セル・単一素材の場合だけ対応します。"
 
 #. Runtime JSON key: tile_replacement.target_unverifiable
-#. Runtime zh-Hans msgstr: "无法精确确认原已完成Tile的个体、形状或原生注册。"
+#. Runtime zh-Hans msgstr: "无法验证指定已完成地板的确切对象、形状或原生注册。"
 msgctxt "OniMcp.MCP.TILE_REPLACEMENT.TARGET_UNVERIFIABLE"
-msgid "The exact completed Tile identity, geometry or native registration could not be verified."
-msgstr "元の完成済みTileの個体・形状・本体登録を正確に確認できません。"
+msgid "The exact completed floor identity, geometry or native registration could not be verified."
+msgstr "指定した完成済み床の個体・形状・本体登録を確認できません。"
 
 #. Runtime JSON key: tile_replacement.target_changed
-#. Runtime zh-Hans msgstr: "原Tile、游戏世代或原生替换候选已改变；未执行后续操作。"
+#. Runtime zh-Hans msgstr: "原地板、已观测的单元格标志、游戏状态或原生替换候选已改变；未继续执行操作。"
 msgctxt "OniMcp.MCP.TILE_REPLACEMENT.TARGET_CHANGED"
-msgid "The original Tile, game context or native replacement candidate changed; no further action was issued."
-msgstr "元のTile、ゲームの世代、または本体の交換候補が変わったため、追加の操作は行っていません。"
+msgid "The original floor, its observed cell flags, game context or native replacement candidate changed; no further action was issued."
+msgstr "元の床・観測したセルflag・ゲーム状態・本体の交換候補が変化したため、以後の操作を送信していません。"
 
 #. Runtime JSON key: tile_replacement.candidate_rejected
-#. Runtime zh-Hans msgstr: "原生替换候选或CanReplace结果与指定的已完成Tile不符。"
+#. Runtime zh-Hans msgstr: "原生 Replaceable、CanReplace 或替换候选检查拒绝了此指定已完成地板的替换。保留本体替换限制。"
 msgctxt "OniMcp.MCP.TILE_REPLACEMENT.CANDIDATE_REJECTED"
-msgid "The native replacement candidate or CanReplace result does not match the exact completed Tile."
-msgstr "本体の交換候補またはCanReplaceの結果が、指定した完成済みTileと一致しません。"
+msgid "The native Replaceable, CanReplace or replacement-candidate check rejected this exact completed floor. Native replacement restrictions remain in effect."
+msgstr "本体のReplaceable・CanReplace・交換候補の確認で、この完成済み床の交換が拒否されました。本体の交換制限は維持します。"
 
 #. Runtime JSON key: tile_replacement.pending_conflict
 #. Runtime zh-Hans msgstr: "替换图层已存在不同或无法确认的预约。"
@@ -621,10 +621,10 @@ msgid "The replacement layer already contains a different or unverifiable reserv
 msgstr "交換用レイヤーには、別の予約または確認できない予約が既に存在します。"
 
 #. Runtime JSON key: tile_replacement.marked_work_conflict
-#. Runtime zh-Hans msgstr: "原Tile有拆除、重建或挖掘工作，原生替换可能取消这些工作；已拒绝替换。"
+#. Runtime zh-Hans msgstr: "原地板已有拆除、重建或挖掘任务，可能被原生替换取消，因此拒绝替换。"
 msgctxt "OniMcp.MCP.TILE_REPLACEMENT.MARKED_WORK_CONFLICT"
-msgid "The original Tile has deconstruction, reconstruction or dig work that native replacement could cancel; replacement was refused."
-msgstr "元のTileに解体・再建・採掘の指示があり、本体の交換処理が取り消す可能性があるため、交換を拒否しました。"
+msgid "The original floor has deconstruction, reconstruction or dig work that native replacement could cancel; replacement was refused."
+msgstr "元の床に解体・再建・採掘指示があり、本体交換で取り消される可能性があるため拒否しました。"
 
 #. Runtime JSON key: tile_replacement.instant_mode_enabled
 #. Runtime zh-Hans msgstr: "一般地砖替换要求调试即时建造及沙盒有效即时建造均为关闭状态。"
@@ -693,10 +693,10 @@ msgid "Tile replacement outcome observation is unavailable; changed and applied 
 msgstr "タイル交換の結果を観測できません。changedとappliedは不明のまま返します。"
 
 #. Runtime JSON key: tile_replacement.protected_state_changed
-#. Runtime zh-Hans msgstr: "原Tile或其他保护对象意外改变；未尝试恢复状态或重试。"
+#. Runtime zh-Hans msgstr: "原地板、已观测的单元格标志或其他受保护同格对象发生了意外变化；未尝试恢复或重试。"
 msgctxt "OniMcp.MCP.TILE_REPLACEMENT.PROTECTED_STATE_CHANGED"
-msgid "The original Tile or another protected occupant changed unexpectedly; no restoration or retry was attempted."
-msgstr "元のTileまたは他の保護対象が予期せず変化しました。状態の書き戻しや再試行は行っていません。"
+msgid "The original floor, its observed cell flags or another protected occupant changed unexpectedly; no restoration or retry was attempted."
+msgstr "元の床・観測したセルflag・保護対象の同居物に想定外の変化がありました。復元や再試行は行っていません。"
 
 #. Runtime JSON key: ui_action.binding_unknown
 #. Runtime zh-Hans msgstr: "无法获取原生输入绑定；未发送UI操作。"
@@ -2307,3 +2307,9 @@ msgstr "material=auto または material={0} を使用してください"
 msgctxt "OniMcp.MCP.BUILD_MATERIALS.SUGGEST_INSPECT"
 msgid "Inspect world_editor /active/resources/inventory.oni or building_control domain=planning action=materials before retrying."
 msgstr "再試行前に world_editor /active/resources/inventory.oni または building_control domain=planning action=materials で確認してください。"
+
+#. Runtime JSON key: tile_replacement.terrain_unverifiable
+#. Runtime zh-Hans msgstr: "原单元格为 Solid=true 且 Foundation=false；常规替换在发送建造操作前拒绝此未经验证的地形状态。"
+msgctxt "OniMcp.MCP.TILE_REPLACEMENT.TERRAIN_UNVERIFIABLE"
+msgid "The original cell has Solid=true and Foundation=false; ordinary replacement refuses this unverified terrain state before the build gesture."
+msgstr "元セルはSolid=trueかつFoundation=falseです。地形の根拠を確認できないため、通常交換の建築操作を送信しません。"

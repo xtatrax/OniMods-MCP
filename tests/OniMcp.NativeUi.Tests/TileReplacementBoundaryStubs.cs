@@ -16,10 +16,14 @@ internal sealed partial class BuildingDef
     public int WidthInCells=1,HeightInCells=1;
     public CellOffset[] PlacementOffsets=new[]{new CellOffset()};
     public float[] Mass=new[]{100f};
+    public string[] MaterialCategory=new[]{"AllMetals"};
     public Recipe CraftRecipe=new Recipe();
-    public bool NativeCanReplace=true;
-    public GameObject GetReplacementCandidate(int cell){return Grid.Objects[cell,(int)TileLayer];}
-    public bool CanReplace(GameObject go){return NativeCanReplace&&go!=null;}
+    public bool NativeCanReplace=true,ThrowCanReplace,ThrowReplacementCandidate;
+    internal Func<int,GameObject> ReplacementCandidateOverride;
+    public GameObject GetReplacementCandidate(int cell)
+    {if(ThrowReplacementCandidate)throw new InvalidOperationException("fixture candidate unavailable");return ReplacementCandidateOverride!=null?ReplacementCandidateOverride(cell):Grid.Objects[cell,(int)TileLayer];}
+    public bool CanReplace(GameObject go)
+    {if(ThrowCanReplace)throw new InvalidOperationException("fixture native eligibility unavailable");return NativeCanReplace&&go!=null;}
     public bool IsReplacementLayerOccupied(int cell)
     {return Grid.Objects[cell,(int)ReplacementLayer]!=null||EquivalentReplacementLayers.Any(layer=>Grid.Objects[cell,(int)layer]!=null);}
     public int TryPlaceCalls;

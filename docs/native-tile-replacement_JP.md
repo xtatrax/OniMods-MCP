@@ -1,12 +1,14 @@
 # 通常タイル交換の本体UI委譲
 
-完成済みTileに気流タイルを指示した際、MCPの汎用占有検査が交換として扱わず拒否する問題を対象にします。既存Tile設計図への即時要求とは別の経路です。元床の先行解体や直接置換を行わず、本体BuildToolの通常の交換予約へ渡します。
+完成済み床に別Prefabの床を指示した際、汎用占有検査だけで本体が許す交換まで拒否しないための経路です。既存設計図の即時完成要求とは別に扱います。元床の先行解体や直接置換を行わず、本体BuildToolの通常の交換予約へ渡します。
 
 ## 対象と要求
 
-初期の対象は、アクティブワールドにあるNeutral・1セルの完成済み`Tile`から`GasPermeableMembrane`への通常交換です。新規配置、他の床・設備・回転・複数セル・複数素材はこの限定経路に含みません。直接の`build_area`実行を許可するものではなく、実行は既存の仮想地図編集と確認の条件を維持します。
+対象は、アクティブワールド内の完成済み床から別Prefabの床への、本体が許す通常交換です。元と先が`IsFoundation`と`FoundationTile`／`ReplacementTile`層を持ち、Neutral・1セル・単一素材であることを、定義とnative占有形状の両方で確認します。初期の固定組`Tile`→`GasPermeableMembrane`から一般化しましたが、全床・全設備を許可するものではありません。回転・複数セル・複数素材はこの経路の対象外です。直接の`build_area`実行を許可するものではなく、実行は既存の仮想地図編集と確認の条件を維持します。
 
-通常の材料・研究・可視性・world検査を保ち、元Tileの正確な個体と形状、本体の交換候補、他レイヤーと予約を確認します。元の解体・再建・採掘指示を、本体の交換予約で勝手に取り消さないよう事前拒否します。一般の障害物検査を一括で解除しません。
+通常の材料・研究・可視性・world検査を保ち、元床の正確な個体と形状、本体の交換候補、他レイヤーと予約を確認します。元の解体・再建・採掘指示を、本体の交換予約で勝手に取り消さないよう事前拒否します。一般の障害物検査を一括で解除しません。
+
+同一Prefabの既存物は交換へ取り込まず、同じ素材の再利用と、明示した別素材の不一致拒否を従来どおり扱います。元床や予約を除去して変更を成立させる処理は加えません。
 
 入口の既存要求スコープ内で、本体と同じ条件でdebug instantと有効なsandbox instantを確認し、通常工事に限ります。world_editorの通常要求は既存スコープがdebug instantを一時的に無効化して終了時に戻すため、観測した実効値を、要求前の大域設定がOFFだった証拠とはしません。sandboxが明示的に非アクティブなら、その側の即時建設は適用外です。アクティブなsandboxの設定が未取得なら利用不能として扱い、未知をOFFへ補いません。
 
@@ -20,7 +22,45 @@
 
 UI準備はカテゴリ、素材選択の記憶、前回façade等も本体どおり変える可能性があります。片付けは所有中のpreview/画面/世代に限定し、active toolが戻ったことを全UI状態の復元とはしません。対象外の選択・画面や履歴を直接書き戻しません。 初回表示前の元優先度キャッシュが未取得の場合、priorityRestoredはnullのままです。表示後に得た既定値を、要求前の値だったことにはしません。
 
-## 支持と受入の範囲
+## 本体判断と取得範囲
+
+交換可否はPrefab名のリストで決めず、本体の`Replaceable`・`CanReplace`・`GetReplacementCandidate`と指定元個体の一致から読みます。本体が拒否したとき、直接field変更や先行解体で迂回しません。本体の候補確認と、通常UIの最終配置・予約・搬入・完工を別の段階として返します。
+
+`tileReplacement.nativeCandidate`は最後のguardで読んだ`assessmentState`、`oldReplaceable`、`canReplace`、`candidatePresent`、`candidateMatchesOriginal`、`candidateId`等を返します。`candidate_rejected`は取得したnative判断の拒否、`observation_unavailable`とnullは未取得、`scope_unavailable`はこのadapterの対応外です。候補一致は読取時点の事実であり、将来の元個体への固定リンクや完工保証ではありません。
+
+元セルの`Grid.Solid`／`Grid.Foundation`を一律trueとせず、`originalCellFlags`として捕捉し、元ID・素材・質量・facade・登録とともに保持を照合します。falseから特定床の正常／異常を決めません。`Solid=true/Foundation=false`は地形の由来を確認できない状態として`terrain_unverifiable`でUI前に拒否します。solid obstructionに対する既存のFoundation由来保護も維持し、native候補の許可を地形変更同意へ読み替えません。
+
+## 農耕・水耕等の試験境界
+
+通常床から農耕タイル／水耕タイルへの交換と、農耕→水耕・水耕→農耕は別の組合せです。元と先の定義および完成個体のタグでnative判断が変わるため、対象名だけから全方向の可否を決めません。各方向についてnative返答と元設備・保護物の保持、交換予約の有無を照合します。`canReplace=false`で拒否した場合は、拒否と非変更の確認として記録し、張り替え成功とは扱いません。
+
+床スイッチも含め、本体仕様の拒否をMCP側で解除する機能ではありません。今回の拒否試験だけで、植栽の引継ぎ・給水の流れ・全農業設備の運用や、全瞬間の支持／通行／熱の継続を検証したことにはしません。
+
+## 一般1セル床交換の公開版受入
+
+公開build.85自身のID・設定・配備DLLで次の限定受入を行いました。開発側や初期限定実装の成功を代用せず、要求の受理・予約・完工と元環境復帰を別々に照合しています。
+
+| 根拠 | 公開版自身の独立受入 |
+|---|---|
+| ホスト | 公開の実親経路・adapterで既存全群と一般床132条件が成功。54 Compile／144 resource／201実入力の集合・hashが安定し、NuGetAudit有効で0警告・0エラー。旧製品2ファイル全文と旧flag単独条件の負対照は、正常コンパイル後にそれぞれ意味的失敗を確認。native/UI/geometry境界はfixtureであり実機の代用にしない。 |
+| 静的・PO | 公開側の`verify_building_blueprint_safety.py --tile-replacement-only`、PO20キー、正式ローカライズ検査と差分検査を通過。広い既定safety検査は、旧wrapperを抽出する既存の失敗があり、変更前後で同じ失敗を保持。限定検査PASSを全体PASSへ広げない。 |
+| 本体参照ビルド | 公開build.85の本体参照ビルドは513 Compile／147 resource／687固定入力、0警告・0エラー。入力と集合の安定を確認し、実配備DLL・起動版と照合した。 |
+| 通常交換・完工 | 許可済み分岐でTile→MetalTileをCopper 100 kg、MetalTile→TileをSandStone 200 kgとして通常予約・搬入／工事・完成現物まで確認。元床／同居物保持とUI復帰trueを照合。配管・上の流し台は当該返却snapshotの全文が前後一致した。初回元優先度未取得はpriorityRestored=nullのまま、逆方向ではtrue。 |
+| 本体仕様の拒否 | 適合するCopperでFloorSwitchのnative canReplace=falseを確認。通常床からFarmTile／HydroponicFarmを通常交換・完工後、農耕→水耕／水耕→農耕の両方向がcandidate_rejected（oldReplaceable=true／canReplace=false／candidateMatchesOriginal=true）、予約なし・元個体保持となることを確認。誤素材Cupriteの素材拒否をnative拒否の証拠へ混ぜず、相互交換の成功とは表現しない。 |
+| 元環境復帰 | 試験後に原本2件のhash・共有自動保存／履歴の集合とhash、設定・他MOD・選択先、元の停止時計・速度・画角・カメラ設定を復帰照合時点で確認。照合後の操作へ、画角・カメラ設定の同一性を拡張しない。採用した開発版へ戻し、非稼働の公開パッケージは試験前のものを保持した。カメラの一時注目対象は再起動でresetするため同一復元とはしない。 |
+
+既存Copper・優先度9の交換予約について、Lead・優先度9の素材だけが異なる要求と、Copper・優先度5の優先度だけが異なる要求を別々に拒否し、同じCopper・優先度9は再利用できることを確認しました。素材不一致の返却materialがCopper、queueVerified=trueでも、元予約の保持を示すものでLead要求の受理ではありません。
+
+復帰時のnative preferences差分はSESSION_ID、通常ロード由来のNextUniqueID、およびUnityのセッション識別子／回数4種に限定されました。元の数値へ強制書戻しは行っていません。NextUniqueIDを単なるセッション累積値とは扱いません。
+
+配管・流し台の一致は、その窓口が返した値の範囲に限ります。返却外の物理状態・温度・内容物や、全瞬間の流量／通電／支持を証明するものではありません。
+
+回転・複数セル・複数素材、全Prebuild準備／片付け・全UI復元、全瞬間の支持／通行／熱の連続性、全床・任意MODの網羅は残作業です。本体void入口で予約を観測できなかった場合、素材不足等の理由を推測して補いません。
+
+<details>
+<summary>初期限定実装の受入履歴（一般化後の公開受入と区別）</summary>
+
+### 初期Tile→気流タイルの限定受入
 
 必要キャッシュ判定の開発実機では、初回表示前でproduct/panel/priority/先頭selectorのisSpawnedが全てfalseでも、実キャッシュが揃う場合の通常予約・再利用・競合拒否を確認しました。周辺25セル・設備情報・停止時刻を照合し、通常施工による完成、材質・支持設備・同居Wireの保持も別に確認しています。初回の元優先度が未取得だった場合は復元結果nullを保持しました。
 
@@ -45,10 +85,14 @@ UI準備はカテゴリ、素材選択の記憶、前回façade等も本体ど�
 
 関連する静的契約3本と既存素材ガード13変異も成功しました。静的検査だけをゲーム挙動の根拠としません。同居Wireは保持を検証した孤立した1セルであり、通電する特定辺の実電流まで検証したものではありません。既存回路全体の消費と支持設備の機能は別に観測しています。
 
-## ローカライズ
-
-MCP独自の説明・失敗文19キーは、POの`OniMcp.MCP.TILE_REPLACEMENT.*`をsourceとし、各コメントの`Runtime JSON key`で`tile_replacement.*`へ対応します。runtimeは既存Catalog JSONを読みます。`zh-hant.po`の繁体字と従来runtime `zh-Hans`の簡体字は別に保持し、POコメントで対応する簡体字を記録します。ゲーム内の名称とMCPの説明言語を混同せず、ゲームのStrings表やlocaleは変更しません。
-
 公開checkoutでも同じ253ホスト条件、関連静的3本と既存素材13変異、PO19キーの整合を確認しました。公開側固有の親配置経路や識別子・設定分離は保持しています。最終公開候補のログにERROR・Assert・Exceptionはありません。未割当UI Actionによる初期候補の失敗と、その後の[入力ガード修正](ui-action-binding_JP.md)は別に記録します。
 
 搬入については、通常施工の完工と完成物の材質/100kgを根拠とし、個別Fetch対象や搬入過程を逐次追跡した受入ではありません。保存再読込の開発証拠は先行候補、公開証拠は最終候補として区別します。
+
+</details>
+
+## ローカライズ
+
+MCP独自の説明・失敗文20キーは、POの`OniMcp.MCP.TILE_REPLACEMENT.*`をsourceとし、各コメントの`Runtime JSON key`で`tile_replacement.*`へ対応します。runtimeは既存Catalog JSONを読みます。`zh-hant.po`の繁体字と従来runtime `zh-Hans`の簡体字は別に保持し、POコメントで対応する簡体字を記録します。ゲーム内の名称とMCPの説明言語を混同せず、ゲームのStrings表やlocaleは変更しません。
+
+限定組の説明6件を一般床へ更新し、未判別地形の拒否1件を追加しました。`scripts/verify_tile_replacement_localization.py`で20キーとPO4／runtime3、placeholderおよびnative識別子の対応を検査します。今回対象外のPO record・公開側固有の設定と識別子は保持します。

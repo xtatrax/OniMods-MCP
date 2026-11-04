@@ -1,11 +1,11 @@
 {
   "tile_replacement.permission_required": "タイル交換には、確認済みの仮想地図編集が必要です。",
-  "tile_replacement.scope_unavailable": "この本体UI経路は、現在のワールドにある完成済みTile 1個を、向きNeutralのGasPermeableMembraneへ交換する場合だけに対応します。",
-  "tile_replacement.target_unverifiable": "元の完成済みTileの個体・形状・本体登録を正確に確認できません。",
-  "tile_replacement.target_changed": "元のTile、ゲームの世代、または本体の交換候補が変わったため、追加の操作は行っていません。",
-  "tile_replacement.candidate_rejected": "本体の交換候補またはCanReplaceの結果が、指定した完成済みTileと一致しません。",
+  "tile_replacement.scope_unavailable": "この通常の本体交換経路は、アクティブワールドの完成済み地盤床で、Neutral・1セル・単一素材の場合だけ対応します。",
+  "tile_replacement.target_unverifiable": "指定した完成済み床の個体・形状・本体登録を確認できません。",
+  "tile_replacement.target_changed": "元の床・観測したセルflag・ゲーム状態・本体の交換候補が変化したため、以後の操作を送信していません。",
+  "tile_replacement.candidate_rejected": "本体のReplaceable・CanReplace・交換候補の確認で、この完成済み床の交換が拒否されました。本体の交換制限は維持します。",
   "tile_replacement.pending_conflict": "交換用レイヤーには、別の予約または確認できない予約が既に存在します。",
-  "tile_replacement.marked_work_conflict": "元のTileに解体・再建・採掘の指示があり、本体の交換処理が取り消す可能性があるため、交換を拒否しました。",
+  "tile_replacement.marked_work_conflict": "元の床に解体・再建・採掘指示があり、本体交換で取り消される可能性があるため拒否しました。",
   "tile_replacement.instant_mode_enabled": "通常のタイル交換には、デバッグ即時建設とサンドボックスで有効な即時建設の両方が無効である必要があります。",
   "tile_replacement.ui_unavailable": "タイル交換に必要な、本体の通常建築UIを利用できません。",
   "tile_replacement.ui_busy": "別のツール・ドラッグ・モーダル画面・UI操作が進行中のため、タイル交換を拒否しました。",
@@ -17,5 +17,6 @@
   "tile_replacement.priority_restore_failed": "別のUI操作を上書きせずに、元の画面優先度へ戻すことができません。",
   "tile_replacement.queue_not_observed": "本体のタイル交換予約を正確に確認できません。本体のvoid入口から拒否理由は得られません。",
   "tile_replacement.observation_unavailable": "タイル交換の結果を観測できません。changedとappliedは不明のまま返します。",
-  "tile_replacement.protected_state_changed": "元のTileまたは他の保護対象が予期せず変化しました。状態の書き戻しや再試行は行っていません。"
+  "tile_replacement.protected_state_changed": "元の床・観測したセルflag・保護対象の同居物に想定外の変化がありました。復元や再試行は行っていません。",
+  "tile_replacement.terrain_unverifiable": "元セルはSolid=trueかつFoundation=falseです。地形の根拠を確認できないため、通常交換の建築操作を送信しません。"
 }
