@@ -1,0 +1,18 @@
+{
+  "build_materials.none_available": "本体材料选择库存中没有可用建材。",
+  "build_materials.inventory_unknown": "本体材料库存尚未就绪或无法读取。不要将未取得的库存视为0。",
+  "build_materials.invalid_for_building": "材料 '{0}' 不适用于 {1}",
+  "build_materials.none_currently_available": "材料 '{0}' 适用于 {1}，但当前没有可用库存",
+  "build_materials.selected_none": "未选择材料。",
+  "build_materials.invalid_material": "材料 '{0}' 不是有效建材。",
+  "build_materials.quantity_scope": "单一材料槽位；未评估多个槽位的需求量。",
+  "build_materials.inventory_scope": "同一父世界范围内、本体材料选择界面扣除建造需求后的数量；未评估单个搬运预约和配送。",
+  "build_materials.next_insufficient": "材料适用，但本体库存不足。可以安排蓝图；完工前需要取得更多材料。",
+  "build_materials.next_unknown": "材料适用；需求量或本体库存未知。不要认定材料充足。",
+  "build_materials.next_not_required": "自由建造模式不需要材料库存。",
+  "build_materials.next_sufficient": "材料适用且本体材料选择数量充足；尚未评估向此施工点配送。",
+  "build_materials.retry_with_auto": "如果不要求精确材料，请使用 material=auto 或 material={0} 重试。",
+  "build_materials.inspect_candidates": "当前没有可用材料；重试前请检查库存和材料候选。",
+  "build_materials.suggest_material": "请使用 material=auto 或 material={0}",
+  "build_materials.suggest_inspect": "重试前请通过 world_editor /active/resources/inventory.oni 或 building_control domain=planning action=materials 检查。"
+}

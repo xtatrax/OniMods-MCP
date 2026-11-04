@@ -59,4 +59,5 @@
     <Exec Command="python3 &quot;$(MSBuildThisFileDirectory)extract_blueprint_safety.py&quot; --repo-root &quot;$(MSBuildThisFileDirectory)../../&quot; --output &quot;$(BlueprintGeneratedSource)&quot; --materials &quot;$(PreviewMaterialSource)&quot; --candidate-models &quot;$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/BuildPlanningModels.cs&quot; --candidate-results &quot;$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/BuildPlanningPlanResults.cs&quot; --obstructions &quot;$(BlueprintObstructionsSource)&quot; --safety &quot;$(BlueprintSafetySource)&quot; --geometry &quot;$(BlueprintGeometrySource)&quot; --runtime &quot;$(BlueprintRuntimeSource)&quot; --instant &quot;$(BlueprintInstantSource)&quot; --anchors &quot;$(PreviewAnchorsSource)&quot; --placement &quot;$(PreviewPlacementSource)&quot; --models &quot;$(PlacementModelsSource)&quot;" />
     <ItemGroup><Compile Include="$(BlueprintGeneratedSource)" /></ItemGroup>
   </Target>
+<ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialInventoryObservation.cs" Link="Source/MaterialInventoryObservation.cs" /></ItemGroup>
 </Project>

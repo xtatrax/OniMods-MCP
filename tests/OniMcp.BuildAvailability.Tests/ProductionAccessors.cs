@@ -22,6 +22,8 @@ namespace OniMcp.Tools
     public static partial class BuildPlanningTools
     {
         // Thin test entry points invoke full production private callers; no selection logic is copied.
+        internal static JObject HostMaterialCandidate(float amount)
+        { return HostJson(new PlanMaterialCandidate { Tag = "fixture", AvailableKg = amount }.ToDictionary()); }
         internal static JObject HostPlan(JObject args) { return HostJson(ResolveBuildPlan(args).ToDictionary()); }
         internal static JArray HostCandidates(string prefab, string text, bool includeUnavailable)
         { return (JArray)JToken.Parse(JsonConvert.SerializeObject(ResolveBuildingCandidates(prefab, text, SplitPlanTerms(text).ToList(), includeUnavailable).Select(x => x.ToDictionary()).ToList(), McpJsonUtil.Settings)); }

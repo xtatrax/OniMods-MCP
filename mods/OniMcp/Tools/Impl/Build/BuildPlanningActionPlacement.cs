@@ -135,24 +135,8 @@ namespace OniMcp.Tools
                     int worldId = ToolUtil.ResolveWorldId(args);
                     bool includeUnavailable = ToolUtil.GetBool(args, "includeUnavailable", false);
                     int limit = Math.Max(1, Math.Min(ToolUtil.GetInt(args, "limit") ?? 50, 200));
-                    var materials = AvailableMaterials(def, worldId, includeUnavailable)
-                        .Take(limit)
-                        .Select(item => item.ToDictionary())
-                        .ToList();
-
-                    return CallToolResult.Text(JsonConvert.SerializeObject(new Dictionary<string, object>
-                    {
-                        ["prefabId"] = def.PrefabID,
-                        ["name"] = ToolUtil.CleanName(def.Name),
-                        ["worldId"] = worldId,
-                        ["materialCategories"] = def.MaterialCategory,
-                        ["resolvedMaterialCategories"] = MaterialCategoryTags(def).Select(tag => tag.Name).ToList(),
-                        ["defaultMaterials"] = DefaultBuildElements(def).Select(tag => tag.Name).ToList(),
-                        ["autoMaterial"] = materials.Count > 0 ? materials[0]["tag"] : (object)"unavailable",
-                        ["autoMaterialReason"] = materials.Count > 0 ? null : "no currently available material in this world/inventory",
-                        ["returned"] = materials.Count,
-                        ["materials"] = materials
-                    }, McpJsonUtil.Settings));
+                    return CallToolResult.Text(JsonConvert.SerializeObject(
+                        BuildMaterialListing(def, worldId, includeUnavailable, limit), McpJsonUtil.Settings));
                 }
             };
         }

@@ -28,11 +28,11 @@ namespace OniMcp.Tools
                 if (selected != null)
                     return ValidatedMaterialSelection(new List<Tag> { selected.Tag }, "auto", requested, selected, available);
 
+                var autoCandidates = AvailableMaterials(def, worldId, includeUnavailable: true);
                 return MaterialSelection.Invalid(
-                    "No available build material in current world inventory",
-                    requested,
-                    available,
-                    AvailableMaterials(def, worldId, includeUnavailable: true).Take(20).ToList());
+                    McpLocalization.Get(autoCandidates.Any(item => item.Inventory?.State == "unknown")
+                        ? "build_materials.inventory_unknown" : "build_materials.none_available"),
+                    requested, available, autoCandidates);
             }
 
             var requestedCategory = MaterialCategoryTags(def).FirstOrDefault(category => EqualsIgnoreCase(category.Name, requested));
@@ -56,16 +56,24 @@ namespace OniMcp.Tools
             if (match == null || !match.ValidForBuilding)
             {
                 return MaterialSelection.Invalid(
-                    $"Material '{requested}' is not valid for {def.PrefabID}",
+                    McpLocalization.Format("build_materials.invalid_for_building", null, requested, def.PrefabID),
                     requested,
                     available,
                     candidates);
             }
 
+            if (match.Inventory?.State == "unknown" && !IsFreeBuildContext())
+            {
+                var unknown = MaterialSelection.Invalid(McpLocalization.Get("build_materials.inventory_unknown"),
+                    requested, available, candidates);
+                unknown.Selected = match;
+                return unknown;
+            }
+
             if (match.AvailableKg <= 0f && !IsFreeBuildContext())
             {
                 var unavailable = MaterialSelection.Invalid(
-                    $"Material '{match.Tag.Name}' is valid for {def.PrefabID}, but none is currently available",
+                    McpLocalization.Format("build_materials.none_currently_available", null, match.Tag.Name, def.PrefabID),
                     requested,
                     available,
                     candidates);
@@ -84,12 +92,12 @@ namespace OniMcp.Tools
             List<BuildMaterialInfo> available)
         {
             if (elements == null || elements.Count == 0)
-                return MaterialSelection.Invalid("No material selected.", requested, available, new List<BuildMaterialInfo>());
+                return MaterialSelection.Invalid(McpLocalization.Get("build_materials.selected_none"), requested, available, new List<BuildMaterialInfo>());
 
             Tag primaryTag = elements[0];
             if (!primaryTag.IsValid || ElementLoader.GetElement(elements[0]) == null)
                 return MaterialSelection.Invalid(
-                    $"Material '{primaryTag.Name}' is not a valid build material.",
+                    McpLocalization.Format("build_materials.invalid_material", null, primaryTag.Name),
                     requested,
                     available,
                     (available ?? new List<BuildMaterialInfo>()).Take(20).ToList());
@@ -101,16 +109,18 @@ namespace OniMcp.Tools
         {
             var categories = MaterialCategoryTags(def).ToList();
             var candidates = CandidateMaterialTags(def, worldId)
-                .Where(tag => tag.IsValid)
+                .Where(tag => tag.IsValid && ElementLoader.GetElement(tag) != null)
                 .Distinct()
                 .Select(tag =>
                 {
                     var matches = categories.Where(category => MaterialMatchesCategory(tag, category)).ToList();
+                    var inventory = NativeMaterialInventoryReader.Read(worldId, tag);
                     return new BuildMaterialInfo
                     {
                         Tag = tag,
                         Name = tag.ProperNameStripLink(),
-                        AvailableKg = AvailableAmount(worldId, tag),
+                        AvailableKg = inventory.UiAvailableKg ?? float.NaN,
+                        Inventory = inventory,
                         ValidForBuilding = categories.Count == 0 || matches.Count > 0,
                         Categories = matches
                     };
@@ -273,32 +283,6 @@ namespace OniMcp.Tools
             return pickupable.GetMyWorldId();
         }
 
-        private static float AvailableAmount(int worldId, Tag tag)
-        {
-            if (!tag.IsValid || ClusterManager.Instance == null)
-                return 0f;
-            var world = ClusterManager.Instance.GetWorld(worldId >= 0 ? worldId : ClusterManager.Instance.activeWorldId);
-            if (world == null || world.worldInventory == null)
-                return 0f;
-
-            float amount = ToolUtil.SafeFloat(world.worldInventory.GetTotalAmount(tag, includeRelatedWorlds: true));
-            foreach (var pickupable in Components.Pickupables.Items)
-            {
-                if (pickupable == null || pickupable.KPrefabID == null)
-                    continue;
-                if (pickupable.storage != null || pickupable.KPrefabID.HasTag(GameTags.Stored))
-                    continue;
-                if (!pickupable.KPrefabID.HasTag(tag))
-                    continue;
-                if (PickupableWorldId(pickupable) != world.id)
-                    continue;
-
-                if (pickupable.PrimaryElement != null)
-                    amount += ToolUtil.SafeFloat(pickupable.PrimaryElement.Mass);
-            }
-            return amount;
-        }
-
         private static bool IsFreeBuildContext()
         {
             if (WorldEditorTools.EnforceNormalMaterialRules)
@@ -382,19 +366,24 @@ namespace OniMcp.Tools
             public Tag Tag;
             public string Name;
             public float AvailableKg;
+            public MaterialInventoryObservation Inventory;
             public bool ValidForBuilding;
             public List<Tag> Categories = new List<Tag>();
 
-            public Dictionary<string, object> ToDictionary()
+            public Dictionary<string, object> ToDictionary(bool includeInventory = false)
             {
-                return new Dictionary<string, object>
+                var result = new Dictionary<string, object>
                 {
                     ["tag"] = Tag.Name,
                     ["name"] = Name,
-                    ["availableKg"] = Math.Round(ToolUtil.SafeFloat(AvailableKg), 3),
+                    ["availableKg"] = MaterialInventoryObservation.JsonMass(AvailableKg),
                     ["validForBuilding"] = ValidForBuilding,
+                    ["inventoryState"] = Inventory?.State ?? "not_observed",
+                    ["inventoryReasonCode"] = Inventory?.ReasonCode,
                     ["categories"] = Categories.Select(tag => tag.Name).OrderBy(name => name).ToList()
                 };
+                if (includeInventory) result["nativeInventory"] = Inventory?.ToDictionary();
+                return result;
             }
         }
 
@@ -454,7 +443,7 @@ namespace OniMcp.Tools
             {
                 return value == null ? null : new BuildMaterialInfo
                 {
-                    Tag = value.Tag, Name = value.Name, AvailableKg = value.AvailableKg,
+                    Tag = value.Tag, Name = value.Name, AvailableKg = value.AvailableKg, Inventory = value.Inventory,
                     ValidForBuilding = value.ValidForBuilding, Categories = new List<Tag>(value.Categories)
                 };
             }
@@ -465,6 +454,8 @@ namespace OniMcp.Tools
                 var quantity = MaterialQuantityDiagnostics.Evaluate(RequiredKg, selectedAvailableKg, IsFreeBuildContext());
                 bool hasRequiredKg = quantity.RequiredKg.HasValue;
                 object satisfied = quantity.Satisfied;
+                var inventory = Selected?.Inventory ?? Candidates.FirstOrDefault(item => item.Inventory?.State == "unknown")?.Inventory
+                    ?? Candidates.FirstOrDefault()?.Inventory ?? Available.FirstOrDefault()?.Inventory;
 
                 return new Dictionary<string, object>
                 {
@@ -473,30 +464,32 @@ namespace OniMcp.Tools
                     ["requested"] = Requested,
                     ["requirementKnown"] = hasRequiredKg,
                     ["requirementSource"] = hasRequiredKg ? "BuildingDef.Mass[0]" : null,
-                    ["quantityScope"] = "single_material_slot; multi-slot requirements are not evaluated",
+                    ["quantityScope"] = McpLocalization.Get("build_materials.quantity_scope"),
                     ["requiredKg"] = hasRequiredKg ? (object)Math.Round(quantity.RequiredKg.Value, 3) : null,
                     ["selectedAvailableKg"] = quantity.AvailableKg.HasValue ? (object)Math.Round(quantity.AvailableKg.Value, 3) : null,
                     ["satisfied"] = satisfied,
                     ["shortageKg"] = quantity.ShortageKg.HasValue ? (object)Math.Round(quantity.ShortageKg.Value, 3) : null,
                     ["quantityStatus"] = quantity.Status,
-                    ["inventoryScope"] = "world inventory including related worlds and loose items; reservations and delivery reachability not evaluated",
-                    ["selected"] = Selected != null ? Selected.ToDictionary() : null,
+                    ["inventoryScope"] = McpLocalization.Get("build_materials.inventory_scope"),
+                    ["inventoryState"] = inventory?.State ?? "not_observed",
+                    ["inventoryReasonCode"] = inventory?.ReasonCode,
+                    ["selected"] = Selected != null ? Selected.ToDictionary(includeInventory: true) : null,
                     ["elements"] = Elements.Select(tag => tag.Name).ToList(),
                     ["availableMaterials"] = Available.Take(20).Select(item => item.ToDictionary()).ToList(),
                     ["candidateMaterials"] = Candidates.Take(20).Select(item => item.ToDictionary()).ToList(),
                     ["fallbackMaterial"] = Available.Count > 0 ? Available[0].Tag.Name : null,
                     ["next"] = Valid
                         ? quantity.Status == "insufficient"
-                            ? "Material is compatible, but stock is insufficient. A blueprint can be queued; acquire more material before completion."
+                            ? McpLocalization.Get("build_materials.next_insufficient")
                             : quantity.Status == "unknown"
-                                ? "Material is compatible; required quantity or stock is unknown. Do not assume sufficient material."
+                                ? McpLocalization.Get("build_materials.next_unknown")
                                 : quantity.Status == "not_required"
-                                    ? "Material stock is not required in free-build mode."
-                                    : "Material is compatible and inventory quantity is sufficient; delivery reachability is not evaluated."
+                                    ? McpLocalization.Get("build_materials.next_not_required")
+                                    : McpLocalization.Get("build_materials.next_sufficient")
                         : Available.Count > 0
-                            ? "Retry with material=auto or material=" + Available[0].Tag.Name + " if exact material is not required."
-                            : "No usable material is currently available; inspect inventory/material candidates before retrying.",
-                    ["suggestion"] = Available.Count > 0 ? "Use material=auto or material=" + Available[0].Tag.Name : "No available material; inspect read_control domain=resources action=inventory/building_control domain=planning action=materials",
+                            ? McpLocalization.Format("build_materials.retry_with_auto", null, Available[0].Tag.Name)
+                            : McpLocalization.Get("build_materials.inspect_candidates"),
+                    ["suggestion"] = Available.Count > 0 ? McpLocalization.Format("build_materials.suggest_material", null, Available[0].Tag.Name) : McpLocalization.Get("build_materials.suggest_inspect"),
                     ["error"] = Error
                 };
             }

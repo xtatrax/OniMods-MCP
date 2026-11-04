@@ -17,7 +17,7 @@ internal static class Program
     private static readonly JArray countBudgets = new JArray();
     private static readonly string[] OutputKeys = {
         "valid", "mode", "requested", "requirementKnown", "requirementSource", "quantityScope", "requiredKg", "selectedAvailableKg",
-        "satisfied", "shortageKg", "quantityStatus", "inventoryScope", "selected", "elements", "availableMaterials", "candidateMaterials",
+        "satisfied", "shortageKg", "quantityStatus", "inventoryScope", "inventoryState", "inventoryReasonCode", "selected", "elements", "availableMaterials", "candidateMaterials",
         "fallbackMaterial", "next", "suggestion", "error"
     };
 
@@ -29,6 +29,9 @@ internal static class Program
         CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
         try
         {
+            if(args.Length>0&&args[0]=="inventory-units-only"){MaterialInventoryRegression.RunUnitsOnly();return 0;}
+            MaterialInventoryRegression.Run();
+            if(args.Length>0&&args[0]=="inventory-only")return 0;
             FacadeReadinessRegression.Run();
             Cases();
             PreviewMaterialContextCases.Run();
@@ -98,7 +101,7 @@ internal static class Program
                 r => Success(r, "auto", requested, "MatA"), 1);
         }
         Run("auto_no_inventory", () => { var d = Base(); Boundary.SetAllMasses(0f); return d; }, null, r => {
-            Invalid(r, "No available build material in current world inventory");
+            Invalid(r, "No available build material in the native material-selection inventory.");
             Sequence(r, "availableMaterials", "tag"); Sequence(r, "candidateMaterials", "tag", "MatA", "MatB", "MatZ");
         }, 2);
         Run("category_success", Base, "Metal", r => Success(r, "category:Metal", "Metal", "MatA"), 1);
@@ -115,7 +118,7 @@ internal static class Program
         }, 1);
         Run("normal_rules_override_sandbox", () => {
             var d = Base(); Boundary.SetAllMasses(0f); Game.Instance.SandboxModeActive = true; WorldEditorTools.EnforceNormalMaterialRules = true; return d;
-        }, null, r => Invalid(r, "No available build material in current world inventory"), 2);
+        }, null, r => Invalid(r, "No available build material in the native material-selection inventory."), 2);
         Run("debug_auto_defaults", () => {
             var d = Base(); Boundary.SetAllMasses(0f); DebugHandler.InstantBuildMode = true; return d;
         }, "default", r => { Equal(r["valid"], true, "debug auto valid"); Equal(r["mode"], "default_no_inventory_in_debug", "debug default mode"); }, 1);
@@ -125,7 +128,7 @@ internal static class Program
         Run("free_empty_defaults", () => { Game.Instance.SandboxModeActive = true; return EmptyDefinition(); }, null,
             r => Invalid(r, "No material selected."));
         Run("normal_empty_catalog_auto", EmptyDefinition, null, r => {
-            Invalid(r, "No available build material in current world inventory"); Sequence(r, "candidateMaterials", "tag");
+            Invalid(r, "No available build material in the native material-selection inventory."); Sequence(r, "candidateMaterials", "tag");
             Check(r["fallbackMaterial"] == null && r["selected"] == null, "empty auto catalog does not invent fallback or selected");
         });
         Run("normal_empty_catalog_explicit", EmptyDefinition, "Unknown", r => {
@@ -137,9 +140,9 @@ internal static class Program
             ClusterManager.Instance.Worlds[0].worldInventory.Amounts["Ghost"] = 20f;
             var kpid = new KPrefabID { PrefabTag = new Tag("Ghost") }; kpid.Tags.Add(new Tag("Metal"));
             Assets.Prefabs[new Tag("Ghost")] = new UnityEngine.GameObject().Add(kpid); return d;
-        }, "Ghost", r => Invalid(r, "Material 'Ghost' is not a valid build material."));
-        Run("cluster_unavailable_remains_zero_stock", () => { var d = Base(); ClusterManager.Instance = null; return d; }, "MatA",
-            r => Invalid(r, "Material 'MatA' is valid for FixtureBuilding, but none is currently available"));
+        }, "Ghost", r => Invalid(r, "Material 'Ghost' is not valid for FixtureBuilding"));
+        Run("cluster_unavailable_stays_unknown", () => { var d = Base(); ClusterManager.Instance = null; return d; }, "MatA",
+            r => { Invalid(r, McpLocalization.Get("build_materials.inventory_unknown")); Check(r["selectedAvailableKg"]==null && r["satisfied"]==null,"missing inventory stays unknown"); });
         Run("multiple_slots_stay_unknown", () => { var d = Base(); d.Mass = new[] { 100f, 200f }; return d; }, "MatA", r => {
             Success(r, "explicit", "MatA", "MatA"); Equal(r["requirementKnown"], false, "multi-slot requirement is not asserted");
             Check(r["requiredKg"] == null && r["requirementSource"] == null && r["satisfied"] == null && r["shortageKg"] == null, "multi-slot nulls kept");
@@ -154,11 +157,11 @@ internal static class Program
         Run("empty_mass_stays_unknown", () => { var d = Base(); d.Mass = new float[0]; return d; }, "MatA", r => {
             Success(r, "explicit", "MatA", "MatA"); Check(r["requiredKg"] == null, "empty mass is unknown"); Equal(r["quantityStatus"], "unknown", "empty mass status");
         }, 2);
-        Run("existing_world_and_loose_amount_semantics", () => {
+        Run("native_total_already_includes_loose", () => {
             var d = Base(); ClusterManager.Instance.Worlds[0].worldInventory.Amounts["MatA"] = 10f;
             Boundary.Pickup("MatA", 7f, false, false, 2); Boundary.Pickup("MatA", 11f, true, false, 2);
             Boundary.Pickup("MatA", 13f, false, true, 2); Boundary.Pickup("MatA", 17f, false, false, 3); return d;
-        }, "MatA", r => { Success(r, "explicit", "MatA", "MatA"); Equal(Selected(r)["availableKg"], 17d, "world/storage filtering and existing extra loose amount kept"); });
+        }, "MatA", r => { Success(r, "explicit", "MatA", "MatA"); Equal(Selected(r)["availableKg"], 10d, "native total is not increased by a second loose scan"); });
         Run("ineligible_category_not_returned", () => {
             var d = Base(); Boundary.AddMaterial(d, "GasOnly", "GasOnly", 500f, "Gas");
             DiscoveredResources.Instance.Existing["Metal"] = new List<Tag> { new Tag("GasOnly") }; return d;
@@ -199,9 +202,9 @@ internal static class Program
         Inspect(name, def, request, assertion);
         if (expectedLists.HasValue)
             countBudgets.Add(new JObject { ["case"] = name, ["expectedLists"] = expectedLists.Value,
-                ["inventoryReads"] = Boundary.InventoryReads, ["expectedInventoryReads"] = expectedLists.Value * 3,
+                ["inventoryReads"] = Boundary.InventoryReads, ["expectedInventoryReads"] = expectedLists.Value * 9,
                 ["discoveryReads"] = Boundary.DiscoveryReads, ["expectedDiscoveryReads"] = expectedLists.Value,
-                ["pickupEnumerations"] = Boundary.PickupEnumerations, ["expectedPickupEnumerations"] = expectedLists.Value * 4 });
+                ["pickupEnumerations"] = Boundary.PickupEnumerations, ["expectedPickupEnumerations"] = expectedLists.Value });
     }
     private static void Inspect(string name, BuildingDef def, string request, Action<Dictionary<string, object>> assertion)
     {

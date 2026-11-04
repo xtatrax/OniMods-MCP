@@ -16,7 +16,7 @@ internal static class ActualMaterialRegression
   var after=BuildPlanningTools.HostMaterialJson(value);Check(after["elements"][0].ToString()=="Cuprite"&&(float)after["selectedAvailableKg"]==100f,"real material clone keeps source lists and selected values isolated");
   var another=BuildPlanningTools.HostClone(value);Check((float)BuildPlanningTools.HostMaterialJson(another)["selectedAvailableKg"]==100f,"later snapshot retains captured stock");
   var stock=ClusterManager.Instance.World.worldInventory;stock.Reads=0;BuildPlanningTools.HostCachedMaterial(def);
-  Check(stock.Reads==1,"64 context selections invoke real native inventory read once");
+  Check(stock.Reads==3,"64 context selections capture the three native quantity views once");
   var selected=value.GetType().GetField("Selected").GetValue(value);selected.GetType().GetField("AvailableKg").SetValue(selected,float.NaN);
   var unknown=BuildPlanningTools.HostClone(value);Check(BuildPlanningTools.HostMaterialJson(unknown)["selectedAvailableKg"].Type==Newtonsoft.Json.Linq.JTokenType.Null,"unknown stock remains explicit null through real snapshot and quantity serializer");
   Check(BuildPlanningTools.HostMaterialJson(unknown)["quantityStatus"].ToString()=="unknown","unknown stock is not fabricated as sufficient");

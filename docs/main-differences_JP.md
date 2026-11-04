@@ -999,3 +999,12 @@ single/tree/flatと独立Storageの書込入口で、dryRun=trueをunsupported_p
 ## 日報名の二重解決と独自エラーの言語
 
 本体で解決済みの日報表示名を再検索せず返し、MISSINGの混入を避ける。数値・単位・context・notes・安定typeと選択条件を維持し、未初期化／該当日なしの独自エラー2件をPO4/runtime3へ分離する。公開自身のCore17群・新73assertions、旧公開全文のコンパイル後の意味的負対照、PO／正式source検査、build.83の0警告0エラーと独立DLLの停止実機を確認した。3言語＋autoで本体の解決済み名、非name全文一致と独自エラーを照合し、全設定・保護データ・停止時計／速度／視野を保持した。 [契約と確認境界](daily-report-localization_JP.md)を参照する。個別のセーブ・ログ・設定や開発履歴は含めない。
+
+
+## 追補: 本体素材UIに合わせた在庫量
+
+建材候補の量を本体素材UIの `WorldInventory.GetAmount(tag,true)` に統一し、既に床置きを含むnative総量への再加算を廃止した。自world総量・native建設需要・差引後量・関連world量と、未評価の配送可能量を分けて返す。
+
+未集計／取得不能はunknown/nullで保持するため、既存の `availableKg` も取得状態によってnullを返す。非元素アイテムの個数をkgとして表示しない。native建設需要は個別Fetch予約ではなく、多素材・実配送・連続施工の全引当は未対応として残す。
+
+公開ソース自身の関連4host、新量338条件／32ケース、2つの旧コード意味的負対照、PO16件、正式source検査と0警告0エラーの本体参照build.84を確認。公開固有IDの停止実機では冷ロード欠測・集計後量と実物一覧・既知0・auto／検索・配送量未評価を独立に照合した。詳細は[建材量の契約と検証範囲](build-material-quantity_JP.md)。個別の実機記録と設定、開発履歴は含めない。

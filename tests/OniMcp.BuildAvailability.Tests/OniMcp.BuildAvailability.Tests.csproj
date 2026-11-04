@@ -22,4 +22,5 @@
     <EmbeddedResource Include="../../mods/OniMcp/Localization/Catalogs/*.json" LogicalName="OniMcp.Localization.Catalogs.%(Filename)%(Extension)" WithCulture="false" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
+<ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialInventoryObservation.cs" Link="Source/MaterialInventoryObservation.cs" /></ItemGroup>
 </Project>

@@ -5,6 +5,14 @@ namespace OniMcp.Tools
 {
     public static partial class BuildPlanningTools
     {
+        internal static Dictionary<string, object> HostMaterialListing(BuildingDef def, bool includeUnavailable, int limit = 50)
+        {
+#if LEGACY_MATERIAL_COMPARISON
+            throw new InvalidOperationException("Listing is outside the frozen legacy quantity comparison");
+#else
+            return BuildMaterialListing(def, 0, includeUnavailable, limit);
+#endif
+        }
         // The production private selection, requirement reader and projection run unchanged.
         // This is the same requirement assignment as TryPlanOne, not a planner test.
         internal static Dictionary<string, object> HostSelect(BuildingDef def, string material, int worldId)

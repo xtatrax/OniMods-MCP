@@ -80,7 +80,10 @@ internal static class Boundary
     {
         // Reads fixture backing stores directly; never calls the counted getter/enumerator.
         var worlds = ClusterManager.Instance == null ? null : ClusterManager.Instance.Worlds.OrderBy(p => p.Key).Select(p => new {
-            id = p.Key, amounts = p.Value.worldInventory == null ? null : p.Value.worldInventory.Amounts.OrderBy(a => a.Key).ToArray()
+            id = p.Key, parent = p.Value.ParentWorldId, amounts = p.Value.worldInventory == null ? null : p.Value.worldInventory.Amounts.OrderBy(a => a.Key).ToArray(),
+            readiness = p.Value.worldInventory == null ? (bool?)null : p.Value.worldInventory.HasValidCount,
+            demands = p.Value.materialNeeds == null ? null : p.Value.materialNeeds.OrderBy(a => a.Key.Name).ToArray(),
+            throws = p.Value.worldInventory != null && p.Value.worldInventory.ThrowOnRead
         }).ToArray();
         var items = Components.Pickupables.Items.Raw.Select(p => new {
             cell = p.cachedCell, world = p.World, stored = p.storage != null,
@@ -130,6 +133,7 @@ public struct Tag : IEquatable<Tag>
 public sealed class BuildingDef
 {
     public string PrefabID;
+    public string Name = "Fixture building";
     public string[] MaterialCategory, AvailableFacades;
     public float[] Mass;
     public readonly List<Tag> Defaults = new List<Tag>();
@@ -204,18 +208,44 @@ public static class Grid
 public sealed class WorldInventory
 {
     public readonly Dictionary<string, float> Amounts = new Dictionary<string, float>(StringComparer.Ordinal);
+    public bool HasValidCount = true;
+    public bool ThrowOnRead;
     public float GetTotalAmount(Tag tag, bool includeRelatedWorlds)
     {
         Boundary.InventoryReads++;
-        if (!includeRelatedWorlds) throw Boundary.Forbidden("unexpected inventory scope flag");
+        if (ThrowOnRead) throw new InvalidOperationException("native inventory fixture read failure");
+        // Installed native GetTotalAmount ignores this bool and returns the
+        // own-world cache, already including registered floor resources.
         float amount; return Amounts.TryGetValue(tag.Name, out amount) ? amount : 0f;
     }
+    public float GetAmount(Tag tag, bool includeRelatedWorlds)
+    {
+        Boundary.InventoryReads++;
+        if (ThrowOnRead) throw new InvalidOperationException("native inventory fixture read failure");
+        var owner = ClusterManager.Instance.Worlds.Values.Single(value => ReferenceEquals(value.worldInventory, this));
+        if (!includeRelatedWorlds) return Own(owner, tag);
+        return ClusterManager.Instance.Worlds.Values.Where(value => value.ParentWorldId == owner.ParentWorldId)
+            .Sum(value => Own(value, tag));
+    }
+    private static float Own(WorldContainer world, Tag tag)
+    {
+        float total, needs;
+        world.worldInventory.Amounts.TryGetValue(tag.Name, out total);
+        world.materialNeeds.TryGetValue(tag, out needs);
+        return Math.Max(total - needs, 0f);
+    }
 }
-public sealed class WorldContainer { public int id; public WorldInventory worldInventory; }
+public sealed class WorldContainer
+{
+    public int id, ParentWorldId;
+    public WorldInventory worldInventory;
+    public Dictionary<Tag, float> materialNeeds = new Dictionary<Tag, float>();
+}
 public sealed class ClusterManager
 {
     public static ClusterManager Instance;
     public int activeWorldId;
+    public IEnumerable<WorldContainer> WorldContainers { get { return Worlds.Values; } }
     public readonly Dictionary<int, WorldContainer> Worlds = new Dictionary<int, WorldContainer>();
     public WorldContainer GetWorld(int id) { WorldContainer world; return Worlds.TryGetValue(id, out world) ? world : null; }
 }

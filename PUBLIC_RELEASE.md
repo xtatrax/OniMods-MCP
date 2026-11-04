@@ -106,3 +106,12 @@ The host links the actual navigation factory; its eight shared parameter schemas
 ## Native daily report names
 
 Daily report names now retain the already-resolved native display text instead of looking it up again, while preserving identifiers, numeric values, units, contexts and notes. Only the two existing MCP-owned read errors use the independent MCP locale through PO4/runtime3. The public source passed its own 17 Core groups, 73 new report assertions, PO/source checks and a zero-warning, zero-error game-reference build. Its own deployed build passed paused three-language plus auto report/name/error comparisons, preserved non-name report data, and restored all settings while retaining the recorded paused state and protected data. See [the report contract and limits](docs/daily-report-localization_JP.md). Private runtime records and configuration are excluded.
+
+
+## Native construction material quantities
+
+Material quantities now use the same cached API as the native material selector, without adding loose resources a second time. Own-world totals, cached construction needs, related-world availability and unevaluated delivery quantities are reported separately. Unready or unavailable inventory remains unknown/null; non-element item counts are not labeled as kilograms.
+
+This public source passed its own four relevant host groups, 338 new quantity conditions, two semantic old-source negatives, PO checks and a zero-warning game-reference build. Its own public identity and settings passed cold-load missing-value checks and paused comparisons after a short normal advance, including physical-resource totals, known zero, auto/search results and unevaluated transport. Multi-slot requirements, per-object fetch reservations, actual delivery and full continuous-build allocation remain outside acceptance. See [the quantity contract and limits](docs/build-material-quantity_JP.md); private runtime records and development history are excluded.
+
+The original settings, mod selections, protected saves, shared-history file sets and paused save/view were restored. Camera configuration was preserved; restart cleared transient attention, while normal load/session seed updates were retained.

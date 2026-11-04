@@ -30,7 +30,7 @@ internal static class PreviewMaterialContextCases
         Check(after["elements"][0].ToString()=="Cuprite"&&(float)after["selectedAvailableKg"]==100f,"real clone isolates material list and selected amount");
         Check((float)BuildPlanningTools.HostContextMaterialJson(BuildPlanningTools.HostContextClone(original))["selectedAvailableKg"]==100f,"later material clone retains captured stock");
         Boundary.InventoryReads=0;BuildPlanningTools.HostContextCachedMaterials(def);
-        Check(Boundary.InventoryReads==1,"64 request-local selections read native inventory once");
+        Check(Boundary.InventoryReads==3,"64 request-local selections capture the three native quantity views once");
         selected=original.GetType().GetField("Selected").GetValue(original);selected.GetType().GetField("AvailableKg").SetValue(selected,float.NaN);
         var unknown=BuildPlanningTools.HostContextMaterialJson(BuildPlanningTools.HostContextClone(original));
         Check(unknown["selectedAvailableKg"].Type==JTokenType.Null,"production serializer retains explicit unknown selected stock");

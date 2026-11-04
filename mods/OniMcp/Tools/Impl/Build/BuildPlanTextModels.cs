@@ -321,7 +321,7 @@ namespace OniMcp.Tools
                     ["name"] = Name,
                     ["score"] = Score,
                     ["matched"] = Matched,
-                    ["availableKg"] = Math.Round(ToolUtil.SafeFloat(AvailableKg), 3),
+                    ["availableKg"] = MaterialInventoryObservation.JsonMass(AvailableKg),
                     ["validForBuilding"] = ValidForBuilding
                 };
             }

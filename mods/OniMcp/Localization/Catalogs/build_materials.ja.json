@@ -1,0 +1,18 @@
+{
+  "build_materials.none_available": "本体の素材選択在庫に利用可能な建材がありません。",
+  "build_materials.inventory_unknown": "本体の素材在庫は初期化中、または読み取れません。未取得の在庫を0として扱わないでください。",
+  "build_materials.invalid_for_building": "素材 '{0}' は {1} に適合しません",
+  "build_materials.none_currently_available": "素材 '{0}' は {1} に適合しますが、現在利用可能な在庫がありません",
+  "build_materials.selected_none": "素材が選択されていません。",
+  "build_materials.invalid_material": "素材 '{0}' は有効な建材ではありません。",
+  "build_materials.quantity_scope": "単一素材スロット。複数スロットの必要量は未評価です。",
+  "build_materials.inventory_scope": "同じ親を持つワールド間の本体素材選択量で、本体の建設需要を差し引いた値です。個別の運搬予約と配送は未評価です。",
+  "build_materials.next_insufficient": "素材は適合しますが、本体在庫が不足しています。設計図は予約できますが、完成までに素材の調達が必要です。",
+  "build_materials.next_unknown": "素材は適合しますが、必要量または本体在庫は未取得です。充足していると判断しないでください。",
+  "build_materials.next_not_required": "資材消費なしの建築モードでは、素材在庫は不要です。",
+  "build_materials.next_sufficient": "素材は適合し、本体の素材選択量は充足しています。この施工先への配送は未評価です。",
+  "build_materials.retry_with_auto": "素材を厳密に指定する必要がなければ、material=auto または material={0} で再試行してください。",
+  "build_materials.inspect_candidates": "現在利用できる素材がありません。再試行前に在庫と素材候補を確認してください。",
+  "build_materials.suggest_material": "material=auto または material={0} を使用してください",
+  "build_materials.suggest_inspect": "再試行前に world_editor /active/resources/inventory.oni または building_control domain=planning action=materials で確認してください。"
+}

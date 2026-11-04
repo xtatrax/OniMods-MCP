@@ -7,7 +7,9 @@
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors><NoWarn>CS0649</NoWarn>
     <DefineConstants Condition="'$(OldFacadeComparison)' == 'true'">$(DefineConstants);OLD_FACADE_COMPARISON</DefineConstants>
+    <DefineConstants Condition="'$(LegacyMaterialComparison)' == 'true'">$(DefineConstants);LEGACY_MATERIAL_COMPARISON</DefineConstants>
     <BuildMaterialsSource Condition="'$(BuildMaterialsSource)' == ''">$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/BuildPlanningMaterials.cs</BuildMaterialsSource>
+    <NativeMaterialInventoryReaderSource Condition="'$(NativeMaterialInventoryReaderSource)' == ''">$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/NativeMaterialInventoryReader.cs</NativeMaterialInventoryReaderSource>
     <MaterialQuantitySource>$(MSBuildThisFileDirectory)../../mods/OniMcp/Tools/Impl/Build/MaterialQuantityDiagnostics.cs</MaterialQuantitySource>
     <McpJsonSource>$(MSBuildThisFileDirectory)../../mods/OniMcp/Support/McpJsonUtil.cs</McpJsonSource>
   </PropertyGroup>
@@ -24,4 +26,6 @@
     <AssemblyMetadata Include="MaterialQuantitySource" Value="$(MaterialQuantitySource)" />
     <AssemblyMetadata Include="McpJsonSource" Value="$(McpJsonSource)" />
   </ItemGroup>
+<ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Build/MaterialInventoryObservation.cs" Link="Source/MaterialInventoryObservation.cs" /><Compile Include="$(NativeMaterialInventoryReaderSource)" Link="Source/NativeMaterialInventoryReader.cs" /></ItemGroup>
+<ItemGroup><Compile Include="../../mods/OniMcp/Tools/Impl/Build/BuildPlanningMaterialList.cs" Link="Source/BuildPlanningMaterialList.cs" Condition="'$(LegacyMaterialComparison)' != 'true'" /></ItemGroup>
 </Project>

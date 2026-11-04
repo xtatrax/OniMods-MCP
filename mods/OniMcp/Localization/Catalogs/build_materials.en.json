@@ -1,0 +1,18 @@
+{
+  "build_materials.none_available": "No available build material in the native material-selection inventory.",
+  "build_materials.inventory_unknown": "Native material inventory is not ready or could not be read. Do not treat missing stock as zero.",
+  "build_materials.invalid_for_building": "Material '{0}' is not valid for {1}",
+  "build_materials.none_currently_available": "Material '{0}' is valid for {1}, but none is currently available",
+  "build_materials.selected_none": "No material selected.",
+  "build_materials.invalid_material": "Material '{0}' is not a valid build material.",
+  "build_materials.quantity_scope": "Single material slot; requirements for multiple slots are not evaluated.",
+  "build_materials.inventory_scope": "Native material-selection quantity across worlds with the same parent, after native construction demand; individual fetch reservations and delivery are not evaluated.",
+  "build_materials.next_insufficient": "Material is compatible, but native stock is insufficient. A blueprint can be queued; acquire more material before completion.",
+  "build_materials.next_unknown": "Material is compatible; required quantity or native stock is unknown. Do not assume sufficient material.",
+  "build_materials.next_not_required": "Material stock is not required in free-build mode.",
+  "build_materials.next_sufficient": "Material is compatible and the native material-selection quantity is sufficient; delivery to this site is not evaluated.",
+  "build_materials.retry_with_auto": "Retry with material=auto or material={0} if exact material is not required.",
+  "build_materials.inspect_candidates": "No usable material is currently available; inspect inventory and material candidates before retrying.",
+  "build_materials.suggest_material": "Use material=auto or material={0}",
+  "build_materials.suggest_inspect": "Inspect world_editor /active/resources/inventory.oni or building_control domain=planning action=materials before retrying."
+}

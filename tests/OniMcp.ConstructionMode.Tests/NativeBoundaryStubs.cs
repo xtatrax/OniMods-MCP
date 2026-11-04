@@ -61,9 +61,9 @@ public static class Assets
     public static BuildingDef GetBuildingDef(string id)
     { return MissingLookup ? null : BuildingDefs.FirstOrDefault(d => d != null && string.Equals(d.PrefabID, id, StringComparison.OrdinalIgnoreCase)); }
 }
-public class ClusterManager { public static ClusterManager Instance; public int activeWorldId; public WorldContainer World; public WorldContainer GetWorld(int id){return World;} }
-public class WorldContainer {public int id;public WorldInventory worldInventory;}
-public class WorldInventory {public float NativeAmount=100; public int Reads;public float GetTotalAmount(Tag tag,bool includeRelatedWorlds){Reads++;return NativeAmount;}}
+public class ClusterManager { public static ClusterManager Instance; public int activeWorldId; public WorldContainer World; public WorldContainer GetWorld(int id){return World;} public IEnumerable<WorldContainer> WorldContainers {get {return new[]{World};}} }
+public class WorldContainer {public int id,ParentWorldId;public WorldInventory worldInventory;public Dictionary<Tag,float> materialNeeds=new Dictionary<Tag,float>();}
+public class WorldInventory {public bool HasValidCount=true; public float NativeAmount=100; public int Reads;public float GetTotalAmount(Tag tag,bool includeRelatedWorlds){Reads++;return NativeAmount;} public float GetAmount(Tag tag,bool includeRelatedWorlds){Reads++;return NativeAmount;}}
 public class Game { public static Game Instance; public bool SandboxModeActive; }
 public static class DebugHandler {
  private static bool instant;

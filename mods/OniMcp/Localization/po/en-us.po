@@ -2211,3 +2211,99 @@ msgstr "ReportManager not initialized"
 msgctxt "OniMcp.MCP.COLONY_REPORT.ERROR.NOT_FOUND"
 msgid "Colony report not found"
 msgstr "Colony report not found"
+
+#. Runtime JSON key: build_materials.none_available
+#. Runtime zh-Hans msgstr: "本体材料选择库存中没有可用建材。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.NONE_AVAILABLE"
+msgid "No available build material in the native material-selection inventory."
+msgstr "No available build material in the native material-selection inventory."
+
+#. Runtime JSON key: build_materials.inventory_unknown
+#. Runtime zh-Hans msgstr: "本体材料库存尚未就绪或无法读取。不要将未取得的库存视为0。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.INVENTORY_UNKNOWN"
+msgid "Native material inventory is not ready or could not be read. Do not treat missing stock as zero."
+msgstr "Native material inventory is not ready or could not be read. Do not treat missing stock as zero."
+
+#. Runtime JSON key: build_materials.invalid_for_building
+#. Runtime zh-Hans msgstr: "材料 '{0}' 不适用于 {1}"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.INVALID_FOR_BUILDING"
+msgid "Material '{0}' is not valid for {1}"
+msgstr "Material '{0}' is not valid for {1}"
+
+#. Runtime JSON key: build_materials.none_currently_available
+#. Runtime zh-Hans msgstr: "材料 '{0}' 适用于 {1}，但当前没有可用库存"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.NONE_CURRENTLY_AVAILABLE"
+msgid "Material '{0}' is valid for {1}, but none is currently available"
+msgstr "Material '{0}' is valid for {1}, but none is currently available"
+
+#. Runtime JSON key: build_materials.selected_none
+#. Runtime zh-Hans msgstr: "未选择材料。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.SELECTED_NONE"
+msgid "No material selected."
+msgstr "No material selected."
+
+#. Runtime JSON key: build_materials.invalid_material
+#. Runtime zh-Hans msgstr: "材料 '{0}' 不是有效建材。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.INVALID_MATERIAL"
+msgid "Material '{0}' is not a valid build material."
+msgstr "Material '{0}' is not a valid build material."
+
+#. Runtime JSON key: build_materials.quantity_scope
+#. Runtime zh-Hans msgstr: "单一材料槽位；未评估多个槽位的需求量。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.QUANTITY_SCOPE"
+msgid "Single material slot; requirements for multiple slots are not evaluated."
+msgstr "Single material slot; requirements for multiple slots are not evaluated."
+
+#. Runtime JSON key: build_materials.inventory_scope
+#. Runtime zh-Hans msgstr: "同一父世界范围内、本体材料选择界面扣除建造需求后的数量；未评估单个搬运预约和配送。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.INVENTORY_SCOPE"
+msgid "Native material-selection quantity across worlds with the same parent, after native construction demand; individual fetch reservations and delivery are not evaluated."
+msgstr "Native material-selection quantity across worlds with the same parent, after native construction demand; individual fetch reservations and delivery are not evaluated."
+
+#. Runtime JSON key: build_materials.next_insufficient
+#. Runtime zh-Hans msgstr: "材料适用，但本体库存不足。可以安排蓝图；完工前需要取得更多材料。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.NEXT_INSUFFICIENT"
+msgid "Material is compatible, but native stock is insufficient. A blueprint can be queued; acquire more material before completion."
+msgstr "Material is compatible, but native stock is insufficient. A blueprint can be queued; acquire more material before completion."
+
+#. Runtime JSON key: build_materials.next_unknown
+#. Runtime zh-Hans msgstr: "材料适用；需求量或本体库存未知。不要认定材料充足。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.NEXT_UNKNOWN"
+msgid "Material is compatible; required quantity or native stock is unknown. Do not assume sufficient material."
+msgstr "Material is compatible; required quantity or native stock is unknown. Do not assume sufficient material."
+
+#. Runtime JSON key: build_materials.next_not_required
+#. Runtime zh-Hans msgstr: "自由建造模式不需要材料库存。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.NEXT_NOT_REQUIRED"
+msgid "Material stock is not required in free-build mode."
+msgstr "Material stock is not required in free-build mode."
+
+#. Runtime JSON key: build_materials.next_sufficient
+#. Runtime zh-Hans msgstr: "材料适用且本体材料选择数量充足；尚未评估向此施工点配送。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.NEXT_SUFFICIENT"
+msgid "Material is compatible and the native material-selection quantity is sufficient; delivery to this site is not evaluated."
+msgstr "Material is compatible and the native material-selection quantity is sufficient; delivery to this site is not evaluated."
+
+#. Runtime JSON key: build_materials.retry_with_auto
+#. Runtime zh-Hans msgstr: "如果不要求精确材料，请使用 material=auto 或 material={0} 重试。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.RETRY_WITH_AUTO"
+msgid "Retry with material=auto or material={0} if exact material is not required."
+msgstr "Retry with material=auto or material={0} if exact material is not required."
+
+#. Runtime JSON key: build_materials.inspect_candidates
+#. Runtime zh-Hans msgstr: "当前没有可用材料；重试前请检查库存和材料候选。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.INSPECT_CANDIDATES"
+msgid "No usable material is currently available; inspect inventory and material candidates before retrying."
+msgstr "No usable material is currently available; inspect inventory and material candidates before retrying."
+
+#. Runtime JSON key: build_materials.suggest_material
+#. Runtime zh-Hans msgstr: "请使用 material=auto 或 material={0}"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.SUGGEST_MATERIAL"
+msgid "Use material=auto or material={0}"
+msgstr "Use material=auto or material={0}"
+
+#. Runtime JSON key: build_materials.suggest_inspect
+#. Runtime zh-Hans msgstr: "重试前请通过 world_editor /active/resources/inventory.oni 或 building_control domain=planning action=materials 检查。"
+msgctxt "OniMcp.MCP.BUILD_MATERIALS.SUGGEST_INSPECT"
+msgid "Inspect world_editor /active/resources/inventory.oni or building_control domain=planning action=materials before retrying."
+msgstr "Inspect world_editor /active/resources/inventory.oni or building_control domain=planning action=materials before retrying."

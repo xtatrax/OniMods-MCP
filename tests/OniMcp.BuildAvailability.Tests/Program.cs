@@ -431,6 +431,7 @@ internal static class Program
         McpLocalization.LanguageProvider = () => "en";
         if(args.Length>0&&args[0]=="category") {PassiveReaderCases.Category();return;}
         if(args.Length>0&&args[0]=="parent") {PassiveReaderCases.MissingParent();return;}
+        MaterialCandidateQuantityRegression.Run();
         PassiveReaderCases.Run();
         AvailabilityGateCases();
         NativeUiPoiCases(); ReaderCases(); CandidateCases(); CatalogCases(); LocalizationCases();
