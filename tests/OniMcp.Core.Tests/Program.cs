@@ -30,7 +30,8 @@ internal static class Program
         Run("resource errors return valid JSON content", ResourceErrors);
         Run("batch array item metadata survives projection and detached snapshots", CoreBatchSchemaRegression.Run);
         Run("read, write and alias dispatch preserve business and guidance blocks", ToolResultGuidanceBoundary);
-        Console.WriteLine(failures == 0 ? "All 16 core regression groups passed." : failures + " regression groups failed.");
+        Run("daily report names preserve native text and MCP errors use their own locale", ReportLocalizationRegression.Run);
+        Console.WriteLine(failures == 0 ? "All 17 core regression groups passed." : failures + " regression groups failed.");
         return failures == 0 ? 0 : 1;
     }
 

@@ -2303,3 +2303,17 @@ msgstr "唯讀預製物規格：brief（預設）或full；在buildings/specs.on
 msgctxt "OniMcp.MCP.TOOLS.WORLD_EDITOR.PARAMETERS.FOODDETAIL"
 msgid "Food read output: summary (default), types, full."
 msgstr "食物讀取輸出：summary（預設）、types、full。"
+
+#. Runtime JSON key: colony_report.error.manager_not_initialized
+#. Runtime zh-Hans msgstr: "日报管理器尚未初始化。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.COLONY_REPORT.ERROR.MANAGER_NOT_INITIALIZED"
+msgid "ReportManager not initialized"
+msgstr "日報管理器尚未初始化。"
+
+#. Runtime JSON key: colony_report.error.not_found
+#. Runtime zh-Hans msgstr: "未找到殖民地日报。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.COLONY_REPORT.ERROR.NOT_FOUND"
+msgid "Colony report not found"
+msgstr "找不到殖民地日報。"

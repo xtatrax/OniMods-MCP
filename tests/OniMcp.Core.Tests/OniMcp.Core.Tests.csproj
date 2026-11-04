@@ -12,6 +12,7 @@
     <Nullable>disable</Nullable>
     <NavigationControlSource Condition="'$(NavigationControlSource)' == ''">../../mods/OniMcp/Tools/Entry/NavigationControlTools.cs</NavigationControlSource>
     <CoreEnglishDescriptionsSource Condition="'$(CoreEnglishDescriptionsSource)' == ''">../../mods/OniMcp/Tools/Entry/CoreToolEnglishDescriptions.cs</CoreEnglishDescriptionsSource>
+    <ColonyReportSource Condition="'$(ColonyReportSource)' == ''">../../mods/OniMcp/Tools/Impl/Colony/ColonyReportTools.cs</ColonyReportSource>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="obj/**/*.cs;bin/**/*.cs" />
@@ -24,6 +25,7 @@
     <Compile Include="../../mods/OniMcp/Tools/Core/*.cs" Link="Production/Tools/%(Filename)%(Extension)" />
     <Compile Include="$(NavigationControlSource)" Link="Production/NavigationControlTools.cs" />
     <Compile Include="$(CoreEnglishDescriptionsSource)" Link="Production/CoreToolEnglishDescriptions.cs" />
+    <Compile Include="$(ColonyReportSource)" Link="Production/ColonyReportTools.cs" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

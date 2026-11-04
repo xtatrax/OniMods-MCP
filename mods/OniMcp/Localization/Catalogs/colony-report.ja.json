@@ -1,0 +1,4 @@
+{
+  "colony_report.error.manager_not_initialized": "日報マネージャーが初期化されていません。",
+  "colony_report.error.not_found": "コロニーの日報が見つかりません。"
+}

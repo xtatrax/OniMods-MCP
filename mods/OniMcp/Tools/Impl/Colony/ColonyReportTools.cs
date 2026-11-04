@@ -70,7 +70,7 @@ namespace OniMcp.Tools
                 Handler = args =>
                 {
                     if (ReportManager.Instance == null)
-                        return CallToolResult.Error("ReportManager not initialized");
+                        return CallToolResult.Error(McpLocalization.Get("colony_report.error.manager_not_initialized"));
 
                     int? day = ToolUtil.GetInt(args, "day");
                     string which = (args["which"]?.ToString() ?? "latest").Trim().ToLowerInvariant();
@@ -82,7 +82,7 @@ namespace OniMcp.Tools
                     var manager = ReportManager.Instance;
                     var report = SelectReport(manager, day, which);
                     if (report == null)
-                        return CallToolResult.Error("Colony report not found");
+                        return CallToolResult.Error(McpLocalization.Get("colony_report.error.not_found"));
 
                     var entries = report.reportEntries ?? new List<ReportManager.ReportEntry>();
                     var resultEntries = entries
@@ -192,7 +192,7 @@ namespace OniMcp.Tools
             var result = new Dictionary<string, object>
             {
                 ["type"] = entry.reportType.ToString(),
-                ["name"] = hasGroup ? Localize(group.stringKey) : entry.reportType.ToString(),
+                ["name"] = hasGroup ? group.stringKey : entry.reportType.ToString(),
                 ["stringKey"] = hasGroup ? group.stringKey : null,
                 ["context"] = entry.context,
                 ["net"] = Round(entry.Net),

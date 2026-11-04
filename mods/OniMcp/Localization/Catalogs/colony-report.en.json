@@ -1,0 +1,4 @@
+{
+  "colony_report.error.manager_not_initialized": "ReportManager not initialized",
+  "colony_report.error.not_found": "Colony report not found"
+}

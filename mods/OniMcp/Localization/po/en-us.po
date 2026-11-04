@@ -2197,3 +2197,17 @@ msgstr "Readonly prefab specs: brief (default) or full; requires prefabId or que
 msgctxt "OniMcp.MCP.TOOLS.WORLD_EDITOR.PARAMETERS.FOODDETAIL"
 msgid "Food read output: summary (default), types, full."
 msgstr "Food read output: summary (default), types, full."
+
+#. Runtime JSON key: colony_report.error.manager_not_initialized
+#. Runtime zh-Hans msgstr: "日报管理器尚未初始化。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.COLONY_REPORT.ERROR.MANAGER_NOT_INITIALIZED"
+msgid "ReportManager not initialized"
+msgstr "ReportManager not initialized"
+
+#. Runtime JSON key: colony_report.error.not_found
+#. Runtime zh-Hans msgstr: "未找到殖民地日报。"
+#. zh-Hant is a provisional source sample; the existing zh-Hans runtime keeps its separate translation.
+msgctxt "OniMcp.MCP.COLONY_REPORT.ERROR.NOT_FOUND"
+msgid "Colony report not found"
+msgstr "Colony report not found"

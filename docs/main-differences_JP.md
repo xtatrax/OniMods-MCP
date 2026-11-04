@@ -994,3 +994,8 @@ single/tree/flatと独立Storageの書込入口で、dryRun=trueをunsupported_p
 公開ソース自身のCore host16群（追加metadata427条件・既存15群保持）、Python25回帰、正式source検査46カタログ群／298公開metadata／138埋込資源／35選定PO context／6runtime aliasを確認した。実NavigationファクトリとRegistryの要求時言語切替を使う一方、hostの共有8項目は純metadata fixtureでありowner factoryの実行へ一般化しない。旧英語上書き全文はコンパイル後にquery／limitの意味条件で失敗する。
 
 公開版自身の本体参照build.82は0警告0エラー。専用設定・公開識別子と配備DLLを確認した停止実機で、通常tools/listの7tool／必須task、3言語とautoの延べ1216説明と各カタログ、英語実応答の正式CLIを照合した。非説明schemaは同じ公開候補のautoを基準に4設定で一致し、変更前のaction／型保持は限定ソースレビューの根拠として分ける。本体の日本語設備・素材名を保持し、auto復帰後の全設定の意味的同一性、保護データとチェックポイント、停止時計・速度・視点の保持を確認した。全ローカライズ完成や画面描画の受入とは扱わない。[契約と確認境界](canonical-tool-metadata-localization_JP.md)を参照する。個別の実機記録・保存先・導入設定は含めない。
+
+
+## 日報名の二重解決と独自エラーの言語
+
+本体で解決済みの日報表示名を再検索せず返し、MISSINGの混入を避ける。数値・単位・context・notes・安定typeと選択条件を維持し、未初期化／該当日なしの独自エラー2件をPO4/runtime3へ分離する。公開自身のCore17群・新73assertions、旧公開全文のコンパイル後の意味的負対照、PO／正式source検査、build.83の0警告0エラーと独立DLLの停止実機を確認した。3言語＋autoで本体の解決済み名、非name全文一致と独自エラーを照合し、全設定・保護データ・停止時計／速度／視野を保持した。 [契約と確認境界](daily-report-localization_JP.md)を参照する。個別のセーブ・ログ・設定や開発履歴は含めない。
